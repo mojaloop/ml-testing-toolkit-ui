@@ -17,6 +17,7 @@
 */
 import React from "react";
 import socketIOClient from "socket.io-client";
+import autoBind from 'react-autobind'
 
 // reactstrap components
 import {
@@ -60,13 +61,111 @@ const getMessageTypeIcon = (messageType) => {
   return <i className={className}></i>
 }
 
+class TableRow extends React.Component {
+  constructor() {
+    super();
+    autoBind(this)
+    this.state = {
+      showAdditionalInfo: false,
+    };
+  }
+
+  toggle() {
+    console.log(this.state.showAdditionalInfo)
+    this.setState({
+      showAdditionalInfo: !this.state.showAdditionalInfo,
+    });
+  }
+
+  render() {
+    const log = this.props.log;
+    return (
+      <tr>
+      <th scope="row">
+        <Media className="align-items-center">
+          { getMessageTypeIcon(log.messageType) }
+          <Media>
+            <span className="mb-0 text-sm">
+              {log.logTime}
+            </span>
+          </Media>
+        </Media>
+      </th>
+      <td>
+        {log.additionalData
+          ? (
+              <div>
+                {log.message}
+                {this.state.showAdditionalInfo 
+                  ? (
+                    <div>
+                      <br />
+                      <div style={{ backgroundColor: '#1f4662', width: '500px', color: '#fff', fontSize: '12px' }}>
+                        <div style={{ backgroundColor: '#193549', width: '100%', padding: '5px 10px', fontFamily: 'monospace', color: '#ffc600' }} >
+                          <table width='100%' cellpadding='0' cellspacing='0'>
+                            <tr>
+                              <td><strong>Additional Info</strong></td>
+                              <td align='right'><strong onClick={this.toggle}>Close</strong></td>
+                            </tr>
+                          </table>
+                        </div>
+                        <pre style={{ display: 'block', width: '100%', height: '250px', padding: '10px 30px', margin: '0', overflow: 'scroll', color: '#ffffff' }}>
+                          {JSON.stringify(log.additionalData,null,2)}
+                        </pre>
+                      </div>
+                    </div>
+                  )
+                  : null
+                }
+              </div>
+            )
+          : log.message
+        }
+      </td>
+      <td>
+        <Badge color="" className="badge-dot mr-4">
+          <i className="bg-success" />
+          {log.verbosity}
+        </Badge>
+      </td>
+      <td className="text-right">
+      {log.additionalData
+          ? (       
+        <UncontrolledDropdown>
+          <DropdownToggle
+            className="btn-icon-only text-light"
+            href="#pablo"
+            role="button"
+            size="sm"
+            color=""
+            onClick={e => e.preventDefault()}
+          >
+            <i className="fas fa-ellipsis-v" />
+          </DropdownToggle>
+          <DropdownMenu className="dropdown-menu-arrow" right>
+            <DropdownItem
+              href="#pablo"
+              onClick={this.toggle}
+            >
+              View Additional Info
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
+        )
+        : ""
+      }
+      </td>
+      </tr>
+    );
+  }
+}
 
 class Tables extends React.Component {
   constructor() {
     super();
     this.state = {
       logs: [],
-      endpoint: "http://127.0.0.1:4444"
+      endpoint: "http://127.0.0.1:4444",
     };
   }
   componentDidMount() {
@@ -79,51 +178,13 @@ class Tables extends React.Component {
     });
   }
 
+
+
   render() {
     const { logs } = this.state;
     const logsRows = logs.map(log => {
       return (
-        <tr>
-          <th scope="row">
-            <Media className="align-items-center">
-              { getMessageTypeIcon(log.messageType) }
-              <Media>
-                <span className="mb-0 text-sm">
-                  {log.logTime}
-                </span>
-              </Media>
-            </Media>
-          </th>
-          <td>{log.message}</td>
-          <td>
-            <Badge color="" className="badge-dot mr-4">
-              <i className="bg-success" />
-              {log.verbosity}
-            </Badge>
-          </td>
-          <td className="text-right">
-            <UncontrolledDropdown>
-              <DropdownToggle
-                className="btn-icon-only text-light"
-                href="#pablo"
-                role="button"
-                size="sm"
-                color=""
-                onClick={e => e.preventDefault()}
-              >
-                <i className="fas fa-ellipsis-v" />
-              </DropdownToggle>
-              <DropdownMenu className="dropdown-menu-arrow" right>
-                <DropdownItem
-                  href="#pablo"
-                  onClick={e => e.preventDefault()}
-                >
-                  View Additional Info
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-          </td>
-        </tr>
+        <TableRow log={log} />
       );
     });
 
