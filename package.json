@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/vijayg10/ml-self-testing-toolkit-ui/issues"
   },
-  "homepage": "https://localhost:3000/ui/",
+  "homepage": "https://localhost:5050/ui/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

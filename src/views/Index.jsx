@@ -91,6 +91,15 @@ class TableRow extends React.Component {
           </Media>
         </Media>
       </th>
+      <th scope="row">
+        <Media className="align-items-center">
+          <Media>
+            <span className="mb-0 text-sm">
+              {log.uniqueId? log.uniqueId : ''}
+            </span>
+          </Media>
+        </Media>
+      </th>
       <td>
         {log.additionalData
           ? (
@@ -165,14 +174,14 @@ class Tables extends React.Component {
     super();
     this.state = {
       logs: [],
-      endpoint: "http://127.0.0.1:4444",
+      endpoint: "http://127.0.0.1:5050",
     };
   }
   componentDidMount() {
     const { endpoint } = this.state;
     const socket = socketIOClient(endpoint);
     socket.on("newLog", newLog => {
-      console.log('New log received')
+      console.log('New log received', newLog)
       const updatedLogs = this.state.logs.concat(newLog)
       this.setState({ logs: updatedLogs })
     });
@@ -204,6 +213,7 @@ class Tables extends React.Component {
                   <thead className="thead-light">
                     <tr>
                       <th scope="col">Time</th>
+                      <th scope="col">Unique ID</th>
                       <th scope="col">Message</th>
                       <th scope="col">Verbosity</th>
                       <th scope="col" />
