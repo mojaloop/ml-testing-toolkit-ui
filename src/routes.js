@@ -22,6 +22,8 @@ import Register from "views/examples/Register.jsx";
 import Login from "views/examples/Login.jsx";
 import Tables from "views/examples/Tables.jsx";
 import Icons from "views/examples/Icons.jsx";
+import RulesValidation from "views/rules/RulesValidation.jsx";
+import RulesCallback from "views/rules/RulesCallback.jsx";
 
 var routes = [
   {
@@ -29,6 +31,20 @@ var routes = [
     name: "Dashboard",
     icon: "ni ni-tv-2 text-primary",
     component: Index,
+    layout: "/admin"
+  },
+  {
+    path: "/rules_validation",
+    name: "Validation Rules",
+    icon: "ni ni-bullet-list-67 text-primary",
+    component: RulesValidation,
+    layout: "/admin"
+  },
+  {
+    path: "/rules_callback",
+    name: "Callback Rules",
+    icon: "ni ni-curved-next text-primary",
+    component: RulesCallback,
     layout: "/admin"
   },
   // {

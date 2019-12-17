@@ -18,6 +18,8 @@
 import React from "react";
 import socketIOClient from "socket.io-client";
 import autoBind from 'react-autobind'
+import { Grid, GridColumn as Column, GridDetailRow } from '@progress/kendo-react-grid';
+import '@progress/kendo-theme-default/dist/all.css'
 
 // reactstrap components
 import {
@@ -42,6 +44,32 @@ import {
 // core components
 import Header from "components/Headers/Header.jsx";
 
+import products from './products.json';
+class DetailComponent extends GridDetailRow {
+  render() {
+      const log = this.props.dataItem;
+      return (
+        <>
+        {log.additionalData
+          ? (
+              <div>
+                <br />
+                <div style={{ backgroundColor: '#1f4662', width: '100%', color: '#fff', fontSize: '12px' }}>
+                  <div style={{ backgroundColor: '#193549', width: '100%', fontFamily: 'monospace', color: '#ffc600' }} >
+                  </div>
+                  <pre style={{ display: 'block', width: '100%', margin: '0', overflow: 'scroll', color: '#ffffff' }}>
+                    {JSON.stringify(log.additionalData,null,2)}
+                  </pre>
+                </div>
+              </div>
+            )
+          : log.message
+        }
+        </>
+      );
+  }
+}
+
 const getMessageTypeIcon = (messageType) => {
   let icon_name
   switch(messageType) {
@@ -61,113 +89,6 @@ const getMessageTypeIcon = (messageType) => {
   return <i className={className}></i>
 }
 
-class TableRow extends React.Component {
-  constructor() {
-    super();
-    autoBind(this)
-    this.state = {
-      showAdditionalInfo: false,
-    };
-  }
-
-  toggle() {
-    console.log(this.state.showAdditionalInfo)
-    this.setState({
-      showAdditionalInfo: !this.state.showAdditionalInfo,
-    });
-  }
-
-  render() {
-    const log = this.props.log;
-    return (
-      <tr>
-      <th scope="row">
-        <Media className="align-items-center">
-          { getMessageTypeIcon(log.messageType) }
-          <Media>
-            <span className="mb-0 text-sm">
-              {log.logTime}
-            </span>
-          </Media>
-        </Media>
-      </th>
-      <th scope="row">
-        <Media className="align-items-center">
-          <Media>
-            <span className="mb-0 text-sm">
-              {log.uniqueId? log.uniqueId : ''}
-            </span>
-          </Media>
-        </Media>
-      </th>
-      <td>
-        {log.additionalData
-          ? (
-              <div>
-                {log.message}
-                {this.state.showAdditionalInfo 
-                  ? (
-                    <div>
-                      <br />
-                      <div style={{ backgroundColor: '#1f4662', width: '500px', color: '#fff', fontSize: '12px' }}>
-                        <div style={{ backgroundColor: '#193549', width: '100%', padding: '5px 10px', fontFamily: 'monospace', color: '#ffc600' }} >
-                          <table width='100%' cellpadding='0' cellspacing='0'>
-                            <tr>
-                              <td><strong>Additional Info</strong></td>
-                              <td align='right'><strong onClick={this.toggle}>Close</strong></td>
-                            </tr>
-                          </table>
-                        </div>
-                        <pre style={{ display: 'block', width: '100%', height: '250px', padding: '10px 30px', margin: '0', overflow: 'scroll', color: '#ffffff' }}>
-                          {JSON.stringify(log.additionalData,null,2)}
-                        </pre>
-                      </div>
-                    </div>
-                  )
-                  : null
-                }
-              </div>
-            )
-          : log.message
-        }
-      </td>
-      <td>
-        <Badge color="" className="badge-dot mr-4">
-          <i className="bg-success" />
-          {log.verbosity}
-        </Badge>
-      </td>
-      <td className="text-right">
-      {log.additionalData
-          ? (       
-        <UncontrolledDropdown>
-          <DropdownToggle
-            className="btn-icon-only text-light"
-            href="#pablo"
-            role="button"
-            size="sm"
-            color=""
-            onClick={e => e.preventDefault()}
-          >
-            <i className="fas fa-ellipsis-v" />
-          </DropdownToggle>
-          <DropdownMenu className="dropdown-menu-arrow" right>
-            <DropdownItem
-              href="#pablo"
-              onClick={this.toggle}
-            >
-              View Additional Info
-            </DropdownItem>
-          </DropdownMenu>
-        </UncontrolledDropdown>
-        )
-        : ""
-      }
-      </td>
-      </tr>
-    );
-  }
-}
 
 class Tables extends React.Component {
   constructor() {
@@ -181,22 +102,21 @@ class Tables extends React.Component {
     const { endpoint } = this.state;
     const socket = socketIOClient(endpoint);
     socket.on("newLog", newLog => {
-      console.log('New log received', newLog)
+      // console.log('New log received', newLog)
       const updatedLogs = this.state.logs.concat(newLog)
       this.setState({ logs: updatedLogs })
     });
   }
 
+  expandChange = (event) => {
+    event.dataItem.expanded = !event.dataItem.expanded;
+    this.forceUpdate();
+  }
 
 
   render() {
     const { logs } = this.state;
-    const logsRows = logs.map(log => {
-      return (
-        <TableRow log={log} />
-      );
-    });
-
+  
     return (
       <>
         <Header />
@@ -209,82 +129,25 @@ class Tables extends React.Component {
                 <CardHeader className="border-0">
                   <h3 className="mb-0">Logs</h3>
                 </CardHeader>
-                <Table className="align-items-center table-flush" responsive>
-                  <thead className="thead-light">
-                    <tr>
-                      <th scope="col">Time</th>
-                      <th scope="col">Unique ID</th>
-                      <th scope="col">Message</th>
-                      <th scope="col">Verbosity</th>
-                      <th scope="col" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      logsRows.length
-                      ? logsRows
-                      : <tr><td colSpan='100%' align='center'>No logs found</td></tr>
-                    }
-                  </tbody>
-                </Table>
-                {/* <CardFooter className="py-4">
-                  <nav aria-label="...">
-                    <Pagination
-                      className="pagination justify-content-end mb-0"
-                      listClassName="justify-content-end mb-0"
-                    >
-                      <PaginationItem className="disabled">
-                        <PaginationLink
-                          href="#pablo"
-                          onClick={e => e.preventDefault()}
-                          tabIndex="-1"
-                        >
-                          <i className="fas fa-angle-left" />
-                          <span className="sr-only">Previous</span>
-                        </PaginationLink>
-                      </PaginationItem>
-                      <PaginationItem className="active">
-                        <PaginationLink
-                          href="#pablo"
-                          onClick={e => e.preventDefault()}
-                        >
-                          1
-                        </PaginationLink>
-                      </PaginationItem>
-                      <PaginationItem>
-                        <PaginationLink
-                          href="#pablo"
-                          onClick={e => e.preventDefault()}
-                        >
-                          2 <span className="sr-only">(current)</span>
-                        </PaginationLink>
-                      </PaginationItem>
-                      <PaginationItem>
-                        <PaginationLink
-                          href="#pablo"
-                          onClick={e => e.preventDefault()}
-                        >
-                          3
-                        </PaginationLink>
-                      </PaginationItem>
-                      <PaginationItem>
-                        <PaginationLink
-                          href="#pablo"
-                          onClick={e => e.preventDefault()}
-                        >
-                          <i className="fas fa-angle-right" />
-                          <span className="sr-only">Next</span>
-                        </PaginationLink>
-                      </PaginationItem>
-                    </Pagination>
-                  </nav>
-                </CardFooter> */}
+                <Grid
+                  className="align-items-center table-flush"
+                  data={this.state.logs}
+                  detail={DetailComponent}
+                  expandField="expanded"
+                  onExpandChange={this.expandChange}
+                >
+                  <Column field="logTime" title="Time" />
+                  <Column field="uniqueId" title="UniqueID" />
+                  <Column field="message" title="Message" />
+                  <Column field="verbosity" title="Verbosity" />
+                </Grid>
               </Card>
             </div>
           </Row>
           {/* Dark table */}
 
         </Container>
+
       </>
     );
   }
