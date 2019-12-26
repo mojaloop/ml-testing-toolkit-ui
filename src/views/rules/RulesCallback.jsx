@@ -19,19 +19,16 @@ import React from "react";
 
 // reactstrap components
 import {
-  Badge,
   Card,
+  CardBody,
+  FormGroup,
   CardHeader,
-  CardFooter,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  DropdownToggle,
-  Media,
+  Form,
+  Input,
   Container,
   Row,
-  UncontrolledTooltip,
-  Button
+  Button,
+  Col
 } from "reactstrap";
 // core components
 import Header from "components/Headers/Header.jsx";
@@ -43,25 +40,37 @@ import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
 import axios from 'axios';
 import './fixAce.css';
+import ConditionBuilder from './ConditionBuilder'
+
 
 class RulesCallback extends React.Component {
 
+  setRule = (rule) => {
+    this.setState({ rule: rule })
+  }
   constructor() {
     super();
     this.state = {
       origJson: [],
-      curJson: {}
-    }
+      curJson: {},
+      rule: {},
+      conditions: []
+    };
   }
 
   componentWillMount() {
-    this.getData()
+    // this.getData()
   }
+
+  handleConditionsChange = (conditions) => {
+    this.setState({conditions});
+    this.setRule({ conditions });
+  };
 
   getData = async () => {
     const response = await axios.get("http://localhost:5050/api/rules/callback")
       this.setState(  { origJson: [ ...response.data ] } )
-      this.refs.editor.jsonEditor.update(this.state.origJson)
+      // this.refs.editor.jsonEditor.update(this.state.origJson)
   }
 
   // handleChange = (json) => {
@@ -76,13 +85,17 @@ class RulesCallback extends React.Component {
     axios.put("http://localhost:5050/api/rules/callback", newJson, { headers: { 'Content-Type': 'application/json' } })
   }
 
+  logrule = (rule) => {
+    console.log(rule)
+  }
+
   render() {
     return (
       <>
         <Header />
         {/* Page content */}
         <Container className="mt--7"  fluid>
-          <Editor
+          {/* <Editor
             ref="editor"
             value={ this.state.origJson }
             ace={ace}
@@ -96,15 +109,241 @@ class RulesCallback extends React.Component {
             
           />
           <Button
-            className="mt-2"
+            className="mt-2" 
             color="info"
             href="#pablo"
             onClick={this.handleSave}
           >
             Save
-          </Button>
+          </Button>  */}
         </Container>
+        <Container className="mt--7" fluid>
+          <Row>
+            <Col className="order-xl-2 mb-5 mb-xl-0" xl="6">
+              <Card className="card-profile shadow">
+                <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
+                  <div className="d-flex justify-content-between">
+                    <Button
+                      className="mr-4"
+                      color="info"
+                      href="#pablo"
+                      onClick={e => e.preventDefault()}
+                      size="sm"
+                    >
+                      Validate
+                    </Button>
+                    <Button
+                      className="float-right"
+                      color="default"
+                      href="#pablo"
+                      onClick={e => e.preventDefault()}
+                      size="sm"
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardBody className="pt-0 pt-md-4">
+                  <div className="text-left">
+                    <pre>{JSON.stringify(this.state.rule, null, 2)}</pre>
+                  </div>
+                </CardBody>
+              </Card>
+            </Col>
+            <Col className="order-xl-1" xl="6">
+              <Card className="bg-secondary shadow">
+                <CardHeader className="bg-white border-0">
+                  <Row className="align-items-center">
+                    <Col xs="8">
+                      <h3 className="mb-0">Rule #1</h3>
+                    </Col>
+                    <Col className="text-right" xs="4">
+                      <Button
+                        color="danger"
+                        href="#pablo"
+                        onClick={e => e.preventDefault()}
+                        size="sm"
+                      >
+                        Reset
+                      </Button>
+                    </Col>
+                  </Row>
+                </CardHeader>
+                <CardBody>
+                  <Form>
+                    <h6 className="heading-small text-muted mb-4">
+                      Conditions
+                    </h6>
+                    <div className="pl-lg-4">
+                    {/* <ruleBuilder className="mt-7" fields={this.fields} onruleChange={this.logrule}
+                      controlElements = {
+                        {
+                          combinatorSelector: (props) => <Input type='select'  />,
+                          addRuleAction: Button,
+                          addGroupAction: Button,
+                          valueEditor: Input
+                        }
+                        
+                      }
+                    />    */}
+                    <ConditionBuilder onChange={this.handleConditionsChange} />
 
+                      {/* <Row>
+                        <Col lg="6">
+                          <FormGroup>
+                         
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-username"
+                            >
+                              Username
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              defaultValue="lucky.jesse"
+                              id="input-username"
+                              placeholder="Username"
+                              type="text"
+                            />
+                          </FormGroup>
+                        </Col>
+                        <Col lg="6">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-email"
+                            >
+                              Email address
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              id="input-email"
+                              placeholder="jesse@example.com"
+                              type="email"
+                            />
+                          </FormGroup>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col lg="6">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-first-name"
+                            >
+                              First name
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              defaultValue="Lucky"
+                              id="input-first-name"
+                              placeholder="First name"
+                              type="text"
+                            />
+                          </FormGroup>
+                        </Col>
+                        <Col lg="6">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-last-name"
+                            >
+                              Last name
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              defaultValue="Jesse"
+                              id="input-last-name"
+                              placeholder="Last name"
+                              type="text"
+                            />
+                          </FormGroup>
+                        </Col>
+                      </Row> */}
+                    </div>
+                    <hr className="my-4" />
+                    {/* Address */}
+                    <h6 className="heading-small text-muted mb-4">
+                      Events
+                    </h6>
+                    <div className="pl-lg-4">
+                      <Row>
+                        <Col md="12">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-address"
+                            >
+                              Event Type
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              defaultValue="MOCK_CALLBACK"
+                              id="input-address"
+                              placeholder="type"
+                              type="text"
+                            />
+                          </FormGroup>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col lg="4">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-city"
+                            >
+                              Headers
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              defaultValue="{}"
+                              id="input-city"
+                              placeholder="City"
+                              type="text"
+                            />
+                          </FormGroup>
+                        </Col>
+                        <Col lg="4">
+                          <FormGroup>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-country"
+                            >
+                              Body
+                            </label>
+                            <Input
+                              className="form-control-alternative"
+                              defaultValue="{}"
+                              id="input-country"
+                              placeholder="Country"
+                              type="text"
+                            />
+                          </FormGroup>
+                        </Col>
+                      </Row>
+                    </div>
+                    <hr className="my-4" />
+                    {/* Description */}
+                    <h6 className="heading-small text-muted mb-4">Rule Details</h6>
+                    <div className="pl-lg-4">
+                      <FormGroup>
+                        <label>Rule Description</label>
+                        <Input
+                          className="form-control-alternative"
+                          placeholder="A few words about the rule ..."
+                          rows="4"
+                          defaultValue="This is sample description about this rule"
+                          type="textarea"
+                        />
+                      </FormGroup>
+                    </div>
+                  </Form>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
       </>
     );
   }

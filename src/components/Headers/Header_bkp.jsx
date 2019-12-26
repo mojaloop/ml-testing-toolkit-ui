@@ -18,20 +18,13 @@
 import React from "react";
 
 // reactstrap components
-// import { Button, Container, Row, Col } from "reactstrap";
+import { Card, CardBody, CardTitle, Container, Row, Col } from "reactstrap";
 
 class Header extends React.Component {
   render() {
     return (
       <>
-        <div
-          className="header bg-gradient-default opacity-8 pb-8 pt-5 pt-lg-8 d-flex align-items-center"
-          style={{
-            minHeight: "250px",
-            backgroundSize: "cover",
-            backgroundPosition: "center top"
-          }}
-        >          
+        <div className="header bg-gradient-info pb-5 pt-5 pt-md-8">
         </div>
       </>
     );

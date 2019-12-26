@@ -19,7 +19,18 @@ import React from "react";
 
 // reactstrap components
 import {
+  Badge,
+  Card,
+  CardHeader,
+  CardFooter,
+  DropdownMenu,
+  DropdownItem,
+  UncontrolledDropdown,
+  DropdownToggle,
+  Media,
   Container,
+  Row,
+  UncontrolledTooltip,
   Button
 } from "reactstrap";
 // core components
@@ -33,7 +44,7 @@ import 'brace/theme/tomorrow_night_blue';
 import axios from 'axios';
 import './fixAce.css';
 
-class RulesValidation extends React.Component {
+class RulesCallback extends React.Component {
 
   constructor() {
     super();
@@ -48,7 +59,7 @@ class RulesValidation extends React.Component {
   }
 
   getData = async () => {
-    const response = await axios.get("http://localhost:5050/api/rules/validation")
+    const response = await axios.get("http://localhost:5050/api/rules/callback")
       this.setState(  { origJson: [ ...response.data ] } )
       this.refs.editor.jsonEditor.update(this.state.origJson)
   }
@@ -62,7 +73,7 @@ class RulesValidation extends React.Component {
   handleSave = () => {
     const newJson = this.refs.editor.jsonEditor.get()
     // this.setState( { curJson: [ ...newJson ]} )
-    axios.put("http://localhost:5050/api/rules/validation", newJson, { headers: { 'Content-Type': 'application/json' } })
+    axios.put("http://localhost:5050/api/rules/callback", newJson, { headers: { 'Content-Type': 'application/json' } })
   }
 
   render() {
@@ -99,4 +110,4 @@ class RulesValidation extends React.Component {
   }
 }
 
-export default RulesValidation;
+export default RulesCallback;

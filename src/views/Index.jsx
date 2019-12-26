@@ -17,34 +17,19 @@
 */
 import React from "react";
 import socketIOClient from "socket.io-client";
-import autoBind from 'react-autobind'
 import { Grid, GridColumn as Column, GridDetailRow } from '@progress/kendo-react-grid';
 import '@progress/kendo-theme-default/dist/all.css'
 
 // reactstrap components
 import {
-  Badge,
   Card,
   CardHeader,
-  CardFooter,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  DropdownToggle,
-  Media,
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-  Progress,
-  Table,
   Container,
   Row,
-  UncontrolledTooltip
 } from "reactstrap";
 // core components
 import Header from "components/Headers/Header.jsx";
 
-import products from './products.json';
 class DetailComponent extends GridDetailRow {
   render() {
       const log = this.props.dataItem;
@@ -70,24 +55,24 @@ class DetailComponent extends GridDetailRow {
   }
 }
 
-const getMessageTypeIcon = (messageType) => {
-  let icon_name
-  switch(messageType) {
-    case 'request':
-      icon_name = "ni-bold-right"
-      break
-    case 'response':
-      icon_name = "ni-bold-left"
-      break
-    case 'generic':
-    default:
-      icon_name = "ni-sound-wave"
-      break
+// const getMessageTypeIcon = (messageType) => {
+//   let icon_name
+//   switch(messageType) {
+//     case 'request':
+//       icon_name = "ni-bold-right"
+//       break
+//     case 'response':
+//       icon_name = "ni-bold-left"
+//       break
+//     case 'generic':
+//     default:
+//       icon_name = "ni-sound-wave"
+//       break
 
-  }
-  const className = "rounded-circle mr-3 ni " + icon_name
-  return <i className={className}></i>
-}
+//   }
+//   const className = "rounded-circle mr-3 ni " + icon_name
+//   return <i className={className}></i>
+// }
 
 
 class Tables extends React.Component {
@@ -115,7 +100,6 @@ class Tables extends React.Component {
 
 
   render() {
-    const { logs } = this.state;
   
     return (
       <>
