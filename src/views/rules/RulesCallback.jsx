@@ -41,20 +41,19 @@ import 'brace/theme/tomorrow_night_blue';
 import axios from 'axios';
 import './fixAce.css';
 import ConditionBuilder from './ConditionBuilder'
+import EventBuilder from './EventBuilder'
 
 
 class RulesCallback extends React.Component {
 
-  setRule = (rule) => {
-    this.setState({ rule: rule })
-  }
   constructor() {
     super();
     this.state = {
       origJson: [],
       curJson: {},
       rule: {},
-      conditions: []
+      conditions: [],
+      event: {}
     };
   }
 
@@ -62,9 +61,20 @@ class RulesCallback extends React.Component {
     // this.getData()
   }
 
+  getRule = () => {
+    const rule = {
+      conditions: this.state.conditions,
+      event: this.state.event
+    }
+    return JSON.stringify(rule, null, 2)
+  }
+
   handleConditionsChange = (conditions) => {
     this.setState({conditions});
-    this.setRule({ conditions });
+  };
+
+  handleEventChange = (event) => {
+    this.setState({event});
   };
 
   getData = async () => {
@@ -145,7 +155,7 @@ class RulesCallback extends React.Component {
                 </CardHeader>
                 <CardBody className="pt-0 pt-md-4">
                   <div className="text-left">
-                    <pre>{JSON.stringify(this.state.rule, null, 2)}</pre>
+                    <pre>{this.getRule()}</pre>
                   </div>
                 </CardBody>
               </Card>
@@ -264,65 +274,9 @@ class RulesCallback extends React.Component {
                     <hr className="my-4" />
                     {/* Address */}
                     <h6 className="heading-small text-muted mb-4">
-                      Events
+                      Event
                     </h6>
-                    <div className="pl-lg-4">
-                      <Row>
-                        <Col md="12">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-address"
-                            >
-                              Event Type
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              defaultValue="MOCK_CALLBACK"
-                              id="input-address"
-                              placeholder="type"
-                              type="text"
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col lg="4">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-city"
-                            >
-                              Headers
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              defaultValue="{}"
-                              id="input-city"
-                              placeholder="City"
-                              type="text"
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col lg="4">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-country"
-                            >
-                              Body
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              defaultValue="{}"
-                              id="input-country"
-                              placeholder="Country"
-                              type="text"
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row>
-                    </div>
+                    <EventBuilder onChange={this.handleEventChange} />
                     <hr className="my-4" />
                     {/* Description */}
                     <h6 className="heading-small text-muted mb-4">Rule Details</h6>
