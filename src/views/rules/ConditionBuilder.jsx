@@ -28,17 +28,40 @@ import {
 // core components
 import axios from 'axios';
 import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, TreeSelect, Input } from 'antd';
+import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd';
 import 'antd/dist/antd.css';
 // import './index.css';
+import Ajv from 'ajv';
+const ajv = new Ajv({allErrors: true});
+
 const { Option } = Select;
 
 
 class ValueSelector extends React.Component {
 
-  handleValueChange = (newValue) => {
-    this.props.onChange(newValue)
+  constructor() {
+    super();
+    this.state = {
+      ajvErrors: null
+    }
   }
+  validateAjv = null
+
+  handleValueChange = (newValue) => {
+    if (this.props.selectedFact) {
+      // TODO: The props propagations and state changes should be optimized. Currently this method is called when we update the vlaue in props.
+      // Its due to the hight level component in RulesCallback which is trying to re-render the whole page if any change in conditions detected.
+      this.validateAjv = ajv.compile(this.props.selectedFact);
+      const valid = this.validateAjv(newValue);
+      if (valid) {
+        this.props.onChange(newValue)
+        this.setState({ajvErrors: ''})
+      } else {
+        this.setState({ajvErrors: this.validateAjv.errors})
+      }
+    }
+  }
+
 
   getValueInput = () => {
     if(this.props.selectedFact && this.props.selectedFact.enum) {
@@ -53,9 +76,27 @@ class ValueSelector extends React.Component {
       )
     } else {
       return (
-        <Input placeholder="Basic usage" 
-        onChange={(e) => this.handleValueChange(e.target.value)}  />
+        <>
+          <Input placeholder="Value" 
+          onChange={(e) => this.handleValueChange(e.target.value)}  />
+        </>
       )
+    }
+  }
+
+  getErrorMessage = () => {
+    if(this.props.selectedFact && this.props.selectedFact.enum) {
+      return (null)
+    } else {
+      if(this.state.ajvErrors && this.state.ajvErrors.length > 0) {
+        return (
+          <>
+            <Tooltip title={ajv.errorsText(this.state.ajvErrors)}>
+              <Tag color="red">errors found</Tag>
+            </Tooltip>
+          </>
+        )
+      }
     }
   }
 
@@ -63,6 +104,7 @@ class ValueSelector extends React.Component {
     return(
       <>
         { this.getValueInput() }
+        { this.getErrorMessage() }
       </>
     )
   }
@@ -100,7 +142,7 @@ class FactSelect extends React.Component {
       let random = Math.random()
       .toString(36)
       .substring(2, 6);
-      factTreeData.push({ id: random, pId: parentId, value: valuePrefix + property, nodeObject: fact, title: property, isLeaf });
+      factTreeData.push({ id: random, pId: parentId, value: valuePrefix + property, nodeObject: fact, title: property, isLeaf, disabled: !isLeaf });
     }
     return factTreeData;
   }
@@ -168,17 +210,34 @@ class Condition extends React.Component {
       name: 'body'
     },
     {
-      title: 'Request Header',
-      name: 'header'
+      title: 'Request Headers',
+      name: 'headers'
     },
-    {
-      title: 'Request Path Parameters',
-      name: 'pathParameters'
-    }
   ]
 
+  havePathParams = () => {
+    if (this.props.rootParameters) {
+      const firstPathItem = this.props.rootParameters.find(item => {
+        return item.in === 'path'
+      })
+      if (firstPathItem) {
+        return true
+      }
+    }
+    return false
+  }
+
   getFactTypeItems = () => {
-    return this.factTypes.map((item) => {
+    let tempFactTypes = [...this.factTypes]
+    if (this.havePathParams()) {
+      tempFactTypes.push(
+        {
+          title: 'Request Path Parameters',
+          name: 'pathParameters'
+        }
+      )
+    }
+    return tempFactTypes.map((item) => {
       return(<Option key={item.name} value={JSON.stringify(item)}>{item.title}</Option>)
     })    
   }
@@ -192,13 +251,13 @@ class Condition extends React.Component {
     return bodySchema
   }
 
-  getHeaderFactData = () => {
+  getHeadersFactData = () => {
     // Convert header array in openapi file to object like requestBody
     let headerSchema = {
       properties: {}
     }
     try {
-      this.props.resourceDefinition.parameters.forEach((item) => {
+      this.props.rootParameters.concat(this.props.resourceDefinition.parameters).forEach((item) => {
         if (item.in === 'header') {
           headerSchema.properties[item.name] = item.schema
         }
@@ -208,14 +267,33 @@ class Condition extends React.Component {
     return headerSchema
   }
 
+  getPathParametersFactData = () => {
+    // Convert path parameters array in openapi file to object like requestBody
+    let pathParametersSchema = {
+      properties: {}
+    }
+    try {
+      this.props.rootParameters.forEach((item) => {
+        if (item.in === 'path') {
+          pathParametersSchema.properties[item.name] = item.schema
+        }
+      })
+    } catch(err) {
+    }
+    return pathParametersSchema
+  }
+
   updateFactData = () => {
     if (this.state.selectedFactType) {
       switch(this.state.selectedFactType.name) {
         case 'body':
           this.setState( {factData: this.getBodyFactData()} )
           break
-        case 'header':
-          this.setState( {factData: this.getHeaderFactData()} )
+        case 'headers':
+          this.setState( {factData: this.getHeadersFactData()} )
+          break
+        case 'pathParameters':
+          this.setState( {factData: this.getPathParametersFactData()} )
           break
         default:
           this.setState( {factData: null} )
@@ -367,7 +445,7 @@ class Conditions extends React.Component {
         this.props.conditions.map((condition, index) => {
           return (
             <Row key={index}>
-              <Condition condition={condition} resource={this.props.resource} resourceDefinition={this.props.resourceDefinition} onConditionChange={this.handleConditionChange}/>
+              <Condition condition={condition} resource={this.props.resource} resourceDefinition={this.props.resourceDefinition} rootParameters={this.props.rootParameters} onConditionChange={this.handleConditionChange}/>
             </Row>
           )
         })
@@ -461,7 +539,7 @@ class ConditionBuilder extends React.Component {
 
   getDefinition = async () => {
     const response = await axios.get("http://localhost:5050/api/openapi/definition/1.1")
-    console.log(response.data)
+    // console.log(response.data)
     this.setState(  { openApiDefinition: response.data } )
   }
 
@@ -504,6 +582,12 @@ class ConditionBuilder extends React.Component {
     }
     return null
   }
+  getRootParameters = () => {
+    if (this.state.selectedResource) {
+      return this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters
+    }
+    return null
+  }
 
 
   render() {
@@ -522,12 +606,13 @@ class ConditionBuilder extends React.Component {
           <ResourceSelector openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
 
         </FormGroup>
-        <Conditions conditions={this.state.conditions} resource={this.state.selectedResource} resourceDefinition={this.getResourceDefinition()} onConditionsChange={this.handleConditionsChange} />
+        <Conditions conditions={this.state.conditions} resource={this.state.selectedResource} resourceDefinition={this.getResourceDefinition()} rootParameters={this.getRootParameters()} onConditionsChange={this.handleConditionsChange} />
 
         <Button
           color="primary"
           href="#pablo"
           onClick={() => this.addCondition()}
+          disabled={(this.state.selectedResource? false : true)}
           size="sm"
         >
           Add Condition
