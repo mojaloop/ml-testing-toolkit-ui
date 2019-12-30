@@ -23,7 +23,8 @@ import {
   Form,
   Row,
   Button,
-  Col
+  Col,
+  Table
 } from "reactstrap";
 // core components
 import axios from 'axios';
@@ -204,6 +205,11 @@ class Condition extends React.Component {
     this.props.onConditionChange()
   }
 
+  handleDelete = () => {
+    this.props.onDelete(this.props.index)
+    this.props.onConditionChange()
+  }
+
   factTypes = [
     {
       title: 'Request Body',
@@ -373,61 +379,81 @@ class Condition extends React.Component {
 
     return (
       <>
-        <Col lg="3">
-          <FormGroup>
-            <label
-              className="form-control-label"
-              htmlFor="input-country"
-            >
-              Fact Type
-            </label>
-            <br />
+        <Table className="shadow">
+          <tbody>
+          <tr>
+          <td>
+            <FormGroup>
+              <label
+                className="form-control-label"
+                htmlFor="input-country"
+              >
+                Fact Type
+              </label>
+              <br />
 
-            <Select onChange={this.handleFactTypeSelect}>
-              {this.getFactTypeItems()}
-            </Select>
-          </FormGroup>
-        </Col>
-        <Col lg="3">
-          <FormGroup>
-            <label
-              className="form-control-label"
-              htmlFor="input-city"
-            >
-              Fact
-            </label>
-            <br />
-            <FactSelect factData={this.state.factData} onSelect={this.handleFactSelect} />
-          </FormGroup>
-        </Col>
-        <Col lg="3">
-          <FormGroup>
-            <label
-              className="form-control-label"
-              htmlFor="input-country"
-            >
-              Operator
-            </label>
-            <br />
-            <Select style={{ width: 120 }} value={this.state.selectedOperator} onChange={this.handleOperatorSelect}>
-              {this.getOperatorItems()}
-            </Select>
-          </FormGroup>
-        </Col>
-        <Col lg="3">
-          <FormGroup>
-            <label
-              className="form-control-label"
-              htmlFor="input-country"
-            >
-              Value
-            </label>
-            <br />
-            <ValueSelector selectedFact={this.state.selectedFact} onChange={this.handleValueChange} />
+              <Select onChange={this.handleFactTypeSelect}>
+                {this.getFactTypeItems()}
+              </Select>
+            </FormGroup>
+          </td>
+          <td>
+            <FormGroup>
+              <label
+                className="form-control-label"
+                htmlFor="input-city"
+              >
+                Fact
+              </label>
+              <br />
+              <FactSelect factData={this.state.factData} onSelect={this.handleFactSelect} />
+            </FormGroup>
+          </td>
+          <td>
+            <FormGroup>
+              <label
+                className="form-control-label"
+                htmlFor="input-country"
+              >
+                Operator
+              </label>
+              <br />
+              <Select style={{ width: 120 }} value={this.state.selectedOperator} onChange={this.handleOperatorSelect}>
+                {this.getOperatorItems()}
+              </Select>
+            </FormGroup>
+          </td>
+        </tr>
+        <tr>
+          <td colSpan='2'>
+            <FormGroup>
+              <label
+                className="form-control-label"
+                htmlFor="input-country"
+              >
+                Value
+              </label>
+              <br />
+              <ValueSelector selectedFact={this.state.selectedFact} onChange={this.handleValueChange} />
 
-          </FormGroup>
-        </Col>
+            </FormGroup>
+          </td>
+          <td align='right'>
+            <br />
+            <Button
+              color="danger"
+              href="#pablo"
+              onClick={this.handleDelete}
+              size="sm"
+            >
+              Delete
+            </Button>
+          </td>
+          </tr>
+          </tbody>
+        </Table>
       </>
+
     )
   }
 }
@@ -438,6 +464,10 @@ class Conditions extends React.Component {
     this.props.onConditionsChange()
   }
 
+  handleConditionDelete = (index) => {
+    this.props.conditions.splice(index, 1)
+  }
+
   render() {
     return(
       <>
@@ -445,7 +475,10 @@ class Conditions extends React.Component {
         this.props.conditions.map((condition, index) => {
           return (
             <Row key={index}>
-              <Condition condition={condition} resource={this.props.resource} resourceDefinition={this.props.resourceDefinition} rootParameters={this.props.rootParameters} onConditionChange={this.handleConditionChange}/>
+              <Condition condition={condition} index={index} resource={this.props.resource} resourceDefinition={this.props.resourceDefinition} rootParameters={this.props.rootParameters}
+                onConditionChange={this.handleConditionChange}
+                onDelete={this.handleConditionDelete}
+              />
             </Row>
           )
         })
@@ -556,7 +589,7 @@ class ConditionBuilder extends React.Component {
 
   handleConditionsChange = () => {
     // console.log('Detected in condition builder component', this.state.conditions)
-    this.props.onChange(this.state.pathMethodConditions.concat(this.state.conditions))
+    this.props.onChange({ all: this.state.pathMethodConditions.concat(this.state.conditions) })
   }
 
   resourceSelectHandler = (resource) => {
@@ -583,10 +616,11 @@ class ConditionBuilder extends React.Component {
     return null
   }
   getRootParameters = () => {
+    let rootParams = []
     if (this.state.selectedResource) {
-      return this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters
+      rootParams.concat(this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters)
     }
-    return null
+    return rootParams
   }
 
 
@@ -607,7 +641,6 @@ class ConditionBuilder extends React.Component {
 
         </FormGroup>
         <Conditions conditions={this.state.conditions} resource={this.state.selectedResource} resourceDefinition={this.getResourceDefinition()} rootParameters={this.getRootParameters()} onConditionsChange={this.handleConditionsChange} />
-
         <Button
           color="primary"
           href="#pablo"

@@ -52,7 +52,7 @@ class RulesCallback extends React.Component {
       origJson: [],
       curJson: {},
       rule: {},
-      conditions: [],
+      conditions: {},
       event: {}
     };
   }
