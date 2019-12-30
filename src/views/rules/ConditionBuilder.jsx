@@ -28,7 +28,6 @@ import {
 } from "reactstrap";
 // core components
 import axios from 'axios';
-import { Dropdown, DropdownButton } from 'react-bootstrap';
 import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd';
 import 'antd/dist/antd.css';
 // import './index.css';
@@ -488,58 +487,7 @@ class Conditions extends React.Component {
   }
 }
 
-class ResourceSelector extends React.Component {
 
-  constructor() {
-    super();
-    this.state = {
-      selectedItem: null
-    }
-  }
-  resourceOptions = []
-
-  getResourceOptions = () => {
-    this.resourceOptions = []
-    if(this.props.openApiDefinition.paths) {
-      let currentResourceGroup = ''
-      for ( let pathKey in this.props.openApiDefinition.paths ) {
-        for ( let methodKey in this.props.openApiDefinition.paths[pathKey]) {
-          let itemKey = JSON.stringify({
-            method: methodKey,
-            path: pathKey
-          })
-          switch(methodKey) {
-            case 'get':
-            case 'post':
-              this.resourceOptions.push(<Dropdown.Item key={itemKey} eventKey={itemKey}>{methodKey} {pathKey}</Dropdown.Item>)
-              break
-          }
-        }
-      }
-    }
-    return this.resourceOptions
-  }
-
-  render() {
-
-    const resourceSelectHandler = (eventKey, event) => {
-      this.state.selectedItem = JSON.parse(eventKey)
-      this.props.onSelect(this.state.selectedItem)
-      // console.log(this.props.openApiDefinition.paths[selectedItem.path][selectedItem.method])
-    }
-
-    return(
-      <DropdownButton onSelect={resourceSelectHandler}
-        disabled={(this.state.selectedItem? true : false)}
-        variant="success" id="dropdown-basic"
-        title={(this.state.selectedItem? this.state.selectedItem.method+' '+this.state.selectedItem.path : 'Select')}
-      >
-          {this.getResourceOptions()}
-      </DropdownButton>
-
-    )
-  }
-}
 
 class ConditionBuilder extends React.Component {
 
@@ -548,14 +496,12 @@ class ConditionBuilder extends React.Component {
     this.state = {
       conditions: [],
       pathMethodConditions: [],
-      selectedResource: null,
-      openApiDefinition: {}
     };
   }
 
   async componentWillMount() {
-    this.getData()
-    await this.getDefinition()
+    // this.getData()
+    // await this.getDefinition()
   }
 
   newCondition = {
@@ -563,24 +509,6 @@ class ConditionBuilder extends React.Component {
     operator: null,
     value: null
   }
-
-  getData = async () => {
-    const response = await axios.get("http://localhost:5050/api/rules/callback")
-      this.setState(  { origJson: [ ...response.data ] } )
-      // this.refs.editor.jsonEditor.update(this.state.origJson)
-  }
-
-  getDefinition = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/definition/1.1")
-    // console.log(response.data)
-    this.setState(  { openApiDefinition: response.data } )
-  }
-
-  // handleSave = () => {
-  //   const newJson = this.refs.editor.jsonEditor.get() 
-  //   // this.setState( { curJson: [ ...newJson ]} )
-  //   axios.put("http://localhost:5050/api/rules/callback", newJson, { headers: { 'Content-Type': 'application/json' } })
-  // }
 
   addCondition = () => {
     this.state.conditions.push({...this.newCondition})
@@ -592,60 +520,23 @@ class ConditionBuilder extends React.Component {
     this.props.onChange({ all: this.state.pathMethodConditions.concat(this.state.conditions) })
   }
 
-  resourceSelectHandler = (resource) => {
-    this.state.pathMethodConditions = []
-    this.state.pathMethodConditions.push({
-      fact: 'operationPath',
-      operator: 'equal',
-      value: resource.path
-    })
-    this.state.pathMethodConditions.push({
-      fact: 'method',
-      operator: 'equal',
-      value: resource.method
-    })
-    this.state.selectedResource = resource
-    this.handleConditionsChange()
-
-  }
-
-  getResourceDefinition = () => {
-    if (this.state.selectedResource) {
-      return this.state.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method]
-    }
-    return null
-  }
-  getRootParameters = () => {
-    let rootParams = []
-    if (this.state.selectedResource) {
-      rootParams.concat(this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters)
-    }
-    return rootParams
-  }
-
-
   render() {
 
   
     return (
       <>
-        <FormGroup>
-          <label
-            className="form-control-label"
-            htmlFor="input-country"
-          >
-            Resource
-          </label>
-          <br />
-          <ResourceSelector openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
-
-        </FormGroup>
-        <Conditions conditions={this.state.conditions} resource={this.state.selectedResource} resourceDefinition={this.getResourceDefinition()} rootParameters={this.getRootParameters()} onConditionsChange={this.handleConditionsChange} />
+        <Conditions 
+          conditions={this.state.conditions} 
+          resource={this.props.resource}
+          resourceDefinition={this.props.resourceDefinition}
+          rootParameters={this.props.rootParameters}
+          onConditionsChange={this.handleConditionsChange}
+        />
         <Button
           color="primary"
           href="#pablo"
           onClick={() => this.addCondition()}
-          disabled={(this.state.selectedResource? false : true)}
+          disabled={(this.props.resource? false : true)}
           size="sm"
         >
           Add Condition

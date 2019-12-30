@@ -28,9 +28,11 @@ import {
   Container,
   Row,
   Button,
-  Col
+  Col,
 } from "reactstrap";
 // core components
+import { Dropdown, DropdownButton } from 'react-bootstrap';
+
 import Header from "components/Headers/Header.jsx";
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -43,6 +45,58 @@ import './fixAce.css';
 import ConditionBuilder from './ConditionBuilder'
 import EventBuilder from './EventBuilder'
 
+class ResourceSelector extends React.Component {
+
+  constructor() {
+    super();
+    this.state = {
+      selectedItem: null
+    }
+  }
+  resourceOptions = []
+
+  getResourceOptions = () => {
+    this.resourceOptions = []
+    if(this.props.openApiDefinition.paths) {
+      let currentResourceGroup = ''
+      for ( let pathKey in this.props.openApiDefinition.paths ) {
+        for ( let methodKey in this.props.openApiDefinition.paths[pathKey]) {
+          let itemKey = JSON.stringify({
+            method: methodKey,
+            path: pathKey
+          })
+          switch(methodKey) {
+            case 'get':
+            case 'post':
+              this.resourceOptions.push(<Dropdown.Item key={itemKey} eventKey={itemKey}>{methodKey} {pathKey}</Dropdown.Item>)
+              break
+          }
+        }
+      }
+    }
+    return this.resourceOptions
+  }
+
+  render() {
+
+    const resourceSelectHandler = (eventKey, event) => {
+      this.state.selectedItem = JSON.parse(eventKey)
+      this.props.onSelect(this.state.selectedItem)
+      // console.log(this.props.openApiDefinition.paths[selectedItem.path][selectedItem.method])
+    }
+
+    return(
+      <DropdownButton onSelect={resourceSelectHandler}
+        disabled={(this.state.selectedItem? true : false)}
+        variant="success" id="dropdown-basic"
+        title={(this.state.selectedItem? this.state.selectedItem.method+' '+this.state.selectedItem.path : 'Select')}
+      >
+          {this.getResourceOptions()}
+      </DropdownButton>
+
+    )
+  }
+}
 
 class RulesCallback extends React.Component {
 
@@ -53,12 +107,17 @@ class RulesCallback extends React.Component {
       curJson: {},
       rule: {},
       conditions: {},
-      event: {}
+      event: {},
+      openApiDefinition: {},
+      selectedResource: null,
+      callbackMap: {}
     };
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     // this.getData()
+    await this.getDefinition()
+    await this.getCallbackMap()
   }
 
   getRule = () => {
@@ -83,6 +142,17 @@ class RulesCallback extends React.Component {
       // this.refs.editor.jsonEditor.update(this.state.origJson)
   }
 
+  getDefinition = async () => {
+    const response = await axios.get("http://localhost:5050/api/openapi/definition/1.1")
+    // console.log(response.data)
+    this.setState(  { openApiDefinition: response.data } )
+  }
+
+  getCallbackMap = async () => {
+    const response = await axios.get("http://localhost:5050/api/openapi/callback_map/1.1")
+    this.setState(  { callbackMap: response.data } )
+  }
+
   // handleChange = (json) => {
   //   // this.setState( { curJson: json } )
   // }
@@ -94,6 +164,59 @@ class RulesCallback extends React.Component {
     // this.setState( { curJson: [ ...newJson ]} )
     axios.put("http://localhost:5050/api/rules/callback", newJson, { headers: { 'Content-Type': 'application/json' } })
   }
+
+  resourceSelectHandler = (resource) => {
+    this.state.pathMethodConditions = []
+    this.state.pathMethodConditions.push({
+      fact: 'operationPath',
+      operator: 'equal',
+      value: resource.path
+    })
+    this.state.pathMethodConditions.push({
+      fact: 'method',
+      operator: 'equal',
+      value: resource.method
+    })
+    this.setState({selectedResource: resource})
+
+  }
+
+  getResourceDefinition = () => {
+    if (this.state.selectedResource) {
+      return this.state.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method]
+    }
+    return null
+  }
+  getRootParameters = () => {
+    let rootParams = []
+    if (this.state.selectedResource) {
+      rootParams.concat(this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters)
+    }
+    return rootParams
+  }
+  getCallbackRootParameters = () => {
+      try {
+        const callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['successCallback']
+        return this.state.openApiDefinition.paths[callbackObj.path].parameters
+      } catch(err) {
+        return []
+      }
+ 
+  }
+
+  getCallbackDefinition = () => {
+    if (this.state.selectedResource) {
+      try {
+        const callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['successCallback']
+        return this.state.openApiDefinition.paths[callbackObj.path][callbackObj.method]
+      } catch(err) {
+        return null
+      }
+
+    }
+    return null
+  }
+
 
   logrule = (rule) => {
     console.log(rule)
@@ -164,10 +287,13 @@ class RulesCallback extends React.Component {
               <Card className="bg-secondary shadow">
                 <CardHeader className="bg-white border-0">
                   <Row className="align-items-center">
-                    <Col xs="8">
+                    <Col xs="4">
                       <h3 className="mb-0">Rule #1</h3>
                     </Col>
-                    <Col className="text-right" xs="4">
+                    <Col xs="6">
+                      <ResourceSelector openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                    </Col>
+                    <Col className="text-right" xs="2">
                       <Button
                         color="danger"
                         href="#pablo"
@@ -185,98 +311,26 @@ class RulesCallback extends React.Component {
                       Conditions
                     </h6>
                     <div className="pl-lg-4">
-                    {/* <ruleBuilder className="mt-7" fields={this.fields} onruleChange={this.logrule}
-                      controlElements = {
-                        {
-                          combinatorSelector: (props) => <Input type='select'  />,
-                          addRuleAction: Button,
-                          addGroupAction: Button,
-                          valueEditor: Input
-                        }
-                        
-                      }
-                    />    */}
-                    <ConditionBuilder onChange={this.handleConditionsChange} />
-
-                      {/* <Row>
-                        <Col lg="6">
-                          <FormGroup>
-                         
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-username"
-                            >
-                              Username
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              defaultValue="lucky.jesse"
-                              id="input-username"
-                              placeholder="Username"
-                              type="text"
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col lg="6">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-email"
-                            >
-                              Email address
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              id="input-email"
-                              placeholder="jesse@example.com"
-                              type="email"
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col lg="6">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-first-name"
-                            >
-                              First name
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              defaultValue="Lucky"
-                              id="input-first-name"
-                              placeholder="First name"
-                              type="text"
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col lg="6">
-                          <FormGroup>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-last-name"
-                            >
-                              Last name
-                            </label>
-                            <Input
-                              className="form-control-alternative"
-                              defaultValue="Jesse"
-                              id="input-last-name"
-                              placeholder="Last name"
-                              type="text"
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row> */}
+                      <ConditionBuilder 
+                        onChange={this.handleConditionsChange} 
+                        openApiDefinition={this.state.openApiDefinition}
+                        resource={this.state.selectedResource}
+                        resourceDefinition={this.getResourceDefinition()}
+                        rootParameters={this.getRootParameters()}
+                      />
                     </div>
                     <hr className="my-4" />
                     {/* Address */}
                     <h6 className="heading-small text-muted mb-4">
                       Event
                     </h6>
-                    <EventBuilder onChange={this.handleEventChange} />
+                    <EventBuilder
+                      onChange={this.handleEventChange}
+                      resourceDefinition={this.getResourceDefinition()}
+                      rootParameters={this.getRootParameters()}
+                      callbackDefinition={this.getCallbackDefinition()}
+                      callbackRootParameters={this.getCallbackRootParameters()}
+                    />
                     <hr className="my-4" />
                     {/* Description */}
                     <h6 className="heading-small text-muted mb-4">Rule Details</h6>
