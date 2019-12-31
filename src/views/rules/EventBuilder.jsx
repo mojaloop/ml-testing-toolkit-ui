@@ -22,12 +22,13 @@ import {
   FormGroup,
   Row,
   Button,
-  Col
+  Col,
+  CardBody
 } from "reactstrap";
 // core components
 import axios from 'axios';
-import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, TreeSelect, Input, Tooltip, Tag, Radio } from 'antd';
+// import { Dropdown, DropdownButton } from 'react-bootstrap';
+import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card } from 'antd';
 import 'antd/dist/antd.css';
 // import './index.css';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -41,7 +42,7 @@ const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
 
-class AssistedCallbackBuilder extends React.Component {
+class FixedCallbackBuilder extends React.Component {
   constructor() {
     super()
     this.state = {
@@ -50,25 +51,77 @@ class AssistedCallbackBuilder extends React.Component {
     }
   }
 
-  componentDidMount = () => {
-    console.log(this.props.callbackRootParameters)
-  }
-  componentDidUpdate = () => {
-    console.log(this.props.callbackRootParameters)
+
+  // componentDidMount = () => {
+  //   console.log(this.props.callbackRootParameters)
+  //   console.log(this.props.resourceDefinition.parameters)
+
+  // }
+  // componentDidUpdate = () => {
+  //   console.log(this.props.callbackRootParameters)
+  //   console.log(this.props.resourceDefinition.parameters)
+
+  // }
+
+
+  addHeaderItemsFromDefinition = (onlyRequired=false) => {
+    const allParamsFromDefinition = this.props.callbackRootParameters.concat(this.props.resourceDefinition.parameters)
+    let newHeaders = [...this.state.headers]
+    allParamsFromDefinition.forEach((param) => {
+      if (param.in==='header') {
+        if (!onlyRequired || param.required) {
+          const itemFound = newHeaders.find(item => {
+            return item.name===param.name
+          })
+          if (!itemFound) {
+            newHeaders.push({name: param.name, value: ''})
+          }
+        }
+      }
+    })
+    this.setState({headers: newHeaders})
+    this.updateChanges()
   }
 
-  addHeaderItem = () => {
-    this.state.headers.push({})
+  addHeaderItem = (itemName) => {
+    const newHeaders = [...this.state.headers]
+    newHeaders.push({ name: itemName })
+    this.setState({headers: newHeaders})
   }
   handleHeaderItemChange = (key, name, value) => {
     // this.state.headers[event]
     this.state.headers[key] = {name, value}
     this.updateChanges()
   }
+  handleHeaderItemDelete = async (key) => {
+    // this.state.headers[event]
+    const newHeaders = [...this.state.headers]
+    newHeaders.splice(key,1)
+    await this.setState({headers: newHeaders})
+    this.updateChanges()
+  }
 
   handleBodyChange = (event) => {
     this.state.body = event.target.value
     this.updateChanges()
+  }
+
+  handleAddHeaderClick = (event) => {
+    this.addHeaderItem(event.item.props.children);
+  };
+
+  headerItemsMenu = () => {
+    const allParamsFromDefinition = this.props.callbackRootParameters.concat(this.props.resourceDefinition.parameters)
+    const menuItems = allParamsFromDefinition.map((item, key) => {
+      return (
+        <Menu.Item key={key}>{item.name}</Menu.Item>
+      )
+    })
+    return (
+      <Menu onClick={this.handleAddHeaderClick}>
+        {menuItems}
+      </Menu>
+    )
   }
 
   updateChanges = () => {
@@ -89,7 +142,7 @@ class AssistedCallbackBuilder extends React.Component {
   getHeaderItems = () => {
     return this.state.headers.map((item, key) => {
       return (
-        <HeaderInputComponent itemKey={key} onChange={this.handleHeaderItemChange} />
+        <HeaderInputComponent key={key} itemKey={key} name={item.name} value={item.value} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
       )
     })
   }
@@ -98,64 +151,80 @@ class AssistedCallbackBuilder extends React.Component {
     return (
       <>
         <Row>
-          <Col lg="12">
-            <FormGroup>
-              <label
-                className="form-control-label"
-                htmlFor="input-city"
-              >
-                Headers
-              </label>
+          <Col>
+            <Card title="Headers">
               <Row>
-                <Col lg="6">
-                  <label
-                    className="form-control-label"
-                    htmlFor="input-city"
+                <Col lg="12">
+                  <FormGroup>
+                    <Row>
+                      <Col lg="4">
+                        <label
+                          className="form-control-label"
+                          htmlFor="input-city"
+                        >
+                          Name
+                        </label>
+                      </Col>
+                      <Col lg="4">
+                        <label
+                          className="form-control-label"
+                          htmlFor="input-city"
+                        >
+                          Value
+                        </label>
+                      </Col>
+                    </Row>
+                    { this.getHeaderItems() }
+                  </FormGroup>
+                  <Dropdown overlay={this.headerItemsMenu()}>
+                    <Button
+                      color="primary"
+                      size="sm"
+                      onClick={e => e.preventDefault()}
+                    >
+                      Add Header
+                    </Button>
+
+                  </Dropdown>
+                  <Button
+                    color="danger"
+                    onClick={() => this.addHeaderItemsFromDefinition(true)}
+                    size="sm"
                   >
-                    Name
-                  </label>
-                </Col>
-                <Col lg="6">
-                  <label
-                    className="form-control-label"
-                    htmlFor="input-city"
+                    Add Required Headers
+                  </Button>
+                  <Button
+                    color="info"
+                    onClick={() => this.addHeaderItemsFromDefinition(false)}
+                    size="sm"
                   >
-                    Value
-                  </label>
+                    Add All Headers
+                  </Button>
                 </Col>
               </Row>
-              { this.getHeaderItems() }
-            </FormGroup>
-            <Button
-              color="primary"
-              href="#pablo"
-              onClick={() => this.addHeaderItem()}
-              size="sm"
-            >
-              Add Header
-            </Button>
+            </Card>
           </Col>
         </Row>
-        <Row >
-          <Col lg="12">
-            <FormGroup>
-              <label
-                    className="form-control-label"
-                    htmlFor="input-city"
-                  >
-                Callback Body
-              </label>
-              
-              <Input.TextArea
-                className="form-control-alternative"
-                placeholder="Callback Body"
-                defaultValue="{}"
-                onChange={this.handleBodyChange}
-                rows="8"
-              />
-            </FormGroup>
+        <Row>
+          <Col>
+            <Card title="Body">
+              <Row >
+                <Col lg="12">
+                  <FormGroup>
+                    <Input.TextArea
+                      className="form-control-alternative"
+                      placeholder="Callback Body"
+                      defaultValue="{}"
+                      onChange={this.handleBodyChange}
+                      rows="8"
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>  
+            </Card>
           </Col>
-        </Row>  
+        </Row>
+
       </>
     )
   }
@@ -171,13 +240,19 @@ class HeaderInputComponent extends React.Component {
       value: ''
     }
   }
+
+
   handleNameChange = (event) => {
-    this.setState({name: event.target.value})
-    this.props.onChange(this.props.itemKey, event.target.value, this.state.value)
+    // this.setState({name: event.target.value})
+    this.props.onChange(this.props.itemKey, event.target.value, this.props.value)
   }
   handleValueChange = (event) => {
-    this.setState({value: event.target.value})
-    this.props.onChange(this.props.itemKey, this.state.name, event.target.value)
+    // this.setState({value: event.target.value})
+    this.props.onChange(this.props.itemKey, this.props.name, event.target.value)
+  }
+
+  handleDelete = () => {
+    this.props.onDelete(this.props.itemKey)
   }
 
   
@@ -185,182 +260,39 @@ class HeaderInputComponent extends React.Component {
     return (
       <>
       <Row>
-        <Col lg="6">
+        <Col lg="4">
           <Input
             className="form-control-alternative"
-            defaultValue=""
             placeholder="Name"
             type="text"
+            defaultValue={this.props.name}
+            value={this.props.name}
             onChange={this.handleNameChange}
+            disabled={false}
           />
         </Col>
         
-        <Col lg="6">
+        <Col lg="4">
           <Input
             className="form-control-alternative"
-            defaultValue=""
             placeholder="Value"
             type="text"
+            defaultValue={this.props.value}
+            value={this.props.value}
             onChange={this.handleValueChange}
           />
         </Col>
+        <Col lg="4">
+          <Button
+            color="danger"
+            key={this.props.name}
+            onClick={this.handleDelete}
+            size="sm"
+          >
+            Delete
+          </Button>
+        </Col>
       </Row>
-      </>
-    )
-  }
-}
-
-class ManualCallbackBuilder extends React.Component {
-  constructor() {
-    super()
-    this.state = {
-      headers: [],
-      body: null
-    }
-  }
-
-  addHeaderItem = () => {
-    this.state.headers.push({})
-  }
-  handleHeaderItemChange = (key, name, value) => {
-    // this.state.headers[event]
-    this.state.headers[key] = {name, value}
-    this.updateChanges()
-  }
-
-  handleBodyChange = (event) => {
-    this.state.body = event.target.value
-    this.updateChanges()
-  }
-
-  updateChanges = () => {
-    const paramsObject = {}
-    paramsObject.header = this.getHeaderObject()
-    paramsObject.body = this.state.body
-    this.props.onChange(paramsObject)
-  }
-
-  getHeaderObject = () => {
-    let headerObject = {}
-    for( let key in this.state.headers ) {
-      headerObject[this.state.headers[key].name] = this.state.headers[key].value
-    }
-    return headerObject
-  }
-
-  getHeaderItems = () => {
-    return this.state.headers.map((item, key) => {
-      return (
-        <HeaderInputComponent itemKey={key} onChange={this.handleHeaderItemChange} />
-      )
-    })
-  }
-
-  render() {
-    return (
-      <>
-        <Row>
-          <Col lg="12">
-            <FormGroup>
-              <label
-                className="form-control-label"
-                htmlFor="input-city"
-              >
-                Headers
-              </label>
-              <Row>
-                <Col lg="6">
-                  <label
-                    className="form-control-label"
-                    htmlFor="input-city"
-                  >
-                    Name
-                  </label>
-                </Col>
-                <Col lg="6">
-                  <label
-                    className="form-control-label"
-                    htmlFor="input-city"
-                  >
-                    Value
-                  </label>
-                </Col>
-              </Row>
-              { this.getHeaderItems() }
-            </FormGroup>
-            <Button
-              color="primary"
-              href="#pablo"
-              onClick={() => this.addHeaderItem()}
-              size="sm"
-            >
-              Add Header
-            </Button>
-          </Col>
-        </Row>
-        <Row >
-          <Col lg="12">
-            <FormGroup>
-              <label
-                    className="form-control-label"
-                    htmlFor="input-city"
-                  >
-                Callback Body
-              </label>
-              
-              <Input.TextArea
-                className="form-control-alternative"
-                placeholder="Callback Body"
-                defaultValue="{}"
-                onChange={this.handleBodyChange}
-                rows="8"
-              />
-            </FormGroup>
-          </Col>
-        </Row>  
-      </>
-    )
-  }
-}
-
-class FixedCallbackBuilder extends React.Component {
-
-  constructor() {
-    super()
-    this.state = {
-      bodyJson: {},
-      mode: 2
-    }
-  }
-
-  onModeChange = (event) => {
-    this.setState( {mode: event.target.value} )
-  }
-
-
-
-  render () {
-    return (
-      <>
-        <Row>
-          <Col lg="12"> 
-            <FormGroup>
-              <Radio.Group onChange={this.onModeChange} value={this.state.mode}>
-                <Radio value={1}>Assisted</Radio>
-                <Radio value={2}>Manual</Radio>
-              </Radio.Group>
-            </FormGroup>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg="12">  
-            {
-              this.state.mode === 1
-              ? <AssistedCallbackBuilder onChange={this.props.onChange} resourceDefinition={this.props.resourceDefinition} callbackDefinition={this.props.callbackDefinition} callbackRootParameters={this.props.callbackRootParameters} />
-              : <ManualCallbackBuilder onChange={this.props.onChange} />
-            }
-          </Col>
-        </Row>
       </>
     )
   }

@@ -441,7 +441,6 @@ class Condition extends React.Component {
             <br />
             <Button
               color="danger"
-              href="#pablo"
               onClick={this.handleDelete}
               size="sm"
             >
@@ -534,7 +533,6 @@ class ConditionBuilder extends React.Component {
         />
         <Button
           color="primary"
-          href="#pablo"
           onClick={() => this.addCondition()}
           disabled={(this.props.resource? false : true)}
           size="sm"
