@@ -228,6 +228,15 @@ class RulesCallback extends React.Component {
     return null
   }
 
+  getSuccessCallback = () => {
+    try {
+      const callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['successCallback']
+      return callbackObj
+    } catch(err) {
+      return null
+    }
+  }
+
 
   logrule = (rule) => {
     console.log(rule)
@@ -342,6 +351,7 @@ class RulesCallback extends React.Component {
                       rootParameters={this.getRootParameters()}
                       callbackDefinition={this.getCallbackDefinition()}
                       callbackRootParameters={this.getCallbackRootParameters()}
+                      successCallback={this.getSuccessCallback()}
                     />
                     <hr className="my-4" />
                     {/* Description */}

@@ -180,6 +180,15 @@ export class FactDataGenerator {
     return bodySchema
   }
 
+  getBodySample = (resourceDefinition) => {
+    let bodySample = null
+    try {
+      bodySample = resourceDefinition['x-examples']['application/json']
+    } catch(err) {
+    }
+    return bodySample
+  }
+
   getHeadersFactData = (resourceDefinition, rootParameters) => {
     // Convert header array in openapi file to object like requestBody
     let headerSchema = {
