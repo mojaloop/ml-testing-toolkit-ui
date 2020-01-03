@@ -19,80 +19,6 @@ const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
 
-
-export class ValueSelector extends React.Component {
-
-  constructor() {
-    super();
-    this.state = {
-      ajvErrors: null
-    }
-  }
-  validateAjv = null
-
-  handleValueChange = (newValue) => {
-    if (this.props.selectedFact) {
-      // TODO: The props propagations and state changes should be optimized. Currently this method is called when we update the vlaue in props.
-      // Its due to the hight level component in RulesCallback which is trying to re-render the whole page if any change in conditions detected.
-      this.validateAjv = ajv.compile(this.props.selectedFact);
-      const valid = this.validateAjv(newValue);
-      if (valid) {
-        this.props.onChange(newValue)
-        this.setState({ajvErrors: ''})
-      } else {
-        this.setState({ajvErrors: this.validateAjv.errors})
-      }
-    }
-  }
-
-
-  getValueInput = () => {
-    if(this.props.selectedFact && this.props.selectedFact.enum) {
-      return (
-        <Select onChange={this.handleValueChange}>
-        { this.props.selectedFact.enum.map(item => {
-          return (
-            <Option key={item} value={item}>{item}</Option>
-          )
-        })}
-        </Select>
-      )
-    } else {
-      return (
-        <>
-          <Input placeholder="Value" 
-          onChange={(e) => this.handleValueChange(e.target.value)}  />
-        </>
-      )
-    }
-  }
-
-  getErrorMessage = () => {
-    if(this.props.selectedFact && this.props.selectedFact.enum) {
-      return (null)
-    } else {
-      if(this.state.ajvErrors && this.state.ajvErrors.length > 0) {
-        return (
-          <>
-            <Tooltip title={ajv.errorsText(this.state.ajvErrors)}>
-              <Tag color="red">errors found</Tag>
-            </Tooltip>
-          </>
-        )
-      }
-    }
-  }
-
-  render() {
-    return(
-      <>
-        { this.getValueInput() }
-        { this.getErrorMessage() }
-      </>
-    )
-  }
-}
-
 export class FactSelect extends React.Component {
   constructor () {
     super()
@@ -113,9 +39,35 @@ export class FactSelect extends React.Component {
       if (this.props.factData) {
         factTreeData = this.getNodeFacts(this.props.factData);
       }
-      this.setState({treeData: factTreeData, factData: this.props.factData, value: undefined})
-      this.props.onSelect(undefined, null)
+
+      let value = undefined
+      if (this.props.value) {
+        value = this.props.value
+        const selectedFact = this.findValueInFactData(value, this.props.factData)
+        this.props.onSelect(value, selectedFact)
+      }
+
+      this.setState({treeData: factTreeData, factData: this.props.factData, value})
     }
+  }
+
+  findValueInFactData = (value, factData) => {
+    
+    const valueArr = value.split('.')
+    let tFactData = this.props.factData
+    
+    for(let i=0; i<valueArr.length; i++) {
+      const factTreeData = this.getNodeFacts(tFactData);
+      const tFact = factTreeData.find(item => {
+        return item.value === valueArr[i]
+      })
+      if(!tFact) {
+        return null
+      }
+      tFactData = tFact.nodeObject
+    }
+    return tFactData
+
   }
 
   getNodeFacts = (nodeData, parentId=0, valuePrefix='') => {

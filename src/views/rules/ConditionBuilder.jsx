@@ -31,13 +31,90 @@ import axios from 'axios';
 import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd';
 import 'antd/dist/antd.css';
 
-import { FactDataGenerator, FactSelect, ValueSelector } from './BuilderTools.jsx';
+import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
 // import './index.css';
 import Ajv from 'ajv';
 const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
 
+
+class ValueSelector extends React.Component {
+
+  constructor() {
+    super();
+    this.state = {
+      ajvErrors: null
+    }
+  }
+  validateAjv = null
+
+  handleValueChange = (newValue) => {
+    if (this.props.selectedFact) {
+      // TODO: The props propagations and state changes should be optimized. Currently this method is called when we update the vlaue in props.
+      // Its due to the hight level component in RulesCallback which is trying to re-render the whole page if any change in conditions detected.
+      this.validateAjv = ajv.compile(this.props.selectedFact);
+      const valid = this.validateAjv(newValue);
+      if (valid) {
+        this.props.onChange(newValue)
+        this.setState({ajvErrors: ''})
+      } else {
+        this.setState({ajvErrors: this.validateAjv.errors})
+      }
+    }
+  }
+
+
+  getValueInput = () => {
+    if(this.props.selectedFact && this.props.selectedFact.enum) {
+      return (
+        <Select
+          onChange={this.handleValueChange}
+          value={this.props.value}
+        >
+        { this.props.selectedFact.enum.map(item => {
+          return (
+            <Option key={item} value={item}>{item}</Option>
+          )
+        })}
+        </Select>
+      )
+    } else {
+      return (
+        <>
+          <Input placeholder="Value" 
+          value={this.props.value}
+          onChange={(e) => this.handleValueChange(e.target.value)}  />
+        </>
+      )
+    }
+  }
+
+  getErrorMessage = () => {
+    if(this.props.selectedFact && this.props.selectedFact.enum) {
+      return (null)
+    } else {
+      if(this.state.ajvErrors && this.state.ajvErrors.length > 0) {
+        return (
+          <>
+            <Tooltip title={ajv.errorsText(this.state.ajvErrors)}>
+              <Tag color="red">errors found</Tag>
+            </Tooltip>
+          </>
+        )
+      }
+    }
+  }
+
+  render() {
+    return(
+      <>
+        { this.getValueInput() }
+        { this.getErrorMessage() }
+      </>
+    )
+  }
+}
 
 class Condition extends React.Component {
 
@@ -46,9 +123,19 @@ class Condition extends React.Component {
     this.state = {
       selectedFactType: null,
       selectedFact: null,
+      selectedFactPath: null,
       factData: null,
       selectedOperator: null
     }
+  }
+
+  componentDidMount = async () => {
+    const selectedFactType = this.factTypes.find(item => {
+      return item.name === this.props.condition.fact
+    })
+    const selectedFactPath = this.props.condition.path
+    await this.setState({ selectedFactType, selectedFactPath })
+    this.updateFactData()
   }
 
   // handleFactChange = (newValue) => {
@@ -127,7 +214,7 @@ class Condition extends React.Component {
   handleFactTypeSelect = async (value) => {
     try {
       const selectedValueObject = JSON.parse(value)
-      await this.setState( {selectedFactType:  selectedValueObject} )
+      await this.setState( {selectedFactType:  selectedValueObject, selectedFact: null, selectedFactPath: null} )
       this.props.condition.fact = selectedValueObject.name
       this.props.onConditionChange()
       this.updateFactData()
@@ -136,9 +223,13 @@ class Condition extends React.Component {
 
   handleFactSelect = (value, factObject) => {
     // console.log('Selected', value, factObject)
-    this.setState( { selectedFact: factObject, selectedOperator: null } )
+    let selectedOperator = null
+    if (this.props.condition.path === value) {
+      selectedOperator = this.props.condition.operator
+    }
+    this.setState( { selectedFact: factObject, selectedOperator, selectedFactPath: value } )
     this.props.condition.path = value
-    this.props.condition.operator = null
+    this.props.condition.operator = selectedOperator
     this.props.onConditionChange()
   }
 
@@ -208,10 +299,11 @@ class Condition extends React.Component {
               <br />
 
               <Select 
+                value={JSON.stringify(this.state.selectedFactType)}
                 onChange={this.handleFactTypeSelect}
                 style={{minWidth: '150px'}}
               >
-                {this.getFactTypeItems()}
+                {this.getFactTypeItems()} 
               </Select>
             </FormGroup>
           </td>
@@ -224,7 +316,7 @@ class Condition extends React.Component {
                 Fact
               </label>
               <br />
-              <FactSelect factData={this.state.factData} onSelect={this.handleFactSelect} />
+              <FactSelect factData={this.state.factData} value={this.state.selectedFactPath} onSelect={this.handleFactSelect} />
             </FormGroup>
           </td>
           <td>
@@ -252,7 +344,7 @@ class Condition extends React.Component {
                 Value
               </label>
               <br />
-              <ValueSelector selectedFact={this.state.selectedFact} onChange={this.handleValueChange} />
+              <ValueSelector value={this.props.condition.value} selectedFact={this.state.selectedFact} onChange={this.handleValueChange} />
 
             </FormGroup>
           </td>
@@ -276,6 +368,10 @@ class Condition extends React.Component {
 }
 
 class Conditions extends React.Component {
+
+  // componentDidUpdate = () => {
+  //   console.log(this.props)
+  // }
 
   handleConditionChange = (condition) => {
     this.props.onConditionsChange()
@@ -312,15 +408,13 @@ class ConditionBuilder extends React.Component {
   constructor() {
     super();
     this.state = {
-      conditions: [],
-      pathMethodConditions: [],
     };
   }
 
-  async componentWillMount() {
-    // this.getData()
-    // await this.getDefinition()
-  }
+  // async componentWillMount() {
+  //   // this.getData()
+  //   // await this.getDefinition()
+  // }
 
   newCondition = {
     fact: null,
@@ -329,12 +423,12 @@ class ConditionBuilder extends React.Component {
   }
 
   addCondition = () => {
-    this.state.conditions.push({...this.newCondition})
+    this.props.conditions.push({...this.newCondition})
     this.handleConditionsChange()
   }
 
   handleConditionsChange = () => {
-    this.props.onChange({ all: this.state.pathMethodConditions.concat(this.state.conditions) })
+    this.props.onChange({ conditions: this.props.conditions })
   }
 
   render() {
@@ -342,7 +436,7 @@ class ConditionBuilder extends React.Component {
     return (
       <>
         <Conditions 
-          conditions={this.state.conditions} 
+          conditions={this.props.conditions} 
           resource={this.props.resource}
           resourceDefinition={this.props.resourceDefinition}
           rootParameters={this.props.rootParameters}
