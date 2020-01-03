@@ -49,7 +49,8 @@ import {
   Table,
   Container,
   Row,
-  Col
+  Col,
+  NavbarToggler
 } from "reactstrap";
 
 var ps;

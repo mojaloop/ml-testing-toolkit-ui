@@ -33,6 +33,8 @@ import {
 // core components
 import { Dropdown, DropdownButton } from 'react-bootstrap';
 
+import { Select } from 'antd';
+
 import Header from "components/Headers/Header.jsx";
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -44,6 +46,8 @@ import axios from 'axios';
 import './fixAce.css';
 import ConditionBuilder from './ConditionBuilder'
 import EventBuilder from './EventBuilder'
+
+const { Option } = Select;
 
 class ResourceSelector extends React.Component {
 
@@ -68,7 +72,7 @@ class ResourceSelector extends React.Component {
           switch(methodKey) {
             case 'get':
             case 'post':
-              this.resourceOptions.push(<Dropdown.Item key={itemKey} eventKey={itemKey}>{methodKey} {pathKey}</Dropdown.Item>)
+              this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
               break
           }
         }
@@ -79,20 +83,27 @@ class ResourceSelector extends React.Component {
 
   render() {
 
-    const resourceSelectHandler = (eventKey, event) => {
+    const resourceSelectHandler = (eventKey) => {
       this.state.selectedItem = JSON.parse(eventKey)
       this.props.onSelect(this.state.selectedItem)
       // console.log(this.props.openApiDefinition.paths[selectedItem.path][selectedItem.method])
     }
 
     return(
-      <DropdownButton onSelect={resourceSelectHandler}
+      <Select onChange={resourceSelectHandler}
         disabled={(this.state.selectedItem? true : false)}
-        variant="success" id="dropdown-basic"
-        title={(this.state.selectedItem? this.state.selectedItem.method+' '+this.state.selectedItem.path : 'Select')}
+        style={{ width: 300 }}
+        placeholder="Select a resource"
       >
-          {this.getResourceOptions()}
-      </DropdownButton>
+      {this.getResourceOptions()}
+      </Select>
+      // <DropdownButton onSelect={resourceSelectHandler}
+      //   disabled={(this.state.selectedItem? true : false)}
+      //   variant="success" id="dropdown-basic"
+      //   title={(this.state.selectedItem? this.state.selectedItem.method+' '+this.state.selectedItem.path : 'Select')}
+      // >
+      //     {this.getResourceOptions()}
+      // </DropdownButton>
 
     )
   }
@@ -188,9 +199,9 @@ class RulesCallback extends React.Component {
     return null
   }
   getRootParameters = () => {
-    let rootParams = []
+    var rootParams = []
     if (this.state.selectedResource) {
-      rootParams.concat(this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters)
+      rootParams = this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters
     }
     return rootParams
   }
@@ -287,10 +298,10 @@ class RulesCallback extends React.Component {
               <Card className="bg-secondary shadow">
                 <CardHeader className="bg-white border-0">
                   <Row className="align-items-center">
-                    <Col xs="4">
+                    <Col xs="2">
                       <h3 className="mb-0">Rule #1</h3>
                     </Col>
-                    <Col xs="6">
+                    <Col xs="8" className="text-center">
                       <ResourceSelector openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
                     </Col>
                     <Col className="text-right" xs="2">
@@ -326,6 +337,7 @@ class RulesCallback extends React.Component {
                     </h6>
                     <EventBuilder
                       onChange={this.handleEventChange}
+                      resource={this.state.selectedResource}
                       resourceDefinition={this.getResourceDefinition()}
                       rootParameters={this.getRootParameters()}
                       callbackDefinition={this.getCallbackDefinition()}
