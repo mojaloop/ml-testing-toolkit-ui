@@ -16,6 +16,7 @@
 
 */
 import React from "react";
+import _ from 'lodash';
 
 // reactstrap components
 import {
@@ -180,19 +181,22 @@ class FixedCallbackBuilder extends React.Component {
     super()
     this.state = {
       headers: [],
-      body: null
+      body: {}
     }
   }
 
+  bodySchema = {}
 
-  // componentDidMount = () => {
-  //   console.log(this.props.callbackRootParameters)
-  //   console.log(this.props.resourceDefinition.parameters)
-
-  // }
+  componentDidMount = () => {
+    // console.log(this.props.callbackRootParameters)
+    // console.log(this.props.resourceDefinition.parameters)
+    // console.log(this.props.callbackDefinition)
+    this.bodySchema = (new FactDataGenerator()).getBodyFactData(this.props.callbackDefinition)
+  }
   // componentDidUpdate = () => {
   //   console.log(this.props.callbackRootParameters)
-  //   console.log(this.props.resourceDefinition.parameters)
+  //   // console.log(this.props.resourceDefinition.parameters)
+  //   console.log(this.props.callbackDefinition)
 
   // }
 
@@ -234,8 +238,9 @@ class FixedCallbackBuilder extends React.Component {
     this.updateChanges()
   }
 
-  handleBodyChange = (event) => {
-    this.state.body = event.target.value
+  handleBodyChange = (bodyObject) => {
+    // console.log(ace.getCursorPosition())
+    this.state.body = bodyObject
     this.updateChanges()
   }
 
@@ -280,12 +285,41 @@ class FixedCallbackBuilder extends React.Component {
     })
   }
 
+  handleAddConfigParam = async (newValue) => {
+    const newBody = {...this.state.body, '': newValue}
+    await this.setState({body: newBody})
+    this.refs.bodyEditor.jsonEditor.update(this.state.body)
+    this.updateChanges()
+  }
+
+  handlePopulateSampleBodyClick = async () => {
+    const newBody = (new FactDataGenerator()).getBodySample(this.props.callbackDefinition)
+    if(newBody) {
+      if(this.props.successCallback && this.props.successCallback.bodyOverride) {
+        _.merge(newBody, this.props.successCallback.bodyOverride)
+      }
+      
+      await this.setState({body: newBody})
+      this.refs.bodyEditor.jsonEditor.update(this.state.body)
+      this.updateChanges()
+    }
+  }
+
   render() {
+
+    const content = (
+      <ConfigurableParameter
+        onChange={this.handleAddConfigParam}
+        rootParameters={this.props.rootParameters}
+        resourceDefinition={this.props.resourceDefinition}
+      />
+    )
+
     return (
       <>
         <Row>
           <Col>
-            <Card title="Headers">
+            <Card size="small" title="Headers">
               <Row>
                 <Col lg="12">
                   <FormGroup>
@@ -338,22 +372,37 @@ class FixedCallbackBuilder extends React.Component {
             </Card>
           </Col>
         </Row>
-        <Row>
+        <Row className='mt-2'>
           <Col>
-            <Card title="Body">
+            <Card size="small" title="Body">
+              <Row className='mb-2'>
+                <Col lg="6">
+                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                    <Button color="secondary" size="sm">Add Configurable Params</Button>
+                  </Popover>
+                </Col>
+                <Col lg="6" style={{textAlign: 'right'}}>
+                  <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
+                </Col>
+              </Row>
               <Row >
                 <Col lg="12">
-                  <FormGroup>
-                    <Input.TextArea
-                      className="form-control-alternative"
-                      placeholder="Callback Body"
-                      defaultValue="{}"
-                      onChange={this.handleBodyChange}
-                      rows="8"
-                    />
-                  </FormGroup>
+                  <Editor
+                    ref="bodyEditor"
+                    value={ this.state.body }
+                    ace={ace}
+                    ajv={ajv}
+                    theme="ace/theme/tomorrow_night_blue"
+                    mode="code"
+                    search={false}
+                    statusBar={false}
+                    navigationBar={false}
+                    onChange={this.handleBodyChange}
+                    schema={this.bodySchema}
+                    // onError={this.handleError}
+                  />
                 </Col>
-              </Row>  
+              </Row>
             </Card>
           </Col>
         </Row>
@@ -443,7 +492,7 @@ class HeaderInputComponent extends React.Component {
             disabled={false}
           />
           <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-            <Button type="primary" size="sm">Add Configurable Params</Button>
+            <Button color="secondary" size="sm">Add Configurable Params</Button>
           </Popover>
 
         </Col>
@@ -503,6 +552,7 @@ class MockCallbackBuilder extends React.Component {
                 rootParameters = {this.props.rootParameters}
                 callbackDefinition={this.props.callbackDefinition}
                 callbackRootParameters={this.props.callbackRootParameters}
+                successCallback={this.props.successCallback}
               />
             </Col>
           </Row>
@@ -524,6 +574,7 @@ class ParamsBuilder extends React.Component {
           rootParameters = {this.props.rootParameters}
           callbackDefinition={this.props.callbackDefinition}
           callbackRootParameters={this.props.callbackRootParameters}
+          successCallback={this.props.successCallback}
         />
       )
     }
@@ -534,6 +585,7 @@ class ParamsBuilder extends React.Component {
           rootParameters = {this.props.rootParameters}
           callbackDefinition={this.props.callbackDefinition}
           callbackRootParameters={this.props.callbackRootParameters}
+          successCallback={this.props.successCallback}
         />
       )
     } else {
@@ -551,6 +603,10 @@ class EventBuilder extends React.Component {
       eventData: {},
       selectedResource: null
     };
+  }
+
+  componentDidMount = () => {
+    console.log(this.props)
   }
 
   eventTypes = [
@@ -616,6 +672,7 @@ class EventBuilder extends React.Component {
             rootParameters = {this.props.rootParameters}
             callbackDefinition={this.props.callbackDefinition}
             callbackRootParameters={this.props.callbackRootParameters}
+            successCallback={this.props.successCallback}
           />
         </div>
       </>
