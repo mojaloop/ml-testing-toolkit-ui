@@ -25,9 +25,9 @@ class Header extends React.Component {
     return (
       <>
         <div
-          className="header bg-gradient-default opacity-8 pb-8 pt-5 pt-lg-8 d-flex align-items-center"
+          className="header bg-gradient-default opacity-8 pb-6 pt-7 pt-lg-7 d-flex align-items-center"
           style={{
-            minHeight: "250px",
+            minHeight: "150px",
             backgroundSize: "cover",
             backgroundPosition: "center top"
           }}
