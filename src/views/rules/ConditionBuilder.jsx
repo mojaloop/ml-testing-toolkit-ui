@@ -130,7 +130,7 @@ class Condition extends React.Component {
   }
 
   componentDidMount = async () => {
-    const selectedFactType = this.factTypes.find(item => {
+    const selectedFactType = this.allFactTypes.find(item => {
       return item.name === this.props.condition.fact
     })
     const selectedFactPath = this.props.condition.path
@@ -164,6 +164,21 @@ class Condition extends React.Component {
     },
   ]
 
+  allFactTypes = [
+    {
+      title: 'Request Body',
+      name: 'body'
+    },
+    {
+      title: 'Request Headers',
+      name: 'headers'
+    },
+    {
+      title: 'Request Path Parameters',
+      name: 'pathParams'
+    }
+  ]
+
   havePathParams = () => {
     if (this.props.rootParameters) {
       const firstPathItem = this.props.rootParameters.find(item => {
@@ -182,7 +197,7 @@ class Condition extends React.Component {
       tempFactTypes.push(
         {
           title: 'Request Path Parameters',
-          name: 'pathParameters'
+          name: 'pathParams'
         }
       )
     }
@@ -200,7 +215,7 @@ class Condition extends React.Component {
         case 'headers':
           this.setState( {factData: (new FactDataGenerator()).getHeadersFactData(this.props.resourceDefinition, this.props.rootParameters)} )
           break
-        case 'pathParameters':
+        case 'pathParams':
           this.setState( {factData: (new FactDataGenerator()).getPathParametersFactData(this.props.rootParameters)} )
           break
         default:

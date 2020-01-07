@@ -92,6 +92,7 @@ class Sidebar extends React.Component {
           >
             <i className={prop.icon} />
             {prop.name}
+            <br /> {prop.subTitle}
           </NavLink>
         </NavItem>
       );

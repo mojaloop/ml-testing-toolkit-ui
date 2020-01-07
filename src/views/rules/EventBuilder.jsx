@@ -29,7 +29,7 @@ import {
 // core components
 import axios from 'axios';
 // import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox } from 'antd';
+import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message } from 'antd';
 import 'antd/dist/antd.css';
 // import './index.css';
 import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
@@ -180,8 +180,7 @@ class FixedCallbackBuilder extends React.Component {
   constructor() {
     super()
     this.state = {
-      headers: [],
-      body: {}
+      configurableParameterSelected: ''
     }
   }
 
@@ -194,53 +193,59 @@ class FixedCallbackBuilder extends React.Component {
     this.bodySchema = (new FactDataGenerator()).getBodyFactData(this.props.callbackDefinition)
   }
   // componentDidUpdate = () => {
-  //   console.log(this.props.callbackRootParameters)
+  //   // console.log(this.props.callbackRootParameters)
   //   // console.log(this.props.resourceDefinition.parameters)
-  //   console.log(this.props.callbackDefinition)
+  //   // console.log(this.props.callbackDefinition)
+    
+
 
   // }
 
 
   addHeaderItemsFromDefinition = async (onlyRequired=false) => {
-    const allParamsFromDefinition = this.props.callbackRootParameters.concat(this.props.resourceDefinition.parameters)
-    let newHeaders = [...this.state.headers]
+    let allParamsFromDefinition = []
+    if (this.props.callbackRootParameters) {
+      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackRootParameters)
+    }
+    if (this.props.callbackDefinition.parameters) {
+      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackDefinition.parameters)
+    }
+
     allParamsFromDefinition.forEach((param) => {
       if (param.in==='header') {
         if (!onlyRequired || param.required) {
-          const itemFound = newHeaders.find(item => {
-            return item.name===param.name
-          })
-          if (!itemFound) {
-            newHeaders.push({name: param.name, value: ''})
+          if (!this.props.eventParams.headers) {
+            this.props.eventParams.headers = {}
+            this.props.eventParams.headers[param.name] = ''
+          }
+          else if (!this.props.eventParams.headers[param.name]) {
+            this.props.eventParams.headers[param.name] = ''
           }
         }
       }
     })
-    await this.setState({headers: newHeaders})
     this.updateChanges()
   }
 
   addHeaderItem = (itemName) => {
-    const newHeaders = [...this.state.headers]
-    newHeaders.push({ name: itemName })
-    this.setState({headers: newHeaders})
-  }
-  handleHeaderItemChange = (key, name, value) => {
-    // this.state.headers[event]
-    this.state.headers[key] = {name, value}
+    if (!this.props.eventParams.headers) {
+      this.props.eventParams.headers = {}
+    }
+    this.props.eventParams.headers[itemName] = this.props.eventParams.headers[itemName] ? this.props.eventParams.headers[itemName] : ""
     this.updateChanges()
   }
-  handleHeaderItemDelete = async (key) => {
-    // this.state.headers[event]
-    const newHeaders = [...this.state.headers]
-    newHeaders.splice(key,1)
-    await this.setState({headers: newHeaders})
+  handleHeaderItemChange = (key, name, value) => {
+    this.props.eventParams.headers[name] = value
+    this.updateChanges()
+  }
+  handleHeaderItemDelete = async (name) => {
+    delete this.props.eventParams.headers[name]
     this.updateChanges()
   }
 
   handleBodyChange = (bodyObject) => {
     // console.log(ace.getCursorPosition())
-    this.state.body = bodyObject
+    this.props.eventParams.body = bodyObject
     this.updateChanges()
   }
 
@@ -249,7 +254,17 @@ class FixedCallbackBuilder extends React.Component {
   };
 
   headerItemsMenu = () => {
-    const allParamsFromDefinition = this.props.callbackRootParameters.concat(this.props.resourceDefinition.parameters)
+    let allParamsFromDefinition = []
+    if (this.props.callbackRootParameters) {
+      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackRootParameters)
+    }
+    if (this.props.callbackDefinition.parameters) {
+      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackDefinition.parameters)
+    }
+    
+    allParamsFromDefinition = allParamsFromDefinition.filter(item => {
+      return item.in === 'header'
+    })
     const menuItems = allParamsFromDefinition.map((item, key) => {
       return (
         <Menu.Item key={key}>{item.name}</Menu.Item>
@@ -264,55 +279,77 @@ class FixedCallbackBuilder extends React.Component {
 
   updateChanges = () => {
     const paramsObject = {}
-    paramsObject.header = this.getHeaderObject()
-    paramsObject.body = this.state.body
+    paramsObject.headers = this.props.eventParams.headers
+    paramsObject.body = this.props.eventParams.body
     this.props.onChange(paramsObject)
   }
 
-  getHeaderObject = () => {
-    let headerObject = {}
-    for( let key in this.state.headers ) {
-      headerObject[this.state.headers[key].name] = this.state.headers[key].value
-    }
-    return headerObject
-  }
-
   getHeaderItems = () => {
-    return this.state.headers.map((item, key) => {
-      return (
-        <HeaderInputComponent key={key} itemKey={key} name={item.name} value={item.value} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
-      )
-    })
+    let headerItems = []
+    let k=0
+    if (this.props.eventParams) {
+      for( let headerName in this.props.eventParams.headers ) {
+        const item = {
+          name: headerName,
+          value: this.props.eventParams.headers[headerName]
+        }
+        const key = k++
+        headerItems.push(
+          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
+        )
+      }
+    }
+    return headerItems
+
   }
 
-  handleAddConfigParam = async (newValue) => {
-    const newBody = {...this.state.body, '': newValue}
-    await this.setState({body: newBody})
-    this.refs.bodyEditor.jsonEditor.update(this.state.body)
-    this.updateChanges()
+  handleAddConfigParam = (newValue) => {
+    this.setState({configurableParameterSelected: newValue})
   }
+
 
   handlePopulateSampleBodyClick = async () => {
     const newBody = (new FactDataGenerator()).getBodySample(this.props.callbackDefinition)
     if(newBody) {
-      if(this.props.successCallback && this.props.successCallback.bodyOverride) {
-        _.merge(newBody, this.props.successCallback.bodyOverride)
+      if(this.props.callbackObject && this.props.callbackObject.bodyOverride) {
+        _.merge(newBody, this.props.callbackObject.bodyOverride)
       }
-      
-      await this.setState({body: newBody})
-      this.refs.bodyEditor.jsonEditor.update(this.state.body)
+      this.props.eventParams.body = newBody
+      this.refs.bodyEditor.jsonEditor.update(this.props.eventParams.body)
       this.updateChanges()
     }
+  }
+
+  handleConfigParamCopyToClipboard = () => {
+    navigator.clipboard.writeText(this.state.configurableParameterSelected)
+    message.success('Copied to clipboard');
   }
 
   render() {
 
     const content = (
-      <ConfigurableParameter
-        onChange={this.handleAddConfigParam}
-        rootParameters={this.props.rootParameters}
-        resourceDefinition={this.props.resourceDefinition}
-      />
+      <>
+      <Row>
+        <Col>
+          <ConfigurableParameter
+            onChange={this.handleAddConfigParam}
+            rootParameters={this.props.rootParameters}
+            resourceDefinition={this.props.resourceDefinition}
+          />
+        </Col>
+      </Row>
+      {
+        this.state.configurableParameterSelected ?
+        (
+          <Row className="mt-4 text-center">
+            <Col>
+              <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
+            </Col>
+          </Row>
+        )
+        : null
+      }
+      </>
     )
 
     return (
@@ -389,7 +426,7 @@ class FixedCallbackBuilder extends React.Component {
                 <Col lg="12">
                   <Editor
                     ref="bodyEditor"
-                    value={ this.state.body }
+                    value={ this.props.eventParams.body? this.props.eventParams.body : {} }
                     ace={ace}
                     ajv={ajv}
                     theme="ace/theme/tomorrow_night_blue"
@@ -521,10 +558,23 @@ class MockCallbackBuilder extends React.Component {
     }
   }
 
+  componentDidMount = () => {
+    if (this.props.eventParams) {
+      this.setState({overrideChecked: true})
+    }
+    
+  }
+
   handleOverrideChecked = (event) => {
     this.setState({overrideChecked: event.target.checked})
     if (!event.target.checked) {
-      this.handleOverrideValuesChange(null)
+      this.handleOverrideValuesChange({
+        method: null,
+        path: null,
+        headers: {},
+        body: {},
+        delay: 0
+      })
     }
   }
 
@@ -547,12 +597,14 @@ class MockCallbackBuilder extends React.Component {
       { this.state.overrideChecked?
             <Row className='mt-3'>
             <Col>
-              <FixedCallbackBuilder onChange={this.handleOverrideValuesChange}
+              <FixedCallbackBuilder
+                eventParams={this.props.eventParams}
+                onChange={this.handleOverrideValuesChange}
                 resourceDefinition={this.props.resourceDefinition}
                 rootParameters = {this.props.rootParameters}
                 callbackDefinition={this.props.callbackDefinition}
                 callbackRootParameters={this.props.callbackRootParameters}
-                successCallback={this.props.successCallback}
+                callbackObject={this.props.callbackObject}
               />
             </Col>
           </Row>
@@ -567,25 +619,29 @@ class MockCallbackBuilder extends React.Component {
 class ParamsBuilder extends React.Component {
   
   render() {
-    if (this.props.eventType === 'FIXED_CALLBACK') {
+    if (this.props.eventType === 'FIXED_CALLBACK' || this.props.eventType === 'FIXED_ERROR_CALLBACK') {
       return (
-        <FixedCallbackBuilder onChange={this.props.onChange}
+        <FixedCallbackBuilder
+          eventParams={this.props.eventParams}
+          onChange={this.props.onChange}
           resourceDefinition={this.props.resourceDefinition}
           rootParameters = {this.props.rootParameters}
           callbackDefinition={this.props.callbackDefinition}
           callbackRootParameters={this.props.callbackRootParameters}
-          successCallback={this.props.successCallback}
+          callbackObject={this.props.callbackObject}
         />
       )
     }
-    else if (this.props.eventType === 'MOCK_CALLBACK') {
+    else if (this.props.eventType === 'MOCK_CALLBACK' || this.props.eventType === 'MOCK_ERROR_CALLBACK') {
       return (
-        <MockCallbackBuilder onChange={this.props.onChange}
+        <MockCallbackBuilder
+          eventParams={this.props.eventParams}
+          onChange={this.props.onChange}
           resourceDefinition={this.props.resourceDefinition}
           rootParameters = {this.props.rootParameters}
           callbackDefinition={this.props.callbackDefinition}
           callbackRootParameters={this.props.callbackRootParameters}
-          successCallback={this.props.successCallback}
+          callbackObject={this.props.callbackObject}
         />
       )
     } else {
@@ -599,17 +655,19 @@ class EventBuilder extends React.Component {
   constructor() {
     super();
     this.state = {
-      selectedEventType: null,
-      eventData: {},
       selectedResource: null
     };
   }
 
-  componentDidMount = () => {
-    console.log(this.props)
-  }
+  // componentDidMount = () => {
+  //   console.log(this.props)
+  // }
 
-  eventTypes = [
+  // componentDidUpdate = () => {
+  //   console.log(this.props.event)
+  // }
+
+  successEventTypes = [
     {
       name: 'FIXED_CALLBACK',
       title: 'Fixed Callback'
@@ -620,18 +678,37 @@ class EventBuilder extends React.Component {
     }
   ]
 
+  errorEventTypes = [
+    {
+      name: 'FIXED_ERROR_CALLBACK',
+      title: 'Fixed Error Callback'
+    },
+    {
+      name: 'MOCK_ERROR_CALLBACK',
+      title: 'Mock Error Callback'
+    }
+  ]
+
   handleEventTypeSelect = (eventType) => {
-    this.setState({selectedEventType: eventType})
-    this.state.eventData.type = eventType
+    this.props.event.type = eventType
     this.handleEventChange()
   }
 
   handleEventChange = () => {
-    this.props.onChange(this.state.eventData)
+    if (this.props.callbackObject) {
+      this.props.event.method = this.props.callbackObject.method
+      this.props.event.path = this.props.callbackObject.path
+    }
+
+    this.props.onChange(this.props.event)
   }
 
   getEventTypes = () => {
-    return this.eventTypes.map(item => {
+    let eventTypes = this.successEventTypes
+    if (this.props.mode === 'validation') {
+      eventTypes = this.errorEventTypes
+    }
+    return eventTypes.map(item => {
       return (
         <Option key={item.name} value={item.name}>{item.title}</Option>
       )
@@ -640,9 +717,9 @@ class EventBuilder extends React.Component {
 
   handleParamsChange = (newParams) => {
     if (newParams) {
-      this.state.eventData.params = newParams
+      this.props.event.params = newParams
     } else {
-      delete this.state.eventData.params
+      delete this.props.event.params
     }
     this.handleEventChange()
   }
@@ -661,18 +738,25 @@ class EventBuilder extends React.Component {
                 >
                   Event Type
                 </label>
-                <Select onChange={this.handleEventTypeSelect} disabled={(this.props.resource? false : true)}>
+                <Select
+                  value={this.props.event.type}
+                  onChange={this.handleEventTypeSelect}
+                  disabled={(this.props.resource? false : true)}
+                >
                   {this.getEventTypes()}
                 </Select>
               </FormGroup>
             </Col>
           </Row>
-          <ParamsBuilder eventType={this.state.selectedEventType} onChange={this.handleParamsChange}
+          <ParamsBuilder
+            eventType={this.props.event.type}
+            eventParams={this.props.event.params}
+            onChange={this.handleParamsChange}
             resourceDefinition={this.props.resourceDefinition}
             rootParameters = {this.props.rootParameters}
             callbackDefinition={this.props.callbackDefinition}
             callbackRootParameters={this.props.callbackRootParameters}
-            successCallback={this.props.successCallback}
+            callbackObject={this.props.callbackObject}
           />
         </div>
       </>

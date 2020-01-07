@@ -106,14 +106,6 @@ class ResourceSelector extends React.Component {
       >
       {this.getResourceOptions()}
       </Select>
-      // <DropdownButton onSelect={resourceSelectHandler}
-      //   disabled={(this.state.selectedItem? true : false)}
-      //   variant="success" id="dropdown-basic"
-      //   title={(this.state.selectedItem? this.state.selectedItem.method+' '+this.state.selectedItem.path : 'Select')}
-      // >
-      //     {this.getResourceOptions()}
-      // </DropdownButton>
-
     )
   }
 }
@@ -125,7 +117,7 @@ class RulesEditor extends React.Component {
     this.state = {
       origJson: [],
       curJson: {},
-      rule: {},
+      description: '',
       event: {},
       conditions: [],
       pathMethodConditions: [],
@@ -138,12 +130,12 @@ class RulesEditor extends React.Component {
   componentDidMount = async () => {
     const openApiDefinition = await this.getDefinition()
     const callbackMap = await this.getCallbackMap()
-    // console.log(this.props.rule)
+    // Deep clone the input rule to a new object to work with (Copying without object references recursively)
+    const inputRule = JSON.parse(JSON.stringify(this.props.rule))
     let selectedResource = null
     try {
-      const pathObject = this.props.rule.conditions.all.find(item => (item.fact === 'operationPath'))
-      const methodObject = this.props.rule.conditions.all.find(item => (item.fact === 'method'))
-      
+      const pathObject = inputRule.conditions.all.find(item => (item.fact === 'operationPath'))
+      const methodObject = inputRule.conditions.all.find(item => (item.fact === 'method'))
       if(pathObject && methodObject) {
         selectedResource = {
           method: methodObject.value,
@@ -155,14 +147,14 @@ class RulesEditor extends React.Component {
     let pathMethodConditions = []
     let conditions = []
     try {
-      pathMethodConditions = this.props.rule.conditions.all.filter(item => {
+      pathMethodConditions = inputRule.conditions.all.filter(item => {
         if(item.fact === 'method' || item.fact === 'operationPath') {
           return true
         } else {
           return false
         }
       })
-      conditions = this.props.rule.conditions.all.filter(item => {
+      conditions = inputRule.conditions.all.filter(item => {
         if(item.fact === 'method' || item.fact === 'operationPath') {
           return false
         } else {
@@ -170,7 +162,22 @@ class RulesEditor extends React.Component {
         }
       })
     } catch(err){}
-    this.setState({conditions, pathMethodConditions, event: this.props.rule.event, selectedResource, openApiDefinition, callbackMap})
+
+    let event = {
+      method: null,
+      path: null,
+      params: {},
+      delay: 0
+    }
+    if (inputRule.event) {
+      event = inputRule.event
+    }
+
+    let description = ''
+    if (inputRule.description) {
+      description = inputRule.description
+    }
+    this.setState({description, conditions, pathMethodConditions, event, selectedResource, openApiDefinition, callbackMap})
   }
 
   getConditions = () => {
@@ -181,6 +188,9 @@ class RulesEditor extends React.Component {
     return this.state.pathMethodConditions
   }
 
+  getEvent = () => {
+    return this.state.event
+  }
   // async componentWillMount() {
   //   await this.getDefinition()
   //   await this.getCallbackMap()
@@ -188,8 +198,11 @@ class RulesEditor extends React.Component {
 
   getRule = () => {
     const rule = {
-      conditions: [...this.state.conditions, ...this.state.pathMethodConditions],
-      event: this.state.event
+      description: this.state.description,
+      conditions: {
+        "all": [...this.state.conditions, ...this.state.pathMethodConditions]
+      },
+      event: this.state.event,
     }
     return JSON.stringify(rule, null, 2)
   }
@@ -202,12 +215,6 @@ class RulesEditor extends React.Component {
   handleEventChange = (event) => {
     this.setState({event});
   };
-
-  getData = async () => {
-    const response = await axios.get("http://localhost:5050/api/rules/callback")
-      this.setState(  { origJson: [ ...response.data ] } )
-      // this.refs.editor.jsonEditor.update(this.state.origJson)
-  }
 
   getDefinition = async () => {
     const response = await axios.get("http://localhost:5050/api/openapi/definition/1.1")
@@ -222,16 +229,11 @@ class RulesEditor extends React.Component {
     // this.setState(  { callbackMap: response.data } )
   }
 
-  // handleChange = (json) => {
-  //   // this.setState( { curJson: json } )
-  // }
-  // handleError = (error) => {
-  //   console.log(error)
-  // }
   handleSave = () => {
-    const newJson = this.refs.editor.jsonEditor.get()
-    // this.setState( { curJson: [ ...newJson ]} )
-    axios.put("http://localhost:5050/api/rules/callback", newJson, { headers: { 'Content-Type': 'application/json' } })
+    // const newJson = this.refs.editor.jsonEditor.get()
+    // // this.setState( { curJson: [ ...newJson ]} )
+    // axios.put("http://localhost:5050/api/rules/callback", newJson, { headers: { 'Content-Type': 'application/json' } })
+    this.props.onSave(JSON.parse(this.getRule()))
   }
 
   resourceSelectHandler = (resource) => {
@@ -251,21 +253,35 @@ class RulesEditor extends React.Component {
   }
 
   getResourceDefinition = () => {
-    if (this.state.selectedResource) {
+    if (this.state.selectedResource && this.state.openApiDefinition) {
       return this.state.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method]
     }
     return null
   }
   getRootParameters = () => {
     var rootParams = []
-    if (this.state.selectedResource) {
+    if (this.state.selectedResource && this.state.openApiDefinition) {
       rootParams = this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters
     }
     return rootParams
   }
+
+  getCallbackObject = () => {
+      let callbackObj = null
+      try {
+        if(this.props.mode === 'validation') {
+          callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['errorCallback']
+        } else {
+          callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['successCallback']
+        }
+      } catch(err){
+      }
+      return callbackObj
+  }
+
   getCallbackRootParameters = () => {
       try {
-        const callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['successCallback']
+        const callbackObj = this.getCallbackObject()
         return this.state.openApiDefinition.paths[callbackObj.path].parameters
       } catch(err) {
         return []
@@ -276,7 +292,7 @@ class RulesEditor extends React.Component {
   getCallbackDefinition = () => {
     if (this.state.selectedResource) {
       try {
-        const callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['successCallback']
+        const callbackObj = this.getCallbackObject()
         return this.state.openApiDefinition.paths[callbackObj.path][callbackObj.method]
       } catch(err) {
         return null
@@ -286,13 +302,8 @@ class RulesEditor extends React.Component {
     return null
   }
 
-  getSuccessCallback = () => {
-    try {
-      const callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['successCallback']
-      return callbackObj
-    } catch(err) {
-      return null
-    }
+  handleDescriptionChange = (newValue) => {
+    this.setState({description: newValue})
   }
 
 
@@ -300,24 +311,15 @@ class RulesEditor extends React.Component {
     return (
       <>
           <Row>
-            <Col className="order-xl-2 mb-5 mb-xl-0" xl="6">
+            {/* <Col className="order-xl-2 mb-5 mb-xl-0" xl="6">
               <Card className="card-profile shadow">
                 <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                  <div className="d-flex justify-content-between">
-                    <Button
-                      className="mr-4"
-                      color="info"
-                      href="#pablo"
-                      onClick={e => e.preventDefault()}
-                      size="sm"
-                    >
-                      Validate
-                    </Button>
+                  <div className="d-flex float-right">
                     <Button
                       className="float-right"
-                      color="default"
+                      color="primary"
                       href="#pablo"
-                      onClick={e => e.preventDefault()}
+                      onClick={this.handleSave}
                       size="sm"
                     >
                       Save
@@ -330,26 +332,42 @@ class RulesEditor extends React.Component {
                   </div>
                 </CardBody>
               </Card>
-            </Col>
-            <Col className="order-xl-1" xl="6">
+            </Col> */}
+            <Col className="order-xl-1" xl="12">
               <Card className="bg-secondary shadow">
                 <CardHeader className="bg-white border-0">
                   <Row className="align-items-center">
                     <Col xs="2">
-                      <h3 className="mb-0">Rule #1</h3>
+                      <h3 className="mb-0">Rule #{this.props.rule.ruleId}</h3>
                     </Col>
-                    <Col xs="8" className="text-center">
-                      <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                    <Col xs="6" className="text-center">
+                      <b>Resource:</b> <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
                     </Col>
-                    <Col className="text-right" xs="2">
-                      <Button
-                        color="danger"
-                        href="#pablo"
-                        onClick={e => e.preventDefault()}
-                        size="sm"
-                      >
-                        Reset
-                      </Button>
+                    <Col xs="4">
+                      <Row className="text-right float-right">
+                        <Col>
+                          <Button
+                            color="danger"
+                            href="#pablo"
+                            onClick={e => e.preventDefault()}
+                            size="sm"
+                          >
+                            Reset
+                          </Button>
+                        </Col>
+                        <Col>
+                          <Button
+                            className="float-right"
+                            color="primary"
+                            href="#pablo"
+                            onClick={this.handleSave}
+                            size="sm"
+                          >
+                            Save
+                          </Button>
+                        </Col>
+                      </Row>
+
                     </Col>
                   </Row>
                 </CardHeader>
@@ -375,13 +393,15 @@ class RulesEditor extends React.Component {
                       Event
                     </h6>
                     <EventBuilder
+                      event={this.getEvent()}
                       onChange={this.handleEventChange}
                       resource={this.state.selectedResource}
                       resourceDefinition={this.getResourceDefinition()}
                       rootParameters={this.getRootParameters()}
                       callbackDefinition={this.getCallbackDefinition()}
                       callbackRootParameters={this.getCallbackRootParameters()}
-                      successCallback={this.getSuccessCallback()}
+                      callbackObject={this.getCallbackObject()}
+                      mode={this.props.mode}
                     />
                     <hr className="my-4" />
                     {/* Description */}
@@ -392,8 +412,9 @@ class RulesEditor extends React.Component {
                         <Input
                           className="form-control-alternative"
                           placeholder="A few words about the rule ..."
+                          onChange={(e) => this.handleDescriptionChange(e.target.value)}
                           rows="4"
-                          defaultValue="This is sample description about this rule"
+                          value={this.state.description}
                           type="textarea"
                         />
                       </FormGroup>

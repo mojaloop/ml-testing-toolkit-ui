@@ -36,6 +36,7 @@ var routes = [
   {
     path: "/rules_validation",
     name: "Validation Rules",
+    subTitle: "(Error Callbacks)",
     icon: "ni ni-bullet-list-67 text-primary",
     component: RulesValidation,
     layout: "/admin"
@@ -43,6 +44,7 @@ var routes = [
   {
     path: "/rules_callback",
     name: "Callback Rules",
+    subTitle: "(Success Callbacks)",
     icon: "ni ni-curved-next text-primary",
     component: RulesCallback,
     layout: "/admin"
