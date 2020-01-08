@@ -560,7 +560,9 @@ class MockCallbackBuilder extends React.Component {
 
   componentDidMount = () => {
     if (this.props.eventParams) {
-      this.setState({overrideChecked: true})
+      if (this.props.eventParams.headers || this.props.eventParams.body) {
+        this.setState({overrideChecked: true})
+      }
     }
     
   }
@@ -568,13 +570,7 @@ class MockCallbackBuilder extends React.Component {
   handleOverrideChecked = (event) => {
     this.setState({overrideChecked: event.target.checked})
     if (!event.target.checked) {
-      this.handleOverrideValuesChange({
-        method: null,
-        path: null,
-        headers: {},
-        body: {},
-        delay: 0
-      })
+      this.handleOverrideValuesChange({})
     }
   }
 
