@@ -24,6 +24,7 @@ import Tables from "views/examples/Tables.jsx";
 import Icons from "views/examples/Icons.jsx";
 import RulesValidation from "views/rules/RulesValidation.jsx";
 import RulesCallback from "views/rules/RulesCallback.jsx";
+import OutboundRequest from "views/outbound/OutboundRequest.jsx";
 
 var routes = [
   {
@@ -47,6 +48,13 @@ var routes = [
     subTitle: "(Success Callbacks)",
     icon: "ni ni-curved-next text-primary",
     component: RulesCallback,
+    layout: "/admin"
+  },
+  {
+    path: "/outbound_request",
+    name: "Outbound Request",
+    icon: "ni ni-money-coins text-blue",
+    component: OutboundRequest,
     layout: "/admin"
   },
   // {

@@ -75,7 +75,7 @@ class DetailComponent extends GridDetailRow {
 // }
 
 
-class Tables extends React.Component {
+export class Logs extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -103,12 +103,8 @@ class Tables extends React.Component {
   
     return (
       <>
-        <Header />
-        {/* Page content */}
-        <Container className="mt--7" fluid>
-          {/* Table */}
-          <Row>
-            <div className="col">
+        <Row>
+          <div className="col">
               <Card className="shadow">
                 <CardHeader className="border-0">
                   <h3 className="mb-0">Logs</h3>
@@ -126,12 +122,30 @@ class Tables extends React.Component {
                   <Column field="verbosity" title="Verbosity" />
                 </Grid>
               </Card>
-            </div>
-          </Row>
-          {/* Dark table */}
+              </div>
+        </Row>
+      </>
+    );
+  }
+}
 
+class Tables extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+    };
+  }
+
+
+  render() {
+  
+    return (
+      <>
+        <Header />
+        {/* Page content */}
+        <Container className="mt--7" fluid>
+          <Logs />
         </Container>
-
       </>
     );
   }
