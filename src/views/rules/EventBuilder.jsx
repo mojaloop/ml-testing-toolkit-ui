@@ -413,46 +413,40 @@ class FixedCallbackBuilder extends React.Component {
             </Card>
           </Col>
         </Row>
-        {
-          this.props.resourceDefinition.requestBody
-          ? (
-            <Row className='mt-2'>
-              <Col>
-                <Card size="small" title="Body">
-                  <Row className='mb-2'>
-                    <Col lg="6">
-                      <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                        <Button color="secondary" size="sm">Add Configurable Params</Button>
-                      </Popover>
-                    </Col>
-                    <Col lg="6" style={{textAlign: 'right'}}>
-                      <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
-                    </Col>
-                  </Row>
-                  <Row >
-                    <Col lg="12">
-                      <Editor
-                        ref="bodyEditor"
-                        value={ this.props.eventParams.body? this.props.eventParams.body : {} }
-                        ace={ace}
-                        ajv={ajv}
-                        theme="ace/theme/tomorrow_night_blue"
-                        mode="code"
-                        search={false}
-                        statusBar={false}
-                        navigationBar={false}
-                        onChange={this.handleBodyChange}
-                        schema={this.bodySchema}
-                        // onError={this.handleError}
-                      />
-                    </Col>
-                  </Row>
-                </Card>
-              </Col>
-            </Row>
-          )
-          : null
-        }
+        <Row className='mt-2'>
+          <Col>
+            <Card size="small" title="Body">
+              <Row className='mb-2'>
+                <Col lg="6">
+                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                    <Button color="secondary" size="sm">Add Configurable Params</Button>
+                  </Popover>
+                </Col>
+                <Col lg="6" style={{textAlign: 'right'}}>
+                  <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
+                </Col>
+              </Row>
+              <Row >
+                <Col lg="12">
+                  <Editor
+                    ref="bodyEditor"
+                    value={ this.props.eventParams.body? this.props.eventParams.body : {} }
+                    ace={ace}
+                    ajv={ajv}
+                    theme="ace/theme/tomorrow_night_blue"
+                    mode="code"
+                    search={false}
+                    statusBar={false}
+                    navigationBar={false}
+                    onChange={this.handleBodyChange}
+                    schema={this.bodySchema}
+                    // onError={this.handleError}
+                  />
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
       </>
     )
   }
