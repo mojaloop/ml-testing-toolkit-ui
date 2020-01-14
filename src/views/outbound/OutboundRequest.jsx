@@ -16,6 +16,7 @@
 
 */
 import React from "react";
+import _ from 'lodash';
 
 // reactstrap components
 import {
@@ -24,11 +25,8 @@ import {
   FormGroup,
   CardHeader,
   Form,
-  Input,
   Container,
-  Row,
   Button,
-  Col,
 } from "reactstrap";
 // core components
 
@@ -36,7 +34,7 @@ import Header from "components/Headers/Header.jsx";
 
 import { Dropdown, DropdownButton } from 'react-bootstrap'; 
 
-import { Select } from 'antd';
+import { Select, Input, Row, Col, Affix, Steps, Descriptions, Switch, Tabs, Modal, Icon, Skeleton } from 'antd';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -50,6 +48,69 @@ import RequestBuilder from './RequestBuilder'
 import { Logs } from '../Index'
 
 const { Option } = Select;
+const { Step } = Steps;
+const { TabPane } = Tabs;
+
+
+class InputValues extends React.Component {
+
+  getInputItems = () => {
+    let inputItems = []
+    let i = 0
+    for (let inputValueName in this.props.values) {
+      inputItems.push(
+        <>
+        <Descriptions.Item label={inputValueName}>
+          <Row gutter={8}>
+            <Col span={23}>
+              <Input
+                value={this.props.values[inputValueName]}
+                onChange={(e) => this.props.onChange(inputValueName, e.target.value)}
+              />
+            </Col>
+            <Col span={1}>
+              <Icon type="delete" theme="filled" />
+            </Col>
+          </Row>
+          
+        </Descriptions.Item>
+        </>
+      )
+    }
+    return inputItems
+  }
+
+  render () {
+    return (
+      <>
+      <Row gutter={16}>
+        <Col span={24}>
+          <Card className="bg-white shadow">
+            <CardBody>
+              <Button
+                  className="text-right float-right"
+                  color="primary"
+                  href="#pablo"
+                  onClick={e => e.preventDefault()}
+                  size="sm"
+                >
+                  Add Input Value
+              </Button>
+              <Form>
+                <Descriptions title="Input Values" bordered>
+                  {this.getInputItems()}
+                </Descriptions>
+              </Form>
+            </CardBody>
+          </Card>
+        </Col>
+      </Row>
+      </>
+    )
+  }
+}
+
+
 
 class ResourceSelector extends React.Component {
 
@@ -67,14 +128,11 @@ class ResourceSelector extends React.Component {
       let currentResourceGroup = ''
       for ( let pathKey in this.props.openApiDefinition.paths ) {
         for ( let methodKey in this.props.openApiDefinition.paths[pathKey]) {
-          let itemKey = JSON.stringify({
-            method: methodKey,
-            path: pathKey
-          })
+          let itemKey = methodKey + " " + pathKey
           switch(methodKey) {
             case 'get':
             case 'post':
-              this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
+              this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{itemKey}</Option>)
               break
           }
         }
@@ -84,8 +142,9 @@ class ResourceSelector extends React.Component {
   }
 
   getResourceValue = () => {
+    // console.log(this.props.value)
     if(this.props.value) {
-      return JSON.stringify(this.props.value)
+      return this.props.value.method + ' ' + this.props.value.path
     } else {
       return null
     }
@@ -95,14 +154,20 @@ class ResourceSelector extends React.Component {
   render() {
 
     const resourceSelectHandler = (eventKey) => {
-      this.state.selectedItem = JSON.parse(eventKey)
-      this.props.onSelect(this.state.selectedItem)
+      const resourceArr = eventKey.split(' ')
+      const resource = {
+        method: resourceArr[0],
+        path: resourceArr[1]
+      }
+      this.state.selectedItem = resource
+      // this.state.selectedItem = JSON.parse(eventKey)
+      this.props.onSelect(resource)
       // console.log(this.props.openApiDefinition.paths[selectedItem.path][selectedItem.method])
     }
 
     return(
       <Select onChange={resourceSelectHandler}
-        disabled={(this.state.selectedItem? true : false)}
+        disabled={(this.props.value? true : false)}
         style={{ width: 300 }}
         placeholder="Select a resource"
         value={this.getResourceValue()}
@@ -136,51 +201,14 @@ class RequestGenerator extends React.Component {
     // Deep clone the input rule to a new object to work with (Copying without object references recursively)
     const inputRule = {}
     let selectedResource = null
-    try {
-      const pathObject = inputRule.conditions.all.find(item => (item.fact === 'operationPath'))
-      const methodObject = inputRule.conditions.all.find(item => (item.fact === 'method'))
-      if(pathObject && methodObject) {
-        selectedResource = {
-          method: methodObject.value,
-          path: pathObject.value
-        }
+    if (this.props.request) {
+      selectedResource = {
+        path: this.props.request.operationPath,
+        method: this.props.request.method
       }
-    } catch(err) {}
-
-    let pathMethodConditions = []
-    let conditions = []
-    try {
-      pathMethodConditions = inputRule.conditions.all.filter(item => {
-        if(item.fact === 'method' || item.fact === 'operationPath') {
-          return true
-        } else {
-          return false
-        }
-      })
-      conditions = inputRule.conditions.all.filter(item => {
-        if(item.fact === 'method' || item.fact === 'operationPath') {
-          return false
-        } else {
-          return true
-        }
-      })
-    } catch(err){}
-
-    let request = {
-      method: null,
-      path: null,
-      body: null,
-      headers: null
-    }
-    if (inputRule.request) {
-      request = inputRule.request
     }
 
-    let description = ''
-    if (inputRule.description) {
-      description = inputRule.description
-    }
-    this.setState({description, conditions, pathMethodConditions, request, selectedResource, openApiDefinition, callbackMap})
+    this.setState({selectedResource, openApiDefinition, callbackMap})
   }
 
   getConditions = () => {
@@ -308,75 +336,33 @@ class RequestGenerator extends React.Component {
     return (
       <>
           <Row>
-            {/* <Col className="order-xl-2 mb-5 mb-xl-0" xl="6">
-              <Card className="card-profile shadow">
-                <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                  <div className="d-flex float-right">
-                    <Button
-                      className="float-right"
-                      color="primary"
-                      href="#pablo"
-                      onClick={this.handleSave}
-                      size="sm"
-                    >
-                      Save
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardBody className="pt-0 pt-md-4">
-                  <div className="text-left">
-                    <pre>{this.getRule()}</pre>
-                  </div>
-                </CardBody>
-              </Card>
-            </Col> */}
-            <Col className="order-xl-1" xl="12">
-              <Card className="bg-secondary shadow">
-                <CardHeader className="bg-white border-0">
+            <Col span={24}>
                   <Row className="align-items-center">
-                    <Col xs="8" className="text-center">
-                      <b>Resource:</b> <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                    <Col span={16}>
+                      <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
                     </Col>
-                    <Col xs="4">
+                    <Col span={8}>
                       <Row className="text-right float-right">
                         <Col>
-                          <Button
-                            color="danger"
-                            href="#pablo"
-                            onClick={e => e.preventDefault()}
-                            size="sm"
-                          >
-                            Reset
-                          </Button>
-                        </Col>
-                        <Col>
-                          <Button
-                            className="float-right"
-                            color="success"
-                            href="#pablo"
-                            onClick={this.handleSend}
-                            size="sm"
-                          >
-                            Send
-                          </Button>
+                          <Switch defaultChecked />
                         </Col>
                       </Row>
-
                     </Col>
                   </Row>
-                </CardHeader>
-                <CardBody>
-                  <Form>
-                    <RequestBuilder
-                      request={this.getRequest()}
-                      onChange={this.handleRequestChange}
-                      resource={this.state.selectedResource}
-                      resourceDefinition={this.getResourceDefinition()}
-                      rootParameters={this.getRootParameters()}
-                    />
-                  </Form>
-                </CardBody>
-              </Card>
+                  <Row>
+                    <Col>
+                      <Form>
+                        <RequestBuilder
+                          request={this.props.request}
+                          inputValues={this.props.inputValues}
+                          onChange={this.handleRequestChange}
+                          resource={this.state.selectedResource}
+                          resourceDefinition={this.getResourceDefinition()}
+                          rootParameters={this.getRootParameters()}
+                        />
+                      </Form>
+                    </Col>
+                  </Row>
             </Col>
           </Row>
       </>
@@ -389,25 +375,364 @@ class OutboundRequest extends React.Component {
   constructor() {
     super();
     this.state = {
-      request: {}
+      request: {},
+      template: {}
     };
+  }
+
+  componentDidMount = () => {
+    const sampleTemplate = {
+      name: 'Test1',
+      inputValues: {
+        fromIdType: 'MSISDN',
+        fromIdValue: '44123456789',
+        fromFirstName: 'Vijay',
+        fromLastName: 'Kumar',
+        fromDOB: '1984-01-01',
+        note: 'Test Payment',
+        currency: 'USD',
+        amount: '100',
+        homeTransactionId: '123ABC',
+        fromFspId: 'payerfsp',
+        accept: 'application/vnd.interoperability.parties+json;version=1',
+        contentType: 'application/vnd.interoperability.parties+json;version=1'
+      },
+      requests: [
+        {
+          id: 1,
+          description: 'Get party information',
+          status: {},
+          operationPath: '/parties/{Type}/{ID}',
+          method: 'get',
+          headers: {
+            'Accept': '{$inputs.accept}',
+            'Content-Type': '{$inputs.contentType}',
+            'Date': '{$function.curDate}',
+            'FSPIOP-Source': '{$inputs.fromFspId}'
+          },
+          pathParams: {
+            Type: '{$inputs.toIdType}',
+            ID: '{$inputs.toIdValue}'
+          }
+        },
+        {
+          id: 2,
+          description: 'Get quote',
+          status: {},
+          operationPath: '/quotes',
+          method: 'post',
+          headers: {
+            'Accept': '{$inputs.accept}',
+            'Content-Type': '{$inputs.contentType}',
+            'Date': '{$function.curDate}',
+            'FSPIOP-Source': '{$inputs.fromFspId}'
+          },
+          body: {
+            'quoteId': '{$function.generateUUID}',
+            'transactionId': '{$function.generateUUID}',
+            'payer': {
+              'partyIdInfo': {
+                'partyIdType': '{$inputs.fromIdType}',
+                'partyIdentifier': '{$inputs.fromIdValue}',
+                'fspId': '{$inputs.fromFspId}'
+              },
+              'personalInfo': {
+                'complexName': {
+                  'firstName': '{$inputs.fromFirstName}',
+                  'lastName': '{$inputs.fromLastName}'
+                },
+                'dateOfBirth': '{$inputs.fromDOB}'
+              }
+            },
+            'payee': {
+              'partyIdInfo': {
+                'partyIdType': '{$prev.1.response.body.party.partyIdInfo.partyIdType}',
+                'partyIdentifier': '{$prev.1.response.body.party.partyIdInfo.partyIdentifier}',
+                'fspId': '{$prev.1.response.body.party.partyIdInfo.fspId}'
+              }
+            },
+            'amountType': 'SEND',
+            'amount': {
+              'amount': '{$inputs.amount}',
+              'currency': '{$inputs.currency}'
+            },
+            'transactionType': {
+              'scenario': 'TRANSFER',
+              'initiator': 'PAYER',
+              'initiatorType': 'CONSUMER'
+            },
+            'note': '{$inputs.note}'
+          }
+        },
+        {
+          id: 3,
+          description: 'Send transfer',
+          status: {},
+          operationPath: '/transfers',
+          method: 'post',
+          headers: {
+            'Accept': '{$inputs.accept}',
+            'Content-Type': '{$inputs.contentType}',
+            'Date': '{$function.curDate}',
+            'FSPIOP-Source': '{$inputs.fromFspId}'
+          },
+          body: {
+            'transferId': '{$function.generateUUID}',
+            'payerFsp': '{$inputs.fromFspId}',
+            'payeeFsp': '{$prev.1.response.body.party.partyIdInfo.fspId}',
+            'amount': {
+              'amount': '{$inputs.amount}',
+              'currency': '{$inputs.currency}'
+            },
+            'expiration': '{$prev.2.response.body.expiration}',
+            'ilpPacket': '{$prev.2.response.body.ilpPacket}',
+            'condition': '{$prev.2.response.body.condition}'
+          }
+        },
+      ]
+    }
+    this.setState({template: sampleTemplate})
+  }
+
+  replaceInputValues = (inputObject, inputValues) => {
+    var resultObject
+    // Check whether inputObject is string or object. If it is object, then convert that to JSON string and parse it while return
+    if (typeof inputObject === 'string') {
+      resultObject = inputObject
+    } else if (typeof inputObject === 'object') {
+      resultObject = JSON.stringify(inputObject)
+    } else {
+      return inputObject
+    }
+  
+    // Check the string for any inclusions like {$some_param}
+    const matchedArray = resultObject.match(/{\$([^}]+)}/g)
+    if (matchedArray) {
+      matchedArray.forEach(element => {
+        // Check for the function type of param, if its function we need to call a function in custom-functions and replace the returned value
+        const splitArr = element.split('.')
+        switch (splitArr[0]) {
+          case '{$inputs':
+          default:
+            const paramName = element.slice(9,element.length-1)
+            const temp = _.get(this.state.template.inputValues, paramName)
+            if (temp) {
+              resultObject = resultObject.replace(element, temp)
+            }
+        }
+      })
+    }
+  
+    if (typeof inputObject === 'object') {
+      return JSON.parse(resultObject)
+    } else {
+      return resultObject
+    }
+  }
+
+  getRequestGeneratorItems = () => {
+    if (this.state.template.requests) {
+      return this.state.template.requests.map(item => {
+        return (
+          <Col span={8}>
+            {
+              item.status.state === 'waiting' || item.status.state === 'process'
+              ? (<Skeleton paragraph={ {rows: 10} } active />)
+              : (
+                <Tabs defaultActiveKey='1'>
+                  <TabPane tab="Request" key="1">
+                    <h4>Header</h4>
+                    <pre>{JSON.stringify(this.replaceInputValues(item.headers),null,2)}</pre>
+                    <h4>Body</h4>
+                    <pre>{JSON.stringify(this.replaceInputValues(item.body),null,2)}</pre>
+                  </TabPane>
+                  <TabPane tab="Editor" key="2">
+                    <RequestGenerator
+                      request={item}
+                      inputValues={this.state.template.inputValues}
+                      onChange={this.handleRequestChange}
+                    />
+                  </TabPane>
+                  {
+                    item.status.response
+                    ? (
+                      <TabPane tab="Response" key="3">
+                      <h4>Header</h4>
+                      <pre>{item.status.response.headers}</pre>
+                      <h4>Body</h4>
+                      <pre>{item.status.response.body}</pre>
+                      </TabPane>
+                    )
+                    : null
+                  }
+                </Tabs>
+              )
+            }
+
+          </Col>
+        )
+      })
+    } else {
+      return null
+    }
+  }
+
+  getStepItems = () => {
+    if (this.state.template.requests) {
+      const stepItems = this.state.template.requests.map(item => {
+        return (
+          <Step status={item.status.state} title={item.method} subTitle={item.operationPath} description={item.description} />
+        )
+      })
+      const spanCol = stepItems.length < 3 ? stepItems.length * 8 : 24
+      return (
+        <Row>
+          <Col span={spanCol}>
+            <Steps current={-1} type="navigation">
+              {stepItems}
+            </Steps>
+          </Col>
+        </Row>
+      )
+      
+    } else {
+      return null
+    }
   }
 
   handleRequestChange = (request) => {
     this.setState({request: request})
   }
 
+  handleInputValuesChange = (name, value) => {
+    this.state.template.inputValues[name] = value
+    this.forceUpdate()
+  }
+
+  mockTypeSuccess = true
+  handleSendClick = async () => {
+    // Mock status changes to simulate the outbound transfer in UI
+
+    // Set the status to waiting for all the requests
+    for (let i in this.state.template.requests) {
+      this.state.template.requests[i].status.state = 'waiting'
+    }
+    this.forceUpdate()
+
+    // Loop through the requests and set the status to waiting for each for some particular time
+    const waitForSomeTime = () => {
+      return new Promise(function(resolve, reject) {
+        setTimeout(resolve, 800, 'one');
+      });
+    }
+
+    for (let i in this.state.template.requests) {
+      await waitForSomeTime()
+      this.state.template.requests[i].status.state = 'finish'
+      this.state.template.requests[i].status.response = { body: 'This is a sample response' }
+      if (!this.mockTypeSuccess && i==1) {
+        this.state.template.requests[i].status.state = 'error'
+        this.forceUpdate()
+        break;
+      }
+      this.forceUpdate()
+    }
+
+    this.mockTypeSuccess = !this.mockTypeSuccess
+  }
+
   render() {
 
     return (
       <>
+        <Modal
+          centered
+          destroyOnClose
+          forceRender
+          title="Template"
+          className="w-50 p-3"
+          visible={this.state.showTemplate? true : false}
+          footer={null}
+          onCancel={() => { this.setState({showTemplate: false})}}
+        >
+          <pre>{JSON.stringify(this.state.template, null, 2)}</pre>
+        </Modal>
         <Header />
         {/* Page content */}
         <Container className="mt--7" fluid>
           <Row>
-            <Col className="order-xl-2 mb-5 mb-xl-0" xl="6">
+            <Col span={24}>
               <Card className="card-profile shadow">
-                <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
+                <CardBody>
+                  <Affix offsetTop={2}>
+                  <Row>
+                    <Col span={24}>
+                      <Card className="bg-white shadow mb-4">
+                        <CardBody>
+                          <Button
+                            color="success"
+                            size="sm"
+                            onClick={e => e.preventDefault()}
+                          >
+                            Import Template
+                          </Button>
+
+                          <Button
+                            className="float-right"
+                            color="danger"
+                            size="sm"
+                            onClick={this.handleSendClick}
+                          >
+                            Send
+                          </Button>
+                          <Button
+                            className="float-right"
+                            color="info"
+                            size="sm"
+                            onClick={() => { this.setState({showTemplate: true})}}
+                          >
+                            Show Template
+                          </Button>
+                          <Button
+                            className="float-right"
+                            color="primary"
+                            size="sm"
+                            onClick={e => e.preventDefault()}
+                          >
+                            Create Template
+                          </Button>
+                        </CardBody>
+                        </Card>
+                    </Col>
+                  </Row>
+                  </Affix>
+                  <Row>
+                    <Col span={24}>
+                      <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} />
+                    </Col>
+                  </Row>
+                  <Row className="mt-4">
+                    <Col span={24}>
+                    <Card className="card-profile shadow">
+                      <CardHeader>
+                        {this.getStepItems()}
+                      </CardHeader>
+                      <CardBody>
+                        <Row gutter={16} >
+                          {this.getRequestGeneratorItems()}
+                        </Row>
+                      </CardBody>
+                    </Card>
+                    </Col>
+                  </Row>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+          <Row>
+            <Col className="mt-4" span={24}>
+              <Card className="card-profile shadow">
+                <CardHeader>
                   <div className="d-flex float-right">
                     <Button
                       className="float-right"
@@ -419,15 +744,9 @@ class OutboundRequest extends React.Component {
                   </div>
                 </CardHeader>
                 <CardBody className="pt-0 pt-md-4">
-                  {/* <pre>{JSON.stringify(this.state.request, null, 2)}</pre> */}
                   <Logs />
                 </CardBody>
               </Card>
-            </Col>
-            <Col className="order-xl-1" xl="6">
-              <RequestGenerator
-                onChange={this.handleRequestChange}
-              />
             </Col>
           </Row>
         </Container>

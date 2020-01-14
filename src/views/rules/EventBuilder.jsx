@@ -180,7 +180,9 @@ class FixedCallbackBuilder extends React.Component {
   constructor() {
     super()
     this.state = {
-      configurableParameterSelected: ''
+      configurableParameterSelected: '',
+      allParamsFromDefinition: [],
+      allParamsObject: {}
     }
   }
 
@@ -191,6 +193,24 @@ class FixedCallbackBuilder extends React.Component {
     // console.log(this.props.resourceDefinition.parameters)
     // console.log(this.props.callbackDefinition)
     this.bodySchema = (new FactDataGenerator()).getBodyFactData(this.props.callbackDefinition)
+
+
+    let allParamsFromDefinition = []
+    if (this.props.callbackRootParameters) {
+      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackRootParameters)
+    }
+    if (this.props.callbackDefinition.parameters) {
+      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackDefinition.parameters)
+    }
+
+    let allParamsObject = {}
+    for (let k in allParamsFromDefinition) {
+      allParamsObject[allParamsFromDefinition[k].name] = {
+        description: allParamsFromDefinition[k].description
+      }
+    }
+    this.setState({allParamsFromDefinition, allParamsObject})
+
   }
   // componentDidUpdate = () => {
   //   // console.log(this.props.callbackRootParameters)
@@ -203,15 +223,7 @@ class FixedCallbackBuilder extends React.Component {
 
 
   addHeaderItemsFromDefinition = async (onlyRequired=false) => {
-    let allParamsFromDefinition = []
-    if (this.props.callbackRootParameters) {
-      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackRootParameters)
-    }
-    if (this.props.callbackDefinition.parameters) {
-      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackDefinition.parameters)
-    }
-
-    allParamsFromDefinition.forEach((param) => {
+    this.state.allParamsFromDefinition.forEach((param) => {
       if (param.in==='header') {
         if (!onlyRequired || param.required) {
           if (!this.props.eventParams.headers) {
@@ -253,19 +265,11 @@ class FixedCallbackBuilder extends React.Component {
     this.addHeaderItem(event.item.props.children);
   };
 
-  headerItemsMenu = () => {
-    let allParamsFromDefinition = []
-    if (this.props.callbackRootParameters) {
-      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackRootParameters)
-    }
-    if (this.props.callbackDefinition.parameters) {
-      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackDefinition.parameters)
-    }
-    
-    allParamsFromDefinition = allParamsFromDefinition.filter(item => {
+  headerItemsMenu = () => {    
+    const headerParams = this.state.allParamsFromDefinition.filter(item => {
       return item.in === 'header'
     })
-    const menuItems = allParamsFromDefinition.map((item, key) => {
+    const menuItems = headerParams.map((item, key) => {
       return (
         <Menu.Item key={key}>{item.name}</Menu.Item>
       )
@@ -295,7 +299,7 @@ class FixedCallbackBuilder extends React.Component {
         }
         const key = k++
         headerItems.push(
-          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
+          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.state.allParamsObject[item.name]? this.state.allParamsObject[item.name].description: null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
         )
       }
     }
@@ -409,41 +413,46 @@ class FixedCallbackBuilder extends React.Component {
             </Card>
           </Col>
         </Row>
-        <Row className='mt-2'>
-          <Col>
-            <Card size="small" title="Body">
-              <Row className='mb-2'>
-                <Col lg="6">
-                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                    <Button color="secondary" size="sm">Add Configurable Params</Button>
-                  </Popover>
-                </Col>
-                <Col lg="6" style={{textAlign: 'right'}}>
-                  <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
-                </Col>
-              </Row>
-              <Row >
-                <Col lg="12">
-                  <Editor
-                    ref="bodyEditor"
-                    value={ this.props.eventParams.body? this.props.eventParams.body : {} }
-                    ace={ace}
-                    ajv={ajv}
-                    theme="ace/theme/tomorrow_night_blue"
-                    mode="code"
-                    search={false}
-                    statusBar={false}
-                    navigationBar={false}
-                    onChange={this.handleBodyChange}
-                    schema={this.bodySchema}
-                    // onError={this.handleError}
-                  />
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        </Row>
-
+        {
+          this.props.resourceDefinition.requestBody
+          ? (
+            <Row className='mt-2'>
+              <Col>
+                <Card size="small" title="Body">
+                  <Row className='mb-2'>
+                    <Col lg="6">
+                      <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                        <Button color="secondary" size="sm">Add Configurable Params</Button>
+                      </Popover>
+                    </Col>
+                    <Col lg="6" style={{textAlign: 'right'}}>
+                      <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
+                    </Col>
+                  </Row>
+                  <Row >
+                    <Col lg="12">
+                      <Editor
+                        ref="bodyEditor"
+                        value={ this.props.eventParams.body? this.props.eventParams.body : {} }
+                        ace={ace}
+                        ajv={ajv}
+                        theme="ace/theme/tomorrow_night_blue"
+                        mode="code"
+                        search={false}
+                        statusBar={false}
+                        navigationBar={false}
+                        onChange={this.handleBodyChange}
+                        schema={this.bodySchema}
+                        // onError={this.handleError}
+                      />
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
+            </Row>
+          )
+          : null
+        }
       </>
     )
   }
@@ -507,15 +516,17 @@ class HeaderInputComponent extends React.Component {
       <>
       <Row>
         <Col lg="4">
-          <Input
-            className="form-control-alternative"
-            placeholder="Name"
-            type="text"
-            defaultValue={this.props.name}
-            value={this.props.name}
-            onChange={this.handleNameChange}
-            disabled={false}
-          />
+          <Tooltip placement="topLeft" title={this.props.description}>
+            <Input
+              className="form-control-alternative"
+              placeholder="Name"
+              type="text"
+              defaultValue={this.props.name}
+              value={this.props.name}
+              onChange={this.handleNameChange}
+              disabled={false}
+            />
+          </Tooltip>
         </Col>
         
         <Col lg="6">

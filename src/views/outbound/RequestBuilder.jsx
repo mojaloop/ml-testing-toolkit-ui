@@ -21,15 +21,13 @@ import _ from 'lodash';
 // reactstrap components
 import {
   FormGroup,
-  Row,
   Button,
-  Col,
   CardBody
 } from "reactstrap";
 // core components
 import axios from 'axios';
 // import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message } from 'antd';
+import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col } from 'antd';
 import 'antd/dist/antd.css';
 // import './index.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
@@ -79,31 +77,66 @@ class PathBuilder extends React.Component {
     const pathItems = this.props.rootParameters.filter(item => {
       return item.in === 'path'
     })
-    return pathItems.map(item => {
-      return (
-        <Row className="mb-2" key={item.name}>
-          <Col lg="4">
-            <label
-              className="form-control-label"
-              htmlFor="input-city"
-            >
-              {item.name}
-            </label>
-          </Col>
-          <Col lg="8">
-            { this.getValueInput(item) }
-          </Col>
-        </Row>
-      )
-    })
+    if (pathItems.length<=0) {
+      return null
+    }
+    return (
+      <Row className="mb-2">
+        <Col>
+          <Card size="small" title="Path Parameters">
+            <Row>
+              <Col span={24}>
+                <FormGroup>
+                  {(
+                    pathItems.map(item => {
+                      return (
+                        <Row className="mb-2" key={item.name}>
+                          <Col span={8}>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-city"
+                            >
+                              {item.name}
+                            </label>
+                          </Col>
+                          <Col span={16}>
+                            { this.getValueInput(item) }
+                          </Col>
+                        </Row>
+                      )
+                    })
+                  )}
+                </FormGroup>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+      </Row>
+    )
 
   }
 
   getValueInput = (pathParam) => {
+    const pathValue = this.props.request.pathParams[pathParam.name]
+    let dynamicPathValue = null
+    //Check if the path value is a configurable input parameter
+    if (pathValue.startsWith('{$inputs.')) {
+      // Find the parameter name
+      const paramName = pathValue.slice(9,pathValue.length-1)
+      // if (this.props.inputValues)
+      const temp = _.get(this.props.inputValues, paramName)
+      if (temp) {
+        dynamicPathValue = (
+          <Tag style={{ borderStyle: 'dashed' }}>{temp}</Tag>
+        )
+      }
+    }
     if(pathParam.schema && pathParam.schema.enum) {
       return (
+        <>
         <Select
           onChange={(value) => this.handleValueChange(pathParam.name, value)}
+          value={this.props.request.pathParams[pathParam.name]}
         >
         { pathParam.schema.enum.map(item => {
           return (
@@ -111,12 +144,15 @@ class PathBuilder extends React.Component {
           )
         })}
         </Select>
+        {dynamicPathValue}
+        </>
       )
     } else {
       return (
         <>
-          <Input placeholder="Value" 
+          <Input placeholder="Value" value={this.props.request.pathParams[pathParam.name]}
           onChange={(e) => this.handleValueChange(pathParam.name, e.target.value)}  />
+          {dynamicPathValue}
         </>
       )
     }
@@ -125,19 +161,9 @@ class PathBuilder extends React.Component {
   render() {
 
     return (
-      <Row className="mb-2">
-        <Col>
-          <Card size="small" title="Path Parameters">
-            <Row>
-              <Col lg="12">
-                <FormGroup>
-                  { this.getPathItems() }
-                </FormGroup>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      </Row>
+      <>
+      { this.getPathItems() }
+      </>
     )
   }
 }
@@ -146,7 +172,9 @@ class HeaderBodyBuilder extends React.Component {
   constructor() {
     super()
     this.state = {
-      configurableParameterSelected: ''
+      configurableParameterSelected: '',
+      allParamsFromDefinition: [],
+      allParamsObject: {}
     }
   }
 
@@ -155,20 +183,8 @@ class HeaderBodyBuilder extends React.Component {
   componentDidMount = () => {
     // console.log(this.props.rootParameters)
     // console.log(this.props.resourceDefinition.parameters)
-    // console.log(this.props.resourceDefinition)
     this.bodySchema = (new FactDataGenerator()).getBodyFactData(this.props.resourceDefinition)
-  }
-  // componentDidUpdate = () => {
-  //   // console.log(this.props.rootParameters)
-  //   // console.log(this.props.resourceDefinition.parameters)
-  //   // console.log(this.props.resourceDefinition)
-    
 
-
-  // }
-
-
-  addHeaderItemsFromDefinition = async (onlyRequired=false) => {
     let allParamsFromDefinition = []
     if (this.props.rootParameters) {
       allParamsFromDefinition = allParamsFromDefinition.concat(this.props.rootParameters)
@@ -177,7 +193,26 @@ class HeaderBodyBuilder extends React.Component {
       allParamsFromDefinition = allParamsFromDefinition.concat(this.props.resourceDefinition.parameters)
     }
 
-    allParamsFromDefinition.forEach((param) => {
+    let allParamsObject = {}
+    for (let k in allParamsFromDefinition) {
+      allParamsObject[allParamsFromDefinition[k].name] = {
+        description: allParamsFromDefinition[k].description
+      }
+    }
+    this.setState({allParamsFromDefinition, allParamsObject})
+  }
+
+  // componentDidUpdate = () => {
+  //   console.log(this.props.rootParameters)
+  //   // console.log(this.props.resourceDefinition.parameters)
+  //   // console.log(this.props.resourceDefinition)
+
+
+  // }
+
+
+  addHeaderItemsFromDefinition = async (onlyRequired=false) => {
+    this.state.allParamsFromDefinition.forEach((param) => {
       if (param.in==='header') {
         if (!onlyRequired || param.required) {
           if (!this.props.request.headers) {
@@ -220,18 +255,10 @@ class HeaderBodyBuilder extends React.Component {
   };
 
   headerItemsMenu = () => {
-    let allParamsFromDefinition = []
-    if (this.props.rootParameters) {
-      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.rootParameters)
-    }
-    if (this.props.resourceDefinition.parameters) {
-      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.resourceDefinition.parameters)
-    }
-    
-    allParamsFromDefinition = allParamsFromDefinition.filter(item => {
+    const headerParams = this.state.allParamsFromDefinition.filter(item => {
       return item.in === 'header'
     })
-    const menuItems = allParamsFromDefinition.map((item, key) => {
+    const menuItems = headerParams.map((item, key) => {
       return (
         <Menu.Item key={key}>{item.name}</Menu.Item>
       )
@@ -259,7 +286,17 @@ class HeaderBodyBuilder extends React.Component {
         }
         const key = k++
         headerItems.push(
-          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
+          <HeaderInputComponent
+            key={key}
+            itemKey={item.name}
+            name={item.name}
+            value={item.value}
+            description={this.state.allParamsObject[item.name]? this.state.allParamsObject[item.name].description: null} rootParameters={this.props.rootParameters}
+            resourceDefinition={this.props.resourceDefinition}
+            onChange={this.handleHeaderItemChange}
+            onDelete={this.handleHeaderItemDelete}
+            inputValues={this.props.inputValues}
+          />
         )
       }
     }
@@ -296,10 +333,10 @@ class HeaderBodyBuilder extends React.Component {
           <Col>
             <Card size="small" title="Headers">
               <Row>
-                <Col lg="12">
+                <Col span={24}>
                   <FormGroup>
                     <Row>
-                      <Col lg="4">
+                      <Col span={8}>
                         <label
                           className="form-control-label"
                           htmlFor="input-city"
@@ -307,7 +344,7 @@ class HeaderBodyBuilder extends React.Component {
                           Name
                         </label>
                       </Col>
-                      <Col lg="4">
+                      <Col span={8}>
                         <label
                           className="form-control-label"
                           htmlFor="input-city"
@@ -347,36 +384,41 @@ class HeaderBodyBuilder extends React.Component {
             </Card>
           </Col>
         </Row>
-        <Row className='mt-2'>
-          <Col>
-            <Card size="small" title="Body">
-              <Row className='mb-2'>
-                <Col lg="12" style={{textAlign: 'right'}}>
-                  <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
-                </Col>
-              </Row>
-              <Row >
-                <Col lg="12">
-                  <Editor
-                    ref="bodyEditor"
-                    value={ this.props.request.body? this.props.request.body : {} }
-                    ace={ace}
-                    ajv={ajv}
-                    theme="ace/theme/tomorrow_night_blue"
-                    mode="code"
-                    search={false}
-                    statusBar={false}
-                    navigationBar={false}
-                    onChange={this.handleBodyChange}
-                    schema={this.bodySchema}
-                    // onError={this.handleError}
-                  />
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        </Row>
-
+        {
+          this.props.resourceDefinition.requestBody
+          ? (
+            <Row className='mt-2'>
+              <Col>
+                <Card size="small" title="Body">
+                  <Row className='mb-2'>
+                    <Col span={24} style={{textAlign: 'right'}}>
+                      <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
+                    </Col>
+                  </Row>
+                  <Row >
+                    <Col span={24}>
+                      <Editor
+                        ref="bodyEditor"
+                        value={ this.props.request.body? this.props.request.body : {} }
+                        ace={ace}
+                        ajv={ajv}
+                        theme="ace/theme/tomorrow_night_blue"
+                        mode="code"
+                        search={false}
+                        statusBar={false}
+                        navigationBar={false}
+                        onChange={this.handleBodyChange}
+                        schema={this.bodySchema}
+                        // onError={this.handleError}
+                      />
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
+            </Row>
+          )
+          : null
+        }
       </>
     )
   }
@@ -399,8 +441,24 @@ class HeaderInputComponent extends React.Component {
   }
 
   componentDidUpdate = () => {
-    console.log(this.props.selectedResource)
     this.inputValue = this.props.value
+  }
+
+  getDynamicValue = () => {
+    let dynamicValue = null
+    //Check if the path value is a configurable input parameter
+    if (this.inputValue && this.inputValue.startsWith('{$inputs.')) {
+      // Find the parameter name
+      const paramName = this.inputValue.slice(9,this.inputValue.length-1)
+      // if (this.props.inputValues)
+      const temp = _.get(this.props.inputValues, paramName)
+      if (temp) {
+        dynamicValue = (
+          <Tag style={{ borderStyle: 'dashed' }}>{temp}</Tag>
+        )
+      }
+    }
+    return dynamicValue
   }
 
   handleNameChange = (event) => {
@@ -422,39 +480,38 @@ class HeaderInputComponent extends React.Component {
   render() {
     return (
       <>
-      <Row className="mb-2">
-        <Col lg="4">
-          <Input
-            className="form-control-alternative"
-            placeholder="Name"
-            type="text"
-            defaultValue={this.props.name}
-            value={this.props.name}
-            onChange={this.handleNameChange}
-            disabled={false}
-          />
+      <Row className="mb-2" gutter={16}>
+        <Col span={8}>
+          <Tooltip placement="topLeft" title={this.props.description}>
+            <Input
+              className="form-control-alternative"
+              placeholder="Name"
+              type="text"
+              defaultValue={this.props.name}
+              value={this.props.name}
+              onChange={this.handleNameChange}
+              disabled={false}
+            />
+          </Tooltip>
         </Col>
         
-        <Col lg="6">
+        <Col span={14}>
           <Input
             className="form-control-alternative"
-            placeholder="Name"
+            placeholder="Value"
             type="text"
             defaultValue={this.props.value}
             value={this.props.value}
             onChange={this.handleValueChange}
             disabled={false}
           />
+          {this.getDynamicValue()}
         </Col>
-        <Col lg="2">
-          <Button
-            color="danger"
+        <Col span={2}>
+          <Icon type="delete" theme="twoTone" twoToneColor="#eb2f96"
             key={this.props.name}
             onClick={this.handleDelete}
-            size="sm"
-          >
-            Delete
-          </Button>
+          />
         </Col>
       </Row>
       </>
@@ -493,8 +550,8 @@ class RequestBuilder extends React.Component {
   render () {
     return (
       <>
-      <div className="pl-lg-4">
-        <Row className='mt-3'>
+      <div>
+        <Row className='mt-2'>
           <Col>
           {
             this.props.resource
@@ -502,12 +559,14 @@ class RequestBuilder extends React.Component {
               <>
               <PathBuilder
                 request={this.props.request}
+                inputValues={this.props.inputValues}
                 onChange={this.handleRequestChange}
                 resourceDefinition={this.props.resourceDefinition}
                 rootParameters = {this.props.rootParameters}
               />
               <HeaderBodyBuilder
                 request={this.props.request}
+                inputValues={this.props.inputValues}
                 onChange={this.handleRequestChange}
                 resourceDefinition={this.props.resourceDefinition}
                 rootParameters = {this.props.rootParameters}

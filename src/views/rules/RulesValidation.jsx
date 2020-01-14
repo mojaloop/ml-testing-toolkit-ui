@@ -64,6 +64,11 @@ class RulesValidation extends React.Component {
     const activeRulesFile = response.data.activeRulesFile
     await this.setState(  { validationRulesFiles: response.data.files, activeRulesFile } )
     message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
+
+    // Select the active rules file by default
+    await this.setState({selectedRuleFile: activeRulesFile, ruleItemActive: null})
+    this.updateRulesFileDisplay()
+
   }
 
   getValidationRulesFileContent = async (ruleFile) => {
