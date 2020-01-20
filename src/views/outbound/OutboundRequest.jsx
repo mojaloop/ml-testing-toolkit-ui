@@ -17,7 +17,7 @@
 */
 import React from "react";
 import _ from 'lodash';
-
+ 
 // reactstrap components
 import {
   Card,
@@ -30,11 +30,12 @@ import {
 } from "reactstrap";
 // core components
 
+import socketIOClient from "socket.io-client";
+
 import Header from "components/Headers/Header.jsx";
 
-import { Dropdown, DropdownButton } from 'react-bootstrap'; 
 
-import { Select, Input, Row, Col, Affix, Steps, Descriptions, Switch, Tabs, Modal, Icon, Skeleton } from 'antd';
+import { Select, Input, Row, Col, Affix, Steps, Descriptions, Switch, Tabs, Modal, Icon, Skeleton, message } from 'antd';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -261,13 +262,6 @@ class RequestGenerator extends React.Component {
     // this.setState(  { callbackMap: response.data } )
   }
 
-  handleSend = () => {
-    // const newJson = this.refs.editor.jsonEditor.get()
-    // // this.setState( { curJson: [ ...newJson ]} )
-    axios.post("http://localhost:5050/api/outbound/request", this.state.request, { headers: { 'Content-Type': 'application/json' } })
-    // this.props.onSave(JSON.parse(this.getRule()))
-  }
-
   resourceSelectHandler = (resource) => {
     const request = this.state.request
     request.operationPath = resource.path
@@ -381,117 +375,10 @@ class OutboundRequest extends React.Component {
   }
 
   componentDidMount = () => {
-    const sampleTemplate = {
-      name: 'Test1',
-      inputValues: {
-        fromIdType: 'MSISDN',
-        fromIdValue: '44123456789',
-        fromFirstName: 'Vijay',
-        fromLastName: 'Kumar',
-        fromDOB: '1984-01-01',
-        note: 'Test Payment',
-        currency: 'USD',
-        amount: '100',
-        homeTransactionId: '123ABC',
-        fromFspId: 'payerfsp',
-        accept: 'application/vnd.interoperability.parties+json;version=1',
-        contentType: 'application/vnd.interoperability.parties+json;version=1'
-      },
-      requests: [
-        {
-          id: 1,
-          description: 'Get party information',
-          status: {},
-          operationPath: '/parties/{Type}/{ID}',
-          method: 'get',
-          headers: {
-            'Accept': '{$inputs.accept}',
-            'Content-Type': '{$inputs.contentType}',
-            'Date': '{$function.curDate}',
-            'FSPIOP-Source': '{$inputs.fromFspId}'
-          },
-          pathParams: {
-            Type: '{$inputs.toIdType}',
-            ID: '{$inputs.toIdValue}'
-          }
-        },
-        {
-          id: 2,
-          description: 'Get quote',
-          status: {},
-          operationPath: '/quotes',
-          method: 'post',
-          headers: {
-            'Accept': '{$inputs.accept}',
-            'Content-Type': '{$inputs.contentType}',
-            'Date': '{$function.curDate}',
-            'FSPIOP-Source': '{$inputs.fromFspId}'
-          },
-          body: {
-            'quoteId': '{$function.generateUUID}',
-            'transactionId': '{$function.generateUUID}',
-            'payer': {
-              'partyIdInfo': {
-                'partyIdType': '{$inputs.fromIdType}',
-                'partyIdentifier': '{$inputs.fromIdValue}',
-                'fspId': '{$inputs.fromFspId}'
-              },
-              'personalInfo': {
-                'complexName': {
-                  'firstName': '{$inputs.fromFirstName}',
-                  'lastName': '{$inputs.fromLastName}'
-                },
-                'dateOfBirth': '{$inputs.fromDOB}'
-              }
-            },
-            'payee': {
-              'partyIdInfo': {
-                'partyIdType': '{$prev.1.response.body.party.partyIdInfo.partyIdType}',
-                'partyIdentifier': '{$prev.1.response.body.party.partyIdInfo.partyIdentifier}',
-                'fspId': '{$prev.1.response.body.party.partyIdInfo.fspId}'
-              }
-            },
-            'amountType': 'SEND',
-            'amount': {
-              'amount': '{$inputs.amount}',
-              'currency': '{$inputs.currency}'
-            },
-            'transactionType': {
-              'scenario': 'TRANSFER',
-              'initiator': 'PAYER',
-              'initiatorType': 'CONSUMER'
-            },
-            'note': '{$inputs.note}'
-          }
-        },
-        {
-          id: 3,
-          description: 'Send transfer',
-          status: {},
-          operationPath: '/transfers',
-          method: 'post',
-          headers: {
-            'Accept': '{$inputs.accept}',
-            'Content-Type': '{$inputs.contentType}',
-            'Date': '{$function.curDate}',
-            'FSPIOP-Source': '{$inputs.fromFspId}'
-          },
-          body: {
-            'transferId': '{$function.generateUUID}',
-            'payerFsp': '{$inputs.fromFspId}',
-            'payeeFsp': '{$prev.1.response.body.party.partyIdInfo.fspId}',
-            'amount': {
-              'amount': '{$inputs.amount}',
-              'currency': '{$inputs.currency}'
-            },
-            'expiration': '{$prev.2.response.body.expiration}',
-            'ilpPacket': '{$prev.2.response.body.ilpPacket}',
-            'condition': '{$prev.2.response.body.condition}'
-          }
-        },
-      ]
-    }
+    const sampleTemplate = require('./sample1.json')
     this.setState({template: sampleTemplate})
+    const socket = socketIOClient('http://127.0.0.1:5050');
+    socket.on("outboundProgress", this.handleIncomingProgress);
   }
 
   replaceInputValues = (inputObject, inputValues) => {
@@ -536,15 +423,31 @@ class OutboundRequest extends React.Component {
         return (
           <Col span={8}>
             {
-              item.status.state === 'waiting' || item.status.state === 'process'
+              item.status && (item.status.state === 'waiting' || item.status.state === 'process')
               ? (<Skeleton paragraph={ {rows: 10} } active />)
               : (
                 <Tabs defaultActiveKey='1'>
                   <TabPane tab="Request" key="1">
-                    <h4>Header</h4>
-                    <pre>{JSON.stringify(this.replaceInputValues(item.headers),null,2)}</pre>
-                    <h4>Body</h4>
-                    <pre>{JSON.stringify(this.replaceInputValues(item.body),null,2)}</pre>
+                    {
+                      item.headers
+                      ? (
+                        <>
+                        <h4>Header</h4>
+                        <pre>{JSON.stringify(this.replaceInputValues(item.headers),null,2)}</pre>
+                        </>
+                      )
+                      : null
+                    }
+                    {
+                      item.body
+                      ? (
+                        <>
+                        <h4>Body</h4>
+                        <pre>{JSON.stringify(this.replaceInputValues(item.body),null,2)}</pre>
+                        </>
+                      )
+                      : null
+                    }
                   </TabPane>
                   <TabPane tab="Editor" key="2">
                     <RequestGenerator
@@ -554,13 +457,29 @@ class OutboundRequest extends React.Component {
                     />
                   </TabPane>
                   {
-                    item.status.response
+                    item.status && item.status.response
                     ? (
                       <TabPane tab="Response" key="3">
-                      <h4>Header</h4>
-                      <pre>{item.status.response.headers}</pre>
-                      <h4>Body</h4>
-                      <pre>{item.status.response.body}</pre>
+                        {
+                          item.status.response.headers
+                          ? (
+                            <>
+                              <h4>Header</h4>
+                              <pre>{JSON.stringify(item.status.response.headers,null,2)}</pre>
+                            </>
+                          )
+                          : null
+                        }
+                        {
+                          item.status.response.body
+                          ? (
+                            <>
+                              <h4>Body</h4>
+                              <pre>{JSON.stringify(item.status.response.body,null,2)}</pre>
+                            </>
+                          )
+                          : null
+                        }
                       </TabPane>
                     )
                     : null
@@ -581,14 +500,14 @@ class OutboundRequest extends React.Component {
     if (this.state.template.requests) {
       const stepItems = this.state.template.requests.map(item => {
         return (
-          <Step status={item.status.state} title={item.method} subTitle={item.operationPath} description={item.description} />
+          <Step status={item.status? item.status.state : null} title={item.method} subTitle={item.operationPath} description={item.description} />
         )
       })
       const spanCol = stepItems.length < 3 ? stepItems.length * 8 : 24
       return (
         <Row>
           <Col span={spanCol}>
-            <Steps current={-1} type="navigation">
+            <Steps current={-1} type="navigation" size="default">
               {stepItems}
             </Steps>
           </Col>
@@ -609,36 +528,72 @@ class OutboundRequest extends React.Component {
     this.forceUpdate()
   }
 
-  mockTypeSuccess = true
+  handleIncomingProgress = (progress) => {
+    // console.log(progress)
+    let request = this.state.template.requests.find(item => item.id === progress.id)
+    if (progress.status === 'SUCCESS') {
+      request.status.state = 'finish'
+      request.status.response = progress.response
+    } else if (progress.status === 'ERROR') {
+      request.status.state = 'error'
+      request.status.response = { body: progress.error }
+      // Clear the waiting status of the remaining requests
+      for (let i in this.state.template.requests) {
+        if (!this.state.template.requests[i].status) {
+          this.state.template.requests[i].status = {}
+        }
+        if (this.state.template.requests[i].status.state === 'process') {
+          this.state.template.requests[i].status.state = 'wait'
+          this.state.template.requests[i].status.response = null
+        }
+        
+      }
+      message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
+    }
+    this.forceUpdate()
+   }
+
+  // mockTypeSuccess = true
   handleSendClick = async () => {
-    // Mock status changes to simulate the outbound transfer in UI
+
+    const outboundRequestID = Math.random().toString(36).substring(7);
+    message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
+    await axios.post("http://localhost:5050/api/outbound/template/" + outboundRequestID, this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    message.success({ content: 'Test case Sent', key: 'outboundSendProgress', duration: 2 });
 
     // Set the status to waiting for all the requests
     for (let i in this.state.template.requests) {
-      this.state.template.requests[i].status.state = 'waiting'
+      if (!this.state.template.requests[i].status) {
+        this.state.template.requests[i].status = {}
+      }
+      this.state.template.requests[i].status.state = 'process'
     }
     this.forceUpdate()
 
-    // Loop through the requests and set the status to waiting for each for some particular time
-    const waitForSomeTime = () => {
-      return new Promise(function(resolve, reject) {
-        setTimeout(resolve, 800, 'one');
-      });
-    }
 
-    for (let i in this.state.template.requests) {
-      await waitForSomeTime()
-      this.state.template.requests[i].status.state = 'finish'
-      this.state.template.requests[i].status.response = { body: 'This is a sample response' }
-      if (!this.mockTypeSuccess && i==1) {
-        this.state.template.requests[i].status.state = 'error'
-        this.forceUpdate()
-        break;
-      }
-      this.forceUpdate()
-    }
 
-    this.mockTypeSuccess = !this.mockTypeSuccess
+
+    // // Mock status changes to simulate the outbound transfer in UI
+    // // Loop through the requests and set the status to waiting for each for some particular time
+    // const waitForSomeTime = () => {
+    //   return new Promise(function(resolve, reject) {
+    //     setTimeout(resolve, 800, 'one');
+    //   });
+    // }
+
+    // for (let i in this.state.template.requests) {
+    //   await waitForSomeTime()
+    //   this.state.template.requests[i].status.state = 'finish'
+    //   this.state.template.requests[i].status.response = { body: 'This is a sample response' }
+    //   if (!this.mockTypeSuccess && i==1) {
+    //     this.state.template.requests[i].status.state = 'error'
+    //     this.forceUpdate()
+    //     break;
+    //   }
+    //   this.forceUpdate()
+    // }
+    // this.mockTypeSuccess = !this.mockTypeSuccess
+
   }
 
   render() {
@@ -729,7 +684,7 @@ class OutboundRequest extends React.Component {
               </Card>
             </Col>
           </Row>
-          <Row>
+          {/* <Row>
             <Col className="mt-4" span={24}>
               <Card className="card-profile shadow">
                 <CardHeader>
@@ -748,7 +703,7 @@ class OutboundRequest extends React.Component {
                 </CardBody>
               </Card>
             </Col>
-          </Row>
+          </Row> */}
         </Container>
       </>
     );

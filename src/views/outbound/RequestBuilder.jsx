@@ -117,7 +117,7 @@ class PathBuilder extends React.Component {
   }
 
   getValueInput = (pathParam) => {
-    const pathValue = this.props.request.pathParams[pathParam.name]
+    const pathValue = this.props.request.params[pathParam.name]
     let dynamicPathValue = null
     //Check if the path value is a configurable input parameter
     if (pathValue.startsWith('{$inputs.')) {
@@ -136,7 +136,7 @@ class PathBuilder extends React.Component {
         <>
         <Select
           onChange={(value) => this.handleValueChange(pathParam.name, value)}
-          value={this.props.request.pathParams[pathParam.name]}
+          value={this.props.request.params[pathParam.name]}
         >
         { pathParam.schema.enum.map(item => {
           return (
@@ -150,7 +150,7 @@ class PathBuilder extends React.Component {
     } else {
       return (
         <>
-          <Input placeholder="Value" value={this.props.request.pathParams[pathParam.name]}
+          <Input placeholder="Value" value={this.props.request.params[pathParam.name]}
           onChange={(e) => this.handleValueChange(pathParam.name, e.target.value)}  />
           {dynamicPathValue}
         </>
