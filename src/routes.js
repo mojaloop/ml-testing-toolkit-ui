@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import Index from "views/Index.jsx";
+import Dashboard from "views/dashboard/Dashboard.jsx";
 import Profile from "views/examples/Profile.jsx";
 import Maps from "views/examples/Maps.jsx";
 import Register from "views/examples/Register.jsx";
@@ -31,7 +31,7 @@ var routes = [
     path: "/index",
     name: "Dashboard",
     icon: "ni ni-tv-2 text-primary",
-    component: Index,
+    component: Dashboard,
     layout: "/admin"
   },
   {

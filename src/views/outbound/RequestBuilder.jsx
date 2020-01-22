@@ -43,6 +43,264 @@ const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
 
+class ConfigurableParameter extends React.Component {
+
+  constructor() {
+    super()
+    this.state = {
+      paramType: null,
+      factData: null,
+      selectedValueComponent: null
+    }
+
+    // Set paramTypes Array
+    this.paramTypes[0]='Input Values'
+    this.paramTypes[1]='Previous Request'
+    this.paramTypes[2]='Previous Response'
+    this.paramTypes[3]='Function'
+  }
+
+  paramTypes = []
+  inputValue = null
+
+  getParamTypeMenu = () => {
+    return this.paramTypes.map((item, key) => {
+      return (
+        <Option key={key} value={key}>
+          {item}
+        </Option>
+      )
+    })
+  }
+  
+  // handleParamTypeChange = async (paramType) => {
+  //   var factData = null
+  //   switch(paramType) {
+  //     case 0:
+  //       factData = (new FactDataGenerator()).getPathParametersFactData(this.props.rootParameters)
+  //       break
+  //     case 1:
+  //       factData = (new FactDataGenerator()).getBodyFactData(this.props.resourceDefinition)
+  //       break
+  //     case 2:
+  //       factData = (new FactDataGenerator()).getHeadersFactData(this.props.resourceDefinition, this.props.rootParameters)
+  //       break
+  //     default:
+  //       factData = null
+  //   }
+  //   await this.setState( {paramType: paramType, factData: factData} )
+  //   this.updateChanges()
+  // }
+  handleParamTypeChange = async (paramType) => {
+    this.setState( {paramType: paramType, factData: null, selectedValueComponent: null} )
+  }
+
+  // getValueComponent = () => {
+  //   switch(this.state.paramType) {
+  //     case 0:
+  //     case 1:
+  //     case 2:
+  //       return (
+  //         <FactSelect key={this.props.name} factData={this.state.factData} onSelect={this.handleFactSelect} />
+  //       )
+  //       break
+  //     case 3:
+  //     default:
+  //       return null
+  //   }
+  // }
+
+  getRequestFactComponent = () => {
+    if (this.state.factData) {
+      return (
+        <FactSelect key={this.props.name} factData={this.state.factData} onSelect={this.handleFactSelect} />
+      )
+    } else {
+      return null
+    }
+
+  }
+
+  getValueComponent = () => {
+    switch(this.state.paramType) {
+      case 0:
+        let inputOptionItems = []
+        for (let item in this.props.inputValues) {
+          inputOptionItems.push(
+            <Option key={item} value={item}>{item}</Option>
+          )
+        }
+        return (
+          <>
+          <Select
+            placeholder="Please Select"
+            style={{ width: 200 }}
+            value={this.state.selectedValueComponent}
+            onChange={(value) => {
+              this.state.selectedValueComponent = value
+              this.handleParamSelect('{$inputs.'+value+'}')
+            }}
+          >
+            {inputOptionItems}
+          </Select>
+          </>
+        )
+        break
+      case 1:
+      case 2:
+        let requestSelectionOptionItems = []
+        requestSelectionOptionItems = this.props.allRequests.map(request => {
+          return (
+            <Option key={request.id} value={request.id}>{request.description}</Option>
+          )
+        })
+        return (
+          <>
+          <Select
+            placeholder="Please Select"
+            style={{ width: 200 }}
+            value={this.state.selectedValueComponent}
+            onChange={(requestId) => {
+              const request = this.props.allRequests.find(item => item.id === requestId)
+              let resourceDefinition = null
+              let rootParams = null
+              if (this.state.paramType === 1) {
+                resourceDefinition = this.props.openApiDefinition.paths[request.operationPath][request.method]
+                rootParams = this.props.openApiDefinition.paths[request.operationPath].parameters
+              } else {
+                const callbackObj = this.props.callbackMap[request.operationPath][request.method]['successCallback']
+                resourceDefinition = this.props.openApiDefinition.paths[callbackObj.path][callbackObj.method]
+                rootParams = this.props.openApiDefinition.paths[callbackObj.path].parameters
+              }
+              const bodyFactData = (new FactDataGenerator()).getBodyFactData(resourceDefinition)
+              const headerFactData = (new FactDataGenerator()).getHeadersFactData(resourceDefinition, rootParams)
+              const factData = {
+                properties: {
+                  body: bodyFactData,
+                  headers: { type: 'object', ...headerFactData }
+                }
+              }
+              this.setState({selectedValueComponent: requestId, factData})
+            }}
+          >
+            {requestSelectionOptionItems}
+          </Select>
+          </>
+        )
+        break
+      case 3:
+        // TODO: Get the function list and type of functions from backend. Include another subtype to select
+        let functionList = {
+          generateUUID: {
+            description: 'Generates unique id'
+          },
+          curDate: {
+            description: 'Get current date and time'
+          }
+        }
+        let functionOptionItems = []
+        for (let item in functionList) {
+          functionOptionItems.push(
+            <Option key={item} value={item}>{item}</Option>
+          )
+        }
+        return (
+          <>
+          <Select
+            placeholder="Please Select"
+            style={{ width: 200 }}
+            value={this.state.selectedValueComponent}
+            onChange={(value) => {
+              this.state.selectedValueComponent = value
+              this.handleParamSelect('{$function.generic.'+value+'}')
+            }}
+          >
+            {functionOptionItems}
+          </Select>
+          </>
+        )
+        break
+      default:
+        return null
+    }
+  }
+
+  handleParamSelect = (paramValue) => {
+    this.props.onChange(paramValue)
+  }
+
+  handleFactTypeSelect = async (value) => {
+    try {
+      const selectedValueObject = JSON.parse(value)
+      await this.setState( {selectedFactType:  selectedValueObject} )
+      this.props.condition.fact = selectedValueObject.name
+      this.props.onConditionChange()
+      this.updateFactData()
+    } catch(err) {}
+  }
+
+  handleFactSelect = (value, factObject) => {
+    this.inputValue = value
+    this.handleParamSelect('{$prev.'+this.state.selectedValueComponent+'.'+(this.state.paramType===1?'request':'response')+'.'+value+'}')
+    // this.updateChanges()
+  }
+
+  updateChanges = () => {
+    let finalValue = ''
+    if (!this.inputValue) {
+      this.inputValue = ''
+    }
+    switch(this.state.paramType) {
+      case 0:
+        finalValue = '{$request.params.' + this.inputValue + '}'
+        break
+      case 1:
+        finalValue = '{$request.body.' + this.inputValue + '}'
+        break
+      case 2:
+        finalValue = '{$request.header.' + this.inputValue + '}'
+        break
+      case 3:
+        finalValue = '{$session.negotiatedContentType}'
+        break
+      default:
+        finalValue = this.inputValue
+    }
+    
+
+    this.props.onChange(finalValue)
+  }
+
+  handleValueChange = (newValue) => {
+    this.inputValue = newValue
+    this.updateChanges()
+  }
+
+  render() {
+
+    return (
+      <Row>
+        <Col>
+          <Select
+            placeholder="Please Select"
+            style={{ width: 200 }}
+            value={this.paramTypes[this.state.paramType]}
+            onSelect={this.handleParamTypeChange}
+          >
+            {this.getParamTypeMenu()}
+          </Select>
+        </Col>
+        <Col>
+          {this.getValueComponent()}
+        </Col>
+        <Col>
+          {this.getRequestFactComponent()}
+        </Col>
+      </Row>
+    )
+  }
+}
+
 class PathBuilder extends React.Component {
 
   constructor() {
@@ -55,6 +313,7 @@ class PathBuilder extends React.Component {
   handleValueChange = async (name, value) => {
     let params = this.state.params
     params[name] = value
+    this.props.request.params = params
     await this.setState({params})
     this.updatePath()
   }
@@ -117,6 +376,12 @@ class PathBuilder extends React.Component {
   }
 
   getValueInput = (pathParam) => {
+    if (!this.props.request.params) {
+      this.props.request.params = {}
+    }
+    if(!this.props.request.params[pathParam.name]) {
+      this.props.request.params[pathParam.name] = ''
+    }
     const pathValue = this.props.request.params[pathParam.name]
     let dynamicPathValue = null
     //Check if the path value is a configurable input parameter
@@ -327,6 +592,35 @@ class HeaderBodyBuilder extends React.Component {
   }
 
   render() {
+    const content = (
+      <>
+      <Row>
+        <Col>
+          <ConfigurableParameter
+            onChange={this.handleAddConfigParam}
+            rootParameters={this.props.rootParameters}
+            resourceDefinition={this.props.resourceDefinition}
+            openApiDefinition={this.props.openApiDefinition}
+            callbackMap={this.props.callbackMap}
+            inputValues={this.props.inputValues}
+            allRequests={this.props.allRequests}
+          />
+        </Col>
+      </Row>
+      {
+        this.state.configurableParameterSelected ?
+        (
+          <Row className="mt-4 text-center">
+            <Col>
+              <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
+            </Col>
+          </Row>
+        )
+        : null
+      }
+      </>
+    )
+
     return (
       <>
         <Row>
@@ -391,7 +685,12 @@ class HeaderBodyBuilder extends React.Component {
               <Col>
                 <Card size="small" title="Body">
                   <Row className='mb-2'>
-                    <Col span={24} style={{textAlign: 'right'}}>
+                    <Col span={12}>
+                      <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                        <Button color="secondary" size="sm">Add Configurable Params</Button>
+                      </Popover>
+                    </Col>
+                    <Col span={12} style={{textAlign: 'right'}}>
                       <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
                     </Col>
                   </Row>
@@ -567,9 +866,12 @@ class RequestBuilder extends React.Component {
               <HeaderBodyBuilder
                 request={this.props.request}
                 inputValues={this.props.inputValues}
+                allRequests={this.props.allRequests}
                 onChange={this.handleRequestChange}
                 resourceDefinition={this.props.resourceDefinition}
                 rootParameters = {this.props.rootParameters}
+                openApiDefinition={this.props.openApiDefinition}
+                callbackMap={this.props.callbackMap}
               />
               </>
             )

@@ -35,7 +35,7 @@ import socketIOClient from "socket.io-client";
 import Header from "components/Headers/Header.jsx";
 
 
-import { Select, Input, Row, Col, Affix, Steps, Descriptions, Switch, Tabs, Modal, Icon, Skeleton, message } from 'antd';
+import { Select, Input, Row, Col, Affix, Steps, Descriptions, Switch, Tabs, Modal, Icon, Skeleton, message, Popover, Upload } from 'antd';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -46,7 +46,6 @@ import 'brace/theme/tomorrow_night_blue';
 import axios from 'axios';
 import './fixAce.css';
 import RequestBuilder from './RequestBuilder'
-import { Logs } from '../Index'
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -54,6 +53,15 @@ const { TabPane } = Tabs;
 
 
 class InputValues extends React.Component {
+
+  state = {
+    addInputValueDialogVisible: false,
+    newInputValueName: ''
+  };
+
+  handleDeleteClick = (inputValueName) => {
+    this.props.onDelete(inputValueName)
+  }
 
   getInputItems = () => {
     let inputItems = []
@@ -70,7 +78,9 @@ class InputValues extends React.Component {
               />
             </Col>
             <Col span={1}>
-              <Icon type="delete" theme="filled" />
+              <Icon key={inputValueName} type="delete" theme="filled"
+                onClick={ () => this.handleDeleteClick(inputValueName) }
+              />
             </Col>
           </Row>
           
@@ -81,22 +91,64 @@ class InputValues extends React.Component {
     return inputItems
   }
 
+  handleAddInputValue = (inputValueName) => {
+    // Check if the input value name already exists
+    if (this.props.values.hasOwnProperty(inputValueName)) {
+      message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 });
+    } else {
+      // Save the input value
+      this.props.onChange(inputValueName, '')
+      this.state.newInputValueName = ''
+    }
+  }
+
+
   render () {
+    const addInputValueDialogContent = (
+      <>
+      <Input 
+        placeholder="Input Value Name"
+        type="text"
+        value={this.state.newInputValueName}
+        onChange={(e) => { this.setState({newInputValueName: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.handleAddInputValue(this.state.newInputValueName)
+            this.setState({addInputValueDialogVisible: false})
+          }}
+          size="sm"
+        >
+          Add
+      </Button>
+      </>
+    )
+
     return (
       <>
       <Row gutter={16}>
         <Col span={24}>
           <Card className="bg-white shadow">
             <CardBody>
-              <Button
-                  className="text-right float-right"
-                  color="primary"
-                  href="#pablo"
-                  onClick={e => e.preventDefault()}
-                  size="sm"
-                >
-                  Add Input Value
-              </Button>
+              <Popover
+                content={addInputValueDialogContent}
+                title="Enter a new name"
+                trigger="click"
+                visible={this.state.addInputValueDialogVisible}
+                onVisibleChange={ (visible) => this.setState({addInputValueDialogVisible: visible})}
+              >
+                <Button
+                    className="text-right float-right"
+                    color="primary"
+                    size="sm"
+                  >
+                    Add Input Value
+                </Button>
+              </Popover>
+
               <Form>
                 <Descriptions title="Input Values" bordered>
                   {this.getInputItems()}
@@ -202,7 +254,7 @@ class RequestGenerator extends React.Component {
     // Deep clone the input rule to a new object to work with (Copying without object references recursively)
     const inputRule = {}
     let selectedResource = null
-    if (this.props.request) {
+    if (this.props.request && this.props.request.operationPath && this.props.request.method) {
       selectedResource = {
         path: this.props.request.operationPath,
         method: this.props.request.method
@@ -263,7 +315,7 @@ class RequestGenerator extends React.Component {
   }
 
   resourceSelectHandler = (resource) => {
-    const request = this.state.request
+    const request = this.props.request
     request.operationPath = resource.path
     request.path = resource.path
     request.method = resource.method
@@ -272,14 +324,14 @@ class RequestGenerator extends React.Component {
   }
 
   getResourceDefinition = () => {
-    if (this.state.selectedResource && this.state.openApiDefinition) {
+    if (this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method) {
       return this.state.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method]
     }
     return null
   }
   getRootParameters = () => {
     var rootParams = []
-    if (this.state.selectedResource && this.state.openApiDefinition) {
+    if (this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method) {
       rootParams = this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters
     }
     return rootParams
@@ -338,7 +390,14 @@ class RequestGenerator extends React.Component {
                     <Col span={8}>
                       <Row className="text-right float-right">
                         <Col>
-                          <Switch defaultChecked />
+                          <Button
+                            className="float-right"
+                            color="danger"
+                            size="sm"
+                            onClick={() => {this.props.onDelete(this.props.request.id)}}
+                          >
+                            Delete
+                          </Button>
                         </Col>
                       </Row>
                     </Col>
@@ -348,11 +407,14 @@ class RequestGenerator extends React.Component {
                       <Form>
                         <RequestBuilder
                           request={this.props.request}
+                          allRequests={this.props.allRequests}
                           inputValues={this.props.inputValues}
                           onChange={this.handleRequestChange}
                           resource={this.state.selectedResource}
                           resourceDefinition={this.getResourceDefinition()}
                           rootParameters={this.getRootParameters()}
+                          openApiDefinition={this.state.openApiDefinition}
+                          callbackMap={this.state.callbackMap}
                         />
                       </Form>
                     </Col>
@@ -370,13 +432,19 @@ class OutboundRequest extends React.Component {
     super();
     this.state = {
       request: {},
-      template: {}
+      template: {},
+      addNewRequestDialogVisible: false,
+      newRequestDescription: '',
+      newTemplateName: '',
+      createNewTemplateDialogVisible: false,
+      saveTemplateFileName: '',
+      saveTemplateDialogVisible: false,
     };
   }
 
   componentDidMount = () => {
-    const sampleTemplate = require('./sample1.json')
-    this.setState({template: sampleTemplate})
+    // const sampleTemplate = require('./sample1.json')
+    // this.setState({template: sampleTemplate})
     const socket = socketIOClient('http://127.0.0.1:5050');
     socket.on("outboundProgress", this.handleIncomingProgress);
   }
@@ -421,7 +489,7 @@ class OutboundRequest extends React.Component {
     if (this.state.template.requests) {
       return this.state.template.requests.map(item => {
         return (
-          <Col span={8}>
+          <Col span={24 / (this.state.template.requests.length ? this.state.template.requests.length : 1)}>
             {
               item.status && (item.status.state === 'waiting' || item.status.state === 'process')
               ? (<Skeleton paragraph={ {rows: 10} } active />)
@@ -452,8 +520,10 @@ class OutboundRequest extends React.Component {
                   <TabPane tab="Editor" key="2">
                     <RequestGenerator
                       request={item}
+                      allRequests={this.state.template.requests}
                       inputValues={this.state.template.inputValues}
                       onChange={this.handleRequestChange}
+                      onDelete={this.handleRequestDelete}
                     />
                   </TabPane>
                   {
@@ -528,30 +598,52 @@ class OutboundRequest extends React.Component {
     this.forceUpdate()
   }
 
+  handleInputValuesDelete = (name) => {
+    delete this.state.template.inputValues[name]
+    this.forceUpdate()
+  }
+
+  handleAddNewRequestClick = (description) => {
+    // Find highest request id to determine the new ID
+    let maxId = +this.state.template.requests.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+
+    this.state.template.requests.push({ id: maxId+1, description})
+    this.forceUpdate()
+  }
+
+  handleRequestDelete = (requestId) => {
+    const deleteIndex = this.state.template.requests.findIndex(item => item.id == requestId)
+    this.state.template.requests.splice(deleteIndex,1)
+    this.forceUpdate()
+  }
+
   handleIncomingProgress = (progress) => {
     // console.log(progress)
     let request = this.state.template.requests.find(item => item.id === progress.id)
-    if (progress.status === 'SUCCESS') {
-      request.status.state = 'finish'
-      request.status.response = progress.response
-    } else if (progress.status === 'ERROR') {
-      request.status.state = 'error'
-      request.status.response = { body: progress.error }
-      // Clear the waiting status of the remaining requests
-      for (let i in this.state.template.requests) {
-        if (!this.state.template.requests[i].status) {
-          this.state.template.requests[i].status = {}
+    if (request.status) {
+      if (progress.status === 'SUCCESS') {
+        console.log(request)
+        request.status.state = 'finish'
+        request.status.response = progress.response
+      } else if (progress.status === 'ERROR') {
+        request.status.state = 'error'
+        request.status.response = { body: progress.error }
+        // Clear the waiting status of the remaining requests
+        for (let i in this.state.template.requests) {
+          if (!this.state.template.requests[i].status) {
+            this.state.template.requests[i].status = {}
+          }
+          if (this.state.template.requests[i].status.state === 'process') {
+            this.state.template.requests[i].status.state = 'wait'
+            this.state.template.requests[i].status.response = null
+          }
+          
         }
-        if (this.state.template.requests[i].status.state === 'process') {
-          this.state.template.requests[i].status.state = 'wait'
-          this.state.template.requests[i].status.response = null
-        }
-        
+        message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
       }
-      message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
+      this.forceUpdate()
     }
-    this.forceUpdate()
-   }
+  }
 
   // mockTypeSuccess = true
   handleSendClick = async () => {
@@ -596,7 +688,127 @@ class OutboundRequest extends React.Component {
 
   }
 
+  // Take the status property out from requests
+  convertTemplate = (template) => {
+    if (template.requests) {
+      let { requests, ...remainingProps } = template
+      const newRequests = requests.map(item => {
+        const { status, ...newRequest } = item
+        return newRequest
+      })
+      return { ...remainingProps, requests: newRequests }
+    } else {
+      return null
+    }
+  }
+
+  handleCreateNewTemplateClick = (templateName) => {
+    this.setState({template: {
+      name: templateName,
+      inputValues: {},
+      requests: []
+    }})
+  }
+
+  download = (content, fileName, contentType) => {
+    var a = document.createElement("a");
+    var file = new Blob([content], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+  }
+
+  handleTemplateSaveClick = (fileName) => {
+    this.download(JSON.stringify(this.convertTemplate(this.state.template), null, 2), fileName, 'text/plain');
+  }
+
+  handleImportFile = (file_to_read) => {
+    message.loading({ content: 'Reading the file...', key: 'importFileProgress' });
+    var fileRead = new FileReader();
+    fileRead.onload = (e) => {
+      var content = e.target.result;
+      try {
+        var intern = JSON.parse(content);
+        this.setState({template: intern})
+        message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
+      } catch (err) {
+        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+      }
+    };
+    fileRead.readAsText(file_to_read);
+
+  }
+
   render() {
+
+    const addNewRequestDialogContent = (
+      <>
+      <Input 
+        placeholder="Enter description"
+        type="text"
+        value={this.state.newRequestDescription}
+        onChange={(e) => { this.setState({newRequestDescription: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.handleAddNewRequestClick(this.state.newRequestDescription)
+            this.setState({addNewRequestDialogVisible: false})
+          }}
+          size="sm"
+        >
+          Add
+      </Button>
+      </>
+    )
+
+    const createNewTemplateDialogContent = (
+      <>
+      <Input 
+        placeholder="Template name"
+        type="text"
+        value={this.state.newTemplateName}
+        onChange={(e) => { this.setState({newTemplateName: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.handleCreateNewTemplateClick(this.state.newTemplateName)
+            this.setState({createNewTemplateDialogVisible: false})
+          }}
+          size="sm"
+        >
+          Create
+      </Button>
+      </>
+    )
+
+    const saveTemplateDialogContent = (
+      <>
+      <Input 
+        placeholder="File name"
+        type="text"
+        value={this.state.saveTemplateFileName}
+        onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.handleTemplateSaveClick(this.state.saveTemplateFileName)
+            this.setState({saveTemplateDialogVisible: false})
+          }}
+          size="sm"
+        >
+          Create
+      </Button>
+      </>
+    )
 
     return (
       <>
@@ -610,7 +822,7 @@ class OutboundRequest extends React.Component {
           footer={null}
           onCancel={() => { this.setState({showTemplate: false})}}
         >
-          <pre>{JSON.stringify(this.state.template, null, 2)}</pre>
+          <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
         </Modal>
         <Header />
         {/* Page content */}
@@ -624,13 +836,22 @@ class OutboundRequest extends React.Component {
                     <Col span={24}>
                       <Card className="bg-white shadow mb-4">
                         <CardBody>
-                          <Button
-                            color="success"
-                            size="sm"
-                            onClick={e => e.preventDefault()}
+                          <Upload 
+                            accept = '.json'
+                            showUploadList = {false}
+                            beforeUpload = {file => {
+                              this.handleImportFile(file)
+                              return false;
+                            }}
                           >
-                            Import Template
-                          </Button>
+                            <Button
+                              color="success"
+                              size="sm"
+                              onClick={e => e.preventDefault()}
+                            >
+                              Import Template
+                            </Button>
+                          </Upload>
 
                           <Button
                             className="float-right"
@@ -640,6 +861,22 @@ class OutboundRequest extends React.Component {
                           >
                             Send
                           </Button>
+                          <Popover
+                            className="float-right"
+                            content={saveTemplateDialogContent}
+                            title="Enter filename to save"
+                            trigger="click"
+                            visible={this.state.saveTemplateDialogVisible}
+                            onVisibleChange={ (visible) => this.setState({saveTemplateDialogVisible: visible})}
+                          >
+                            <Button
+                                className="text-right float-right"
+                                color="success"
+                                size="sm"
+                              >
+                                Save
+                            </Button>
+                          </Popover>
                           <Button
                             className="float-right"
                             color="info"
@@ -648,14 +885,22 @@ class OutboundRequest extends React.Component {
                           >
                             Show Template
                           </Button>
-                          <Button
+                          <Popover
                             className="float-right"
-                            color="primary"
-                            size="sm"
-                            onClick={e => e.preventDefault()}
+                            content={createNewTemplateDialogContent}
+                            title="Enter a name for the template"
+                            trigger="click"
+                            visible={this.state.createNewTemplateDialogVisible}
+                            onVisibleChange={ (visible) => this.setState({createNewTemplateDialogVisible: visible})}
                           >
-                            Create Template
-                          </Button>
+                            <Button
+                                className="text-right float-right"
+                                color="primary"
+                                size="sm"
+                              >
+                                New Template
+                            </Button>
+                          </Popover>
                         </CardBody>
                         </Card>
                     </Col>
@@ -663,7 +908,7 @@ class OutboundRequest extends React.Component {
                   </Affix>
                   <Row>
                     <Col span={24}>
-                      <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} />
+                      <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
                     </Col>
                   </Row>
                   <Row className="mt-4">
@@ -671,6 +916,21 @@ class OutboundRequest extends React.Component {
                     <Card className="card-profile shadow">
                       <CardHeader>
                         {this.getStepItems()}
+                        <Popover
+                          content={addNewRequestDialogContent}
+                          title="Enter a description for the request"
+                          trigger="click"
+                          visible={this.state.addNewRequestDialogVisible}
+                          onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
+                        >
+                          <Button
+                              className="text-right float-right"
+                              color="primary"
+                              size="sm"
+                            >
+                              Add New Request
+                          </Button>
+                        </Popover>
                       </CardHeader>
                       <CardBody>
                         <Row gutter={16} >
