@@ -396,11 +396,11 @@ let chartExample2 = {
     }
   },
   data: {
-    labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    labels: ["GET /parties/{Type}/{ID}", "POST /quotes", "POST /transfers"],
     datasets: [
       {
         label: "Sales",
-        data: [25, 20, 30, 22, 17, 29]
+        data: [25, 20, 30]
       }
     ]
   }

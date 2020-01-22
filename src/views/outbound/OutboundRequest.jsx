@@ -442,11 +442,17 @@ class OutboundRequest extends React.Component {
     };
   }
 
+  socket = null
+
+  componentWillUnmount = () => {
+    this.socket.disconnect()
+  }
+  
   componentDidMount = () => {
     // const sampleTemplate = require('./sample1.json')
     // this.setState({template: sampleTemplate})
-    const socket = socketIOClient('http://127.0.0.1:5050');
-    socket.on("outboundProgress", this.handleIncomingProgress);
+    this.socket = socketIOClient('http://127.0.0.1:5050');
+    this.socket.on("outboundProgress", this.handleIncomingProgress);
   }
 
   replaceInputValues = (inputObject, inputValues) => {

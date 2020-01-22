@@ -16,6 +16,7 @@
 
 */
 import Dashboard from "views/dashboard/Dashboard.jsx";
+// import Dashboard from "views/examples/Dashboard.jsx";
 import Profile from "views/examples/Profile.jsx";
 import Maps from "views/examples/Maps.jsx";
 import Register from "views/examples/Register.jsx";
@@ -25,6 +26,7 @@ import Icons from "views/examples/Icons.jsx";
 import RulesValidation from "views/rules/RulesValidation.jsx";
 import RulesCallback from "views/rules/RulesCallback.jsx";
 import OutboundRequest from "views/outbound/OutboundRequest.jsx";
+import Monitor from "views/monitor/Monitor.jsx";
 
 var routes = [
   {
@@ -32,6 +34,13 @@ var routes = [
     name: "Dashboard",
     icon: "ni ni-tv-2 text-primary",
     component: Dashboard,
+    layout: "/admin"
+  },
+  {
+    path: "/monitoring",
+    name: "Monitoring",
+    icon: "ni ni-glasses-2 text-primary",
+    component: Monitor,
     layout: "/admin"
   },
   {
