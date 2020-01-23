@@ -34,6 +34,7 @@ import 'antd/dist/antd.css';
 import Header from "components/Headers/Header.jsx";
 import axios from 'axios';
 import RulesEditor from './RuleEditor'
+import RuleViewer from './RuleViewer'
 
 const { Option } = Select;
 const { SubMenu } = Menu;
@@ -123,7 +124,7 @@ class RulesValidation extends React.Component {
           </Row>
           <Row>
             <Col>
-              <pre>{JSON.stringify(rule, null, 2)}</pre>
+              <RuleViewer rule={rule} />
             </Col>
           </Row>
         </Panel>
