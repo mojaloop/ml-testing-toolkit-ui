@@ -261,11 +261,13 @@ class Condition extends React.Component {
     numericNotEqual: 'Not Equal',
     numericLessThan: 'Less Than',
     numericGreaterThan: 'Greater Than',
+    numericLessThanInclusive: 'Less Than or Equal to',
+    numericGreaterThanInclusive: 'Greater Than or Equal to',
     dateBefore: 'Before',
     dateAfter: 'After',
   }
   propertyTitleOperators = {
-    Amount: [ 'numericEqual', 'numericNotEqual', 'numericLessThan', 'numericGreaterThan' ],
+    Amount: [ 'numericEqual', 'numericNotEqual', 'numericLessThan', 'numericGreaterThan', 'numericLessThanInclusive', 'numericGreaterThanInclusive' ],
   }
   getOperatorItems = () => {
     let operatorList = []
@@ -343,7 +345,7 @@ class Condition extends React.Component {
                 Operator
               </label>
               <br />
-              <Select style={{ width: 120 }} value={this.state.selectedOperator} onChange={this.handleOperatorSelect}>
+              <Select style={{ width: 180 }} value={this.state.selectedOperator} onChange={this.handleOperatorSelect}>
                 {this.getOperatorItems()}
               </Select>
             </FormGroup>

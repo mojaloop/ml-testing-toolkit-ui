@@ -1,8 +1,7 @@
 import React from "react";
 
-import { Card, Tag, Icon, Button, Steps } from 'antd';
+import { Card, Tag, Icon, Button, Row, Col } from 'antd';
 
-const {Step} = Steps
 class RuleViewer extends React.Component {
 
   render () {
@@ -54,25 +53,48 @@ class RuleViewer extends React.Component {
 
     return (
       <>
-        <Steps direction="vertical" current={1}>
-          <Step status="finish" title={resource.method.toUpperCase()+' '+resource.path} icon={<Icon type="double-right"></Icon>}/>
-          {
-            conditions.length > 0
-            ? (
-              <Step status="finish" title="Conditions" icon={<Icon type="question"></Icon>} description={conditionItems} />
-            )
-            : null
-          }
-          <Step status="finish" title="Event" icon={<Icon type="double-left"></Icon>} description={
-                Object.entries(inputRule.event.params).length > 0
-                ? (
-                  <Card size="small" className="mt-4" title={inputRule.event.type}>
-                    <pre>{JSON.stringify(inputRule.event.params, null, 2)}</pre>
-                  </Card>
-                )
-                : inputRule.event.type
-          } />
-        </Steps>
+        <table width='100%' cellPadding="5px">
+        <tr>
+          <td className="align-text-top" width='25px'>
+              <Icon type="double-right" style={{ fontSize: '20px', color: '#08c' }}></Icon>
+          </td>
+          <td>
+            <h3>{resource.method.toUpperCase()+' '+resource.path}</h3>
+          </td>
+        </tr>
+        {
+          conditions.length > 0
+          ? (
+            <tr>
+              <td className="align-text-top">
+                <Icon type="question" style={{ fontSize: '20px', color: '#08c' }}></Icon>
+              </td>
+              <td>
+                <h3>Conditions</h3>
+                {conditionItems}
+              </td>
+            </tr>
+          )
+          : null
+        }
+        <tr>
+          <td className="align-text-top">
+            <Icon type="double-left" style={{ fontSize: '20px', color: '#08c' }}></Icon>
+          </td>
+          <td>
+            <h3>Event</h3>
+            {
+              Object.entries(inputRule.event.params).length > 0
+              ? (
+                <Card size="small" className="mt-4" title={inputRule.event.type}>
+                  <pre>{JSON.stringify(inputRule.event.params, null, 2)}</pre>
+                </Card>
+              )
+              : inputRule.event.type
+            }
+          </td>
+        </tr>
+        </table>
       </>
     )
   }

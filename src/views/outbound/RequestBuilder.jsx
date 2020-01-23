@@ -467,13 +467,12 @@ class HeaderBodyBuilder extends React.Component {
     this.setState({allParamsFromDefinition, allParamsObject})
   }
 
-  // componentDidUpdate = () => {
-  //   console.log(this.props.rootParameters)
-  //   // console.log(this.props.resourceDefinition.parameters)
-  //   // console.log(this.props.resourceDefinition)
-
-
-  // }
+  componentDidUpdate = () => {
+    // console.log(this.props.request.body)
+    this.refs.bodyEditor.jsonEditor.update(this.props.request.body)
+    // console.log(this.props.resourceDefinition.parameters)
+    // console.log(this.props.resourceDefinition)
+  }
 
 
   addHeaderItemsFromDefinition = async (onlyRequired=false) => {
