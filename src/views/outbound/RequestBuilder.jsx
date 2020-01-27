@@ -469,7 +469,9 @@ class HeaderBodyBuilder extends React.Component {
 
   componentDidUpdate = () => {
     // console.log(this.props.request.body)
-    this.refs.bodyEditor.jsonEditor.update(this.props.request.body)
+    if(this.refs.bodyEditor) {
+      this.refs.bodyEditor.jsonEditor.update(this.props.request.body)
+    }
     // console.log(this.props.resourceDefinition.parameters)
     // console.log(this.props.resourceDefinition)
   }
