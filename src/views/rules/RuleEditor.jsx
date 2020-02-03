@@ -71,7 +71,9 @@ class ResourceSelector extends React.Component {
           switch(methodKey) {
             case 'get':
             case 'post':
-              this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
+              if (pathKey === '/parties/{Type}/{ID}' || pathKey === '/quotes' || pathKey === '/transfers') {
+                this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)                
+              }
               break
           }
         }
