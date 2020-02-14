@@ -45,6 +45,7 @@ import axios from 'axios';
 import './fixAce.css';
 import ConditionBuilder from './ConditionBuilder'
 import EventBuilder from './EventBuilder'
+import EventResponseBuilder from './EventResponseBuilder'
 
 const { Option } = Select;
 
@@ -71,9 +72,9 @@ class ResourceSelector extends React.Component {
           switch(methodKey) {
             case 'get':
             case 'post':
-              if (pathKey === '/parties/{Type}/{ID}' || pathKey === '/quotes' || pathKey === '/transfers') {
+              // if (pathKey === '/parties/{Type}/{ID}' || pathKey === '/quotes' || pathKey === '/transfers') {
                 this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)                
-              }
+              // }
               break
           }
         }
@@ -131,7 +132,11 @@ class RulesEditor extends React.Component {
 
   componentDidMount = async () => {
     const openApiDefinition = await this.getDefinition()
-    const callbackMap = await this.getCallbackMap()
+    let callbackMap = {}
+    try {
+      callbackMap = await this.getCallbackMap()
+    } catch(err) {}
+    
     // Deep clone the input rule to a new object to work with (Copying without object references recursively)
     const inputRule = JSON.parse(JSON.stringify(this.props.rule))
     let selectedResource = null
@@ -219,14 +224,14 @@ class RulesEditor extends React.Component {
   };
 
   getDefinition = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/definition/1.1")
+    const response = await axios.get("http://localhost:5050/api/openapi/definition/1.0")
     // console.log(response.data)
     return response.data
     // this.setState(  { openApiDefinition: response.data } )
   }
 
   getCallbackMap = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/callback_map/1.1")
+    const response = await axios.get("http://localhost:5050/api/openapi/callback_map/1.0")
     return response.data
     // this.setState(  { callbackMap: response.data } )
   }
@@ -394,17 +399,36 @@ class RulesEditor extends React.Component {
                     <h6 className="heading-small text-muted mb-4">
                       Event
                     </h6>
-                    <EventBuilder
-                      event={this.getEvent()}
-                      onChange={this.handleEventChange}
-                      resource={this.state.selectedResource}
-                      resourceDefinition={this.getResourceDefinition()}
-                      rootParameters={this.getRootParameters()}
-                      callbackDefinition={this.getCallbackDefinition()}
-                      callbackRootParameters={this.getCallbackRootParameters()}
-                      callbackObject={this.getCallbackObject()}
-                      mode={this.props.mode}
-                    />
+                    {
+                      this.props.mode === 'resonse'
+                      ? (
+                        <EventResponseBuilder
+                          event={this.getEvent()}
+                          onChange={this.handleEventChange}
+                          resource={this.state.selectedResource}
+                          resourceDefinition={this.getResourceDefinition()}
+                          rootParameters={this.getRootParameters()}
+                          callbackDefinition={this.getCallbackDefinition()}
+                          callbackRootParameters={this.getCallbackRootParameters()}
+                          callbackObject={this.getCallbackObject()}
+                          mode={this.props.mode}
+                        />
+                      )
+                      : (
+                        <EventBuilder
+                          event={this.getEvent()}
+                          onChange={this.handleEventChange}
+                          resource={this.state.selectedResource}
+                          resourceDefinition={this.getResourceDefinition()}
+                          rootParameters={this.getRootParameters()}
+                          callbackDefinition={this.getCallbackDefinition()}
+                          callbackRootParameters={this.getCallbackRootParameters()}
+                          callbackObject={this.getCallbackObject()}
+                          mode={this.props.mode}
+                        />
+                      )
+                    }
+
                     <hr className="my-4" />
                     {/* Description */}
                     <h6 className="heading-small text-muted mb-4">Rule Details</h6>
