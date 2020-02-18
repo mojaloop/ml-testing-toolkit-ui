@@ -53,15 +53,12 @@ class ResourceSelector extends React.Component {
 
   constructor() {
     super();
-    this.state = {
-      selectedItem: null
-    }
   }
   resourceOptions = []
 
   getResourceOptions = () => {
     this.resourceOptions = []
-    if(this.props.openApiDefinition.paths) {
+    if(this.props.openApiDefinition) {
       let currentResourceGroup = ''
       for ( let pathKey in this.props.openApiDefinition.paths ) {
         for ( let methodKey in this.props.openApiDefinition.paths[pathKey]) {
@@ -89,26 +86,70 @@ class ResourceSelector extends React.Component {
     } else {
       return null
     }
-    
   }
 
   render() {
 
     const resourceSelectHandler = (eventKey) => {
-      this.state.selectedItem = JSON.parse(eventKey)
-      this.props.onSelect(this.state.selectedItem)
-      // console.log(this.props.openApiDefinition.paths[selectedItem.path][selectedItem.method])
+      this.props.onSelect(JSON.parse(eventKey))
     }
 
     return(
+      <>
       <Select onChange={resourceSelectHandler}
-        disabled={(this.state.selectedItem? true : false)}
+        disabled={(this.props.value? true : false)}
         style={{ width: 300 }}
         placeholder="Select a resource"
         value={this.getResourceValue()}
       >
       {this.getResourceOptions()}
       </Select>
+      </>
+    )
+  }
+}
+
+class ApiVersionSelector extends React.Component {
+
+  constructor() {
+    super();
+  }
+  apiVersionOptions = []
+
+  getApiVersionOptions = () => {
+    this.apiVersionOptions = this.props.apiVersions.map((item, index) => {
+      return (
+        <Option key={index} value={JSON.stringify(item)}>{item.type} {item.majorVersion}.{item.minorVersion}</Option>
+      )
+    })
+    return this.apiVersionOptions
+  }
+
+  getApiVersionValue = () => {
+    if(this.props.value) {
+      return JSON.stringify(this.props.value)
+    } else {
+      return null
+    }
+  }
+
+  render() {
+
+    const apiVersionSelectHandler = (eventKey) => {
+      this.props.onSelect(JSON.parse(eventKey))
+    }
+
+    return(
+      <>
+      <Select onChange={apiVersionSelectHandler}
+        disabled={(this.props.value? true : false)}
+        style={{ width: 300 }}
+        placeholder="Select an API"
+        value={this.getApiVersionValue()}
+      >
+      {this.getApiVersionOptions()}
+      </Select>
+      </>
     )
   }
 }
@@ -124,18 +165,18 @@ class RulesEditor extends React.Component {
       event: {},
       conditions: [],
       pathMethodConditions: [],
-      openApiDefinition: {},
+      apiVersions: [],
+      openApiDefinition: null,
       selectedResource: null,
-      callbackMap: {}
+      selectedApiVersion: null,
+      callbackMap: {},
+      responseMap: {}
     };
   }
 
   componentDidMount = async () => {
-    const openApiDefinition = await this.getDefinition()
-    let callbackMap = {}
-    try {
-      callbackMap = await this.getCallbackMap()
-    } catch(err) {}
+    const apiVersions = await this.getApiVersions()
+
     
     // Deep clone the input rule to a new object to work with (Copying without object references recursively)
     const inputRule = JSON.parse(JSON.stringify(this.props.rule))
@@ -184,7 +225,28 @@ class RulesEditor extends React.Component {
     if (inputRule.description) {
       description = inputRule.description
     }
-    this.setState({description, conditions, pathMethodConditions, event, selectedResource, openApiDefinition, callbackMap})
+
+    let selectedApiVersion = null
+    if(inputRule.apiVersion) {
+        selectedApiVersion = inputRule.apiVersion
+        await this.fetchAllApiData(inputRule.apiVersion.type, inputRule.apiVersion.majorVersion+'.'+inputRule.apiVersion.minorVersion)
+    }
+
+    this.setState({description, conditions, pathMethodConditions, event, selectedResource, apiVersions, selectedApiVersion})
+  }
+
+  fetchAllApiData = async (apiType, version) => {
+    const openApiDefinition = await this.getDefinition(apiType, version)
+    let callbackMap = {}
+    try {
+      callbackMap = await this.getCallbackMap(apiType, version)
+    } catch(err) {}
+
+    let responseMap = {}
+    try {
+      responseMap = await this.getResponseMap(apiType, version)
+    } catch(err) {}
+    this.setState({openApiDefinition, callbackMap, responseMap})
   }
 
   getConditions = () => {
@@ -205,7 +267,8 @@ class RulesEditor extends React.Component {
 
   getRule = () => {
     const rule = {
-      description: this.state.description,
+      description: this.state.description ? this.state.description : this.state.selectedResource.method + ' ' + this.state.selectedResource.path,
+      apiVersion: this.state.selectedApiVersion,
       conditions: {
         "all": [...this.state.conditions, ...this.state.pathMethodConditions]
       },
@@ -223,15 +286,26 @@ class RulesEditor extends React.Component {
     this.setState({event});
   };
 
-  getDefinition = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/definition/1.0")
+  getApiVersions = async () => {
+    const response = await axios.get("http://localhost:5050/api/openapi/api_versions")
+    return response.data
+  }
+
+  getDefinition = async (apiType, version) => {
+    const response = await axios.get(`http://localhost:5050/api/openapi/definition/${apiType}/${version}`)
     // console.log(response.data)
     return response.data
     // this.setState(  { openApiDefinition: response.data } )
   }
 
-  getCallbackMap = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/callback_map/1.0")
+  getResponseMap = async (apiType, version) => {
+    const response = await axios.get(`http://localhost:5050/api/openapi/response_map/${apiType}/${version}`)
+    return response.data
+    // this.setState(  { callbackMap: response.data } )
+  }
+
+  getCallbackMap = async (apiType, version) => {
+    const response = await axios.get(`http://localhost:5050/api/openapi/callback_map/${apiType}/${version}`)
     return response.data
     // this.setState(  { callbackMap: response.data } )
   }
@@ -241,6 +315,26 @@ class RulesEditor extends React.Component {
     // // this.setState( { curJson: [ ...newJson ]} )
     // axios.put("http://localhost:5050/api/rules/callback", newJson, { headers: { 'Content-Type': 'application/json' } })
     this.props.onSave(JSON.parse(this.getRule()))
+  }
+
+  apiVersionSelectHandler = (apiVersion) => {
+    this.fetchAllApiData(apiVersion.type, apiVersion.majorVersion+'.'+apiVersion.minorVersion)
+    // this.state.pathMethodConditions = []
+    // this.state.pathMethodConditions.push({
+    //   fact: 'operationPath',
+    //   operator: 'equal',
+    //   value: apiVersion.path
+    // })
+    // this.state.pathMethodConditions.push({
+    //   fact: 'method',
+    //   operator: 'equal',
+    //   value: apiVersion.method
+    // })
+    // const newApiVersion = {
+    //   type: apiVersion.type,
+    //   version: apiVersion.majorVersion+'.'+apiVersion.minorVersion
+    // }
+    this.setState({selectedApiVersion: apiVersion})
   }
 
   resourceSelectHandler = (resource) => {
@@ -256,7 +350,6 @@ class RulesEditor extends React.Component {
       value: resource.method
     })
     this.setState({selectedResource: resource})
-
   }
 
   getResourceDefinition = () => {
@@ -304,7 +397,27 @@ class RulesEditor extends React.Component {
       } catch(err) {
         return null
       }
+    }
+    return null
+  }
 
+  getResponseObject = () => {
+    let responseObj = null
+    try {
+      responseObj = this.state.responseMap[this.state.selectedResource.path][this.state.selectedResource.method]['response']
+    } catch(err){
+    }
+    return responseObj
+  }
+
+  getResponses = () => {
+    if (this.state.selectedResource) {
+      try {
+        const responseObj = this.getResponseObject()
+        return this.state.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method].responses
+      } catch(err) {
+        return null
+      }
     }
     return null
   }
@@ -312,7 +425,6 @@ class RulesEditor extends React.Component {
   handleDescriptionChange = (newValue) => {
     this.setState({description: newValue})
   }
-
 
   render() {
     return (
@@ -348,6 +460,7 @@ class RulesEditor extends React.Component {
                       <h3 className="mb-0">Rule #{this.props.rule.ruleId}</h3>
                     </Col>
                     <Col xs="6" className="text-center">
+                      <b>API:</b> <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
                       <b>Resource:</b> <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
                     </Col>
                     <Col xs="4">
@@ -384,6 +497,7 @@ class RulesEditor extends React.Component {
                       Conditions
                     </h6>
                     <div className="pl-lg-4">
+
                       <ConditionBuilder
                         conditions={this.getConditions()}
                         pathMethodConditions={this.getPathMethodConditions()}
@@ -400,7 +514,7 @@ class RulesEditor extends React.Component {
                       Event
                     </h6>
                     {
-                      this.props.mode === 'resonse'
+                      this.props.mode === 'response'
                       ? (
                         <EventResponseBuilder
                           event={this.getEvent()}
@@ -408,9 +522,9 @@ class RulesEditor extends React.Component {
                           resource={this.state.selectedResource}
                           resourceDefinition={this.getResourceDefinition()}
                           rootParameters={this.getRootParameters()}
-                          callbackDefinition={this.getCallbackDefinition()}
+                          responses={this.getResponses()}
                           callbackRootParameters={this.getCallbackRootParameters()}
-                          callbackObject={this.getCallbackObject()}
+                          responseObject={this.getResponseObject()}
                           mode={this.props.mode}
                         />
                       )

@@ -51,7 +51,7 @@ class ValueSelector extends React.Component {
 
   handleValueChange = (newValue) => {
     if (this.props.selectedFact) {
-      // TODO: The props propagations and state changes should be optimized. Currently this method is called when we update the vlaue in props.
+      // TODO: The props propagation and state changes should be optimized. Currently this method is called when we update the value in props.
       // Its due to the hight level component in RulesCallback which is trying to re-render the whole page if any change in conditions detected.
       this.validateAjv = ajv.compile(this.props.selectedFact);
       const valid = this.validateAjv(newValue);
@@ -59,6 +59,7 @@ class ValueSelector extends React.Component {
         this.props.onChange(newValue)
         this.setState({ajvErrors: ''})
       } else {
+        this.props.onChange(newValue)
         this.setState({ajvErrors: this.validateAjv.errors})
       }
     }
@@ -125,7 +126,8 @@ class Condition extends React.Component {
       selectedFact: null,
       selectedFactPath: null,
       factData: null,
-      selectedOperator: null
+      selectedOperator: null,
+      allParameters: []
     }
   }
 
@@ -134,7 +136,15 @@ class Condition extends React.Component {
       return item.name === this.props.condition.fact
     })
     const selectedFactPath = this.props.condition.path
-    await this.setState({ selectedFactType, selectedFactPath })
+    let allParameters = []
+    if(this.props.rootParameters) {
+      allParameters = allParameters.concat(this.props.rootParameters)
+    }
+    if(this.props.resourceDefinition && this.props.resourceDefinition.parameters) {
+      allParameters = allParameters.concat(this.props.resourceDefinition.parameters)
+    }
+
+    await this.setState({ selectedFactType, selectedFactPath, allParameters })
     this.updateFactData()
   }
 
@@ -180,8 +190,8 @@ class Condition extends React.Component {
   ]
 
   havePathParams = () => {
-    if (this.props.rootParameters) {
-      const firstPathItem = this.props.rootParameters.find(item => {
+    if (this.state.allParameters) {
+      const firstPathItem = this.state.allParameters.find(item => {
         return item.in === 'path'
       })
       if (firstPathItem) {
@@ -216,7 +226,7 @@ class Condition extends React.Component {
           this.setState( {factData: (new FactDataGenerator()).getHeadersFactData(this.props.resourceDefinition, this.props.rootParameters)} )
           break
         case 'pathParams':
-          this.setState( {factData: (new FactDataGenerator()).getPathParametersFactData(this.props.rootParameters)} )
+          this.setState( {factData: (new FactDataGenerator()).getPathParametersFactData(this.state.allParameters)} )
           break
         default:
           this.setState( {factData: null} )
@@ -288,6 +298,16 @@ class Condition extends React.Component {
           operatorList.push({displayName: 'Equal', name: 'equal'})
           operatorList.push({displayName: 'Not Equal', name: 'notEqual'})
         }
+      } else if (this.state.selectedFact.type === 'integer') {
+        operatorList.push({displayName: 'Equal', name: 'equal'})
+        operatorList.push({displayName: 'Not Equal', name: 'notEqual'})
+        operatorList.push({displayName: 'Less Than', name: 'lessThan'})
+        operatorList.push({displayName: 'Less Than or Equal to', name: 'lessThanInclusive'})
+        operatorList.push({displayName: 'Greater Than', name: 'greaterThan'})
+        operatorList.push({displayName: 'Greater Than or Equal to', name: 'greaterThanInclusive'})
+      } else {
+        operatorList.push({displayName: 'Equal', name: 'equal'})
+        operatorList.push({displayName: 'Not Equal', name: 'notEqual'})
       }
     }
 

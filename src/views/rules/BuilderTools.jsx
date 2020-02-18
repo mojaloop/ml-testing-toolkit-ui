@@ -13,11 +13,14 @@ import {
 import axios from 'axios';
 import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd';
 import 'antd/dist/antd.css';
+import jsf from 'json-schema-faker';
 // import './index.css';
 import Ajv from 'ajv';
 const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
+
+jsf.option('alwaysFakeOptionals', true);
 
 export class FactSelect extends React.Component {
   constructor () {
@@ -164,13 +167,13 @@ export class FactDataGenerator {
     return headerSchema
   }
 
-  getPathParametersFactData = (rootParameters) => {
+  getPathParametersFactData = (parameters) => {
     // Convert path parameters array in openapi file to object like requestBody
     let pathParametersSchema = {
       properties: {}
     }
     try {
-      rootParameters.forEach((item) => {
+      parameters.forEach((item) => {
         if (item.in === 'path') {
           pathParametersSchema.properties[item.name] = item.schema
         }
@@ -179,6 +182,30 @@ export class FactDataGenerator {
       console.log(err)
     }
     return pathParametersSchema
+  }
+
+  getSuccessResponseBodySchema = (responses) => {
+    let bodySchema = {}
+    try {
+      // TODO: Calculate success code instead of hard-coding 200
+      bodySchema = responses[200].content['application/json'].schema
+    } catch(err) {
+    }
+    return bodySchema
+  }
+  getSuccessResponseHeaders = (responses) => {
+    let headers = {}
+    try {
+      // TODO: Calculate success code instead of hard-coding 200
+      headers = responses[200].headers
+    } catch(err) {
+    }
+    return headers
+  }
+
+  generateSample = async (schema) => {
+    const sample = await jsf.resolve(schema,)
+    return sample
   }
 }
 

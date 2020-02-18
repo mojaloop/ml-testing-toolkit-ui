@@ -302,14 +302,14 @@ class RequestGenerator extends React.Component {
   };
 
   getDefinition = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/definition/1.1")
+    const response = await axios.get("http://localhost:5050/api/openapi/definition/fspiop/1.1")
     // console.log(response.data)
     return response.data
     // this.setState(  { openApiDefinition: response.data } )
   }
 
   getCallbackMap = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/callback_map/1.1")
+    const response = await axios.get("http://localhost:5050/api/openapi/callback_map/fspiop/1.1")
     return response.data
     // this.setState(  { callbackMap: response.data } )
   }

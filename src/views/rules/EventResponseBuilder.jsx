@@ -78,7 +78,14 @@ class ConfigurableParameter extends React.Component {
     var factData = null
     switch(mode) {
       case 0:
-        factData = (new FactDataGenerator()).getPathParametersFactData(this.props.rootParameters)
+        let allParameters = []
+        if(this.props.rootParameters) {
+          allParameters = allParameters.concat(this.props.rootParameters)
+        }
+        if(this.props.resourceDefinition.parameters) {
+          allParameters = allParameters.concat(this.props.resourceDefinition.parameters)
+        }
+        factData = (new FactDataGenerator()).getPathParametersFactData(allParameters)
         break
       case 1:
         factData = (new FactDataGenerator()).getBodyFactData(this.props.resourceDefinition)
@@ -181,58 +188,39 @@ class FixedCallbackBuilder extends React.Component {
     super()
     this.state = {
       configurableParameterSelected: '',
-      allParamsFromDefinition: [],
-      allParamsObject: {}
+      allHeadersArray: [],
+      allHeadersObject: {}
     }
   }
 
   bodySchema = {}
 
-  componentDidMount = () => {
-    // console.log(this.props.callbackRootParameters)
-    // console.log(this.props.resourceDefinition.parameters)
-    // console.log(this.props.callbackDefinition)
-    this.bodySchema = (new FactDataGenerator()).getBodyFactData(this.props.callbackDefinition)
-
-
-    let allParamsFromDefinition = []
-    if (this.props.callbackRootParameters) {
-      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackRootParameters)
+  // componentDidUpdate = () => {
+  //   console.log(this.props.resources)
+  // }
+  componentDidMount = async () => {
+    this.bodySchema = (new FactDataGenerator()).getSuccessResponseBodySchema(this.props.responses)
+    const allHeadersObject = (new FactDataGenerator()).getSuccessResponseHeaders(this.props.responses)
+    let allHeadersArray = []
+    for (let k in allHeadersObject) {
+      allHeadersArray.push({
+        name: k,
+        ...allHeadersObject[k]
+      })
     }
-    if (this.props.callbackDefinition.parameters) {
-      allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackDefinition.parameters)
-    }
-
-    let allParamsObject = {}
-    for (let k in allParamsFromDefinition) {
-      allParamsObject[allParamsFromDefinition[k].name] = {
-        description: allParamsFromDefinition[k].description
-      }
-    }
-    this.setState({allParamsFromDefinition, allParamsObject})
+    this.setState({allHeadersArray, allHeadersObject})
 
   }
-  // componentDidUpdate = () => {
-  //   // console.log(this.props.callbackRootParameters)
-  //   // console.log(this.props.resourceDefinition.parameters)
-  //   // console.log(this.props.callbackDefinition)
-    
-
-
-  // }
-
 
   addHeaderItemsFromDefinition = async (onlyRequired=false) => {
-    this.state.allParamsFromDefinition.forEach((param) => {
-      if (param.in==='header') {
-        if (!onlyRequired || param.required) {
-          if (!this.props.eventParams.headers) {
-            this.props.eventParams.headers = {}
-            this.props.eventParams.headers[param.name] = ''
-          }
-          else if (!this.props.eventParams.headers[param.name]) {
-            this.props.eventParams.headers[param.name] = ''
-          }
+    this.state.allHeadersArray.forEach((param) => {
+      if (!onlyRequired || param.required) {
+        if (!this.props.eventParams.headers) {
+          this.props.eventParams.headers = {}
+          this.props.eventParams.headers[param.name] = ''
+        }
+        else if (!this.props.eventParams.headers[param.name]) {
+          this.props.eventParams.headers[param.name] = ''
         }
       }
     })
@@ -266,10 +254,7 @@ class FixedCallbackBuilder extends React.Component {
   };
 
   headerItemsMenu = () => {    
-    const headerParams = this.state.allParamsFromDefinition.filter(item => {
-      return item.in === 'header'
-    })
-    const menuItems = headerParams.map((item, key) => {
+    const menuItems = this.state.allHeadersArray.map((item, key) => {
       return (
         <Menu.Item key={key}>{item.name}</Menu.Item>
       )
@@ -299,7 +284,7 @@ class FixedCallbackBuilder extends React.Component {
         }
         const key = k++
         headerItems.push(
-          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.state.allParamsObject[item.name]? this.state.allParamsObject[item.name].description: null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
+          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.state.allHeadersObject[item.name]? this.state.allHeadersObject[item.name].description: null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
         )
       }
     }
@@ -313,7 +298,8 @@ class FixedCallbackBuilder extends React.Component {
 
 
   handlePopulateSampleBodyClick = async () => {
-    const newBody = (new FactDataGenerator()).getBodySample(this.props.callbackDefinition)
+    // const newBody = (new FactDataGenerator()).getBodySample(this.props.callbackDefinition)
+    const newBody = await (new FactDataGenerator()).generateSample(this.bodySchema)
     if(newBody) {
       if(this.props.callbackObject && this.props.callbackObject.bodyOverride) {
         _.merge(newBody, this.props.callbackObject.bodyOverride)
@@ -603,9 +589,9 @@ class MockCallbackBuilder extends React.Component {
                 onChange={this.handleOverrideValuesChange}
                 resourceDefinition={this.props.resourceDefinition}
                 rootParameters = {this.props.rootParameters}
-                callbackDefinition={this.props.callbackDefinition}
+                responses={this.props.responses}
                 callbackRootParameters={this.props.callbackRootParameters}
-                callbackObject={this.props.callbackObject}
+                resourceObject={this.props.resourceObject}
               />
             </Col>
           </Row>
@@ -620,29 +606,29 @@ class MockCallbackBuilder extends React.Component {
 class ParamsBuilder extends React.Component {
   
   render() {
-    if (this.props.eventType === 'FIXED_CALLBACK' || this.props.eventType === 'FIXED_ERROR_CALLBACK') {
+    if (this.props.eventType === 'FIXED_RESPONSE' || this.props.eventType === 'FIXED_ERROR_RESPONSE') {
       return (
         <FixedCallbackBuilder
           eventParams={this.props.eventParams}
           onChange={this.props.onChange}
           resourceDefinition={this.props.resourceDefinition}
           rootParameters = {this.props.rootParameters}
-          callbackDefinition={this.props.callbackDefinition}
+          responses={this.props.responses}
           callbackRootParameters={this.props.callbackRootParameters}
-          callbackObject={this.props.callbackObject}
+          resourceObject={this.props.resourceObject}
         />
       )
     }
-    else if (this.props.eventType === 'MOCK_CALLBACK' || this.props.eventType === 'MOCK_ERROR_CALLBACK') {
+    else if (this.props.eventType === 'MOCK_RESPONSE' || this.props.eventType === 'MOCK_ERROR_RESPONSE') {
       return (
         <MockCallbackBuilder
           eventParams={this.props.eventParams}
           onChange={this.props.onChange}
           resourceDefinition={this.props.resourceDefinition}
           rootParameters = {this.props.rootParameters}
-          callbackDefinition={this.props.callbackDefinition}
+          responses={this.props.responses}
           callbackRootParameters={this.props.callbackRootParameters}
-          callbackObject={this.props.callbackObject}
+          resourceObject={this.props.resourceObject}
         />
       )
     } else {
@@ -670,23 +656,23 @@ class EventResponseBuilder extends React.Component {
 
   successEventTypes = [
     {
-      name: 'FIXED_CALLBACK',
-      title: 'Fixed Callback'
+      name: 'FIXED_RESPONSE',
+      title: 'Fixed Response'
     },
     {
-      name: 'MOCK_CALLBACK',
-      title: 'Mock Callback'
+      name: 'MOCK_RESPONSE',
+      title: 'Mock Response'
     }
   ]
 
   errorEventTypes = [
     {
-      name: 'FIXED_ERROR_CALLBACK',
-      title: 'Fixed Error Callback'
+      name: 'FIXED_ERROR_RESPONSE',
+      title: 'Fixed Error Response'
     },
     {
-      name: 'MOCK_ERROR_CALLBACK',
-      title: 'Mock Error Callback'
+      name: 'MOCK_ERROR_RESPONSE',
+      title: 'Mock Error Response'
     }
   ]
 
@@ -755,9 +741,9 @@ class EventResponseBuilder extends React.Component {
             onChange={this.handleParamsChange}
             resourceDefinition={this.props.resourceDefinition}
             rootParameters = {this.props.rootParameters}
-            callbackDefinition={this.props.callbackDefinition}
+            responses={this.props.responses}
             callbackRootParameters={this.props.callbackRootParameters}
-            callbackObject={this.props.callbackObject}
+            resourceObject={this.props.resourceObject}
           />
         </div>
       </>
