@@ -136,7 +136,7 @@ class Sidebar extends React.Component {
                 src={logo.imgSrc}
               />
               <br />
-              <h4 class="mb-0">Self Testing Toolkit</h4>
+              <h4 className="mb-0">Self Testing Toolkit</h4>
             </NavbarBrand>
           ) : null}
           {/* User */}

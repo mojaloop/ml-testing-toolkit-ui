@@ -187,8 +187,8 @@ export class FactDataGenerator {
   getSuccessResponseBodySchema = (responses) => {
     let bodySchema = {}
     try {
-      // TODO: Calculate success code instead of hard-coding 200
-      bodySchema = responses[200].content['application/json'].schema
+      const successObject = this.pickSuccessCodeFromResponsesObject(responses)
+      bodySchema = successObject.content['application/json'].schema
     } catch(err) {
     }
     return bodySchema
@@ -196,11 +196,27 @@ export class FactDataGenerator {
   getSuccessResponseHeaders = (responses) => {
     let headers = {}
     try {
-      // TODO: Calculate success code instead of hard-coding 200
-      headers = responses[200].headers
+      const successObject = this.pickSuccessCodeFromResponsesObject(responses)
+      headers = successObject.headers
     } catch(err) {
     }
     return headers
+  }
+
+  pickSuccessCodeFromResponsesObject = (responses) => {
+    let successCode
+    for (let responseCode in responses) {
+      if(responseCode >= 200 && responseCode <=299) {
+        successCode = responseCode
+        break
+      }
+    }
+    if(successCode) {
+      return responses[successCode]
+    } else {
+      return responses['default']
+    }
+    
   }
 
   generateSample = async (schema) => {
