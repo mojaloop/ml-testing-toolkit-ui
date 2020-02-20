@@ -460,8 +460,22 @@ class RulesEditor extends React.Component {
                       <h3 className="mb-0">Rule #{this.props.rule.ruleId}</h3>
                     </Col>
                     <Col xs="6" className="text-center">
-                      <b>API:</b> <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
-                      <b>Resource:</b> <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                      <table>
+                        <tbody>
+                        <tr>
+                          <td align='right'><b>API:</b></td>
+                          <td>
+                            <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td align='right'><b>Resource:</b></td>
+                          <td>
+                            <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                          </td>
+                        </tr>
+                        </tbody>
+                      </table>
                     </Col>
                     <Col xs="4">
                       <Row className="text-right float-right">
