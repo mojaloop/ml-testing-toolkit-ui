@@ -184,20 +184,37 @@ export class FactDataGenerator {
     return pathParametersSchema
   }
 
-  getSuccessResponseBodySchema = (responses) => {
+  getQueryParametersFactData = (parameters) => {
+    // Convert path parameters array in openapi file to object like requestBody
+    let queryParametersSchema = {
+      properties: {}
+    }
+    try {
+      parameters.forEach((item) => {
+        if (item.in === 'query') {
+          queryParametersSchema.properties[item.name] = item.schema
+        }
+      })
+    } catch(err) {
+      console.log(err)
+    }
+    return queryParametersSchema
+  }
+
+  getSelectedResponseBodySchema = (responses, statusCode) => {
     let bodySchema = {}
     try {
-      const successObject = this.pickSuccessCodeFromResponsesObject(responses)
-      bodySchema = successObject.content['application/json'].schema
+      bodySchema = responses[statusCode].content['application/json'].schema
     } catch(err) {
     }
     return bodySchema
   }
-  getSuccessResponseHeaders = (responses) => {
+
+  getSelectedResponseHeaders = (responses) => {
     let headers = {}
     try {
-      const successObject = this.pickSuccessCodeFromResponsesObject(responses)
-      headers = successObject.headers
+      const successCode = this.pickSuccessCodeFromResponsesObject(responses)
+      headers = responses[successCode].headers
     } catch(err) {
     }
     return headers
@@ -212,11 +229,10 @@ export class FactDataGenerator {
       }
     }
     if(successCode) {
-      return responses[successCode]
+      return successCode
     } else {
-      return responses['default']
+      return 'default'
     }
-    
   }
 
   generateSample = async (schema) => {

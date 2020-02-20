@@ -59,6 +59,7 @@ class ConfigurableParameter extends React.Component {
     this.modes[1]='Request Body Parameter'
     this.modes[2]='Request Header Parameter'
     this.modes[3]='Negotiated Content Type'
+    this.modes[4]='Request Query Parameter'
   }
 
   modes = []
@@ -76,15 +77,15 @@ class ConfigurableParameter extends React.Component {
   
   handleModeChange = async (mode) => {
     var factData = null
+    let allParameters = []
+    if(this.props.rootParameters) {
+      allParameters = allParameters.concat(this.props.rootParameters)
+    }
+    if(this.props.resourceDefinition.parameters) {
+      allParameters = allParameters.concat(this.props.resourceDefinition.parameters)
+    }
     switch(mode) {
       case 0:
-        let allParameters = []
-        if(this.props.rootParameters) {
-          allParameters = allParameters.concat(this.props.rootParameters)
-        }
-        if(this.props.resourceDefinition.parameters) {
-          allParameters = allParameters.concat(this.props.resourceDefinition.parameters)
-        }
         factData = (new FactDataGenerator()).getPathParametersFactData(allParameters)
         break
       case 1:
@@ -92,6 +93,9 @@ class ConfigurableParameter extends React.Component {
         break
       case 2:
         factData = (new FactDataGenerator()).getHeadersFactData(this.props.resourceDefinition, this.props.rootParameters)
+        break
+      case 4:
+        factData = (new FactDataGenerator()).getQueryParametersFactData(allParameters)
         break
       default:
         factData = null
@@ -105,6 +109,7 @@ class ConfigurableParameter extends React.Component {
       case 0:
       case 1:
       case 2:
+      case 4:
         return (
           <FactSelect key={this.props.name} factData={this.state.factData} onSelect={this.handleFactSelect} />
         )
@@ -138,6 +143,9 @@ class ConfigurableParameter extends React.Component {
     switch(this.state.mode) {
       case 0:
         finalValue = '{$request.params.' + this.inputValue + '}'
+        break
+      case 4:
+        finalValue = '{$request.query.' + this.inputValue + '}'
         break
       case 1:
         finalValue = '{$request.body.' + this.inputValue + '}'
@@ -187,20 +195,33 @@ class FixedCallbackBuilder extends React.Component {
   constructor() {
     super()
     this.state = {
-      configurableParameterSelected: '',
-      allHeadersArray: [],
-      allHeadersObject: {}
+      configurableParameterSelected: ''
     }
   }
 
   bodySchema = {}
-
+  allHeadersArray = []
+  allHeadersObject = {}
   // componentDidUpdate = () => {
   //   console.log(this.props.resources)
   // }
   componentDidMount = async () => {
-    this.bodySchema = (new FactDataGenerator()).getSuccessResponseBodySchema(this.props.responses)
-    const allHeadersObject = (new FactDataGenerator()).getSuccessResponseHeaders(this.props.responses)
+    if (!this.props.eventParams.statusCode) {
+      this.props.eventParams.statusCode = (new FactDataGenerator()).pickSuccessCodeFromResponsesObject(this.props.responses)
+    }
+    this.updateBodyAndHeadersSchemaForResponseCode()
+  }
+
+  componentDidUpdate = async () => {
+    if (!this.props.eventParams.statusCode) {
+      this.props.eventParams.statusCode = (new FactDataGenerator()).pickSuccessCodeFromResponsesObject(this.props.responses)
+    }
+    this.updateBodyAndHeadersSchemaForResponseCode()
+  }
+
+  updateBodyAndHeadersSchemaForResponseCode = () => {
+    this.bodySchema = (new FactDataGenerator()).getSelectedResponseBodySchema(this.props.responses, this.props.eventParams.statusCode)
+    const allHeadersObject = (new FactDataGenerator()).getSelectedResponseHeaders(this.props.responses, this.props.eventParams.statusCode)
     let allHeadersArray = []
     for (let k in allHeadersObject) {
       allHeadersArray.push({
@@ -208,12 +229,12 @@ class FixedCallbackBuilder extends React.Component {
         ...allHeadersObject[k]
       })
     }
-    this.setState({allHeadersArray, allHeadersObject})
-
+    this.allHeadersArray = allHeadersArray
+    this.allHeadersObject = allHeadersObject
   }
 
   addHeaderItemsFromDefinition = async (onlyRequired=false) => {
-    this.state.allHeadersArray.forEach((param) => {
+    this.allHeadersArray.forEach((param) => {
       if (!onlyRequired || param.required) {
         if (!this.props.eventParams.headers) {
           this.props.eventParams.headers = {}
@@ -254,7 +275,7 @@ class FixedCallbackBuilder extends React.Component {
   };
 
   headerItemsMenu = () => {    
-    const menuItems = this.state.allHeadersArray.map((item, key) => {
+    const menuItems = this.allHeadersArray.map((item, key) => {
       return (
         <Menu.Item key={key}>{item.name}</Menu.Item>
       )
@@ -270,6 +291,7 @@ class FixedCallbackBuilder extends React.Component {
     const paramsObject = {}
     paramsObject.headers = this.props.eventParams.headers
     paramsObject.body = this.props.eventParams.body
+    paramsObject.statusCode = this.props.eventParams.statusCode
     this.props.onChange(paramsObject)
   }
 
@@ -284,7 +306,7 @@ class FixedCallbackBuilder extends React.Component {
         }
         const key = k++
         headerItems.push(
-          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.state.allHeadersObject[item.name]? this.state.allHeadersObject[item.name].description: null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
+          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.allHeadersObject[item.name]? this.allHeadersObject[item.name].description: null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
         )
       }
     }
@@ -344,7 +366,7 @@ class FixedCallbackBuilder extends React.Component {
 
     return (
       <>
-        <Row>
+        <Row className='mt-2'>
           <Col>
             <Card size="small" title="Headers">
               <Row>
@@ -605,9 +627,52 @@ class MockCallbackBuilder extends React.Component {
 
 class ParamsBuilder extends React.Component {
   
+  componentDidMount = () => {
+    if (this.props.eventParams && !this.props.eventParams.statusCode) {
+      this.props.eventParams.statusCode = (new FactDataGenerator()).pickSuccessCodeFromResponsesObject(this.props.responses)
+      this.forceUpdate()
+    }
+  }
+  getResponseItems = () => {
+    let responseItems = []
+    for(let k in this.props.responses) {
+      if(k != 'default') {
+        const item = this.props.responses[k]
+        responseItems.push(<Option key={k} value={k}>{k}</Option>)
+      }
+    }
+    return responseItems
+  }
+
+  handleResponseSelect = (response) => {
+    this.props.eventParams.statusCode = response
+    this.forceUpdate()
+  }
+
   render() {
     if (this.props.eventType === 'FIXED_RESPONSE' || this.props.eventType === 'FIXED_ERROR_RESPONSE') {
       return (
+        <>
+        <Row>
+          <Col>
+            <Card size="small" title="Response Code">
+              <Row>
+                <Col md="12">
+                  <FormGroup>
+                    <Select
+                      value={this.props.eventParams.statusCode}
+                      onChange={this.handleResponseSelect}
+                    >
+                      {this.getResponseItems()}
+                    </Select>
+                  </FormGroup>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+        <Row className='mt-2'>
+        <Col>
         <FixedCallbackBuilder
           eventParams={this.props.eventParams}
           onChange={this.props.onChange}
@@ -617,6 +682,9 @@ class ParamsBuilder extends React.Component {
           callbackRootParameters={this.props.callbackRootParameters}
           resourceObject={this.props.resourceObject}
         />
+        </Col>
+        </Row>
+        </>
       )
     }
     else if (this.props.eventType === 'MOCK_RESPONSE' || this.props.eventType === 'MOCK_ERROR_RESPONSE') {

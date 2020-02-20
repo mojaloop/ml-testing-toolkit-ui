@@ -186,6 +186,10 @@ class Condition extends React.Component {
     {
       title: 'Request Path Parameters',
       name: 'pathParams'
+    },
+    {
+      title: 'Request Query Parameters',
+      name: 'queryParams'
     }
   ]
 
@@ -201,6 +205,18 @@ class Condition extends React.Component {
     return false
   }
 
+  haveQueryParams = () => {
+    if (this.state.allParameters) {
+      const firstQueryItem = this.state.allParameters.find(item => {
+        return item.in === 'query'
+      })
+      if (firstQueryItem) {
+        return true
+      }
+    }
+    return false
+  }
+
   getFactTypeItems = () => {
     let tempFactTypes = [...this.factTypes]
     if (this.havePathParams()) {
@@ -208,6 +224,14 @@ class Condition extends React.Component {
         {
           title: 'Request Path Parameters',
           name: 'pathParams'
+        }
+      )
+    }
+    if (this.haveQueryParams()) {
+      tempFactTypes.push(
+        {
+          title: 'Request Query Parameters',
+          name: 'queryParams'
         }
       )
     }
@@ -227,6 +251,9 @@ class Condition extends React.Component {
           break
         case 'pathParams':
           this.setState( {factData: (new FactDataGenerator()).getPathParametersFactData(this.state.allParameters)} )
+          break
+        case 'queryParams':
+          this.setState( {factData: (new FactDataGenerator()).getQueryParametersFactData(this.state.allParameters)} )
           break
         default:
           this.setState( {factData: null} )
