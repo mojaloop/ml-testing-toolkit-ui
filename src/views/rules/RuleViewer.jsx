@@ -54,46 +54,48 @@ class RuleViewer extends React.Component {
     return (
       <>
         <table width='100%' cellPadding="5px">
-        <tr>
-          <td className="align-text-top" width='25px'>
-              <Icon type="double-right" style={{ fontSize: '20px', color: '#08c' }}></Icon>
-          </td>
-          <td>
-            <h3>{resource.method.toUpperCase()+' '+resource.path}</h3>
-          </td>
-        </tr>
-        {
-          conditions.length > 0
-          ? (
+          <tbody>
             <tr>
-              <td className="align-text-top">
-                <Icon type="question" style={{ fontSize: '20px', color: '#08c' }}></Icon>
+              <td className="align-text-top" width='25px'>
+                  <Icon type="double-right" style={{ fontSize: '20px', color: '#08c' }}></Icon>
               </td>
               <td>
-                <h3>Conditions</h3>
-                {conditionItems}
+                <h3>{resource.method.toUpperCase()+' '+resource.path}</h3>
               </td>
             </tr>
-          )
-          : null
-        }
-        <tr>
-          <td className="align-text-top">
-            <Icon type="double-left" style={{ fontSize: '20px', color: '#08c' }}></Icon>
-          </td>
-          <td>
-            <h3>Event</h3>
             {
-              Object.entries(inputRule.event.params).length > 0
+              conditions.length > 0
               ? (
-                <Card size="small" className="mt-4" title={inputRule.event.type}>
-                  <pre>{JSON.stringify(inputRule.event.params, null, 2)}</pre>
-                </Card>
+                <tr>
+                  <td className="align-text-top">
+                    <Icon type="question" style={{ fontSize: '20px', color: '#08c' }}></Icon>
+                  </td>
+                  <td>
+                    <h3>Conditions</h3>
+                    {conditionItems}
+                  </td>
+                </tr>
               )
-              : inputRule.event.type
+              : null
             }
-          </td>
-        </tr>
+            <tr>
+              <td className="align-text-top">
+                <Icon type="double-left" style={{ fontSize: '20px', color: '#08c' }}></Icon>
+              </td>
+              <td>
+                <h3>Event</h3>
+                {
+                  Object.entries(inputRule.event.params).length > 0
+                  ? (
+                    <Card size="small" className="mt-4" title={inputRule.event.type}>
+                      <pre>{JSON.stringify(inputRule.event.params, null, 2)}</pre>
+                    </Card>
+                  )
+                  : inputRule.event.type
+                }
+              </td>
+            </tr>
+          </tbody>
         </table>
       </>
     )

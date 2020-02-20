@@ -23,6 +23,7 @@ import Register from "views/examples/Register.jsx";
 import Login from "views/examples/Login.jsx";
 import Tables from "views/examples/Tables.jsx";
 import Icons from "views/examples/Icons.jsx";
+import RulesResponse from "views/rules/RulesResponse.jsx";
 import RulesValidation from "views/rules/RulesValidation.jsx";
 import RulesCallback from "views/rules/RulesCallback.jsx";
 import OutboundRequest from "views/outbound/OutboundRequest.jsx";
@@ -44,6 +45,14 @@ var routes = [
     layout: "/admin"
   },
   {
+    path: "/rules_response",
+    name: "Sync Response Rules",
+    subTitle: "",
+    icon: "ni ni-curved-next text-primary",
+    component: RulesResponse,
+    layout: "/admin"
+  },
+  {
     path: "/rules_validation",
     name: "Validation Rules",
     subTitle: "(Error Callbacks)",
@@ -55,7 +64,7 @@ var routes = [
     path: "/rules_callback",
     name: "Callback Rules",
     subTitle: "(Success Callbacks)",
-    icon: "ni ni-curved-next text-primary",
+    icon: "ni ni-bullet-list-67 text-primary",
     component: RulesCallback,
     layout: "/admin"
   },

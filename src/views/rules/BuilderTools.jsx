@@ -13,11 +13,14 @@ import {
 import axios from 'axios';
 import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd';
 import 'antd/dist/antd.css';
+import jsf from 'json-schema-faker';
 // import './index.css';
 import Ajv from 'ajv';
 const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
+
+jsf.option('alwaysFakeOptionals', true);
 
 export class FactSelect extends React.Component {
   constructor () {
@@ -164,13 +167,13 @@ export class FactDataGenerator {
     return headerSchema
   }
 
-  getPathParametersFactData = (rootParameters) => {
+  getPathParametersFactData = (parameters) => {
     // Convert path parameters array in openapi file to object like requestBody
     let pathParametersSchema = {
       properties: {}
     }
     try {
-      rootParameters.forEach((item) => {
+      parameters.forEach((item) => {
         if (item.in === 'path') {
           pathParametersSchema.properties[item.name] = item.schema
         }
@@ -179,6 +182,62 @@ export class FactDataGenerator {
       console.log(err)
     }
     return pathParametersSchema
+  }
+
+  getQueryParametersFactData = (parameters) => {
+    // Convert path parameters array in openapi file to object like requestBody
+    let queryParametersSchema = {
+      properties: {}
+    }
+    try {
+      parameters.forEach((item) => {
+        if (item.in === 'query') {
+          queryParametersSchema.properties[item.name] = item.schema
+        }
+      })
+    } catch(err) {
+      console.log(err)
+    }
+    return queryParametersSchema
+  }
+
+  getSelectedResponseBodySchema = (responses, statusCode) => {
+    let bodySchema = {}
+    try {
+      bodySchema = responses[statusCode].content['application/json'].schema
+    } catch(err) {
+    }
+    return bodySchema
+  }
+
+  getSelectedResponseHeaders = (responses) => {
+    let headers = {}
+    try {
+      const successCode = this.pickSuccessCodeFromResponsesObject(responses)
+      headers = responses[successCode].headers
+    } catch(err) {
+    }
+    return headers
+  }
+
+  pickSuccessCodeFromResponsesObject = (responses) => {
+    let successCode
+    for (let responseCode in responses) {
+      if(responseCode >= 200 && responseCode <=299) {
+        successCode = responseCode
+        break
+      }
+    }
+    if(successCode) {
+      return successCode
+    } else {
+      return 'default'
+    }
+  }
+
+  generateSample = async (schema) => {
+    const sample = await jsf.resolve(schema,)
+    return sample
   }
 }
 
