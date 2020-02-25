@@ -28,6 +28,7 @@ import RulesValidation from "views/rules/RulesValidation.jsx";
 import RulesCallback from "views/rules/RulesCallback.jsx";
 import OutboundRequest from "views/outbound/OutboundRequest.jsx";
 import Monitor from "views/monitor/Monitor.jsx";
+import Settings from "views/settings/Settings.jsx";
 
 var routes = [
   {
@@ -73,6 +74,13 @@ var routes = [
     name: "Outbound Request",
     icon: "ni ni-money-coins text-blue",
     component: OutboundRequest,
+    layout: "/admin"
+  },
+  {
+    path: "/settings",
+    name: "Settings",
+    icon: "ni ni-settings text-blue",
+    component: Settings,
     layout: "/admin"
   },
   // {
