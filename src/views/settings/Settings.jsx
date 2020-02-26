@@ -28,7 +28,7 @@ import {
   Col,
 } from "reactstrap";
 
-import { Input, Checkbox, Divider, message, Tag, Icon } from 'antd';
+import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon } from 'antd';
 import 'antd/dist/antd.css';
 
 import Header from "components/Headers/Header.jsx";
@@ -50,6 +50,24 @@ class ParamInput extends React.Component {
   }
 
   render() {
+
+    const inputElement = (
+      (typeof this.props.value) === 'boolean'
+      ? (
+        <Checkbox checked={this.props.value} onChange={this.handleValueChange}></Checkbox>
+      )
+      : (
+        <Input
+          className="form-control-alternative"
+          type="text"
+          defaultValue={this.props.value}
+          value={this.props.value}
+          onChange={this.handleValueChange}
+          disabled={false}
+        />
+      )
+    )
+
     return (
       <Row className="mb-4">
         <Col lg="4">
@@ -57,20 +75,11 @@ class ParamInput extends React.Component {
         </Col>
         <Col lg="8">
           {
-            (typeof this.props.value) === 'boolean'
+            this.props.tooltip
             ? (
-              <Checkbox checked={this.props.value} onChange={this.handleValueChange}></Checkbox>
+            <Tooltip placement="topLeft" title={this.props.tooltip}>{inputElement}</Tooltip>
             )
-            : (
-              <Input
-                className="form-control-alternative"
-                type="text"
-                defaultValue={this.props.value}
-                value={this.props.value}
-                onChange={this.handleValueChange}
-                disabled={false}
-              />
-            )
+            : inputElement
           }
         </Col>
       </Row>
@@ -109,7 +118,12 @@ class ConfigurationEditor extends React.Component {
               </div>
             </CardHeader>
             <CardBody>
-              <ParamInput name="Override with Environment Variables" itemKey="OVERRIDE_WITH_ENV" value={this.props.config.OVERRIDE_WITH_ENV} onChange={this.handleParamValueChange} />
+              <ParamInput
+                name="Override with Environment Variables"
+                tooltip="Check this if you are passing the configuration through environment variables. The below configuration may be overridden by the environment variables." 
+                itemKey="OVERRIDE_WITH_ENV"
+                value={this.props.config.OVERRIDE_WITH_ENV}
+                onChange={this.handleParamValueChange} />
               <Divider />
               <ParamInput name="Callback URL" itemKey="CALLBACK_ENDPOINT" value={this.props.config.CALLBACK_ENDPOINT} onChange={this.handleParamValueChange} />
               <ParamInput name="FSP ID" itemKey="FSPID" value={this.props.config.FSPID} onChange={this.handleParamValueChange} />
@@ -230,7 +244,7 @@ class Settings extends React.Component {
             <Col className="mb-5 mb-xl-0" xl="4">
               <Card className="card-profile shadow">
                 <CardHeader className="border-0">
-                  <h3 className="mb-0">Runtime Configuration</h3>
+                  <h3 className="mb-0">Runtime Global Configuration</h3>
                 </CardHeader>
                 <CardBody className="pt-0 pt-md-4">
                   <ConfigurationViewer config={this.state.userConfigRuntime} />
@@ -240,7 +254,7 @@ class Settings extends React.Component {
             <Col xl="8">
               <Card className="bg-secondary shadow">
                 <CardHeader className="bg-white border-0">
-                  <h3 className="mb-0">Edit Configuration</h3>
+                  <h3 className="mb-0">Edit Global Configuration</h3>
                 </CardHeader>
                 <CardBody>
                   <ConfigurationEditor config={this.state.userConfigStored} onSave={this.handleSaveUserConfig} />
