@@ -177,7 +177,7 @@ class ResourceSelector extends React.Component {
 
   getResourceOptions = () => {
     this.resourceOptions = []
-    if(this.props.openApiDefinition.paths) {
+    if(this.props.openApiDefinition && this.props.openApiDefinition.paths) {
       let currentResourceGroup = ''
       for ( let pathKey in this.props.openApiDefinition.paths ) {
         for ( let methodKey in this.props.openApiDefinition.paths[pathKey]) {
@@ -231,6 +231,51 @@ class ResourceSelector extends React.Component {
   }
 }
 
+class ApiVersionSelector extends React.Component {
+
+  constructor() {
+    super();
+  }
+  apiVersionOptions = []
+
+  getApiVersionOptions = () => {
+    this.apiVersionOptions = this.props.apiVersions.map((item, index) => {
+      return (
+        <Option key={index} value={JSON.stringify(item)}>{item.type} {item.majorVersion}.{item.minorVersion}</Option>
+      )
+    })
+    return this.apiVersionOptions
+  }
+
+  getApiVersionValue = () => {
+    if(this.props.value) {
+      return JSON.stringify(this.props.value)
+    } else {
+      return null
+    }
+  }
+
+  render() {
+
+    const apiVersionSelectHandler = (eventKey) => {
+      this.props.onSelect(JSON.parse(eventKey))
+    }
+
+    return(
+      <>
+      <Select onChange={apiVersionSelectHandler}
+        disabled={(this.props.value? true : false)}
+        style={{ width: 300 }}
+        placeholder="Select an API"
+        value={this.getApiVersionValue()}
+      >
+      {this.getApiVersionOptions()}
+      </Select>
+      </>
+    )
+  }
+}
+
 class RequestGenerator extends React.Component {
 
   constructor() {
@@ -242,15 +287,18 @@ class RequestGenerator extends React.Component {
       request: {},
       conditions: [],
       pathMethodConditions: [],
-      openApiDefinition: {},
+      openApiDefinition: null,
       selectedResource: null,
-      callbackMap: {}
+      selectedApiVersion: null,
+      callbackMap: {},
+      apiVersions: []
     };
   }
 
   componentDidMount = async () => {
-    const openApiDefinition = await this.getDefinition()
-    const callbackMap = await this.getCallbackMap()
+
+    const apiVersions = await this.getApiVersions()
+
     // Deep clone the input rule to a new object to work with (Copying without object references recursively)
     const inputRule = {}
     let selectedResource = null
@@ -261,7 +309,28 @@ class RequestGenerator extends React.Component {
       }
     }
 
-    this.setState({selectedResource, openApiDefinition, callbackMap})
+    let selectedApiVersion = null
+    if(this.props.request && this.props.request.apiVersion) {
+        selectedApiVersion = this.props.request.apiVersion
+        await this.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion+'.'+selectedApiVersion.minorVersion)
+    }
+
+    this.setState({selectedResource, apiVersions, selectedApiVersion})
+  }
+
+  fetchAllApiData = async (apiType, version) => {
+
+    const openApiDefinition = await this.getDefinition(apiType, version)
+    let callbackMap = {}
+    try {
+      callbackMap = await this.getCallbackMap(apiType, version)
+    } catch(err) {}
+
+    let responseMap = {}
+    try {
+      responseMap = await this.getResponseMap(apiType, version)
+    } catch(err) {}
+    this.setState({openApiDefinition, callbackMap, responseMap})
   }
 
   getConditions = () => {
@@ -301,17 +370,36 @@ class RequestGenerator extends React.Component {
     this.props.onChange(request)
   };
 
-  getDefinition = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/definition/fspiop/1.1")
+  getApiVersions = async () => {
+    const response = await axios.get("http://localhost:5050/api/openapi/api_versions")
+    return response.data
+  }
+
+  getDefinition = async (apiType, version) => {
+    const response = await axios.get(`http://localhost:5050/api/openapi/definition/${apiType}/${version}`)
     // console.log(response.data)
     return response.data
     // this.setState(  { openApiDefinition: response.data } )
   }
 
-  getCallbackMap = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/callback_map/fspiop/1.1")
+  getResponseMap = async (apiType, version) => {
+    const response = await axios.get(`http://localhost:5050/api/openapi/response_map/${apiType}/${version}`)
     return response.data
     // this.setState(  { callbackMap: response.data } )
+  }
+
+  getCallbackMap = async (apiType, version) => {
+    const response = await axios.get(`http://localhost:5050/api/openapi/callback_map/${apiType}/${version}`)
+    return response.data
+    // this.setState(  { callbackMap: response.data } )
+  }
+
+  apiVersionSelectHandler = (apiVersion) => {
+    this.fetchAllApiData(apiVersion.type, apiVersion.majorVersion+'.'+apiVersion.minorVersion)
+    const request = this.props.request
+    request.apiVersion = apiVersion
+    this.props.onChange(request)
+    this.setState({selectedApiVersion: apiVersion})
   }
 
   resourceSelectHandler = (resource) => {
@@ -385,7 +473,22 @@ class RequestGenerator extends React.Component {
             <Col span={24}>
                   <Row className="align-items-center">
                     <Col span={16}>
-                      <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                      <table>
+                        <tbody>
+                        <tr>
+                          <td align='right'><b>API:</b></td>
+                          <td>
+                            <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td align='right'><b>Resource:</b></td>
+                          <td>
+                            <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                          </td>
+                        </tr>
+                        </tbody>
+                      </table>
                     </Col>
                     <Col span={8}>
                       <Row className="text-right float-right">
