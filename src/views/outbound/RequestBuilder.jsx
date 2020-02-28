@@ -454,7 +454,7 @@ class HeaderBodyBuilder extends React.Component {
     if (this.props.rootParameters) {
       allParamsFromDefinition = allParamsFromDefinition.concat(this.props.rootParameters)
     }
-    if (this.props.resourceDefinition.parameters) {
+    if (this.props.resourceDefinition && this.props.resourceDefinition.parameters) {
       allParamsFromDefinition = allParamsFromDefinition.concat(this.props.resourceDefinition.parameters)
     }
 
@@ -468,9 +468,9 @@ class HeaderBodyBuilder extends React.Component {
   }
 
   componentDidUpdate = () => {
-    // console.log(this.props.request.body)
+    console.log(this.props)
     if(this.refs.bodyEditor) {
-      this.refs.bodyEditor.jsonEditor.update(this.props.request.body)
+      this.refs.bodyEditor.jsonEditor.update(this.props.request.body? this.props.request.body : {})
     }
     // console.log(this.props.resourceDefinition.parameters)
     // console.log(this.props.resourceDefinition)
@@ -576,7 +576,8 @@ class HeaderBodyBuilder extends React.Component {
 
 
   handlePopulateSampleBodyClick = async () => {
-    const newBody = (new FactDataGenerator()).getBodySample(this.props.resourceDefinition)
+    // const newBody = (new FactDataGenerator()).getBodySample(this.props.resourceDefinition)
+    const newBody = await (new FactDataGenerator()).generateSample(this.bodySchema)
     if(newBody) {
       // if(this.props.callbackObject && this.props.callbackObject.bodyOverride) {
       //   _.merge(newBody, this.props.callbackObject.bodyOverride)
@@ -680,7 +681,7 @@ class HeaderBodyBuilder extends React.Component {
           </Col>
         </Row>
         {
-          this.props.resourceDefinition.requestBody
+          this.props.resourceDefinition && this.props.resourceDefinition.requestBody
           ? (
             <Row className='mt-2'>
               <Col>
