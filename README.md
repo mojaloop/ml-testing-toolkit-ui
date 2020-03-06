@@ -1,1 +1,1 @@
-# ML Self Testing Toolkit UI
+# ML Testing Toolkit UI

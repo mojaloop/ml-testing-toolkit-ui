@@ -1,16 +1,16 @@
 {
-  "name": "ml-self-testing-toolkit-ui",
+  "name": "ml-testing-toolkit-ui",
   "version": "1.0.0",
-  "description": "Frontend UI for Mojaloop Self Testing Toolkit",
+  "description": "Frontend UI for Mojaloop Testing Toolkit",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vijayg10/ml-self-testing-toolkit-ui.git"
+    "url": "https://github.com/vijayg10/ml-testing-toolkit-ui.git"
   },
   "author": "Vijaya Kumar Guthi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/vijayg10/ml-self-testing-toolkit-ui/issues"
+    "url": "https://github.com/vijayg10/ml-testing-toolkit-ui/issues"
   },
   "homepage": "https://localhost:5050/ui/",
   "scripts": {
@@ -73,6 +73,13 @@
     "@types/googlemaps": "3.30.18",
     "@types/markerclustererplus": "2.1.33",
     "@types/react": "16.8.7",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
     "typescript": "3.3.3333"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}"
+    ]
   }
 }
