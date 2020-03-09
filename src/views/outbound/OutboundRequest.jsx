@@ -32,7 +32,7 @@ import {
 
 import socketIOClient from "socket.io-client";
 
-import Header from "components/Headers/Header.jsx";
+import Header from "../../components/Headers/Header.jsx";
 
 
 import { Select, Input, Row, Col, Affix, Steps, Descriptions, Switch, Tabs, Modal, Icon, Skeleton, message, Popover, Upload } from 'antd';

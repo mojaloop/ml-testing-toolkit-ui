@@ -15,20 +15,13 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import Dashboard from "views/dashboard/Dashboard.jsx";
-// import Dashboard from "views/examples/Dashboard.jsx";
-import Profile from "views/examples/Profile.jsx";
-import Maps from "views/examples/Maps.jsx";
-import Register from "views/examples/Register.jsx";
-import Login from "views/examples/Login.jsx";
-import Tables from "views/examples/Tables.jsx";
-import Icons from "views/examples/Icons.jsx";
-import RulesResponse from "views/rules/RulesResponse.jsx";
-import RulesValidation from "views/rules/RulesValidation.jsx";
-import RulesCallback from "views/rules/RulesCallback.jsx";
-import OutboundRequest from "views/outbound/OutboundRequest.jsx";
-import Monitor from "views/monitor/Monitor.jsx";
-import Settings from "views/settings/Settings.jsx";
+import Dashboard from "./views/dashboard/Dashboard.jsx";
+import RulesResponse from "./views/rules/RulesResponse.jsx";
+import RulesValidation from "./views/rules/RulesValidation.jsx";
+import RulesCallback from "./views/rules/RulesCallback.jsx";
+import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
+import Monitor from "./views/monitor/Monitor.jsx";
+import Settings from "./views/settings/Settings.jsx";
 
 var routes = [
   {

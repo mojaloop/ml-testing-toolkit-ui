@@ -30,7 +30,7 @@ import {
   Button
 } from "reactstrap";
 // core components
-import Header from "components/Headers/Header.jsx";
+import Header from "../../components/Headers/Header.jsx";
 
 import { Icon, Tag, Timeline } from 'antd';
 

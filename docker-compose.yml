@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  mojaloop-testing-toolkit-ui:
+    image: mojaloop-testing-toolkit-ui:local
+    build:
+      context: .
+    ports:
+      - "6060:6060"
+    command:
+      - nginx
+      - -g
+      - "daemon off;"
