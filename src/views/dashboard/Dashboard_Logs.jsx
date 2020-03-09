@@ -28,7 +28,7 @@ import {
   Row,
 } from "reactstrap";
 // core components
-import Header from "components/Headers/Header.jsx";
+import Header from "../../components/Headers/Header.jsx";
 
 class DetailComponent extends GridDetailRow {
   render() {

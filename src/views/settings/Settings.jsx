@@ -31,7 +31,7 @@ import {
 import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon } from 'antd';
 import 'antd/dist/antd.css';
 
-import Header from "components/Headers/Header.jsx";
+import Header from "../../components/Headers/Header.jsx";
 import axios from 'axios';
 import RulesEditor from '../rules/RuleEditor'
 import RuleViewer from '../rules/RuleViewer'

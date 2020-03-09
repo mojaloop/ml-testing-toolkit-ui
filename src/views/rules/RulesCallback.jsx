@@ -31,7 +31,7 @@ import {
 import { Input, Select, Menu, Collapse, Modal, Icon, message } from 'antd';
 import 'antd/dist/antd.css';
 
-import Header from "components/Headers/Header.jsx";
+import Header from "../../components/Headers/Header.jsx";
 import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'

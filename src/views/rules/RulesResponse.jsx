@@ -31,11 +31,13 @@ import {
 import { Input, Select, Menu, Collapse, Modal, Icon, message } from 'antd';
 import 'antd/dist/antd.css';
 
-import Header from "components/Headers/Header.jsx";
+import Header from "../../components/Headers/Header.jsx";
 import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
+import ResponseRulesService from '../../services/rules/response'
 
+const ResponseRulesServiceObj = new ResponseRulesService()
 const { Option } = Select;
 const { SubMenu } = Menu;
 const { Panel } = Collapse;
@@ -61,10 +63,10 @@ class RulesResponse extends React.Component {
 
   getResponseRulesFiles = async () => {
     message.loading({ content: 'Getting rules files...', key: 'getFilesProgress' });
-    const response = await axios.get("http://localhost:5050/api/rules/files/response")
-    if(typeof response.data === 'object') {
-      const activeRulesFile = response.data.activeRulesFile
-      await this.setState(  { responseRulesFiles: response.data.files, activeRulesFile } )
+    const responseData = await ResponseRulesServiceObj.fetchResponseRulesFiles()
+    if(responseData) {
+      const activeRulesFile = responseData.activeRulesFile
+      await this.setState(  { responseRulesFiles: responseData.files, activeRulesFile } )
       message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
       // Select the active rules file by default
       await this.setState({selectedRuleFile: activeRulesFile, ruleItemActive: null})
@@ -73,12 +75,8 @@ class RulesResponse extends React.Component {
   }
 
   getResponseRulesFileContent = async (ruleFile) => {
-    const response = await axios.get("http://localhost:5050/api/rules/files/response/" + ruleFile)
-    let curRules = []
-    if (response.data && Array.isArray(response.data)) {
-      curRules = response.data
-    }
-    this.setState(  { curRules } )
+    const curRules = await ResponseRulesServiceObj.fetchResponseRulesFileContent(ruleFile)
+    await this.setState(  { curRules } )
   }
 
   getRulesFilesItems = () => {
@@ -197,7 +195,7 @@ class RulesResponse extends React.Component {
       })
       if (updatedRules) {
         message.loading({ content: 'Deleting rule...', key: 'deleteProgress' });
-        await axios.put("http://localhost:5050/api/rules/files/response/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
+        ResponseRulesServiceObj.updateResponseRulesFileContent(this.state.selectedRuleFile, updatedRules)
         message.success({ content: 'Deleted', key: 'deleteProgress', duration: 2 });
         this.setState({editRule: null, curRules: updatedRules})
       }
