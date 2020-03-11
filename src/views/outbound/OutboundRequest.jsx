@@ -35,7 +35,7 @@ import socketIOClient from "socket.io-client";
 import Header from "../../components/Headers/Header.jsx";
 
 
-import { Select, Input, Row, Col, Affix, Steps, Descriptions, Switch, Tabs, Modal, Icon, Skeleton, message, Popover, Upload } from 'antd';
+import { Select, Input, Row, Col, Affix, Steps, Descriptions, Switch, Tabs, Modal, Icon, Skeleton, message, Popover, Upload, Badge } from 'antd';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -46,6 +46,7 @@ import 'brace/theme/tomorrow_night_blue';
 import axios from 'axios';
 import './fixAce.css';
 import RequestBuilder from './RequestBuilder'
+import TestAssertions from './TestAssertions'
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -552,8 +553,8 @@ class OutboundRequest extends React.Component {
   }
   
   componentDidMount = () => {
-    // const sampleTemplate = require('./sample1.json')
-    // this.setState({template: sampleTemplate})
+    const sampleTemplate = require('./sample1.json')
+    this.setState({template: sampleTemplate})
     this.socket = socketIOClient('http://127.0.0.1:5050');
     this.socket.on("outboundProgress", this.handleIncomingProgress);
   }
@@ -597,6 +598,8 @@ class OutboundRequest extends React.Component {
   getRequestGeneratorItems = () => {
     if (this.state.template.requests) {
       return this.state.template.requests.map(item => {
+        const testStatus = item.status && item.tests && item.status.testResult ? item.status.testResult.passedCount + '/' + item.tests.test_cases.length : ''
+        const testStatusColor = item.status && item.tests && item.status.testResult && item.status.testResult.passedCount===item.tests.test_cases.length ? '#87d068' : '#f50'
         return (
           <Col span={24 / (this.state.template.requests.length ? this.state.template.requests.length : 1)}>
             {
@@ -635,26 +638,36 @@ class OutboundRequest extends React.Component {
                       onDelete={this.handleRequestDelete}
                     />
                   </TabPane>
+                  
+                  <TabPane tab={(<Badge offset={[20,0]} style={{ backgroundColor: testStatusColor }} count={testStatus}>Tests</Badge>)} key="4">
+                    <TestAssertions
+                      request={item}
+                      allRequests={this.state.template.requests}
+                      inputValues={this.state.template.inputValues}
+                      onChange={this.handleRequestChange}
+                      onDelete={this.handleRequestDelete}
+                    />
+                  </TabPane>
                   {
                     item.status && item.status.response
                     ? (
                       <TabPane tab="Response" key="3">
                         {
-                          item.status.response.headers
+                          item.status.response
                           ? (
                             <>
-                              <h4>Header</h4>
-                              <pre>{JSON.stringify(item.status.response.headers,null,2)}</pre>
+                              <h4>Synchronous Response</h4>
+                              <pre>{JSON.stringify(item.status.response,null,2)}</pre>
                             </>
                           )
                           : null
                         }
                         {
-                          item.status.response.body
+                          item.status.callback
                           ? (
                             <>
-                              <h4>Body</h4>
-                              <pre>{JSON.stringify(item.status.response.body,null,2)}</pre>
+                              <h4>Callback</h4>
+                              <pre>{JSON.stringify(item.status.callback,null,2)}</pre>
                             </>
                           )
                           : null
@@ -727,16 +740,18 @@ class OutboundRequest extends React.Component {
   }
 
   handleIncomingProgress = (progress) => {
-    // console.log(progress)
     let request = this.state.template.requests.find(item => item.id === progress.id)
     if (request.status) {
       if (progress.status === 'SUCCESS') {
-        console.log(request)
         request.status.state = 'finish'
         request.status.response = progress.response
+        request.status.callback = progress.callback
+        request.status.testResult = progress.testResult
       } else if (progress.status === 'ERROR') {
         request.status.state = 'error'
-        request.status.response = { body: progress.error }
+        request.status.response = progress.response
+        request.status.callback = progress.callback
+        request.status.testResult = progress.testResult
         // Clear the waiting status of the remaining requests
         for (let i in this.state.template.requests) {
           if (!this.state.template.requests[i].status) {
@@ -745,6 +760,8 @@ class OutboundRequest extends React.Component {
           if (this.state.template.requests[i].status.state === 'process') {
             this.state.template.requests[i].status.state = 'wait'
             this.state.template.requests[i].status.response = null
+            this.state.template.requests[i].status.callback = null
+            this.state.template.requests[i].status.testResult = null
           }
           
         }
