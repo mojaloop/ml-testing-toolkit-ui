@@ -78,6 +78,8 @@ class TestAssertions extends React.Component {
   constructor() {
     super()
     this.state = {
+      newAssertionDescription: null,
+      addNewAssertionDialogVisible: false
     }
   }
 
@@ -139,27 +141,21 @@ class TestAssertions extends React.Component {
 
       return (
         <Panel header={testCase.description} key={key} extra={status}>
-          {/* <Row>
-            <Col xs="12" style={{textAlign: 'right'}}>
-              <Button
-                color="info"
-                onClick={this.handleRuleClick(testCase)}
-                size="sm"
-              >
-                Edit
-              </Button>
-              <Button
-                color="danger"
-                onClick={this.handleRuleDelete(testCase)}
-                size="sm"
-              >
-                Delete
-              </Button>
-            </Col>
-          </Row> */}
           <Row>
             <Col>
               <AssertionEditor itemKey={key} testCase={testCase} onChange={this.handleTestCaseChange} />
+            </Col>
+          </Row>
+          <Row className="text-left float-left mt-2 mb-2">
+            <Col>
+              <Button
+                className="float-left"
+                color="danger"
+                size="sm"
+                onClick={() => { this.handleDeleteAssertionClick(key) }}
+              >
+                Delete
+              </Button>
             </Col>
           </Row>
         </Panel>
@@ -167,10 +163,66 @@ class TestAssertions extends React.Component {
     })
   }
 
+  handleAddNewAssertionClick = (description) => {
+    // Find highest request id to determine the new ID
+    let maxId = +this.props.request.tests.assertions.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+    this.props.request.tests.assertions.push({ id: maxId+1, description})
+    this.props.onChange(this.props.request)
+  }
+
+  handleDeleteAssertionClick = (index) => {
+    this.props.request.tests.assertions.splice(index, 1)
+    this.props.onChange(this.props.request)
+  }
+
   render () {
+
+    const addNewTestDialogContent = (
+      <>
+      <Input 
+        placeholder="Enter description"
+        type="text"
+        value={this.state.newAssertionDescription}
+        onChange={(e) => { this.setState({newAssertionDescription: e.target.value })}}
+      />
+      <Button
+        className="text-right mt-2"
+        color="success"
+        href="#pablo"
+        onClick={ () => {
+          this.handleAddNewAssertionClick(this.state.newAssertionDescription)
+          this.setState({addNewAssertionDialogVisible: false})
+        }}
+        size="sm"
+      >
+        Add
+      </Button>
+      </>
+    )
+  
     return (
       <>
       <div>
+        <Row>
+          <Col className="text-left">
+            <Popover
+              content={addNewTestDialogContent}
+              title="Enter a description for the assertion"
+              trigger="click"
+              visible={this.state.addNewAssertionDialogVisible}
+              onVisibleChange={ (visible) => this.setState({addNewAssertionDialogVisible: visible})}
+            >
+              <Button
+                  className="text-right float-right"
+                  color="primary"
+                  size="sm"
+                >
+                  Add New Assertion
+              </Button>
+            </Popover>
+          </Col>
+          
+        </Row>
         <Row className='mt-2'>
           <Col>
           {
