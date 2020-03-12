@@ -40,7 +40,7 @@ const { Option } = Select;
 const { Panel } = Collapse;
 
 
-class TestCaseEditor extends React.Component {
+class AssertionEditor extends React.Component {
 
   constructor() {
     super()
@@ -97,7 +97,7 @@ class TestAssertions extends React.Component {
     //   delete this.props.request.params
     // }
 
-    this.props.request.tests.test_cases[key].exec = newTestCase
+    this.props.request.tests.assertions[key].exec = newTestCase
     // console.log(this.props.request)
     this.props.onChange(this.props.request)
   }
@@ -127,8 +127,15 @@ class TestAssertions extends React.Component {
 
   getTestCaseItems = () => {
     const results = this.props.request.status && this.props.request.status.testResult && this.props.request.status.testResult.results ? this.props.request.status.testResult.results : {}
-    return this.props.request.tests.test_cases.map((testCase, key) => {
-      const status = results[testCase.id] ? (<Tag color={results[testCase.id].status=='FAILED'?'#f50':'#87d068'}>{results[testCase.id].status}</Tag>) : null
+    return this.props.request.tests.assertions.map((testCase, key) => {
+      let status = null
+      if (results[testCase.id]) {
+        status = (
+          <Tag color={results[testCase.id].status=='FAILED'?'#f50':'#87d068'}>
+            {results[testCase.id].status}
+          </Tag>
+        )
+      }
 
       return (
         <Panel header={testCase.description} key={key} extra={status}>
@@ -152,7 +159,7 @@ class TestAssertions extends React.Component {
           </Row> */}
           <Row>
             <Col>
-              <TestCaseEditor itemKey={key} testCase={testCase} onChange={this.handleTestCaseChange} />
+              <AssertionEditor itemKey={key} testCase={testCase} onChange={this.handleTestCaseChange} />
             </Col>
           </Row>
         </Panel>
