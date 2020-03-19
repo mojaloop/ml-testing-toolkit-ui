@@ -84,7 +84,7 @@ export class FactSelect extends React.Component {
       let random = Math.random()
       .toString(36)
       .substring(2, 6);
-      factTreeData.push({ id: random, pId: parentId, value: valuePrefix + property, nodeObject: fact, title: property, isLeaf, disabled: !isLeaf });
+      factTreeData.push({ id: random, pId: parentId, value: valuePrefix + property, nodeObject: fact, title: property, isLeaf, disabled: !isLeaf && !this.props.enableNodesSelection });
     }
     return factTreeData;
   }
@@ -165,6 +165,22 @@ export class FactDataGenerator {
       console.log(err)
     }
     return headerSchema
+  }
+
+  getCustomFactData = (inputArr) => {
+    let customSchema = {
+      properties: {}
+    }
+    try {
+      inputArr.forEach((item) => {
+        customSchema.properties[item] = {
+          type: 'string'
+        }
+      })
+    } catch(err) {
+      console.log(err)
+    }
+    return customSchema
   }
 
   getPathParametersFactData = (parameters) => {
