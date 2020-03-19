@@ -39,7 +39,7 @@ import "ace-builds/src-noconflict/theme-eclipse";
 const { Option } = Select;
 const { Panel } = Collapse;
 
-class ConfigurableParameter extends React.Component {
+export class ConfigurableParameter extends React.Component {
 
   constructor() {
     super()
@@ -161,8 +161,6 @@ export class OperatorSelector extends React.Component {
     this.state = {
       selectedOperatorIndex: null
     }
-  }
-  componentDidMount() {
     // Set operators Array
     this.operators[0] = { name: 'to.equal', description: 'Equal to' }
     this.operators[1] = { name: 'to.not.equal', description: 'Not Equal to' }
@@ -202,7 +200,7 @@ export class OperatorSelector extends React.Component {
   
 }
 
-class FactSelector extends React.Component {
+export class FactSelector extends React.Component {
 
   constructor() {
     super()
@@ -239,16 +237,9 @@ class FactSelector extends React.Component {
       case 1:
         const headerFactData = (new FactDataGenerator()).getHeadersFactData(this.props.successCallbackDefinition, this.props.successCallbackRootParameters)
         const bodyFactData = (new FactDataGenerator()).getBodyFactData(this.props.successCallbackDefinition)
-        factData = {type: 'object', properties: { headers: { type: 'object', ...headerFactData }, body: bodyFactData }}
-        break
-      case 2:
-        factData = (new FactDataGenerator()).getBodyFactData(this.props.successCallbackDefinition)
-        break
-      case 3:
-        factData = (new FactDataGenerator()).getHeadersFactData(this.props.errorCallbackDefinition, this.props.errorCallbackRootParameters)
-        break
-      case 4:
-        factData = (new FactDataGenerator()).getBodyFactData(this.props.errorCallbackDefinition)
+        // const errorHeaderFactData = (new FactDataGenerator()).getHeadersFactData(this.props.errorCallbackDefinition, this.props.errorCallbackRootParameters)
+        const errorBodyFactData = (new FactDataGenerator()).getBodyFactData(this.props.errorCallbackDefinition)
+        factData = {type: 'object', properties: { headers: { type: 'object', ...headerFactData }, body: { ...bodyFactData, ...errorBodyFactData } }}
         break
       default:
         factData = null
@@ -294,11 +285,6 @@ class FactSelector extends React.Component {
     this.props.onChange(finalValue)
   }
 
-  handleValueChange = (newValue) => {
-    this.inputValue = newValue
-    this.updateChanges()
-  }
-
   render() {
 
     return (
@@ -321,7 +307,7 @@ class FactSelector extends React.Component {
   }
 }
 
-class AssertionEditorSimple extends React.Component {
+export class AssertionEditorSimple extends React.Component {
 
   constructor () {
     super()
@@ -672,7 +658,7 @@ class AssertionEditor extends React.Component {
   }
 }
 
-class TestAssertions extends React.Component {
+export class TestAssertions extends React.Component {
 
   constructor() {
     super()
