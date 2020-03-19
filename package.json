@@ -1,6 +1,6 @@
 {
   "name": "ml-testing-toolkit-ui",
-  "version": "1.0.1",
+  "version": "9.4.0",
   "description": "Frontend UI for Mojaloop Testing Toolkit",
   "main": "index.js",
   "repository": {
