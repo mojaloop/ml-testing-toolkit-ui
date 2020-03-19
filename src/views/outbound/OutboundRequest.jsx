@@ -175,8 +175,8 @@ class OutboundRequest extends React.Component {
   }
   
   componentDidMount = () => {
-    const sampleTemplate = require('./sample1.json')
-    this.setState({template: sampleTemplate})
+    // const sampleTemplate = require('./sample1.json')
+    // this.setState({template: sampleTemplate})
     this.socket = socketIOClient('http://127.0.0.1:5050');
     this.socket.on("outboundProgress", this.handleIncomingProgress);
   }

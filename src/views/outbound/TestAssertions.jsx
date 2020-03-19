@@ -239,7 +239,8 @@ export class FactSelector extends React.Component {
         const bodyFactData = (new FactDataGenerator()).getBodyFactData(this.props.successCallbackDefinition)
         // const errorHeaderFactData = (new FactDataGenerator()).getHeadersFactData(this.props.errorCallbackDefinition, this.props.errorCallbackRootParameters)
         const errorBodyFactData = (new FactDataGenerator()).getBodyFactData(this.props.errorCallbackDefinition)
-        factData = {type: 'object', properties: { headers: { type: 'object', ...headerFactData }, body: { ...bodyFactData, ...errorBodyFactData } }}
+        _.merge(bodyFactData, errorBodyFactData)
+        factData = {type: 'object', properties: { headers: { type: 'object', ...headerFactData }, body: bodyFactData}}
         break
       default:
         factData = null
@@ -510,9 +511,10 @@ class AssertionEditor extends React.Component {
   }
 
   handleAddExpectationSave = (newExpectation) => {
-    if(this.props.assertion.exec) {
-      this.props.assertion.exec.push(newExpectation)
+    if(!this.props.assertion.exec) {
+      this.props.assertion.exec = []
     }
+    this.props.assertion.exec.push(newExpectation)
     this.setState({showAddExpectationDialog: false})
   }
 
