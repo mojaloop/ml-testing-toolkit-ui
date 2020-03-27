@@ -130,6 +130,11 @@ class ConfigurationEditor extends React.Component {
               <ParamInput name="Send Callback" itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
               <ParamInput name="Validate Transfers with previous quote" itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
               <ParamInput name="Enable Version Negotiation Support" itemKey="VERSIONING_SUPPORT_ENABLE" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange} />
+              <ParamInput name="Enable Inbound JWS Validation" itemKey="VALIDATE_INBOUND_JWS" value={this.props.config.VALIDATE_INBOUND_JWS} onChange={this.handleParamValueChange} />
+              <ParamInput name="Enable Inbound JWS Validation for PUT /parties" itemKey="VALIDATE_INBOUND_PUT_PARTIES_JWS" value={this.props.config.VALIDATE_INBOUND_PUT_PARTIES_JWS} onChange={this.handleParamValueChange} />
+              <ParamInput name="Enable Outbound JWS Signing" itemKey="JWS_SIGN" value={this.props.config.JWS_SIGN} onChange={this.handleParamValueChange} />
+              <ParamInput name="Enable Outbound JWS Signing for PUT /parties" itemKey="JWS_SIGN_PUT_PARTIES" value={this.props.config.JWS_SIGN_PUT_PARTIES} onChange={this.handleParamValueChange} />
+              <ParamInput name="Connection Manager API URL" itemKey="CONNECTION_MANAGER_API_URL" value={this.props.config.CONNECTION_MANAGER_API_URL} onChange={this.handleParamValueChange} />
             </CardBody>
           </Card>
         </Col>
@@ -144,10 +149,10 @@ class ParamView extends React.Component {
   render() {
     return (
       <Row className="mb-4">
-        <Col lg="4">
+        <Col lg="6">
           <h4>{this.props.name}</h4>
         </Col>
-        <Col lg="8">
+        <Col lg="6">
           {
             (typeof this.props.value) === 'boolean'
             ? this.props.value ? (<Icon type="check" />) : (<Icon type="close" />)
@@ -170,11 +175,16 @@ class ConfigurationViewer extends React.Component {
         <Col className="mb-5 mb-xl-0" xl="12">
           <Card className="card-profile shadow">
             <CardBody>
-              <ParamView name="Callback URL" value={this.props.config.CALLBACK_ENDPOINT} onChange={this.handleParamValueChange} />
-              <ParamView name="FSP ID" value={this.props.config.FSPID} onChange={this.handleParamValueChange} />
-              <ParamView name="Send Callback" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
-              <ParamView name="Validate Transfers with previous quote" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
-              <ParamView name="Enable Version Negotiation Support" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange} />
+              <ParamView name="Callback URL" value={this.props.config.CALLBACK_ENDPOINT} />
+              <ParamView name="FSP ID" value={this.props.config.FSPID} />
+              <ParamView name="Send Callback" value={this.props.config.SEND_CALLBACK_ENABLE} />
+              <ParamView name="Validate Transfers with previous quote" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} />
+              <ParamView name="Enable Version Negotiation Support" value={this.props.config.VERSIONING_SUPPORT_ENABLE} />
+              <ParamView name="Enable Inbound JWS Validation" value={this.props.config.VALIDATE_INBOUND_JWS} />
+              <ParamView name="Enable Inbound JWS Validation for PUT /parties" value={this.props.config.VALIDATE_INBOUND_PUT_PARTIES_JWS} />
+              <ParamView name="Enable Outbound JWS Signing" value={this.props.config.JWS_SIGN} />
+              <ParamView name="Enable Outbound JWS Signing for PUT /parties" value={this.props.config.JWS_SIGN_PUT_PARTIES} />
+              <ParamView name="Connection Manager API URL" value={this.props.config.CONNECTION_MANAGER_API_URL} />
             </CardBody>
           </Card>
         </Col>
@@ -241,7 +251,7 @@ class Settings extends React.Component {
         {/* Page content */}
         <Container className="mt--7" fluid>
           <Row>
-            <Col className="mb-5 mb-xl-0" xl="4">
+            <Col className="mb-5 mb-xl-0" xl="5">
               <Card className="card-profile shadow">
                 <CardHeader className="border-0">
                   <h3 className="mb-0">Runtime Global Configuration</h3>
@@ -251,7 +261,7 @@ class Settings extends React.Component {
                 </CardBody>
               </Card>
             </Col>
-            <Col xl="8">
+            <Col xl="7">
               <Card className="bg-secondary shadow">
                 <CardHeader className="bg-white border-0">
                   <h3 className="mb-0">Edit Global Configuration</h3>
