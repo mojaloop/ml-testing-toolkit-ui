@@ -27,7 +27,8 @@ import {
 } from "reactstrap";
 // core components
 
-import { Row, Col, Steps, Tag, Icon } from 'antd';
+import { Row, Col, Steps, Tag, Dropdown, Menu, message, Icon, Input } from 'antd';
+import { MoreOutlined } from '@ant-design/icons';
 
 const { Step } = Steps;
 
@@ -39,6 +40,8 @@ class TestCaseViewer extends React.Component {
     this.state = {
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
+      renameTestCase: false,
+      testCaseName: ''
     };
   }
 
@@ -46,57 +49,8 @@ class TestCaseViewer extends React.Component {
   }
   
   componentDidMount = () => {
-
+    this.setState({testCaseName: this.props.testCase.name})
   }
-
-
-  // getTestCaseDetailItems = () => {
-  //   if (this.props.testCase.requests) {
-  //     return this.props.testCase.requests.map(item => {
-  //       const testStatus = item.status && item.tests && item.status.testResult ? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : ''
-  //       const testStatusColor = item.status && item.tests && item.status.testResult && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
-  //       return (
-  //         <Col span={24 / (this.props.testCase.requests.length ? this.props.testCase.requests.length : 1)} className='text-left'>
-  //           {
-  //             item.status && (item.status.state === 'finish' || item.status.state === 'error')
-  //             ? (
-  //               <Tag color={testStatusColor} className='pl-3 pr-3 pt-1 pb-1 ml-6'>
-  //                 {testStatus}
-  //               </Tag>
-  //             )
-  //             : null
-  //           }
-
-  //         </Col>
-  //       )
-  //     })
-  //   } else {
-  //     return null
-  //   }
-  // }
-
-  // getStepItems = () => {
-  //   if (this.props.testCase.requests) {
-  //     const stepItems = this.props.testCase.requests.map(item => {
-  //       return (
-  //         <Step status={item.status? item.status.state : null} title={item.method} subTitle={item.operationPath} description={item.description} />
-  //       )
-  //     })
-  //     const spanCol = stepItems.length < 3 ? stepItems.length * 8 : 24
-  //     return (
-  //       <Row>
-  //         <Col span={spanCol}>
-  //           <Steps current={-1} type="navigation" size="default">
-  //             {stepItems}
-  //           </Steps>
-  //         </Col>
-  //       </Row>
-  //     )
-      
-  //   } else {
-  //     return null
-  //   }
-  // }
 
   getTestCaseItems = () => {
     if (this.props.testCase.requests) {
@@ -137,8 +91,31 @@ class TestCaseViewer extends React.Component {
     }
   }
 
+  handleTestCaseRename = (newTestCaseName) => {
+    this.props.testCase.name = newTestCaseName
+    this.props.onRename()
+  }
+
 
   render() {
+
+    const onClick = ({ key }) => {
+      switch(key) {
+        case 'delete':
+          this.props.onDelete(this.props.testCase.id)
+          break
+        case 'rename':
+          this.setState({renameTestCase: true})
+          break
+      }
+    };
+    
+    const menu = (
+      <Menu onClick={onClick}>
+        <Menu.Item key="rename">Rename</Menu.Item>
+        <Menu.Item key="delete">Delete</Menu.Item>
+      </Menu>
+    );
 
     return (
       <>
@@ -146,7 +123,70 @@ class TestCaseViewer extends React.Component {
           <Col span={24}>
           <Card className="card-profile shadow">
             <CardHeader>
-              {this.props.testCase.name}
+              <Row>
+                <Col span={18}>
+                  {
+                    this.state.renameTestCase
+                    ? (
+                      <table width='100%'>
+                        <tbody>
+                        <tr>
+                          <td>
+                            <Input 
+                              value={this.state.testCaseName}
+                              onChange={(e) => { this.setState({testCaseName: e.target.value })}}
+                            />
+                          </td>
+                          <td>
+                            <Button
+                              className="ml-2"
+                              color="success"
+                              href="#pablo"
+                              onClick={ () => {
+                                this.setState({renameTestCase: false})
+                                this.handleTestCaseRename(this.state.testCaseName)
+                              }}
+                              size="sm"
+                            >
+                              Done
+                            </Button>
+                            <Button
+                              className="ml-2"
+                              color="info"
+                              href="#pablo"
+                              onClick={ () => {
+                                this.setState({renameTestCase: false})
+                                this.setState({testCaseName: this.props.testCase.name })
+                              }}
+                              size="sm"
+                            >
+                              Cancel
+                            </Button>
+                          </td>
+                        </tr>
+                        </tbody>
+                      </table>
+                    )
+                    : this.props.testCase.name
+                  }
+                </Col>
+                <Col span={6}>
+                  <Dropdown overlay={menu} trigger={['click']} className="ml-4 mt-2 float-right">
+                    <MoreOutlined />
+                  </Dropdown>
+                  <Button
+                    className="ml-2 float-right"
+                    color="info"
+                    href="#pablo"
+                    onClick={ () => {
+                      this.props.onEdit()
+                    }}
+                    size="sm"
+                  >
+                    Edit
+                  </Button>
+                </Col>
+              </Row>
             </CardHeader>
             <CardBody>
               {this.getTestCaseItems()}

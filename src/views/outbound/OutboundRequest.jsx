@@ -165,7 +165,8 @@ class OutboundRequest extends React.Component {
       createNewTestCaseDialogVisible: false,
       saveTemplateFileName: '',
       saveTemplateDialogVisible: false,
-      showTestCaseIndex: null
+      showTestCaseIndex: null,
+      renameTestCase: false
     };
   }
 
@@ -388,13 +389,26 @@ class OutboundRequest extends React.Component {
     this.forceUpdate()
   }
 
+  handleTestCaseDelete = (testCaseId) => {
+    const deleteIndex = this.state.template.test_cases.findIndex(item => item.id == testCaseId)
+    this.state.template.test_cases.splice(deleteIndex,1)
+    this.handleTestCaseChange()
+  }
+
   getTestCaseItems = () => {
     if (this.state.template.test_cases) {
       return this.state.template.test_cases.map((testCase, testCaseIndex) => {
         return (
-          <Row onClick={() => {this.setState({showTestCaseIndex: testCaseIndex})}}>
+          <Row>
             <Col>
-              <TestCaseViewer testCase={testCase} onChange={this.handleTestCaseChange} inputValues={this.state.template.inputValues} />
+              <TestCaseViewer
+                testCase={testCase}
+                onChange={this.handleTestCaseChange}
+                inputValues={this.state.template.inputValues}
+                onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
+                onDelete={this.handleTestCaseDelete}
+                onRename={this.handleTestCaseChange}
+              />
             </Col>
           </Row>
         )
