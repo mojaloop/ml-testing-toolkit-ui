@@ -232,7 +232,9 @@ export class FactSelector extends React.Component {
     var factData = null
     switch(factType) {
       case 0:
-        factData = (new FactDataGenerator()).getCustomFactData(['status', 'statusText'])
+        const errorResponseFactData = (new FactDataGenerator()).getErrorResponseFactData(this.props.resourceDefinition)
+        const factData = (new FactDataGenerator()).getCustomFactData(['status', 'statusText'])
+        _.merge(factData, errorResponseFactData)
         break
       case 1:
         const headerFactData = (new FactDataGenerator()).getHeadersFactData(this.props.successCallbackDefinition, this.props.successCallbackRootParameters)
@@ -416,7 +418,9 @@ class AssertionEditor extends React.Component {
       selectedResource: null,
       showAddExpectationDialog: false,
       showConfigurableParameterDialog: false,
-      configurableParameterSelected: false
+      configurableParameterSelected: false,
+      renameAssertionDialogVisible: false,
+      assertionDescription: ''
     }
   }
 
@@ -433,7 +437,8 @@ class AssertionEditor extends React.Component {
         selectedApiVersion = this.props.request.apiVersion
         await this.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion+'.'+selectedApiVersion.minorVersion)
     }
-    this.setState({selectedResource, selectedApiVersion})
+    const assertionDescription = this.props.assertion.description
+    this.setState({selectedResource, selectedApiVersion, assertionDescription})
   }
 
   fetchAllApiData = async (apiType, version) => {
@@ -539,6 +544,29 @@ class AssertionEditor extends React.Component {
   }
 
   render() {
+    const renameAssertionDialogContent = (
+      <>
+      <Input 
+        placeholder="Description"
+        type="text"
+        value={this.state.assertionDescription}
+        onChange={(e) => { this.setState({assertionDescription: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.setState({renameAssertionDialogVisible: false})
+            this.props.onRename(this.props.itemKey, this.state.assertionDescription)
+          }}
+          size="sm"
+        >
+          Save
+      </Button>
+      </>
+    )
+
     return (
       <>
       <Modal
@@ -623,6 +651,31 @@ class AssertionEditor extends React.Component {
         }
       </Modal>
 
+      <Popover
+          className="float-left mb-2"
+          content={renameAssertionDialogContent}
+          title="Enter new description"
+          trigger="click"
+          visible={this.state.renameAssertionDialogVisible}
+          onVisibleChange={ (visible) => this.setState({renameAssertionDialogVisible: visible})}
+        >
+          <Button
+              className="float-left"
+              color="primary"
+              size="sm"
+            >
+              Rename
+          </Button>
+      </Popover>
+      <Button
+        className="float-right mb-2"
+        color="danger"
+        size="sm"
+        onClick={() => { this.props.onDelete(this.props.itemKey) }}
+      >
+        Delete
+      </Button>
+
       <AceEditor
         ref="assertionAceEditor"
         mode="javascript"
@@ -706,22 +759,14 @@ export class TestAssertions extends React.Component {
       }
 
       return (
-        <Panel header={assertion.description} key={key} extra={status}>
-          <Row className="mb-2">
-            <Col>
-              <Button
-                className="float-right"
-                color="danger"
-                size="sm"
-                onClick={() => { this.handleDeleteAssertionClick(key) }}
-              >
-                Delete
-              </Button>
-            </Col>
-          </Row>
+        <Panel header={assertion.description} key={assertion.id} extra={status} >
           <Row>
             <Col>
-              <AssertionEditor itemKey={key} assertion={assertion} request={this.props.request} inputValues={this.props.inputValues} onChange={this.handleAssertionChange} />
+              <AssertionEditor itemKey={key} assertion={assertion} request={this.props.request} inputValues={this.props.inputValues}
+                onChange={this.handleAssertionChange}
+                onRename={this.handleRenameAssertion}
+                onDelete={this.handleDeleteAssertionClick}
+              />
             </Col>
           </Row>
         </Panel>
@@ -731,6 +776,11 @@ export class TestAssertions extends React.Component {
 
   handleAddNewAssertionClick = (description) => {
     // Find highest request id to determine the new ID
+    if (!this.props.request.tests) {
+      this.props.request.tests = {
+        assertions: []
+      }
+    }
     let maxId = +this.props.request.tests.assertions.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
     this.props.request.tests.assertions.push({ id: maxId+1, description})
     this.props.onChange(this.props.request)
@@ -738,6 +788,11 @@ export class TestAssertions extends React.Component {
 
   handleDeleteAssertionClick = (index) => {
     this.props.request.tests.assertions.splice(index, 1)
+    this.props.onChange(this.props.request)
+  }
+
+  handleRenameAssertion = (index, newDescription) => {
+    this.props.request.tests.assertions[index].description = newDescription
     this.props.onChange(this.props.request)
   }
 

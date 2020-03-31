@@ -161,17 +161,24 @@ class OutboundRequest extends React.Component {
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
       newTemplateName: '',
-      createNewTemplateDialogVisible: false,
+      newTestCaseName: '',
+      createNewTestCaseDialogVisible: false,
       saveTemplateFileName: '',
       saveTemplateDialogVisible: false,
-      showTestCaseIndex: null
+      showTestCaseIndex: null,
+      renameTestCase: false
     };
   }
 
   socket = null
+  autoSave = false
+  autoSaveIntervalId = null
 
   componentWillUnmount = () => {
     this.socket.disconnect()
+    if(this.autoSaveIntervalId) {
+      clearInterval(this.autoSaveIntervalId)
+    }
   }
   
   componentDidMount = () => {
@@ -179,15 +186,25 @@ class OutboundRequest extends React.Component {
     // this.setState({template: sampleTemplate})
     this.socket = socketIOClient('http://127.0.0.1:5050');
     this.socket.on("outboundProgress", this.handleIncomingProgress);
+
+    const storedTemplate = this.restoreSavedTemplate()
+    if (storedTemplate) {
+      this.setState({template: storedTemplate})
+    }
+
+    this.startAutoSaveTemplateTimer()
+
   }
 
   handleInputValuesChange = (name, value) => {
     this.state.template.inputValues[name] = value
+    this.autoSave = true
     this.forceUpdate()
   }
 
   handleInputValuesDelete = (name) => {
     delete this.state.template.inputValues[name]
+    this.autoSave = true
     this.forceUpdate()
   }
 
@@ -294,12 +311,23 @@ class OutboundRequest extends React.Component {
     return { ...remainingTestCaseProps, test_cases: newTestCases }
   }
 
+  handleCreateNewTestCaseClick = (testCaseName) => {
+    // Find highest request id to determine the new ID
+    let maxId = +this.state.template.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+
+    this.state.template.test_cases.push({ id: maxId+1, name: testCaseName })
+    this.forceUpdate()
+    this.autoSave = true
+  }
+
   handleCreateNewTemplateClick = (templateName) => {
-    this.setState({template: {
+    const newTemplate = {
       name: templateName,
       inputValues: {},
-      requests: []
-    }})
+      test_cases: []
+    }
+    this.setState({template: newTemplate})
+    this.autoSave = true
   }
 
   download = (content, fileName, contentType) => {
@@ -308,6 +336,30 @@ class OutboundRequest extends React.Component {
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
+  }
+
+  restoreSavedTemplate = () => {
+    const storedTemplate = localStorage.getItem('template')
+    if(storedTemplate) {
+      try {
+        return JSON.parse(storedTemplate)
+      } catch(err) {}
+    }
+    return null
+  }
+
+  startAutoSaveTemplateTimer = () => {
+    this.autoSaveIntervalId = setInterval ( () => {
+      if (this.autoSave) {
+        this.autoSave = false
+        this.autoSaveTemplate(this.convertTemplate(this.state.template))
+      }
+    },
+    2000)
+  }
+
+  autoSaveTemplate = (template) => {
+    localStorage.setItem('template', JSON.stringify(template));
   }
 
   handleTemplateSaveClick = (fileName) => {
@@ -322,6 +374,7 @@ class OutboundRequest extends React.Component {
       try {
         var intern = JSON.parse(content);
         this.setState({template: intern})
+        this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
       } catch (err) {
         message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
@@ -332,16 +385,42 @@ class OutboundRequest extends React.Component {
   }
 
   handleTestCaseChange = () => {
+    this.autoSave = true
     this.forceUpdate()
+  }
+
+  handleTestCaseDelete = (testCaseId) => {
+    const deleteIndex = this.state.template.test_cases.findIndex(item => item.id == testCaseId)
+    this.state.template.test_cases.splice(deleteIndex,1)
+    this.handleTestCaseChange()
+  }
+
+  handleTestCaseDuplicate = (testCaseId) => {
+    const { id, name, ...otherProps } = this.state.template.test_cases.find(item => item.id == testCaseId)
+    // Find highest request id to determine the new ID
+    let maxId = +this.state.template.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+    // Deep copy other properties
+    const clonedProps = JSON.parse(JSON.stringify(otherProps))
+
+    this.state.template.test_cases.push({ id: maxId+1, name: name + ' Copy', ...clonedProps })
+    this.handleTestCaseChange()
   }
 
   getTestCaseItems = () => {
     if (this.state.template.test_cases) {
       return this.state.template.test_cases.map((testCase, testCaseIndex) => {
         return (
-          <Row onClick={() => {this.setState({showTestCaseIndex: testCaseIndex})}}>
+          <Row>
             <Col>
-              <TestCaseViewer testCase={testCase} onChange={this.handleTestCaseChange} inputValues={this.state.template.inputValues} />
+              <TestCaseViewer
+                testCase={testCase}
+                onChange={this.handleTestCaseChange}
+                inputValues={this.state.template.inputValues}
+                onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
+                onDelete={this.handleTestCaseDelete}
+                onDuplicate={this.handleTestCaseDuplicate}
+                onRename={this.handleTestCaseChange}
+              />
             </Col>
           </Row>
         )
@@ -351,6 +430,29 @@ class OutboundRequest extends React.Component {
   }
 
   render() {
+
+    const createNewTestCaseDialogContent = (
+      <>
+      <Input 
+        placeholder="Test case name"
+        type="text"
+        value={this.state.newTestCaseName}
+        onChange={(e) => { this.setState({newTestCaseName: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.handleCreateNewTestCaseClick(this.state.newTestCaseName)
+            this.setState({createNewTestCaseDialogVisible: false})
+          }}
+          size="sm"
+        >
+          Create
+      </Button>
+      </>
+    )
 
     const createNewTemplateDialogContent = (
       <>
@@ -514,7 +616,27 @@ class OutboundRequest extends React.Component {
                   </Affix>
                   <Row>
                     <Col span={16}>
-                      { this.getTestCaseItems() }
+                      <Row>
+                        <Popover
+                          className="float-right"
+                          content={createNewTestCaseDialogContent}
+                          title="Enter a name for the template"
+                          trigger="click"
+                          visible={this.state.createNewTestCaseDialogVisible}
+                          onVisibleChange={ (visible) => this.setState({createNewTestCaseDialogVisible: visible})}
+                        >
+                          <Button
+                              className="text-right float-right mb-2"
+                              color="primary"
+                              size="sm"
+                            >
+                              Add Test Case
+                          </Button>
+                        </Popover>
+                      </Row>
+                      <Row>
+                        { this.getTestCaseItems() }
+                      </Row>
                     </Col>
                     <Col span={8} className='pl-2'>
                       <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />

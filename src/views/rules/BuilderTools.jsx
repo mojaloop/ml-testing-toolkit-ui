@@ -217,6 +217,31 @@ export class FactDataGenerator {
     return queryParametersSchema
   }
 
+  getErrorResponseFactData = (resourceDefinition) => {
+    let errorCode
+    for (let responseCode in resourceDefinition.responses) {
+      if(responseCode > 299) {
+        errorCode = responseCode
+        break
+      }
+    }
+    if(errorCode) {
+      try {
+        return {
+          type: 'object',
+          properties: {
+            body: resourceDefinition.responses[errorCode].content['application/json'].schema
+          }
+        }
+      } catch(err) {
+        return null
+      }
+    } else {
+      return null
+    }
+  }
+
+
   getSelectedResponseBodySchema = (responses, statusCode) => {
     let bodySchema = {}
     try {
