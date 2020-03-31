@@ -117,12 +117,16 @@ class TestCaseViewer extends React.Component {
         case 'rename':
           this.setState({renameTestCase: true})
           break
+        case 'duplicate':
+          this.props.onDuplicate(this.props.testCase.id)
+          break
       }
     };
     
     const menu = (
       <Menu onClick={onClick}>
         <Menu.Item key="rename">Rename</Menu.Item>
+        <Menu.Item key="duplicate">Duplicate</Menu.Item>
         <Menu.Item key="delete">Delete</Menu.Item>
       </Menu>
     );

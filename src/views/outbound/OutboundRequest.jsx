@@ -395,6 +395,17 @@ class OutboundRequest extends React.Component {
     this.handleTestCaseChange()
   }
 
+  handleTestCaseDuplicate = (testCaseId) => {
+    const { id, name, ...otherProps } = this.state.template.test_cases.find(item => item.id == testCaseId)
+    // Find highest request id to determine the new ID
+    let maxId = +this.state.template.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+    // Deep copy other properties
+    const clonedProps = JSON.parse(JSON.stringify(otherProps))
+
+    this.state.template.test_cases.push({ id: maxId+1, name: name + ' Copy', ...clonedProps })
+    this.handleTestCaseChange()
+  }
+
   getTestCaseItems = () => {
     if (this.state.template.test_cases) {
       return this.state.template.test_cases.map((testCase, testCaseIndex) => {
@@ -407,6 +418,7 @@ class OutboundRequest extends React.Component {
                 inputValues={this.state.template.inputValues}
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
                 onDelete={this.handleTestCaseDelete}
+                onDuplicate={this.handleTestCaseDuplicate}
                 onRename={this.handleTestCaseChange}
               />
             </Col>

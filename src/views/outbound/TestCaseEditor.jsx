@@ -609,7 +609,9 @@ class TestCaseEditor extends React.Component {
     const { id, description, ...otherProps } = this.props.testCase.requests.find(item => item.id == requestId)
     // Find maximum ID for creating a new request
     let maxId = +this.props.testCase.requests.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
-    this.props.testCase.requests.push({ id: maxId+1, description: description + ' Copy', ...otherProps})
+    const clonedProps = JSON.parse(JSON.stringify(otherProps))
+
+    this.props.testCase.requests.push({ id: maxId+1, description: description + ' Copy', ...clonedProps})
     this.forceUpdate()
   }
 
