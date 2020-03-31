@@ -383,6 +383,14 @@ class RequestGenerator extends React.Component {
                           >
                             Delete
                           </Button>
+                          <Button
+                            className="float-right mr-2"
+                            color="primary"
+                            size="sm"
+                            onClick={() => {this.props.onDuplicate(this.props.request.id)}}
+                          >
+                            Duplicate
+                          </Button>
                         </Col>
                       </Row>
                     </Col>
@@ -506,6 +514,7 @@ class TestCaseEditor extends React.Component {
                       inputValues={this.props.inputValues}
                       onChange={this.props.onChange}
                       onDelete={this.handleRequestDelete}
+                      onDuplicate={this.handleRequestDuplicate}
                     />
                   </TabPane>
                   
@@ -592,6 +601,15 @@ class TestCaseEditor extends React.Component {
   handleRequestDelete = (requestId) => {
     const deleteIndex = this.props.testCase.requests.findIndex(item => item.id == requestId)
     this.props.testCase.requests.splice(deleteIndex,1)
+    this.forceUpdate()
+  }
+
+  handleRequestDuplicate = (requestId) => {
+    // Find the request to duplicate
+    const { id, description, ...otherProps } = this.props.testCase.requests.find(item => item.id == requestId)
+    // Find maximum ID for creating a new request
+    let maxId = +this.props.testCase.requests.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+    this.props.testCase.requests.push({ id: maxId+1, description: description + ' Copy', ...otherProps})
     this.forceUpdate()
   }
 
