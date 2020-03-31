@@ -776,6 +776,11 @@ export class TestAssertions extends React.Component {
 
   handleAddNewAssertionClick = (description) => {
     // Find highest request id to determine the new ID
+    if (!this.props.request.tests) {
+      this.props.request.tests = {
+        assertions: []
+      }
+    }
     let maxId = +this.props.request.tests.assertions.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
     this.props.request.tests.assertions.push({ id: maxId+1, description})
     this.props.onChange(this.props.request)
