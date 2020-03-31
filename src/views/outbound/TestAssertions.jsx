@@ -235,8 +235,6 @@ export class FactSelector extends React.Component {
         const errorResponseFactData = (new FactDataGenerator()).getErrorResponseFactData(this.props.resourceDefinition)
         const factData = (new FactDataGenerator()).getCustomFactData(['status', 'statusText'])
         _.merge(factData, errorResponseFactData)
-        console.log(factData)
-
         break
       case 1:
         const headerFactData = (new FactDataGenerator()).getHeadersFactData(this.props.successCallbackDefinition, this.props.successCallbackRootParameters)
@@ -789,7 +787,6 @@ export class TestAssertions extends React.Component {
   }
 
   handleRenameAssertion = (index, newDescription) => {
-    console.log(index, newDescription)
     this.props.request.tests.assertions[index].description = newDescription
     this.props.onChange(this.props.request)
   }

@@ -55,29 +55,39 @@ class TestCaseViewer extends React.Component {
   getTestCaseItems = () => {
     if (this.props.testCase.requests) {
       const requestRows = this.props.testCase.requests.map(item => {
-        const testStatus = item.status && item.tests && item.status.testResult ? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : ''
-        const testStatusColor = item.status && item.tests && item.status.testResult && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
-        return (
+        if (item.method && item.operationPath) {
+          const testStatus = item.status && item.tests && item.status.testResult ? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : ''
+          const testStatusColor = item.status && item.tests && item.status.testResult && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
+          return (
+              <tr>
+                <td className="align-text-top" width='25px'>
+                    <Icon type="double-right" style={{ fontSize: '20px', color: '#08c' }}></Icon>
+                </td>
+                <td>
+                  <h3>{item.method.toUpperCase()+' '+item.operationPath}</h3> <p>{item.description}</p>
+                </td>
+                <td className='text-right align-top'>
+                  {
+                    item.status && (item.status.state === 'finish' || item.status.state === 'error')
+                    ? (
+                      <Tag color={testStatusColor} className='ml-2'>
+                        {testStatus}
+                      </Tag>
+                    )
+                    : null
+                  }
+                </td>
+              </tr>
+          )
+        } else {
+          return (
             <tr>
-              <td className="align-text-top" width='25px'>
-                  <Icon type="double-right" style={{ fontSize: '20px', color: '#08c' }}></Icon>
-              </td>
               <td>
-                <h3>{item.method.toUpperCase()+' '+item.operationPath}</h3> <p>{item.description}</p>
-              </td>
-              <td className='text-right align-top'>
-                {
-                  item.status && (item.status.state === 'finish' || item.status.state === 'error')
-                  ? (
-                    <Tag color={testStatusColor} className='ml-2'>
-                      {testStatus}
-                    </Tag>
-                  )
-                  : null
-                }
+                <p>{item.description}</p>
               </td>
             </tr>
-        )
+          )
+        }
       })
       return (
         <table width='100%' cellPadding="5px">
