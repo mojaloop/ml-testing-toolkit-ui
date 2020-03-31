@@ -96,23 +96,23 @@ describe('TestAssertions', () => {
         done()
       })
     })
-    it('Should set state factType on selecting a fact type', async done => {
-      await wrapper.instance().handleFactTypeChange(0)
-      expect(wrapper.state().factType).toEqual(0)
-      expect(wrapper.state().factData).not.toBeNull()
-      // expect(mockOnChangeHandler).toHaveBeenCalledWith('{$inputs.test}')
-      process.nextTick(() => {
-        done()
-      })
-    })
-    it('Should call onChange when selecting response status', async done => {
-      await wrapper.instance().handleFactSelect('status')
-      expect(wrapper.state().selectedFact).toEqual('status')
-      expect(mockOnChangeHandler).toHaveBeenCalledWith('response.status')
-      process.nextTick(() => {
-        done()
-      })
-    })
+    // it('Should set state factType on selecting a fact type', async done => {
+    //   await wrapper.instance().handleFactTypeChange(0)
+    //   expect(wrapper.state().factType).toEqual(0)
+    //   expect(wrapper.state().factData).not.toBeNull()
+    //   // expect(mockOnChangeHandler).toHaveBeenCalledWith('{$inputs.test}')
+    //   process.nextTick(() => {
+    //     done()
+    //   })
+    // })
+    // it('Should call onChange when selecting response status', async done => {
+    //   await wrapper.instance().handleFactSelect('status')
+    //   expect(wrapper.state().selectedFact).toEqual('status')
+    //   expect(mockOnChangeHandler).toHaveBeenCalledWith('response.status')
+    //   process.nextTick(() => {
+    //     done()
+    //   })
+    // })
   })
 
   describe('AssertionEditorSimple', () => {
