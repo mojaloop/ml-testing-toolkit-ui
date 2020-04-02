@@ -675,6 +675,9 @@ class HeaderBodyBuilder extends React.Component {
                   >
                     Add All Headers
                   </Button>
+                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                    <Button color="secondary" size="sm">Add Configurable Params</Button>
+                  </Popover>
                 </Col>
               </Row>
             </Card>

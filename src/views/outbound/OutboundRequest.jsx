@@ -137,7 +137,7 @@ class InputValues extends React.Component {
               </Popover>
 
               <Form>
-                <Descriptions title="Input Values" bordered column={1}>
+                <Descriptions title="Input Values" bordered column={1} size='small'>
                   {this.getInputItems()}
                 </Descriptions>
               </Form>
@@ -518,7 +518,7 @@ class OutboundRequest extends React.Component {
           centered
           destroyOnClose
           forceRender
-          title="Test Case Viewer"
+          title="Test Case Editor"
           width='90%'
           visible={this.state.showTestCaseIndex!=null? true : false}
           footer={null}
@@ -615,7 +615,7 @@ class OutboundRequest extends React.Component {
                   </Row>
                   </Affix>
                   <Row>
-                    <Col span={16}>
+                    <Col span={14}>
                       <Row>
                         <Popover
                           className="float-right"
@@ -638,7 +638,7 @@ class OutboundRequest extends React.Component {
                         { this.getTestCaseItems() }
                       </Row>
                     </Col>
-                    <Col span={8} className='pl-2'>
+                    <Col span={10} className='pl-2'>
                       <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
                     </Col>
                   </Row>
