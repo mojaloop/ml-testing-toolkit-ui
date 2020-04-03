@@ -33,7 +33,7 @@ import socketIOClient from "socket.io-client";
 import Header from "../../components/Headers/Header.jsx";
 
 
-import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Upload } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Upload, Progress } from 'antd';
 
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
@@ -166,7 +166,9 @@ class OutboundRequest extends React.Component {
       saveTemplateFileName: '',
       saveTemplateDialogVisible: false,
       showTestCaseIndex: null,
-      renameTestCase: false
+      renameTestCase: false,
+      totalPassedCount: 0,
+      totalAssertionsCount: 0
     };
   }
 
@@ -215,26 +217,33 @@ class OutboundRequest extends React.Component {
       let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
       let request = testCase.requests.find(item => item.id === progress.requestId)
       if (request.status) {
+        // Update total passed count
+        const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+        this.state.totalPassedCount += passedCount
         if (progress.status === 'SUCCESS') {
+
           request.status.state = 'finish'
           request.status.response = progress.response
           request.status.callback = progress.callback
+          request.status.requestSent = progress.requestSent
           request.status.testResult = progress.testResult
         } else if (progress.status === 'ERROR') {
           request.status.state = 'error'
           request.status.response = progress.response
           request.status.callback = progress.callback
+          request.status.requestSent = progress.requestSent
           request.status.testResult = progress.testResult
           // Clear the waiting status of the remaining requests
-          for (let i in this.state.template.requests) {
-            if (!this.state.template.requests[i].status) {
-              this.state.template.requests[i].status = {}
+          for (let i in testCase.requests) {
+            if (!testCase.requests[i].status) {
+              testCase.requests[i].status = {}
             }
-            if (this.state.template.requests[i].status.state === 'process') {
-              this.state.template.requests[i].status.state = 'wait'
-              this.state.template.requests[i].status.response = null
-              this.state.template.requests[i].status.callback = null
-              this.state.template.requests[i].status.testResult = null
+            if (testCase.requests[i].status.state === 'process') {
+              testCase.requests[i].status.state = 'wait'
+              testCase.requests[i].status.response = null
+              testCase.requests[i].status.callback = null
+              testCase.requests[i].status.requestSent = null
+              testCase.requests[i].status.testResult = null
             }
             
           }
@@ -247,6 +256,9 @@ class OutboundRequest extends React.Component {
 
   // mockTypeSuccess = true
   handleSendClick = async () => {
+    // Initialize counts to zero
+    this.state.totalPassedCount = 0
+    this.state.totalAssertionsCount = 0
 
     const outboundRequestID = Math.random().toString(36).substring(7);
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
@@ -256,10 +268,14 @@ class OutboundRequest extends React.Component {
     // Set the status to waiting for all the requests
     for (let i in this.state.template.test_cases) {
       for (let j in this.state.template.test_cases[i].requests) {
-        if (!this.state.template.test_cases[i].requests[j].status) {
-          this.state.template.test_cases[i].requests[j].status = {}
+        const request = this.state.template.test_cases[i].requests[j]
+        // console.log(request)
+        // Also update the total assertion count
+        this.state.totalAssertionsCount += (request.tests && request.tests.assertions) ? request.tests.assertions.length : 0
+        if (!request.status) {
+          request.status = {}
         }
-        this.state.template.test_cases[i].requests[j].status.state = 'process'
+        request.status.state = 'process'
       }
     }
     this.forceUpdate()
@@ -544,71 +560,89 @@ class OutboundRequest extends React.Component {
                     <Col span={24}>
                       <Card className="bg-white shadow mb-4">
                         <CardBody>
-                          <Upload 
-                            accept = '.json'
-                            showUploadList = {false}
-                            beforeUpload = {file => {
-                              this.handleImportFile(file)
-                              return false;
-                            }}
-                          >
-                            <Button
-                              color="success"
-                              size="sm"
-                              onClick={e => e.preventDefault()}
-                            >
-                              Import Template
-                            </Button>
-                          </Upload>
+                          <Row>
+                            <Col span={8}>
+                              <Upload 
+                                accept = '.json'
+                                showUploadList = {false}
+                                beforeUpload = {file => {
+                                  this.handleImportFile(file)
+                                  return false;
+                                }}
+                              >
+                                <Button
+                                  color="success"
+                                  size="sm"
+                                  onClick={e => e.preventDefault()}
+                                >
+                                  Import Template
+                                </Button>
+                              </Upload>
+                            </Col>
+                            <Col span={8} className="text-center">
+                            {
+                              this.state.totalAssertionsCount > 0
+                              ? (
+                                <>
+                                <Progress type="circle" percent={this.state.totalPassedCount * 100 / this.state.totalAssertionsCount} width={50} />
 
-                          <Button
-                            className="float-right"
-                            color="danger"
-                            size="sm"
-                            onClick={this.handleSendClick}
-                          >
-                            Send
-                          </Button>
-                          <Popover
-                            className="float-right"
-                            content={saveTemplateDialogContent}
-                            title="Enter filename to save"
-                            trigger="click"
-                            visible={this.state.saveTemplateDialogVisible}
-                            onVisibleChange={ (visible) => this.setState({saveTemplateDialogVisible: visible})}
-                          >
-                            <Button
-                                className="text-right float-right"
-                                color="success"
+                                <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
+                                </>
+                              )
+                              : null
+                            }
+                            </Col>
+                            <Col span={8}>
+                              <Button
+                                className="float-right"
+                                color="danger"
                                 size="sm"
+                                onClick={this.handleSendClick}
                               >
-                                Save
-                            </Button>
-                          </Popover>
-                          <Button
-                            className="float-right"
-                            color="info"
-                            size="sm"
-                            onClick={() => { this.setState({showTemplate: true})}}
-                          >
-                            Show Template
-                          </Button>
-                          <Popover
-                            className="float-right"
-                            content={createNewTemplateDialogContent}
-                            title="Enter a name for the template"
-                            trigger="click"
-                            visible={this.state.createNewTemplateDialogVisible}
-                            onVisibleChange={ (visible) => this.setState({createNewTemplateDialogVisible: visible})}
-                          >
-                            <Button
-                                className="text-right float-right"
-                                color="primary"
+                                Send
+                              </Button>
+                              <Popover
+                                className="float-right"
+                                content={saveTemplateDialogContent}
+                                title="Enter filename to save"
+                                trigger="click"
+                                visible={this.state.saveTemplateDialogVisible}
+                                onVisibleChange={ (visible) => this.setState({saveTemplateDialogVisible: visible})}
+                              >
+                                <Button
+                                    className="text-right float-right"
+                                    color="success"
+                                    size="sm"
+                                  >
+                                    Save
+                                </Button>
+                              </Popover>
+                              <Button
+                                className="float-right"
+                                color="info"
                                 size="sm"
+                                onClick={() => { this.setState({showTemplate: true})}}
                               >
-                                New Template
-                            </Button>
-                          </Popover>
+                                Show Template
+                              </Button>
+                              <Popover
+                                className="float-right"
+                                content={createNewTemplateDialogContent}
+                                title="Enter a name for the template"
+                                trigger="click"
+                                visible={this.state.createNewTemplateDialogVisible}
+                                onVisibleChange={ (visible) => this.setState({createNewTemplateDialogVisible: visible})}
+                              >
+                                <Button
+                                    className="text-right float-right"
+                                    color="primary"
+                                    size="sm"
+                                  >
+                                    New Template
+                                </Button>
+                              </Popover>
+                            </Col>
+                          </Row>
                         </CardBody>
                         </Card>
                     </Col>

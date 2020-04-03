@@ -527,30 +527,38 @@ class TestCaseEditor extends React.Component {
       return this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
         const testStatus = item.status && item.tests && item.status.testResult ? item.status.testResult.passedCount + '/' + item.tests.assertions.length : ''
         const testStatusColor = item.status && item.tests && item.status.testResult && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
+        let requestShow
+        if (item.status && item.status.requestSent) {
+          requestShow = item.status.requestSent
+        } else {
+          requestShow = item
+        }
         return (
           <Col span={24 / (this.props.testCase.requests.length ? (endIndex - startIndex) : 1)}>
             <Tabs defaultActiveKey='1'>
               <TabPane tab="Request" key="1">
+                <>
                 {
-                  item.headers
+                  requestShow.headers
                   ? (
                     <>
                     <h4>Header</h4>
-                    <pre>{JSON.stringify(this.replaceInputValues(item.headers),null,2)}</pre>
+                    <pre>{JSON.stringify(this.replaceInputValues(requestShow.headers),null,2)}</pre>
                     </>
                   )
                   : null
                 }
                 {
-                  item.body
+                  requestShow.body
                   ? (
                     <>
                     <h4>Body</h4>
-                    <pre>{JSON.stringify(this.replaceInputValues(item.body),null,2)}</pre>
+                    <pre>{JSON.stringify(this.replaceInputValues(requestShow.body),null,2)}</pre>
                     </>
                   )
                   : null
                 }
+                </>
               </TabPane>
               <TabPane tab="Editor" key="2">
                 <RequestGenerator
@@ -641,6 +649,9 @@ class TestCaseEditor extends React.Component {
   }
 
   handleAddNewRequestClick = (description) => {
+    if (!this.props.testCase.requests) {
+      this.props.testCase.requests = []
+    }
     // Find highest request id to determine the new ID
     let maxId = +this.props.testCase.requests.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
 
@@ -762,6 +773,8 @@ class TestCaseEditor extends React.Component {
         for (let i=0; i<rowCount; i++) {
           rows.push(perRowContent(i*3, i*3+3))
         }
+      } else {
+        return (<span>There are no requests</span>)
       }
       return rows
     }
