@@ -30,8 +30,9 @@ import {
 } from "reactstrap";
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Skeleton, message, Popover, Badge } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, message, Popover, Badge } from 'antd';
 
+import { RightCircleOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
 import ace from 'brace';
@@ -173,7 +174,9 @@ class RequestGenerator extends React.Component {
       selectedResource: null,
       selectedApiVersion: null,
       callbackMap: {},
-      apiVersions: []
+      apiVersions: [],
+      renameRequestDialogVisible: false,
+      newRequestDescription: ''
     };
   }
 
@@ -196,8 +199,9 @@ class RequestGenerator extends React.Component {
         selectedApiVersion = this.props.request.apiVersion
         await this.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion+'.'+selectedApiVersion.minorVersion)
     }
+    const newRequestDescription = this.props.request.description
 
-    this.setState({selectedResource, apiVersions, selectedApiVersion})
+    this.setState({selectedResource, apiVersions, selectedApiVersion, newRequestDescription})
   }
 
   fetchAllApiData = async (apiType, version) => {
@@ -349,6 +353,31 @@ class RequestGenerator extends React.Component {
 
 
   render() {
+
+    const renameRequestDialogContent = (
+      <>
+      <Input 
+        placeholder="Description"
+        type="text"
+        value={this.state.newRequestDescription}
+        onChange={(e) => { this.setState({newRequestDescription: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.props.request.description = this.state.newRequestDescription
+            this.setState({description: this.state.newRequestDescription, renameRequestDialogVisible: false})
+            this.props.onChange(this.props.request)
+          }}
+          size="sm"
+        >
+          Save
+      </Button>
+      </>
+    )
+
     return (
       <>
           <Row>
@@ -385,12 +414,32 @@ class RequestGenerator extends React.Component {
                           </Button>
                           <Button
                             className="float-right mr-2"
-                            color="primary"
+                            color="info"
                             size="sm"
                             onClick={() => {this.props.onDuplicate(this.props.request.id)}}
                           >
                             Duplicate
                           </Button>
+                        </Col>
+                      </Row>
+                      <Row className="text-right float-right mt-2 mr-2">
+                        <Col>
+                          <Popover
+                              className="float-right"
+                              content={renameRequestDialogContent}
+                              title="Enter new description"
+                              trigger="click"
+                              visible={this.state.renameRequestDialogVisible}
+                              onVisibleChange={ (visible) => this.setState({renameRequestDialogVisible: visible})}
+                            >
+                              <Button
+                                  className="float-left"
+                                  color="primary"
+                                  size="sm"
+                                >
+                                  Rename
+                              </Button>
+                        </Popover>
                         </Col>
                       </Row>
                     </Col>
@@ -473,91 +522,100 @@ class TestCaseEditor extends React.Component {
     }
   }
 
-  getRequestGeneratorItems = () => {
+  getRequestGeneratorItems = (startIndex, endIndex) => {
     if (this.props.testCase.requests) {
-      return this.props.testCase.requests.map(item => {
+      return this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
         const testStatus = item.status && item.tests && item.status.testResult ? item.status.testResult.passedCount + '/' + item.tests.assertions.length : ''
         const testStatusColor = item.status && item.tests && item.status.testResult && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
+        let requestShow
+        if (item.status && item.status.requestSent) {
+          requestShow = item.status.requestSent
+        } else {
+          requestShow = item
+        }
         return (
-          <Col span={24 / (this.props.testCase.requests.length ? this.props.testCase.requests.length : 1)}>
-            {
+          <Col span={24 / (this.props.testCase.requests.length ? (endIndex - startIndex) : 1)}>
+            <Tabs defaultActiveKey='1'>
+              <TabPane tab="Request" key="1">
+                <>
+                {
+                  requestShow.headers
+                  ? (
+                    <>
+                    <h4>Header</h4>
+                    <pre>{JSON.stringify(this.replaceInputValues(requestShow.headers),null,2)}</pre>
+                    </>
+                  )
+                  : null
+                }
+                {
+                  requestShow.body
+                  ? (
+                    <>
+                    <h4>Body</h4>
+                    <pre>{JSON.stringify(this.replaceInputValues(requestShow.body),null,2)}</pre>
+                    </>
+                  )
+                  : null
+                }
+                </>
+              </TabPane>
+              <TabPane tab="Editor" key="2">
+                <RequestGenerator
+                  request={item}
+                  allRequests={this.props.testCase.requests}
+                  inputValues={this.props.inputValues}
+                  onChange={this.props.onChange}
+                  onDelete={this.handleRequestDelete}
+                  onDuplicate={this.handleRequestDuplicate}
+                />
+              </TabPane>
+              
+              <TabPane tab={(<Badge offset={[20,0]} style={{ backgroundColor: testStatusColor }} count={testStatus}>Tests</Badge>)} key="4">
+                <TestAssertions
+                  request={item}
+                  allRequests={this.props.testCase.requests}
+                  inputValues={this.props.inputValues}
+                  onChange={this.props.onChange}
+                  onDelete={this.handleRequestDelete}
+                />
+              </TabPane>
+              {
+                item.status && item.status.response
+                ? (
+                  <TabPane tab="Response" key="3">
+                    {
+                      item.status.response
+                      ? (
+                        <>
+                          <h4>Synchronous Response</h4>
+                          <pre>{JSON.stringify(item.status.response,null,2)}</pre>
+                        </>
+                      )
+                      : null
+                    }
+                    {
+                      item.status.callback
+                      ? (
+                        <>
+                          <h4>Callback</h4>
+                          <pre>{JSON.stringify(item.status.callback,null,2)}</pre>
+                        </>
+                      )
+                      : null
+                    }
+                  </TabPane>
+                )
+                : null
+              }
+            </Tabs>
+            {/* {
               item.status && (item.status.state === 'waiting' || item.status.state === 'process')
               ? (<Skeleton paragraph={ {rows: 10} } active />)
               : (
-                <Tabs defaultActiveKey='1'>
-                  <TabPane tab="Request" key="1">
-                    {
-                      item.headers
-                      ? (
-                        <>
-                        <h4>Header</h4>
-                        <pre>{JSON.stringify(this.replaceInputValues(item.headers),null,2)}</pre>
-                        </>
-                      )
-                      : null
-                    }
-                    {
-                      item.body
-                      ? (
-                        <>
-                        <h4>Body</h4>
-                        <pre>{JSON.stringify(this.replaceInputValues(item.body),null,2)}</pre>
-                        </>
-                      )
-                      : null
-                    }
-                  </TabPane>
-                  <TabPane tab="Editor" key="2">
-                    <RequestGenerator
-                      request={item}
-                      allRequests={this.props.testCase.requests}
-                      inputValues={this.props.inputValues}
-                      onChange={this.props.onChange}
-                      onDelete={this.handleRequestDelete}
-                      onDuplicate={this.handleRequestDuplicate}
-                    />
-                  </TabPane>
-                  
-                  <TabPane tab={(<Badge offset={[20,0]} style={{ backgroundColor: testStatusColor }} count={testStatus}>Tests</Badge>)} key="4">
-                    <TestAssertions
-                      request={item}
-                      allRequests={this.props.testCase.requests}
-                      inputValues={this.props.inputValues}
-                      onChange={this.props.onChange}
-                      onDelete={this.handleRequestDelete}
-                    />
-                  </TabPane>
-                  {
-                    item.status && item.status.response
-                    ? (
-                      <TabPane tab="Response" key="3">
-                        {
-                          item.status.response
-                          ? (
-                            <>
-                              <h4>Synchronous Response</h4>
-                              <pre>{JSON.stringify(item.status.response,null,2)}</pre>
-                            </>
-                          )
-                          : null
-                        }
-                        {
-                          item.status.callback
-                          ? (
-                            <>
-                              <h4>Callback</h4>
-                              <pre>{JSON.stringify(item.status.callback,null,2)}</pre>
-                            </>
-                          )
-                          : null
-                        }
-                      </TabPane>
-                    )
-                    : null
-                  }
-                </Tabs>
+
               )
-            }
+            } */}
 
           </Col>
         )
@@ -567,18 +625,18 @@ class TestCaseEditor extends React.Component {
     }
   }
 
-  getStepItems = () => {
+  getStepItems = (startIndex, endIndex) => {
     if (this.props.testCase.requests) {
-      const stepItems = this.props.testCase.requests.map(item => {
+      const stepItems = this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
         return (
-          <Step status={item.status? item.status.state : null} title={item.method} subTitle={item.operationPath} description={item.description} />
+          <Step status={item.status? item.status.state : null} title={item.method} subTitle={item.operationPath} description={item.description} icon={<RightCircleOutlined />} />
         )
       })
       const spanCol = stepItems.length < 3 ? stepItems.length * 8 : 24
       return (
         <Row>
           <Col span={spanCol}>
-            <Steps current={-1} type="navigation" size="default">
+            <Steps current={-1} type="default" size="default">
               {stepItems}
             </Steps>
           </Col>
@@ -591,6 +649,9 @@ class TestCaseEditor extends React.Component {
   }
 
   handleAddNewRequestClick = (description) => {
+    if (!this.props.testCase.requests) {
+      this.props.testCase.requests = []
+    }
     // Find highest request id to determine the new ID
     let maxId = +this.props.testCase.requests.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
 
@@ -686,37 +747,56 @@ class TestCaseEditor extends React.Component {
       </>
     )
 
-    return (
-      <>
+    const perRowContent = (startIndex, endIndex) => {
+      return (
         <Row className="mt-4">
           <Col span={24}>
           <Card className="card-profile shadow">
             <CardHeader>
-              {this.getStepItems()}
-              <Popover
-                content={addNewRequestDialogContent}
-                title="Enter a description for the request"
-                trigger="click"
-                visible={this.state.addNewRequestDialogVisible}
-                onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
-              >
-                <Button
-                    className="text-right float-right"
-                    color="primary"
-                    size="sm"
-                  >
-                    Add New Request
-                </Button>
-              </Popover>
+              {this.getStepItems(startIndex, endIndex)}
             </CardHeader>
             <CardBody>
               <Row gutter={16} >
-                {this.getRequestGeneratorItems()}
+                {this.getRequestGeneratorItems(startIndex, endIndex)}
               </Row>
             </CardBody>
           </Card>
           </Col>
         </Row>
+      )
+    }
+
+    const getHorizontalGroups = () => {
+      var rows = []
+      if (this.props.testCase.requests) {
+        const rowCount = Math.abs(this.props.testCase.requests.length / 3)
+        for (let i=0; i<rowCount; i++) {
+          rows.push(perRowContent(i*3, i*3+3))
+        }
+      } else {
+        return (<span>There are no requests</span>)
+      }
+      return rows
+    }
+
+    return (
+      <>
+        <Popover
+          content={addNewRequestDialogContent}
+          title="Enter a description for the request"
+          trigger="click"
+          visible={this.state.addNewRequestDialogVisible}
+          onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
+        >
+          <Button
+              className="text-right float-right mb-2"
+              color="primary"
+              size="sm"
+            >
+              Add New Request
+          </Button>
+        </Popover>
+        { getHorizontalGroups() }
       </>
     );
   }
