@@ -158,6 +158,7 @@ class OutboundRequest extends React.Component {
     this.state = {
       request: {},
       template: {},
+      additionalData: {},
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
       newTemplateName: '',
@@ -193,6 +194,12 @@ class OutboundRequest extends React.Component {
     if (storedTemplate) {
       this.setState({template: storedTemplate})
     }
+    const additionalData = this.restoreAdditionalData()
+    if (additionalData) {
+      this.setState({additionalData: additionalData})
+    }
+
+    
 
     this.startAutoSaveTemplateTimer()
 
@@ -342,7 +349,7 @@ class OutboundRequest extends React.Component {
       inputValues: {},
       test_cases: []
     }
-    this.setState({template: newTemplate})
+    this.setState({template: newTemplate, additionalData: { importedFilename: '' }})
     this.autoSave = true
   }
 
@@ -364,11 +371,22 @@ class OutboundRequest extends React.Component {
     return null
   }
 
+  restoreAdditionalData = () => {
+    const additionalData = localStorage.getItem('additionalData')
+    if(additionalData) {
+      try {
+        return JSON.parse(additionalData)
+      } catch(err) {}
+    }
+    return {}
+  }
+
   startAutoSaveTemplateTimer = () => {
     this.autoSaveIntervalId = setInterval ( () => {
       if (this.autoSave) {
         this.autoSave = false
         this.autoSaveTemplate(this.convertTemplate(this.state.template))
+        this.autoSaveAdditionalData( this.state.additionalData )
       }
     },
     2000)
@@ -378,7 +396,15 @@ class OutboundRequest extends React.Component {
     localStorage.setItem('template', JSON.stringify(template));
   }
 
+  autoSaveAdditionalData = (additionalData) => {
+    localStorage.setItem('additionalData', JSON.stringify(additionalData));
+  }
+
   handleTemplateSaveClick = (fileName) => {
+    if (!fileName.endsWith('.json')) {
+      message.error('Filename should be ended with .json');
+      return
+    }
     this.download(JSON.stringify(this.convertTemplate(this.state.template), null, 2), fileName, 'text/plain');
   }
 
@@ -389,7 +415,8 @@ class OutboundRequest extends React.Component {
       var content = e.target.result;
       try {
         var intern = JSON.parse(content);
-        this.setState({template: intern})
+        console.log(file_to_read)
+        this.setState({template: intern, additionalData: { importedFilename: file_to_read.name }})
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
       } catch (err) {
@@ -560,6 +587,30 @@ class OutboundRequest extends React.Component {
                     <Col span={24}>
                       <Card className="bg-white shadow mb-4">
                         <CardBody>
+                          <Row className="mb-2">
+                            <span>
+                              {
+                                this.state.template.name
+                                ? (
+                                  <>
+                                  <b>Template Name:</b> { this.state.template.name }
+                                  </>
+                                )
+                                : ''
+                              }
+                              </span>
+                              <span className='ml-4'>
+                              { 
+                                this.state.additionalData.importedFilename
+                                ?  (
+                                  <>
+                                  <b>Imported File Name:</b> { this.state.additionalData.importedFilename }
+                                  </>
+                                )
+                                : ''
+                              }
+                            </span>
+                          </Row>
                           <Row>
                             <Col span={8}>
                               <Upload 
@@ -584,7 +635,7 @@ class OutboundRequest extends React.Component {
                               this.state.totalAssertionsCount > 0
                               ? (
                                 <>
-                                <Progress type="circle" percent={this.state.totalPassedCount * 100 / this.state.totalAssertionsCount} width={50} />
+                                <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
 
                                 <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
                                 </>
