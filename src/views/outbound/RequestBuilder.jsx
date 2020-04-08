@@ -310,6 +310,10 @@ class PathBuilder extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.state.params = { ...this.props.request.params }
+  }
+
   handleValueChange = async (name, value) => {
     let params = this.state.params
     params[name] = value
@@ -614,6 +618,7 @@ class HeaderBodyBuilder extends React.Component {
         (
           <Row className="mt-4 text-center">
             <Col>
+              Click below to copy <br/>
               <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
             </Col>
           </Row>
