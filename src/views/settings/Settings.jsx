@@ -137,6 +137,8 @@ class ConfigurationEditor extends React.Component {
               <ParamInput name="Enable Outbound JWS Signing" itemKey="JWS_SIGN" value={this.props.config.JWS_SIGN} onChange={this.handleParamValueChange} />
               <ParamInput name="Enable Outbound JWS Signing for PUT /parties" itemKey="JWS_SIGN_PUT_PARTIES" value={this.props.config.JWS_SIGN_PUT_PARTIES} onChange={this.handleParamValueChange} />
               <ParamInput name="Connection Manager API URL" itemKey="CONNECTION_MANAGER_API_URL" value={this.props.config.CONNECTION_MANAGER_API_URL} onChange={this.handleParamValueChange} />
+              <ParamInput name="Inbound Mutual TLS" itemKey="INBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
+              <ParamInput name="Outbound Mutual TLS" itemKey="OUTBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
             </CardBody>
           </Card>
         </Col>
@@ -187,6 +189,8 @@ class ConfigurationViewer extends React.Component {
               <ParamView name="Enable Outbound JWS Signing" value={this.props.config.JWS_SIGN} />
               <ParamView name="Enable Outbound JWS Signing for PUT /parties" value={this.props.config.JWS_SIGN_PUT_PARTIES} />
               <ParamView name="Connection Manager API URL" value={this.props.config.CONNECTION_MANAGER_API_URL} />
+              <ParamView name="Enable Inbound Mutual TLS" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} />
+              <ParamView name="Enable Outbound Mutual TLS" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} />
             </CardBody>
           </Card>
         </Col>
