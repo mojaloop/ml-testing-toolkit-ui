@@ -35,6 +35,7 @@ import Header from "../../components/Headers/Header.jsx";
 import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
+import getConfig from '../../utils/getConfig'
 
 const { Option } = Select;
 const { SubMenu } = Menu;
@@ -61,7 +62,8 @@ class RulesValidation extends React.Component {
 
   getValidationRulesFiles = async () => {
     message.loading({ content: 'Getting rules files...', key: 'getFilesProgress' });
-    const response = await axios.get("http://localhost:5050/api/rules/files/validation")
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + "/api/rules/files/validation")
     const activeRulesFile = response.data.activeRulesFile
     await this.setState(  { validationRulesFiles: response.data.files, activeRulesFile } )
     message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
@@ -73,7 +75,8 @@ class RulesValidation extends React.Component {
   }
 
   getValidationRulesFileContent = async (ruleFile) => {
-    const response = await axios.get("http://localhost:5050/api/rules/files/validation/" + ruleFile)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + "/api/rules/files/validation/" + ruleFile)
     let curRules = []
     if (response.data && Array.isArray(response.data)) {
       curRules = response.data
@@ -184,7 +187,8 @@ class RulesValidation extends React.Component {
 
     if (updatedRules) {
       message.loading({ content: 'Saving the rule...', key: 'ruleSaveProgress' });
-      await axios.put("http://localhost:5050/api/rules/files/validation/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
+      const { apiBaseUrl } = getConfig()
+      await axios.put(apiBaseUrl + "/api/rules/files/validation/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
       await this.setState({editRule: null, curRules: updatedRules})
       message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 });
     }
@@ -197,7 +201,8 @@ class RulesValidation extends React.Component {
       })
       if (updatedRules) {
         message.loading({ content: 'Deleting rule...', key: 'deleteProgress' });
-        await axios.put("http://localhost:5050/api/rules/files/validation/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
+        const { apiBaseUrl } = getConfig()
+        await axios.put(apiBaseUrl + "/api/rules/files/validation/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
         message.success({ content: 'Deleted', key: 'deleteProgress', duration: 2 });
         this.setState({editRule: null, curRules: updatedRules})
       }
@@ -206,7 +211,8 @@ class RulesValidation extends React.Component {
 
   handleNewRulesFileClick = async (fileName) => {
     message.loading({ content: 'Creating new file...', key: 'fileNewProgress' });
-    await axios.put("http://localhost:5050/api/rules/files/validation/" + fileName)
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/rules/files/validation/" + fileName)
     await this.getValidationRulesFiles()
     await this.setState({selectedRuleFile: fileName, ruleItemActive: null})
     message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
@@ -215,7 +221,8 @@ class RulesValidation extends React.Component {
 
   handleRuleFileDelete = async () => {
     message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' });
-    await axios.delete("http://localhost:5050/api/rules/files/validation/" + this.state.selectedRuleFile)
+    const { apiBaseUrl } = getConfig()
+    await axios.delete(apiBaseUrl + "/api/rules/files/validation/" + this.state.selectedRuleFile)
     await this.getValidationRulesFiles()
     await this.setState({selectedRuleFile: null, ruleItemActive: null})
     message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 });
@@ -223,7 +230,8 @@ class RulesValidation extends React.Component {
 
   handleRuleFileSetActive = async () => {
     message.loading({ content: 'Activating rule file...', key: 'activateFileProgress' });
-    await axios.put("http://localhost:5050/api/rules/files/validation", { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/rules/files/validation", { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
     await this.getValidationRulesFiles()
     this.updateRulesFileDisplay()
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });

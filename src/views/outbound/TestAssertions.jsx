@@ -35,6 +35,7 @@ import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-eclipse";
+import getConfig from '../../utils/getConfig'
 
 const { Option } = Select;
 const { Panel } = Collapse;
@@ -457,17 +458,20 @@ class AssertionEditor extends React.Component {
   }
 
   getDefinition = async (apiType, version) => {
-    const response = await axios.get(`http://localhost:5050/api/openapi/definition/${apiType}/${version}`)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/definition/${apiType}/${version}`)
     return response.data
   }
 
   getResponseMap = async (apiType, version) => {
-    const response = await axios.get(`http://localhost:5050/api/openapi/response_map/${apiType}/${version}`)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/response_map/${apiType}/${version}`)
     return response.data
   }
 
   getCallbackMap = async (apiType, version) => {
-    const response = await axios.get(`http://localhost:5050/api/openapi/callback_map/${apiType}/${version}`)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/callback_map/${apiType}/${version}`)
     return response.data
   }
 
