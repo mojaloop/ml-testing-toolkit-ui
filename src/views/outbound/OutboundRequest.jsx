@@ -38,6 +38,7 @@ import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Up
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
+import getConfig from '../../utils/getConfig'
 
 class InputValues extends React.Component {
 
@@ -269,7 +270,8 @@ class OutboundRequest extends React.Component {
 
     const outboundRequestID = Math.random().toString(36).substring(7);
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
-    await axios.post("http://localhost:5050/api/outbound/template/" + outboundRequestID, this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    const { apiBaseUrl } = getConfig()
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, this.state.template, { headers: { 'Content-Type': 'application/json' } })
     message.success({ content: 'Test case initiated', key: 'outboundSendProgress', duration: 2 });
 
     // Set the status to waiting for all the requests

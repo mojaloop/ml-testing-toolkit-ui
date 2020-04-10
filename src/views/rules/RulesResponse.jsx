@@ -36,6 +36,7 @@ import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
 import ResponseRulesService from '../../services/rules/response'
+import getConfig from '../../utils/getConfig'
 
 const ResponseRulesServiceObj = new ResponseRulesService()
 const { Option } = Select;
@@ -182,7 +183,8 @@ class RulesResponse extends React.Component {
 
     if (updatedRules) {
       message.loading({ content: 'Saving the rule...', key: 'ruleSaveProgress' });
-      await axios.put("http://localhost:5050/api/rules/files/response/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
+      const { apiBaseUrl } = getConfig()
+      await axios.put(apiBaseUrl + "/api/rules/files/response/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
       this.setState({editRule: null, curRules: updatedRules})
       message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 });
     }
@@ -204,7 +206,8 @@ class RulesResponse extends React.Component {
 
   handleNewRulesFileClick = async (fileName) => {
     message.loading({ content: 'Creating new file...', key: 'fileNewProgress' });
-    await axios.put("http://localhost:5050/api/rules/files/response/" + fileName)
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/rules/files/response/" + fileName)
     await this.getResponseRulesFiles()
     await this.setState({selectedRuleFile: fileName, ruleItemActive: null})
     message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
@@ -213,7 +216,8 @@ class RulesResponse extends React.Component {
 
   handleRuleFileDelete = async () => {
     message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' });
-    await axios.delete("http://localhost:5050/api/rules/files/response/" + this.state.selectedRuleFile)
+    const { apiBaseUrl } = getConfig()
+    await axios.delete(apiBaseUrl + "/api/rules/files/response/" + this.state.selectedRuleFile)
     await this.getResponseRulesFiles()
     await this.setState({selectedRuleFile: null, ruleItemActive: null})
     message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 });
@@ -221,7 +225,8 @@ class RulesResponse extends React.Component {
 
   handleRuleFileSetActive = async () => {
     message.loading({ content: 'Activating rule file...', key: 'activateFileProgress' });
-    await axios.put("http://localhost:5050/api/rules/files/response", { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/rules/files/response", { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
     await this.getResponseRulesFiles()
     this.updateRulesFileDisplay()
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });

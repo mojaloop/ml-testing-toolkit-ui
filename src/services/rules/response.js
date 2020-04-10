@@ -1,8 +1,10 @@
 import axios from 'axios'
+import getConfig from '../../utils/getConfig'
 
 class ResponseRulesService {
   async fetchResponseRulesFiles () {
-    const response = await axios.get("http://localhost:5050/api/rules/files/response")
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + "/api/rules/files/response")
     if(typeof response.data === 'object') {
       return response.data
     }
@@ -10,7 +12,8 @@ class ResponseRulesService {
   }
 
   async fetchResponseRulesFileContent (ruleFile) {
-    const response = await axios.get("http://localhost:5050/api/rules/files/response/" + ruleFile)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + "/api/rules/files/response/" + ruleFile)
     let curRules = []
     if (response.data && Array.isArray(response.data)) {
       curRules = response.data
@@ -19,7 +22,8 @@ class ResponseRulesService {
   }
 
   async updateResponseRulesFileContent (ruleFile, updatedRules) {
-    await axios.put("http://localhost:5050/api/rules/files/response/" + ruleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/rules/files/response/" + ruleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
     return true
   }
 

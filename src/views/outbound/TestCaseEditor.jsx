@@ -43,6 +43,7 @@ import axios from 'axios';
 import './fixAce.css';
 import RequestBuilder from './RequestBuilder'
 import TestAssertions from './TestAssertions'
+import getConfig from '../../utils/getConfig'
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -257,25 +258,29 @@ class RequestGenerator extends React.Component {
   };
 
   getApiVersions = async () => {
-    const response = await axios.get("http://localhost:5050/api/openapi/api_versions")
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + "/api/openapi/api_versions")
     return response.data
   }
 
   getDefinition = async (apiType, version) => {
-    const response = await axios.get(`http://localhost:5050/api/openapi/definition/${apiType}/${version}`)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/definition/${apiType}/${version}`)
     // console.log(response.data)
     return response.data
     // this.setState(  { openApiDefinition: response.data } )
   }
 
   getResponseMap = async (apiType, version) => {
-    const response = await axios.get(`http://localhost:5050/api/openapi/response_map/${apiType}/${version}`)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/response_map/${apiType}/${version}`)
     return response.data
     // this.setState(  { callbackMap: response.data } )
   }
 
   getCallbackMap = async (apiType, version) => {
-    const response = await axios.get(`http://localhost:5050/api/openapi/callback_map/${apiType}/${version}`)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/callback_map/${apiType}/${version}`)
     return response.data
     // this.setState(  { callbackMap: response.data } )
   }

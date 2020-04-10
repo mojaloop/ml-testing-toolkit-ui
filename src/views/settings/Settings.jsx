@@ -35,6 +35,8 @@ import Header from "../../components/Headers/Header.jsx";
 import axios from 'axios';
 import RulesEditor from '../rules/RuleEditor'
 import RuleViewer from '../rules/RuleViewer'
+import getConfig from '../../utils/getConfig'
+
 
 class ParamInput extends React.Component {
 
@@ -204,13 +206,16 @@ class Settings extends React.Component {
     };
   }
 
+
   componentDidMount() {
     this.getUserConfiguration()
   }
 
   getUserConfiguration = async () => {
     message.loading({ content: 'Getting user config ...', key: 'getUserConfigProgress' });
-    const response = await axios.get("http://localhost:5050/api/config/user")
+    const { apiBaseUrl } = getConfig()
+    console.log('GVK', apiBaseUrl)
+    const response = await axios.get(apiBaseUrl + "/api/config/user")
     const userConfigRuntime = response.data.runtime
     const userConfigStored = response.data.stored
     await this.setState(  { userConfigRuntime, userConfigStored } )
@@ -219,7 +224,8 @@ class Settings extends React.Component {
 
   handleSaveUserConfig = async (newConfig) => {
     message.loading({ content: 'Saving user config ...', key: 'saveUserConfigProgress' });
-    await axios.put("http://localhost:5050/api/config/user", newConfig, { headers: { 'Content-Type': 'application/json' } })
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/config/user", newConfig, { headers: { 'Content-Type': 'application/json' } })
     await this.getUserConfiguration()
     message.success({ content: 'Saved', key: 'saveUserConfigProgress', duration: 2 });
   }

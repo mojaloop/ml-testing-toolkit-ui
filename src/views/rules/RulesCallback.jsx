@@ -35,6 +35,7 @@ import Header from "../../components/Headers/Header.jsx";
 import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
+import getConfig from '../../utils/getConfig'
 
 const { Option } = Select;
 const { SubMenu } = Menu;
@@ -61,7 +62,8 @@ class RulesCallback extends React.Component {
 
   getCallbackRulesFiles = async () => {
     message.loading({ content: 'Getting rules files...', key: 'getFilesProgress' });
-    const response = await axios.get("http://localhost:5050/api/rules/files/callback")
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + "/api/rules/files/callback")
     const activeRulesFile = response.data.activeRulesFile
     await this.setState(  { callbackRulesFiles: response.data.files, activeRulesFile } )
     message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
@@ -72,7 +74,8 @@ class RulesCallback extends React.Component {
   }
 
   getCallbackRulesFileContent = async (ruleFile) => {
-    const response = await axios.get("http://localhost:5050/api/rules/files/callback/" + ruleFile)
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + "/api/rules/files/callback/" + ruleFile)
     let curRules = []
     if (response.data && Array.isArray(response.data)) {
       curRules = response.data
@@ -183,7 +186,8 @@ class RulesCallback extends React.Component {
 
     if (updatedRules) {
       message.loading({ content: 'Saving the rule...', key: 'ruleSaveProgress' });
-      await axios.put("http://localhost:5050/api/rules/files/callback/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
+      const { apiBaseUrl } = getConfig()
+      await axios.put(apiBaseUrl + "/api/rules/files/callback/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
       this.setState({editRule: null, curRules: updatedRules})
       message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 });
     }
@@ -196,7 +200,8 @@ class RulesCallback extends React.Component {
       })
       if (updatedRules) {
         message.loading({ content: 'Deleting rule...', key: 'deleteProgress' });
-        await axios.put("http://localhost:5050/api/rules/files/callback/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
+        const { apiBaseUrl } = getConfig()
+        await axios.put(apiBaseUrl + "/api/rules/files/callback/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
         message.success({ content: 'Deleted', key: 'deleteProgress', duration: 2 });
         this.setState({editRule: null, curRules: updatedRules})
       }
@@ -205,7 +210,8 @@ class RulesCallback extends React.Component {
 
   handleNewRulesFileClick = async (fileName) => {
     message.loading({ content: 'Creating new file...', key: 'fileNewProgress' });
-    await axios.put("http://localhost:5050/api/rules/files/callback/" + fileName)
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/rules/files/callback/" + fileName)
     await this.getCallbackRulesFiles()
     await this.setState({selectedRuleFile: fileName, ruleItemActive: null})
     message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
@@ -214,7 +220,8 @@ class RulesCallback extends React.Component {
 
   handleRuleFileDelete = async () => {
     message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' });
-    await axios.delete("http://localhost:5050/api/rules/files/callback/" + this.state.selectedRuleFile)
+    const { apiBaseUrl } = getConfig()
+    await axios.delete(apiBaseUrl + "/api/rules/files/callback/" + this.state.selectedRuleFile)
     await this.getCallbackRulesFiles()
     await this.setState({selectedRuleFile: null, ruleItemActive: null})
     message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 });
@@ -222,7 +229,8 @@ class RulesCallback extends React.Component {
 
   handleRuleFileSetActive = async () => {
     message.loading({ content: 'Activating rule file...', key: 'activateFileProgress' });
-    await axios.put("http://localhost:5050/api/rules/files/callback", { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/rules/files/callback", { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
     await this.getCallbackRulesFiles()
     this.updateRulesFileDisplay()
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });
