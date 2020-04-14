@@ -121,9 +121,6 @@ class ApiVersionSelector extends React.Component {
   }
   apiVersionOptions = []
 
-  componentDidUpdate = () => {
-    console.log(this.props.apiVersions)
-  }
   getApiVersionOptions = () => {
     let apiVersionsFiltered
     if (this.props.mode !== 'response') {
