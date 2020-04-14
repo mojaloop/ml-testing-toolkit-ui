@@ -70,9 +70,13 @@ class ResourceSelector extends React.Component {
           switch(methodKey) {
             case 'get':
             case 'post':
-              // if (pathKey === '/parties/{Type}/{ID}' || pathKey === '/quotes' || pathKey === '/transfers') {
-                this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)                
-              // }
+              if(this.props.mode === 'response') {
+                this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
+              } else {
+                if (pathKey === '/parties/{Type}/{ID}' || pathKey === '/quotes' || pathKey === '/transfers') {
+                  this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)                
+                }
+              }
               break
           }
         }
@@ -117,8 +121,17 @@ class ApiVersionSelector extends React.Component {
   }
   apiVersionOptions = []
 
+  componentDidUpdate = () => {
+    console.log(this.props.apiVersions)
+  }
   getApiVersionOptions = () => {
-    this.apiVersionOptions = this.props.apiVersions.map((item, index) => {
+    let apiVersionsFiltered
+    if (this.props.mode !== 'response') {
+      apiVersionsFiltered = this.props.apiVersions.filter(item => item.asynchronous)
+    } else {
+      apiVersionsFiltered = this.props.apiVersions
+    }
+    this.apiVersionOptions = apiVersionsFiltered.map((item, index) => {
       return (
         <Option key={index} value={JSON.stringify(item)}>{item.type} {item.majorVersion}.{item.minorVersion}</Option>
       )
@@ -469,13 +482,13 @@ class RulesEditor extends React.Component {
                         <tr>
                           <td align='right'><b>API:</b></td>
                           <td>
-                            <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
+                            <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} mode={this.props.mode} onSelect={this.apiVersionSelectHandler} />
                           </td>
                         </tr>
                         <tr>
                           <td align='right'><b>Resource:</b></td>
                           <td>
-                            <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                            <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} mode={this.props.mode} onSelect={this.resourceSelectHandler} />
                           </td>
                         </tr>
                         </tbody>
