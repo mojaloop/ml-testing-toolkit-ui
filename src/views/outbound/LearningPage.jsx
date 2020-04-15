@@ -633,7 +633,7 @@ class LearningPage extends React.Component {
                             </span>
                           </Row>
                           <Row>
-                            <Col span={8}>
+                            <Col span={10}>
                               <Upload 
                                 accept = '.json'
                                 showUploadList = {false}
@@ -659,7 +659,7 @@ class LearningPage extends React.Component {
                                 Load Sample Template
                               </Button>
                             </Col>
-                            <Col span={8} className="text-center">
+                            <Col span={4} className="text-center">
                             {
                               this.state.totalAssertionsCount > 0
                               ? (
@@ -672,7 +672,7 @@ class LearningPage extends React.Component {
                               : null
                             }
                             </Col>
-                            <Col span={8}>
+                            <Col span={10}>
                               <Button
                                 className="float-right"
                                 color="danger"

@@ -206,7 +206,11 @@ export class IncomingMonitor extends React.Component {
   componentDidMount() {
     const { apiBaseUrl } = getConfig()
     this.socket = socketIOClient(apiBaseUrl);
-    this.socket.on("newLog/" + this.props.sessionId, newLog => {
+    let subscriptionTopic = "newLog"
+    if (this.props.sessionId) {
+      subscriptionTopic = "newLog/" + this.props.sessionId
+    }
+    this.socket.on(subscriptionTopic, newLog => {
       // console.log('New log received', newLog)
       this.state.logs.push(newLog)
 
