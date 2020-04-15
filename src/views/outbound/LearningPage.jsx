@@ -40,6 +40,9 @@ import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
 import getConfig from '../../utils/getConfig'
 import { IncomingMonitor } from '../monitor/Monitor'
+import TraceHeaderUtils from '../../utils/TraceHeaderUtils'
+
+const traceHeaderUtilsObj = new TraceHeaderUtils()
 
 class InputValues extends React.Component {
 
@@ -157,6 +160,7 @@ class LearningPage extends React.Component {
 
   constructor() {
     super();
+    const sessionId = traceHeaderUtilsObj.generateSessionId()
     this.state = {
       request: {},
       template: {},
@@ -171,7 +175,8 @@ class LearningPage extends React.Component {
       showTestCaseIndex: null,
       renameTestCase: false,
       totalPassedCount: 0,
-      totalAssertionsCount: 0
+      totalAssertionsCount: 0,
+      sessionId: sessionId
     };
   }
 
@@ -187,11 +192,12 @@ class LearningPage extends React.Component {
   }
   
   componentDidMount = () => {
-    // const sampleTemplate = require('./sample1.json')
-    // this.setState({template: sampleTemplate})
+
+    // Create a outbound ID (4 hex chars)
+
     const { apiBaseUrl } = getConfig()
     this.socket = socketIOClient(apiBaseUrl);
-    this.socket.on("outboundProgress", this.handleIncomingProgress);
+    this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
 
     const storedTemplate = this.restoreSavedTemplate()
     if (storedTemplate) {
@@ -270,11 +276,16 @@ class LearningPage extends React.Component {
     this.state.totalPassedCount = 0
     this.state.totalAssertionsCount = 0
 
-    const outboundRequestID = Math.random().toString(36).substring(7);
+    // const outboundRequestID = Math.random().toString(36).substring(7);
+    // TraceID
+    const traceIdPrefix = traceHeaderUtilsObj.getTraceIdPrefix()
+    const endToEndId = traceHeaderUtilsObj.generateEndToEndId()
+    const traceId = traceIdPrefix + this.state.sessionId + endToEndId
+    console.log('Trace ID is ', traceId)
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     this.state.template = this.convertTemplate(this.state.template)
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, this.state.template, { headers: { 'Content-Type': 'application/json' } })
     message.success({ content: 'Test case initiated', key: 'outboundSendProgress', duration: 2 });
 
     // Set the status to waiting for all the requests
@@ -745,7 +756,7 @@ class LearningPage extends React.Component {
                   </Row>
                 </Col>
                 <Col span={10} className="pl-2" >
-                  <IncomingMonitor />
+                  <IncomingMonitor sessionId={this.state.sessionId} />
                 </Col>
               </Row>
             </Col>
