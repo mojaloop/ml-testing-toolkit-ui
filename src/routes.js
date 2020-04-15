@@ -20,6 +20,7 @@ import RulesResponse from "./views/rules/RulesResponse.jsx";
 import RulesValidation from "./views/rules/RulesValidation.jsx";
 import RulesCallback from "./views/rules/RulesCallback.jsx";
 import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
+import LearningPage from "./views/outbound/LearningPage.jsx";
 import Monitor from "./views/monitor/Monitor.jsx";
 import Settings from "./views/settings/Settings.jsx";
 
@@ -75,6 +76,13 @@ var routes = [
     icon: "ni ni-settings text-blue",
     component: Settings,
     layout: "/admin"
+  },
+  {
+    path: "/demo",
+    name: "Demo",
+    icon: "ni ni-money-coins text-blue",
+    component: LearningPage,
+    layout: "/user"
   },
   // {
   //   path: "/icons",
