@@ -1,13 +1,28 @@
 version: "3.7"
 
 services:
-  mojaloop-testing-toolkit-ui:
-    image: mojaloop-testing-toolkit-ui:local
+  mojaloop-testing-toolkit-ui-sas:
+    image: mojaloop-testing-toolkit-ui-sas:local
     build:
       context: .
     ports:
-      - "6060:6060"
+      - "80:6060"
     command:
       - nginx
       - -g
       - "daemon off;"
+  mojaloop-testing-toolkit:
+    image: mojaloop/ml-testing-toolkit:v9.5.3-snapshot
+    env_file: ./local.env
+    volumes:
+      - "./spec_files:/opt/mojaloop-testing-toolkit/spec_files"
+    ports:
+      - "5000:5000"
+      - "5050:5050"
+    command:
+      - sh
+      - -c
+      - "npm start"
+networks:
+  default:
+    name: mojaloop-testing-toolkit
