@@ -12,7 +12,7 @@ services:
       - -g
       - "daemon off;"
   mojaloop-testing-toolkit:
-    image: mojaloop/ml-testing-toolkit:v9.5.3-snapshot
+    image: mojaloop/ml-testing-toolkit:v9.5.4-snapshot
     env_file: ./local.env
     volumes:
       - "./spec_files:/opt/mojaloop-testing-toolkit/spec_files"
