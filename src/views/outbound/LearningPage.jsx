@@ -16,7 +16,7 @@
 
 */
 import React from "react";
- 
+
 // reactstrap components
 import {
   Card,
@@ -61,22 +61,22 @@ class InputValues extends React.Component {
     for (let inputValueName in this.props.values) {
       inputItems.push(
         <>
-        <Descriptions.Item label={inputValueName}>
-          <Row gutter={8}>
-            <Col span={23}>
-              <Input
-                value={this.props.values[inputValueName]}
-                onChange={(e) => this.props.onChange(inputValueName, e.target.value)}
-              />
-            </Col>
-            <Col span={1}>
-              <Icon key={inputValueName} type="delete" theme="filled"
-                onClick={ () => this.handleDeleteClick(inputValueName) }
-              />
-            </Col>
-          </Row>
-          
-        </Descriptions.Item>
+          <Descriptions.Item label={inputValueName}>
+            <Row gutter={8}>
+              <Col span={23}>
+                <Input
+                  value={this.props.values[inputValueName]}
+                  onChange={(e) => this.props.onChange(inputValueName, e.target.value)}
+                />
+              </Col>
+              <Col span={1}>
+                <Icon key={inputValueName} type="delete" theme="filled"
+                  onClick={() => this.handleDeleteClick(inputValueName)}
+                />
+              </Col>
+            </Row>
+
+          </Descriptions.Item>
         </>
       )
     }
@@ -95,22 +95,22 @@ class InputValues extends React.Component {
   }
 
 
-  render () {
+  render() {
     const addInputValueDialogContent = (
       <>
-      <Input 
-        placeholder="Input Value Name"
-        type="text"
-        value={this.state.newInputValueName}
-        onChange={(e) => { this.setState({newInputValueName: e.target.value })}}
-      />
-      <Button
+        <Input
+          placeholder="Input Value Name"
+          type="text"
+          value={this.state.newInputValueName}
+          onChange={(e) => { this.setState({ newInputValueName: e.target.value }) }}
+        />
+        <Button
           className="text-right mt-2"
           color="success"
           href="#pablo"
-          onClick={ () => {
+          onClick={() => {
             this.handleAddInputValue(this.state.newInputValueName)
-            this.setState({addInputValueDialogVisible: false})
+            this.setState({ addInputValueDialogVisible: false })
           }}
           size="sm"
         >
@@ -121,35 +121,38 @@ class InputValues extends React.Component {
 
     return (
       <>
-      <Row gutter={16}>
-        <Col span={24}>
-          <Card className="bg-white shadow">
-            <CardBody>
-              <Popover
-                content={addInputValueDialogContent}
-                title="Enter a new name"
-                trigger="click"
-                visible={this.state.addInputValueDialogVisible}
-                onVisibleChange={ (visible) => this.setState({addInputValueDialogVisible: visible})}
-              >
-                <Button
+        <Row gutter={16}>
+          <Col span={24}>
+            <Card className="bg-white shadow">
+              <CardBody>
+                <Popover
+                  content={addInputValueDialogContent}
+                  title="Enter a new name"
+                  trigger="click"
+                  visible={this.state.addInputValueDialogVisible}
+                  onVisibleChange={(visible) => this.setState({ addInputValueDialogVisible: visible })}
+                >
+                  <Button
                     className="text-right float-right"
                     color="primary"
                     size="sm"
                   >
                     Add Input Value
                 </Button>
-              </Popover>
+                </Popover>
 
-              <Form>
-                <Descriptions title="Input Values" bordered column={3} size='small'>
-                  {this.getInputItems()}
-                </Descriptions>
-              </Form>
-            </CardBody>
-          </Card>
-        </Col>
-      </Row>
+                <Form>
+                  <Descriptions title="Input Values"
+                    bordered 
+                    column={{ xxl: 4, xl: 3, lg: 2, md: 2, md: 2, sm: 1, xs: 1 }}
+                    size='small'>
+                    {this.getInputItems()}
+                  </Descriptions>
+                </Form>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
       </>
     )
   }
@@ -186,11 +189,11 @@ class LearningPage extends React.Component {
 
   componentWillUnmount = () => {
     this.socket.disconnect()
-    if(this.autoSaveIntervalId) {
+    if (this.autoSaveIntervalId) {
       clearInterval(this.autoSaveIntervalId)
     }
   }
-  
+
   componentDidMount = () => {
 
     // Create a outbound ID (4 hex chars)
@@ -201,14 +204,14 @@ class LearningPage extends React.Component {
 
     const storedTemplate = this.restoreSavedTemplate()
     if (storedTemplate) {
-      this.setState({template: storedTemplate})
+      this.setState({ template: storedTemplate })
     }
     const additionalData = this.restoreAdditionalData()
     if (additionalData) {
-      this.setState({additionalData: additionalData})
+      this.setState({ additionalData: additionalData })
     }
 
-    
+
 
     this.startAutoSaveTemplateTimer()
 
@@ -261,7 +264,7 @@ class LearningPage extends React.Component {
               testCase.requests[i].status.requestSent = null
               testCase.requests[i].status.testResult = null
             }
-            
+
           }
           // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
         }
@@ -330,7 +333,7 @@ class LearningPage extends React.Component {
   convertTemplate = (template) => {
     let { test_cases, ...remainingTestCaseProps } = template
     let newTestCases = test_cases
-    if(test_cases) {
+    if (test_cases) {
       newTestCases = test_cases.map(testCase => {
         if (testCase.requests) {
           let { requests, ...remainingProps } = testCase
@@ -349,9 +352,9 @@ class LearningPage extends React.Component {
 
   handleCreateNewTestCaseClick = (testCaseName) => {
     // Find highest request id to determine the new ID
-    let maxId = +this.state.template.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+    let maxId = +this.state.template.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
 
-    this.state.template.test_cases.push({ id: maxId+1, name: testCaseName })
+    this.state.template.test_cases.push({ id: maxId + 1, name: testCaseName })
     this.forceUpdate()
     this.autoSave = true
   }
@@ -362,13 +365,13 @@ class LearningPage extends React.Component {
       inputValues: {},
       test_cases: []
     }
-    this.setState({template: newTemplate, additionalData: { importedFilename: '' }})
+    this.setState({ template: newTemplate, additionalData: { importedFilename: '' } })
     this.autoSave = true
   }
 
   download = (content, fileName, contentType) => {
     var a = document.createElement("a");
-    var file = new Blob([content], {type: contentType});
+    var file = new Blob([content], { type: contentType });
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
@@ -376,33 +379,33 @@ class LearningPage extends React.Component {
 
   restoreSavedTemplate = () => {
     const storedTemplate = localStorage.getItem('template')
-    if(storedTemplate) {
+    if (storedTemplate) {
       try {
         return JSON.parse(storedTemplate)
-      } catch(err) {}
+      } catch (err) { }
     }
     return null
   }
 
   restoreAdditionalData = () => {
     const additionalData = localStorage.getItem('additionalData')
-    if(additionalData) {
+    if (additionalData) {
       try {
         return JSON.parse(additionalData)
-      } catch(err) {}
+      } catch (err) { }
     }
     return {}
   }
 
   startAutoSaveTemplateTimer = () => {
-    this.autoSaveIntervalId = setInterval ( () => {
+    this.autoSaveIntervalId = setInterval(() => {
       if (this.autoSave) {
         this.autoSave = false
         this.autoSaveTemplate(this.convertTemplate(this.state.template))
-        this.autoSaveAdditionalData( this.state.additionalData )
+        this.autoSaveAdditionalData(this.state.additionalData)
       }
     },
-    2000)
+      2000)
   }
 
   autoSaveTemplate = (template) => {
@@ -429,7 +432,7 @@ class LearningPage extends React.Component {
       try {
         var intern = JSON.parse(content);
         console.log(file_to_read)
-        this.setState({template: intern, additionalData: { importedFilename: file_to_read.name }})
+        this.setState({ template: intern, additionalData: { importedFilename: file_to_read.name } })
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
       } catch (err) {
@@ -439,11 +442,11 @@ class LearningPage extends React.Component {
     fileRead.readAsText(file_to_read);
 
   }
-  
+
   handleLoadSampleTemplate = () => {
     const sampleJson = JSON.parse(JSON.stringify(require('./sample1.json')))
     console.log(sampleJson)
-    this.setState({template: sampleJson, additionalData: { importedFilename: 'Sample' }})
+    this.setState({ template: sampleJson, additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
     message.success({ content: 'Sample Loaded', key: 'importFileProgress', duration: 2 })
   }
@@ -455,18 +458,18 @@ class LearningPage extends React.Component {
 
   handleTestCaseDelete = (testCaseId) => {
     const deleteIndex = this.state.template.test_cases.findIndex(item => item.id == testCaseId)
-    this.state.template.test_cases.splice(deleteIndex,1)
+    this.state.template.test_cases.splice(deleteIndex, 1)
     this.handleTestCaseChange()
   }
 
   handleTestCaseDuplicate = (testCaseId) => {
     const { id, name, ...otherProps } = this.state.template.test_cases.find(item => item.id == testCaseId)
     // Find highest request id to determine the new ID
-    let maxId = +this.state.template.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+    let maxId = +this.state.template.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
     // Deep copy other properties
     const clonedProps = JSON.parse(JSON.stringify(otherProps))
 
-    this.state.template.test_cases.push({ id: maxId+1, name: name + ' Copy', ...clonedProps })
+    this.state.template.test_cases.push({ id: maxId + 1, name: name + ' Copy', ...clonedProps })
     this.handleTestCaseChange()
   }
 
@@ -480,7 +483,7 @@ class LearningPage extends React.Component {
                 testCase={testCase}
                 onChange={this.handleTestCaseChange}
                 inputValues={this.state.template.inputValues}
-                onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
+                onEdit={() => { this.setState({ showTestCaseIndex: testCaseIndex }) }}
                 onDelete={this.handleTestCaseDelete}
                 onDuplicate={this.handleTestCaseDuplicate}
                 onRename={this.handleTestCaseChange}
@@ -497,19 +500,19 @@ class LearningPage extends React.Component {
 
     const createNewTestCaseDialogContent = (
       <>
-      <Input 
-        placeholder="Test case name"
-        type="text"
-        value={this.state.newTestCaseName}
-        onChange={(e) => { this.setState({newTestCaseName: e.target.value })}}
-      />
-      <Button
+        <Input
+          placeholder="Test case name"
+          type="text"
+          value={this.state.newTestCaseName}
+          onChange={(e) => { this.setState({ newTestCaseName: e.target.value }) }}
+        />
+        <Button
           className="text-right mt-2"
           color="success"
           href="#pablo"
-          onClick={ () => {
+          onClick={() => {
             this.handleCreateNewTestCaseClick(this.state.newTestCaseName)
-            this.setState({createNewTestCaseDialogVisible: false})
+            this.setState({ createNewTestCaseDialogVisible: false })
           }}
           size="sm"
         >
@@ -520,19 +523,19 @@ class LearningPage extends React.Component {
 
     const createNewTemplateDialogContent = (
       <>
-      <Input 
-        placeholder="Template name"
-        type="text"
-        value={this.state.newTemplateName}
-        onChange={(e) => { this.setState({newTemplateName: e.target.value })}}
-      />
-      <Button
+        <Input
+          placeholder="Template name"
+          type="text"
+          value={this.state.newTemplateName}
+          onChange={(e) => { this.setState({ newTemplateName: e.target.value }) }}
+        />
+        <Button
           className="text-right mt-2"
           color="success"
           href="#pablo"
-          onClick={ () => {
+          onClick={() => {
             this.handleCreateNewTemplateClick(this.state.newTemplateName)
-            this.setState({createNewTemplateDialogVisible: false})
+            this.setState({ createNewTemplateDialogVisible: false })
           }}
           size="sm"
         >
@@ -543,19 +546,19 @@ class LearningPage extends React.Component {
 
     const saveTemplateDialogContent = (
       <>
-      <Input 
-        placeholder="File name"
-        type="text"
-        value={this.state.saveTemplateFileName}
-        onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
-      />
-      <Button
+        <Input
+          placeholder="File name"
+          type="text"
+          value={this.state.saveTemplateFileName}
+          onChange={(e) => { this.setState({ saveTemplateFileName: e.target.value }) }}
+        />
+        <Button
           className="text-right mt-2"
           color="success"
           href="#pablo"
-          onClick={ () => {
+          onClick={() => {
             this.handleTemplateSaveClick(this.state.saveTemplateFileName)
-            this.setState({saveTemplateDialogVisible: false})
+            this.setState({ saveTemplateDialogVisible: false })
           }}
           size="sm"
         >
@@ -572,9 +575,9 @@ class LearningPage extends React.Component {
           forceRender
           title="Template"
           className="w-50 p-3"
-          visible={this.state.showTemplate? true : false}
+          visible={this.state.showTemplate ? true : false}
           footer={null}
-          onCancel={() => { this.setState({showTemplate: false})}}
+          onCancel={() => { this.setState({ showTemplate: false }) }}
         >
           <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
         </Modal>
@@ -584,16 +587,16 @@ class LearningPage extends React.Component {
           forceRender
           title="Test Case Editor"
           width='90%'
-          visible={this.state.showTestCaseIndex!=null? true : false}
+          visible={this.state.showTestCaseIndex != null ? true : false}
           footer={null}
-          onCancel={() => { this.setState({showTestCaseIndex: null})}}
+          onCancel={() => { this.setState({ showTestCaseIndex: null }) }}
         >
           {
-            this.state.showTestCaseIndex!=null
-            ? (
-              <TestCaseEditor testCase={this.state.template.test_cases[this.state.showTestCaseIndex]} onChange={this.handleTestCaseChange} inputValues={this.state.template.inputValues} />
-            )
-            : null
+            this.state.showTestCaseIndex != null
+              ? (
+                <TestCaseEditor testCase={this.state.template.test_cases[this.state.showTestCaseIndex]} onChange={this.handleTestCaseChange} inputValues={this.state.template.inputValues} />
+              )
+              : null
           }
         </Modal>
         <Header />
@@ -603,7 +606,7 @@ class LearningPage extends React.Component {
             <Col span={24}>
               <Row>
                 <Col span={14}>
-                  <Affix offsetTop={2}>
+                  {/* <Affix offsetTop={2}> */}
                   <Row>
                     <Col>
                       <Card className="bg-white shadow mb-2">
@@ -612,32 +615,32 @@ class LearningPage extends React.Component {
                             <span>
                               {
                                 this.state.template.name
-                                ? (
-                                  <>
-                                  <b>Template Name:</b> { this.state.template.name }
-                                  </>
-                                )
-                                : ''
+                                  ? (
+                                    <>
+                                      <b>Template Name:</b> {this.state.template.name}
+                                    </>
+                                  )
+                                  : ''
                               }
-                              </span>
-                              <span className='ml-4'>
-                              { 
+                            </span>
+                            <span className='ml-4'>
+                              {
                                 this.state.additionalData.importedFilename
-                                ?  (
-                                  <>
-                                  <b>Imported File Name:</b> { this.state.additionalData.importedFilename }
-                                  </>
-                                )
-                                : ''
+                                  ? (
+                                    <>
+                                      <b>Imported File Name:</b> {this.state.additionalData.importedFilename}
+                                    </>
+                                  )
+                                  : ''
                               }
                             </span>
                           </Row>
                           <Row>
                             <Col span={10}>
-                              <Upload 
-                                accept = '.json'
-                                showUploadList = {false}
-                                beforeUpload = {file => {
+                              <Upload
+                                accept='.json'
+                                showUploadList={false}
+                                beforeUpload={file => {
                                   this.handleImportFile(file)
                                   return false;
                                 }}
@@ -656,22 +659,22 @@ class LearningPage extends React.Component {
                                 color="info"
                                 size="sm"
                                 onClick={this.handleLoadSampleTemplate}
-                                >
+                              >
                                 Load Sample Template
                               </Button>
                             </Col>
                             <Col span={4} className="text-center">
-                            {
-                              this.state.totalAssertionsCount > 0
-                              ? (
-                                <>
-                                <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
+                              {
+                                this.state.totalAssertionsCount > 0
+                                  ? (
+                                    <>
+                                      <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
 
-                                <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
-                                </>
-                              )
-                              : null
-                            }
+                                      <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
+                                    </>
+                                  )
+                                  : null
+                              }
                             </Col>
                             <Col span={10}>
                               <Button
@@ -688,21 +691,21 @@ class LearningPage extends React.Component {
                                 title="Enter filename to save"
                                 trigger="click"
                                 visible={this.state.saveTemplateDialogVisible}
-                                onVisibleChange={ (visible) => this.setState({saveTemplateDialogVisible: visible})}
+                                onVisibleChange={(visible) => this.setState({ saveTemplateDialogVisible: visible })}
                               >
                                 <Button
-                                    className="text-right float-right m-1"
-                                    color="success"
-                                    size="sm"
-                                  >
-                                    Save
+                                  className="text-right float-right m-1"
+                                  color="success"
+                                  size="sm"
+                                >
+                                  Save
                                 </Button>
                               </Popover>
                               <Button
                                 className="float-right m-1"
                                 color="info"
                                 size="sm"
-                                onClick={() => { this.setState({showTemplate: true})}}
+                                onClick={() => { this.setState({ showTemplate: true }) }}
                               >
                                 Show Template
                               </Button>
@@ -712,30 +715,30 @@ class LearningPage extends React.Component {
                                 title="Enter a name for the template"
                                 trigger="click"
                                 visible={this.state.createNewTemplateDialogVisible}
-                                onVisibleChange={ (visible) => this.setState({createNewTemplateDialogVisible: visible})}
+                                onVisibleChange={(visible) => this.setState({ createNewTemplateDialogVisible: visible })}
                               >
                                 <Button
-                                    className="text-right float-right"
-                                    color="primary"
-                                    size="sm"
-                                  >
-                                    New Template
+                                  className="text-right float-right"
+                                  color="primary"
+                                  size="sm"
+                                >
+                                  New Template
                                 </Button>
                               </Popover>
                             </Col>
                           </Row>
                         </CardBody>
-                        </Card>
+                      </Card>
                     </Col>
                   </Row>
-                  </Affix>
+                  {/* </Affix> */}
                   <Row>
                     <Col>
                       <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
                     </Col>
                   </Row>
                   <Row className="pt-2">
-                    { this.getTestCaseItems() }
+                    {this.getTestCaseItems()}
                   </Row>
                   <Row>
                     <Popover
@@ -744,14 +747,14 @@ class LearningPage extends React.Component {
                       title="Enter a name for the template"
                       trigger="click"
                       visible={this.state.createNewTestCaseDialogVisible}
-                      onVisibleChange={ (visible) => this.setState({createNewTestCaseDialogVisible: visible})}
+                      onVisibleChange={(visible) => this.setState({ createNewTestCaseDialogVisible: visible })}
                     >
                       <Button
-                          className="text-left float-left mb-2 mt-2"
-                          color="primary"
-                          size="sm"
-                        >
-                          Add Test Case
+                        className="text-left float-left mb-2 mt-2"
+                        color="primary"
+                        size="sm"
+                      >
+                        Add Test Case
                       </Button>
                     </Popover>
                   </Row>
