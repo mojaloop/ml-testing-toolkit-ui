@@ -643,6 +643,7 @@ class LearningPage extends React.Component {
                                 }}
                               >
                                 <Button
+                                  className="m-1"
                                   color="success"
                                   size="sm"
                                   onClick={e => e.preventDefault()}
@@ -651,7 +652,7 @@ class LearningPage extends React.Component {
                                 </Button>
                               </Upload>
                               <Button
-                                className="ml-2"
+                                className="m-1"
                                 color="info"
                                 size="sm"
                                 onClick={this.handleLoadSampleTemplate}
@@ -674,7 +675,7 @@ class LearningPage extends React.Component {
                             </Col>
                             <Col span={10}>
                               <Button
-                                className="float-right"
+                                className="float-right m-1"
                                 color="danger"
                                 size="sm"
                                 onClick={this.handleSendClick}
@@ -690,7 +691,7 @@ class LearningPage extends React.Component {
                                 onVisibleChange={ (visible) => this.setState({saveTemplateDialogVisible: visible})}
                               >
                                 <Button
-                                    className="text-right float-right"
+                                    className="text-right float-right m-1"
                                     color="success"
                                     size="sm"
                                   >
@@ -698,7 +699,7 @@ class LearningPage extends React.Component {
                                 </Button>
                               </Popover>
                               <Button
-                                className="float-right"
+                                className="float-right m-1"
                                 color="info"
                                 size="sm"
                                 onClick={() => { this.setState({showTemplate: true})}}
