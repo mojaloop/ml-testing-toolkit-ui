@@ -143,8 +143,8 @@ class InputValues extends React.Component {
 
                 <Form>
                   <Descriptions title="Input Values"
-                    bordered 
-                    column={{ xxl: 4, xl: 3, lg: 2, md: 2, md: 2, sm: 1, xs: 1 }}
+                    bordered
+                    column={{ xxl: 4, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
                     size='small'>
                     {this.getInputItems()}
                   </Descriptions>
@@ -211,7 +211,7 @@ class LearningPage extends React.Component {
       this.setState({ additionalData: additionalData })
     }
 
-
+    this.handleLoadSampleTemplate()
 
     this.startAutoSaveTemplateTimer()
 
@@ -605,7 +605,10 @@ class LearningPage extends React.Component {
           <Row>
             <Col span={24}>
               <Row>
-                <Col span={14}>
+                <Col
+                  span={14}
+                  // flex={3}
+                >
                   {/* <Affix offsetTop={2}> */}
                   <Row>
                     <Col>
@@ -734,7 +737,10 @@ class LearningPage extends React.Component {
                   {/* </Affix> */}
                   <Row>
                     <Col>
-                      <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
+                      <InputValues 
+                      values={this.state.template.inputValues} 
+                      onChange={this.handleInputValuesChange} 
+                      onDelete={this.handleInputValuesDelete} />
                     </Col>
                   </Row>
                   <Row className="pt-2">
@@ -759,7 +765,10 @@ class LearningPage extends React.Component {
                     </Popover>
                   </Row>
                 </Col>
-                <Col span={10} className="pl-2" >
+                <Col
+                  span={10}
+                  // flex={2}
+                  className="pl-2" >
                   <IncomingMonitor sessionId={this.state.sessionId} />
                 </Col>
               </Row>

@@ -37,26 +37,26 @@ import { Icon, Tag, Timeline } from 'antd';
 
 class DetailComponent extends GridDetailRow {
   render() {
-      const log = this.props.dataItem;
-      return (
-        <>
+    const log = this.props.dataItem;
+    return (
+      <>
         {log.additionalData
           ? (
-              <div>
-                <br />
-                <div style={{ backgroundColor: '#1f4662', width: '100%', color: '#fff', fontSize: '12px' }}>
-                  <div style={{ backgroundColor: '#193549', width: '100%', fontFamily: 'monospace', color: '#ffc600' }} >
-                  </div>
-                  <pre style={{ display: 'block', width: '100%', margin: '0', overflow: 'scroll', color: '#ffffff' }}>
-                    {JSON.stringify(log.additionalData,null,2)}
-                  </pre>
+            <div>
+              <br />
+              <div style={{ backgroundColor: '#1f4662', width: '100%', color: '#fff', fontSize: '12px' }}>
+                <div style={{ backgroundColor: '#193549', width: '100%', fontFamily: 'monospace', color: '#ffc600' }} >
                 </div>
+                <pre style={{ display: 'block', width: '100%', margin: '0', overflow: 'scroll', color: '#ffffff' }}>
+                  {JSON.stringify(log.additionalData, null, 2)}
+                </pre>
               </div>
-            )
+            </div>
+          )
           : log.message
         }
-        </>
-      );
+      </>
+    );
   }
 }
 
@@ -105,29 +105,29 @@ export class Logs extends React.Component {
 
 
   render() {
-  
+
     return (
       <>
         <Row>
           <div className="col">
-              <Card className="shadow">
-                <CardHeader className="border-0">
-                  <h3 className="mb-0">Logs</h3>
-                </CardHeader>
-                <Grid
-                  className="align-items-center table-flush"
-                  data={this.state.logs}
-                  detail={DetailComponent}
-                  expandField="expanded"
-                  onExpandChange={this.expandChange}
-                >
-                  <Column field="logTime" title="Time" />
-                  <Column field="uniqueId" title="UniqueID" />
-                  <Column field="message" title="Message" />
-                  <Column field="verbosity" title="Verbosity" />
-                </Grid>
-              </Card>
-              </div>
+            <Card className="shadow">
+              <CardHeader className="border-0">
+                <h3 className="mb-0">Logs</h3>
+              </CardHeader>
+              <Grid
+                className="align-items-center table-flush"
+                data={this.state.logs}
+                detail={DetailComponent}
+                expandField="expanded"
+                onExpandChange={this.expandChange}
+              >
+                <Column field="logTime" title="Time" />
+                <Column field="uniqueId" title="UniqueID" />
+                <Column field="message" title="Message" />
+                <Column field="verbosity" title="Verbosity" />
+              </Grid>
+            </Card>
+          </div>
         </Row>
       </>
     );
@@ -148,36 +148,36 @@ class IncomingTimelineItem extends React.Component {
   }
 
   toggleLogsVisibility = () => {
-      this.setState({logsVisible: !this.state.logsVisible})
+    this.setState({ logsVisible: !this.state.logsVisible })
   }
 
-  render () {
+  render() {
     const log = this.props.logs[0]
     const info = this.props.info
     return (
       <>
-      <Timeline.Item position='right'>
-        <b>{log.logTime}</b>
-        <br /><Tag color={info.erroneous ? "#f50" : "#2db7f5"} onClick={this.toggleLogsVisibility}>{info.name}</Tag>
-        <br />
-        {
-          this.state.logsVisible
-          ? (
-            <Grid
-              className="align-items-center table-flush"
-              data={this.props.logs}
-              detail={DetailComponent}
-              expandField="expanded"
-              onExpandChange={this.expandChange}
-            >
-              <Column field="logTime" title="Time" />
-              <Column field="message" title="Message" />
-              <Column field="verbosity" title="Verbosity" />
-            </Grid>
-          )
-          : null
-        }
-      </Timeline.Item>
+        <Timeline.Item position='right'>
+          <b>{log.logTime}</b>
+          <br /><Tag color={info.erroneous ? "#f50" : "#2db7f5"} onClick={this.toggleLogsVisibility}>{info.name}</Tag>
+          <br />
+          {
+            this.state.logsVisible
+              ? (
+                <Grid
+                  className="align-items-center table-flush"
+                  data={this.props.logs}
+                  detail={DetailComponent}
+                  expandField="expanded"
+                  onExpandChange={this.expandChange}
+                >
+                  <Column field="logTime" title="Time" />
+                  <Column field="message" title="Message" />
+                  <Column field="verbosity" title="Verbosity" />
+                </Grid>
+              )
+              : null
+          }
+        </Timeline.Item>
       </>
     )
   }
@@ -185,7 +185,7 @@ class IncomingTimelineItem extends React.Component {
 
 export class IncomingMonitor extends React.Component {
 
-  newState =  {
+  newState = {
     logs: [],
     incomingItemsObj: {},
     incomingItemsArr: [],
@@ -198,7 +198,7 @@ export class IncomingMonitor extends React.Component {
     super();
     this.state = JSON.parse(JSON.stringify(this.newState))
   }
-  
+
   componentWillUnmount = () => {
     this.socket.disconnect()
   }
@@ -215,28 +215,29 @@ export class IncomingMonitor extends React.Component {
       this.state.logs.push(newLog)
 
       // Group by unique ID
-      if(!this.state.incomingItemsObj.hasOwnProperty(newLog.uniqueId)) {
+      if (!this.state.incomingItemsObj.hasOwnProperty(newLog.uniqueId)) {
         this.state.incomingItemsObj[newLog.uniqueId] = []
         if (!this.state.lastIncomingTime) {
           this.state.lastIncomingTime = new Date(newLog.logTime)
         } else {
-          const timeDiffMillis = new Date(newLog.logTime) -  this.state.lastIncomingTime
+          const timeDiffMillis = new Date(newLog.logTime) - this.state.lastIncomingTime
           this.state.lastIncomingTime = new Date(newLog.logTime)
           if (timeDiffMillis > 1000) {
-            this.state.incomingItemsArr.push(null)          }
+            this.state.incomingItemsArr.push(null)
+          }
         }
         let name = newLog.message
         if (newLog.resource) {
           name = newLog.resource.method.toUpperCase() + ' ' + newLog.resource.path
         }
         this.state.incomingItemsArr.push({ id: newLog.uniqueId, name, erroneous: false })
-        
+
       }
-      
+
       // If the verbosity of the log is error, set the entire group as erroneous
       if (newLog.verbosity === 'error') {
         // Find the group in incomingItemsArr array
-        const itemIndex = this.state.incomingItemsArr.findIndex(item => item? (item.id === newLog.uniqueId) : false)
+        const itemIndex = this.state.incomingItemsArr.findIndex(item => item ? (item.id === newLog.uniqueId) : false)
         this.state.incomingItemsArr[itemIndex].erroneous = true
       }
 
@@ -264,26 +265,26 @@ export class IncomingMonitor extends React.Component {
     this.setState(JSON.parse(JSON.stringify(this.newState)))
   }
 
-  render () {
+  render() {
     return (
       <>
-      <Row className="mb-4">
-      <div className="col">
-        <Card className="shadow">
-          <CardHeader className="border-0">
-            <Button
-              className="float-right"
-              color="danger"
-              size="sm"
-              onClick={this.handleClearLogs}
-            >
-              Clear
+        <Row className="mb-4">
+          <div className="col">
+            <Card className="shadow">
+              <CardHeader className="border-0">
+                <Button
+                  className="float-right"
+                  color="danger"
+                  size="sm"
+                  onClick={this.handleClearLogs}
+                >
+                  Clear
             </Button>
-            <h3 className="mb-0">Monitor</h3>
-          </CardHeader>
-          <CardBody>
-            <Timeline reverse={true} pending="Monitoring..." >
-              {/* <Timeline.Item>Create a services site 2015-09-01</Timeline.Item>
+                <h3 className="mb-0">Hub Monitor</h3>
+              </CardHeader>
+              <CardBody>
+                <Timeline reverse={true} pending="Monitoring..." >
+                  {/* <Timeline.Item>Create a services site 2015-09-01</Timeline.Item>
               <Timeline.Item color="green">Solve initial network problems 2015-09-01</Timeline.Item>
               <Timeline.Item>
                 <Tag color="#2db7f5">GET /quotes asdf</Tag>
@@ -294,12 +295,12 @@ export class IncomingMonitor extends React.Component {
               <Timeline.Item dot={<Icon type="clock-circle-o" style={{ fontSize: '16px' }} />}>
                 Technical testing 2015-09-01
               </Timeline.Item> */}
-              {this.getTimelineItems()}
-            </Timeline>
-          </CardBody>
-        </Card>
-        </div>
-      </Row>
+                  {this.getTimelineItems()}
+                </Timeline>
+              </CardBody>
+            </Card>
+          </div>
+        </Row>
       </>
     )
   }
@@ -314,7 +315,7 @@ class Tables extends React.Component {
 
 
   render() {
-  
+
     return (
       <>
         <Header />
