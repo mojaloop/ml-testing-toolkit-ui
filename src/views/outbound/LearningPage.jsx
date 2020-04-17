@@ -559,7 +559,7 @@ class LearningPage extends React.Component {
               testCase={this.state.selectTestCase}
               onChange={this.handleTestCaseChange}
               inputValues={this.state.template.inputValues}
-              // onEdit={() => { this.setState({ showTestCaseIndex: testCaseIndex }) }}
+              onEdit={() => { this.setState({ showTestCaseIndex: 0 }) }}
               onDelete={this.handleTestCaseDelete}
               onDuplicate={this.handleTestCaseDuplicate}
               onRename={this.handleTestCaseChange}
