@@ -40,8 +40,9 @@ import { DownOutlined } from '@ant-design/icons';
 
 import './fixAce.css';
 
-
 import axios from 'axios';
+
+import FilterSelect from '../../components/FilterSelect/FilterSelect';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
 import getConfig from '../../utils/getConfig'
@@ -764,11 +765,12 @@ class LearningPage extends React.Component {
                         <CardBody>
                           <Row justify="space-between">
                             <Col span={10}>
-                              <Dropdown overlay={this.getTestNamesMenu()}>
+                              {/* <Dropdown overlay={this.getTestNamesMenu()}>
                                 <Button>
                                   Select Test Scenario <DownOutlined />
                                 </Button>
-                              </Dropdown>
+                              </Dropdown> */}
+                              <FilterSelect />
                             </Col>
 
                             <Col span={4} className="text-center">
