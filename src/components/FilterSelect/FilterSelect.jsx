@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Select } from 'antd';
 
-const FilterSelect = () => {
+const FilterSelect = ({ testCases, onChangeFilterSelect }) => {
+
     const onChange = (value) => {
         console.log(`selected ${value}`);
     }
@@ -17,14 +18,13 @@ const FilterSelect = () => {
     const onSearch = (val) => {
         console.log('search:', val);
     }
-
     return (
         <Select
             showSearch
-            style={{ width: 200 }}
+            style={{ width: 350 }}
             placeholder="Select a Test Case"
             optionFilterProp="children"
-            onChange={onChange}
+            onChange={onChangeFilterSelect}
             onFocus={onFocus}
             onBlur={onBlur}
             onSearch={onSearch}
@@ -32,9 +32,15 @@ const FilterSelect = () => {
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
         >
-            <Select.Option value="jack">Jack</Select.Option>
-            <Select.Option value="lucy">Lucy</Select.Option>
-            <Select.Option value="tom">Tom</Select.Option>
+            {
+                testCases && testCases.map((item, key) => {
+                    return (
+                        <Select.Option value={item.id} key={'Select.Option' + key}>
+                            {item.name}
+                        </Select.Option>
+                    )
+                })
+            }
         </Select>
     )
 }

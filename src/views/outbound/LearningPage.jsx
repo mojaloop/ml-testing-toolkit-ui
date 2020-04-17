@@ -21,8 +21,6 @@ import React from "react";
 import {
   Card,
   CardBody,
-  CardHeader,
-  CardTitle,
   Form,
   Container,
   Button,
@@ -34,9 +32,8 @@ import socketIOClient from "socket.io-client";
 import Header from "../../components/Headers/Header.jsx";
 
 
-import { Menu, Dropdown, Input, Row, Col, Collapse, Descriptions, Modal, Icon, message, Popover, Upload, Progress, Select } from 'antd';
+import { Input, Row, Col, Collapse, Descriptions, Modal, Icon, message, Popover, Upload, Progress } from 'antd';
 
-import { DownOutlined } from '@ant-design/icons';
 
 import './fixAce.css';
 
@@ -554,31 +551,10 @@ class LearningPage extends React.Component {
     return null
   }
 
-  // getSelectedTestCaseItem = () => {
-  //   if (Object.keys(this.state.selectTestCase).length > 0) {
-  //     return (
-  //       <Row>
-  //         <Col>
-  //           <TestCaseViewer
-  //             testCase={this.state.selectTestCase}
-  //             onChange={this.handleTestCaseChange}
-  //             inputValues={this.state.template.inputValues}
-  //             onEdit={() => { this.setState({ showTestCaseIndex: 0 }) }}
-  //             onDelete={this.handleTestCaseDelete}
-  //             onDuplicate={this.handleTestCaseDuplicate}
-  //             onRename={this.handleTestCaseChange}
-  //           />
-  //         </Col>
-  //       </Row>
-  //     )
-  //   }
-  //   return null
-  // }
-
-  testNamesMenuonClick = (evt) => {
+  onChangeFilterSelect = (selectVal) => {
     let filteredTest = this.state.originalTemplate.test_cases &&
       this.state.originalTemplate.test_cases.find(
-        (item) => (evt.key == item.id)
+        (item) => (selectVal == item.id)
       )
 
     let filteredTemplate = this.state.originalTemplate
@@ -589,56 +565,6 @@ class LearningPage extends React.Component {
 
     this.setState({ selectTestCase: filteredTest, template: filteredTemplate })
   };
-
-  getTestNamesMenu = () => {
-    // let keyPrefix = 'TestNamesMenu'
-    const menuItems = this.state.originalTemplate.test_cases && this.state.originalTemplate.test_cases.map((item, key) => {
-      return (
-        <Menu.Item key={item.id}>
-          {item.name}
-        </Menu.Item>
-      )
-    })
-
-    return (
-      <Menu onClick={this.testNamesMenuonClick}>
-        {menuItems}
-      </Menu>
-    )
-  }
-
-  handleSendTransfer = async () => {
-    this.state.totalPassedCount = 0
-    this.state.totalAssertionsCount = 0
-
-    const traceIdPrefix = traceHeaderUtilsObj.getTraceIdPrefix()
-    const endToEndId = traceHeaderUtilsObj.generateEndToEndId()
-    const traceId = traceIdPrefix + this.state.sessionId + endToEndId
-    console.log('Trace ID is ', traceId)
-    message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
-    const { apiBaseUrl } = getConfig()
-    this.state.template = this.convertTemplate(this.state.template)
-
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, this.state.template, { headers: { 'Content-Type': 'application/json' } })
-    message.success({ content: 'Test case initiated', key: 'outboundSendProgress', duration: 2 });
-
-    console.log("selectTestCase", this.state.selectTestCase)
-
-    if (this.state.selectTestCase.requests) {
-      for (let j in this.state.selectTestCase.requests) {
-        const request = this.state.selectTestCase.requests[j]
-        console.log(request)
-        // Also update the total assertion count
-        this.state.totalAssertionsCount += (request.tests && request.tests.assertions) ? request.tests.assertions.length : 0
-        if (!request.status) {
-          request.status = {}
-        }
-        request.status.state = 'process'
-      }
-    }
-
-    this.forceUpdate()
-  }
 
   render() {
 
@@ -754,7 +680,7 @@ class LearningPage extends React.Component {
                 <Col
                   span={14}
                 >
-                  <Collapse defaultActiveKey={['1', '3', '4']}>
+                  <Collapse defaultActiveKey={['1', '3']}>
 
                     <Collapse.Panel
                       header="Simulator DFSP"
@@ -764,30 +690,18 @@ class LearningPage extends React.Component {
                       <Card className="bg-white shadow">
                         <CardBody>
                           <Row justify="space-between">
-                            <Col span={10}>
-                              {/* <Dropdown overlay={this.getTestNamesMenu()}>
-                                <Button>
-                                  Select Test Scenario <DownOutlined />
-                                </Button>
-                              </Dropdown> */}
-                              <FilterSelect />
+                            <Col
+                              lg={12}
+                              xs={24}>
+                              <FilterSelect
+                                onChangeFilterSelect={this.onChangeFilterSelect}
+                                testCases={this.state.originalTemplate.test_cases} />
                             </Col>
 
-                            <Col span={4} className="text-center">
-                              {
-                                this.state.totalAssertionsCount > 0
-                                  ? (
-                                    <>
-                                      <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
-
-                                      <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
-                                    </>
-                                  )
-                                  : null
-                              }
-                            </Col>
-
-                            <Col span={10}>
+                            <Col
+                              lg={9}
+                              offset={3}
+                              xs={21}>
                               <Button
                                 className="m-1"
                                 color="info"
@@ -795,24 +709,25 @@ class LearningPage extends React.Component {
                                 disabled={
                                   Object.keys(this.state.selectTestCase).length === 0
                                 }
-                                onClick={this.handleSendTransfer}
+                                onClick={this.handleSendClick}
                               >
                                 Run Selected Simulation
                               </Button>
                             </Col>
                           </Row>
-                          <Row justify="space-around">
-                            <Col>
-                              {
-                                this.state.selectTestCase ?
-                                  (<CardBody>
-                                    <CardTitle>
-                                      {this.state.selectTestCase.name}
-                                    </CardTitle>
-                                  </CardBody>) :
-                                  null
-                              }
-                            </Col>
+
+                          <Row>
+                            {
+                              this.state.totalAssertionsCount > 0
+                                ? (
+                                  <>
+                                    <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
+
+                                    <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
+                                  </>
+                                )
+                                : null
+                            }
                           </Row>
                         </CardBody>
                       </Card>
@@ -820,8 +735,6 @@ class LearningPage extends React.Component {
 
 
                     {/* Advanced */}
-                    {/* <Collapse defaultActiveKey={['2']}> */}
-
                     <Collapse.Panel
                       header="Advanced"
                       key="2">
@@ -871,6 +784,14 @@ class LearningPage extends React.Component {
                                   Import Template
                                 </Button>
                               </Upload>
+                              <Button
+                                className="m-1"
+                                color="info"
+                                size="sm"
+                                onClick={this.handleLoadSampleTemplate}
+                              >
+                                Load All Templates
+                              </Button>
                             </Col>
                             <Col span={4} className="text-center">
                               {
@@ -927,7 +848,7 @@ class LearningPage extends React.Component {
                                 onVisibleChange={(visible) => this.setState({ createNewTemplateDialogVisible: visible })}
                               >
                                 <Button
-                                  className="text-right float-right"
+                                  className="text-right float-right m-1"
                                   color="primary"
                                   size="sm"
                                 >
