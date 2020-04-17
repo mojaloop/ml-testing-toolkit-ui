@@ -751,72 +751,79 @@ class LearningPage extends React.Component {
                 <Col
                   span={14}
                 >
-                  <Row>
-                    <Col>
-                      <Card className="bg-white shadow mb-2">
-                        <CardBody>
-                          <CardTitle>
-                            Simulator DFSP
-                          </CardTitle>
+                  <Collapse defaultActiveKey={['1', '3', '4']}>
 
-                          <Row justify="space-between">
-                            <Col span={10}>
-                              <Dropdown overlay={this.getTestNamesMenu()}>
-                                <Button>
-                                  Select Test Scenario <DownOutlined />
-                                </Button>
-                              </Dropdown>
-                            </Col>
+                    {/* <Row>
+                      <Col> */}
 
-                            <Col span={4} className="text-center">
-                              {
-                                this.state.totalAssertionsCount > 0
-                                  ? (
-                                    <>
-                                      <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
+                        <Collapse.Panel
+                          header="Simulator DFSP"
+                          key="1">
 
-                                      <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
-                                    </>
-                                  )
-                                  : null
-                              }
-                            </Col>
+                          <Card className="bg-white shadow mb-2">
+                            <CardBody>
+                              <Row justify="space-between">
+                                <Col span={10}>
+                                  <Dropdown overlay={this.getTestNamesMenu()}>
+                                    <Button>
+                                      Select Test Scenario <DownOutlined />
+                                    </Button>
+                                  </Dropdown>
+                                </Col>
 
-                            <Col span={10}>
-                              <Button
-                                className="m-1"
-                                color="info"
-                                size="sm"
-                                disabled={
-                                  Object.keys(this.state.selectTestCase).length === 0
-                                }
-                                onClick={this.handleSendTransfer}
-                              >
-                                Run Selected Simulation
+                                <Col span={4} className="text-center">
+                                  {
+                                    this.state.totalAssertionsCount > 0
+                                      ? (
+                                        <>
+                                          <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
+
+                                          <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
+                                        </>
+                                      )
+                                      : null
+                                  }
+                                </Col>
+
+                                <Col span={10}>
+                                  <Button
+                                    className="m-1"
+                                    color="info"
+                                    size="sm"
+                                    disabled={
+                                      Object.keys(this.state.selectTestCase).length === 0
+                                    }
+                                    onClick={this.handleSendTransfer}
+                                  >
+                                    Run Selected Simulation
                               </Button>
-                            </Col>
-                          </Row>
-                          <Row justify="space-around">
-                            <Col>
-                              {
-                                this.state.selectTestCase ?
-                                  (<CardBody>
-                                    <CardTitle>
-                                      {this.state.selectTestCase.name}
-                                    </CardTitle>
-                                  </CardBody>) :
-                                  null
-                              }
-                            </Col>
-                          </Row>
-                        </CardBody>
-                      </Card>
+                                </Col>
+                              </Row>
+                              <Row justify="space-around">
+                                <Col>
+                                  {
+                                    this.state.selectTestCase ?
+                                      (<CardBody>
+                                        <CardTitle>
+                                          {this.state.selectTestCase.name}
+                                        </CardTitle>
+                                      </CardBody>) :
+                                      null
+                                  }
+                                </Col>
+                              </Row>
+                            </CardBody>
+                          </Card>
+                        </Collapse.Panel>
 
-                      {/* Advanced */}
-                      <Collapse defaultActiveKey={['2']}>
+
+                        {/* Advanced */}
+                        {/* <Collapse defaultActiveKey={['2']}> */}
+
                         <Collapse.Panel
                           header="Advanced"
                           key="2">
+
                           <Card className="bg-white shadow mb-2">
                             <CardBody>
                               <Row className="mb-2">
@@ -883,7 +890,7 @@ class LearningPage extends React.Component {
                                     size="sm"
                                     onClick={this.handleSendClick}
                                   >
-                                    Send All
+                                    Send All Test Cases
                               </Button>
                                   <Popover
                                     className="float-right"
@@ -930,49 +937,55 @@ class LearningPage extends React.Component {
                             </CardBody>
                           </Card>
                         </Collapse.Panel>
-                      </Collapse>
-                    </Col>
-                  </Row>
 
-                  {/* <Collapse.Panel> */}
-                  <Row>
-                    <Col>
-                      <InputValues
-                        values={this.state.template.inputValues}
-                        onChange={this.handleInputValuesChange}
-                        onDelete={this.handleInputValuesDelete} />
-                    </Col>
-                  </Row>
-                  {/* </Collapse.Panel> */}
 
-                  <Row className="pt-2">
-                    {this.getTestCaseItems()}
-                  </Row>
-                  {/* <Collapse.Panel> */}
+                      {/* </Col>
+                    </Row> */}
 
-                  {/* <Row className="pt-2">
-                    {this.getSelectedTestCaseItem()}
-                  </Row> */}
-
-                  <Row>
-                    <Popover
-                      className="float-left"
-                      content={createNewTestCaseDialogContent}
-                      title="Enter a name for the template"
-                      trigger="click"
-                      visible={this.state.createNewTestCaseDialogVisible}
-                      onVisibleChange={(visible) => this.setState({ createNewTestCaseDialogVisible: visible })}
+                    <Collapse.Panel
+                      header="Input Values"
+                      key="3"
                     >
-                      <Button
-                        className="text-left float-left mb-2 mt-2"
-                        color="primary"
-                        size="sm"
-                      >
-                        Add Test Case
+                      <Row>
+                        <Col>
+                          <InputValues
+                            values={this.state.template.inputValues}
+                            onChange={this.handleInputValuesChange}
+                            onDelete={this.handleInputValuesDelete} />
+                        </Col>
+                      </Row>
+                    </Collapse.Panel>
+
+                    <Collapse.Panel
+                      header="Test Cases"
+                      key="4"
+                    >
+                      <Row className="pt-2">
+                        {this.getTestCaseItems()}
+                      </Row>
+
+                      <Row>
+                        <Popover
+                          className="float-left"
+                          content={createNewTestCaseDialogContent}
+                          title="Enter a name for the template"
+                          trigger="click"
+                          visible={this.state.createNewTestCaseDialogVisible}
+                          onVisibleChange={(visible) => this.setState({ createNewTestCaseDialogVisible: visible })}
+                        >
+                          <Button
+                            className="text-left float-left mb-2 mt-2"
+                            color="primary"
+                            size="sm"
+                          >
+                            Add Test Case
                       </Button>
-                    </Popover>
-                  </Row>
-                  {/* </Collapse.Panel> */}
+                        </Popover>
+                      </Row>
+                    </Collapse.Panel>
+
+                  </Collapse>
+
                 </Col>
 
                 <Col
