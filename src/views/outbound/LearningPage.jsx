@@ -170,6 +170,7 @@ class LearningPage extends React.Component {
     const sessionId = traceHeaderUtilsObj.generateSessionId()
     this.state = {
       request: {},
+      originalTemplate: {},
       template: {},
       selectTestCase: {},
       additionalData: {},
@@ -283,8 +284,8 @@ class LearningPage extends React.Component {
     if (progress.status === 'FINISHED') {
       message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
     } else {
-      // let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
-      let testCase = this.state.selectTestCase
+      let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
+      // let testCase = this.state.selectTestCase
       let request = testCase.requests.find(item => item.id === progress.requestId)
       if (request.status) {
         // Update total passed count
@@ -338,7 +339,7 @@ class LearningPage extends React.Component {
     console.log('Trace ID is ', traceId)
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
-    this.state.template = this.convertTemplate(this.state.template)
+    this.state.template = this.convertTemplate(this.state.originalTemplate)
     await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, this.state.template, { headers: { 'Content-Type': 'application/json' } })
     message.success({ content: 'Test case initiated', key: 'outboundSendProgress', duration: 2 });
 
@@ -497,7 +498,7 @@ class LearningPage extends React.Component {
   handleLoadSampleTemplate = () => {
     const sampleJson = JSON.parse(JSON.stringify(require('./dfsp-tests.json')))
     console.log(sampleJson)
-    this.setState({ template: sampleJson, additionalData: { importedFilename: 'Sample' } })
+    this.setState({ originalTemplate: sampleJson, additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
     message.success({
       content: 'Input Values Loaded',
@@ -550,37 +551,45 @@ class LearningPage extends React.Component {
     return null
   }
 
-  getSelectedTestCaseItem = () => {
-    if (Object.keys(this.state.selectTestCase).length > 0) {
-      return (
-        <Row>
-          <Col>
-            <TestCaseViewer
-              testCase={this.state.selectTestCase}
-              onChange={this.handleTestCaseChange}
-              inputValues={this.state.template.inputValues}
-              onEdit={() => { this.setState({ showTestCaseIndex: 0 }) }}
-              onDelete={this.handleTestCaseDelete}
-              onDuplicate={this.handleTestCaseDuplicate}
-              onRename={this.handleTestCaseChange}
-            />
-          </Col>
-        </Row>
-      )
-    }
-    return null
-  }
+  // getSelectedTestCaseItem = () => {
+  //   if (Object.keys(this.state.selectTestCase).length > 0) {
+  //     return (
+  //       <Row>
+  //         <Col>
+  //           <TestCaseViewer
+  //             testCase={this.state.selectTestCase}
+  //             onChange={this.handleTestCaseChange}
+  //             inputValues={this.state.template.inputValues}
+  //             onEdit={() => { this.setState({ showTestCaseIndex: 0 }) }}
+  //             onDelete={this.handleTestCaseDelete}
+  //             onDuplicate={this.handleTestCaseDuplicate}
+  //             onRename={this.handleTestCaseChange}
+  //           />
+  //         </Col>
+  //       </Row>
+  //     )
+  //   }
+  //   return null
+  // }
 
   testNamesMenuonClick = (evt) => {
-    let filteredTest = this.state.template.test_cases && this.state.template.test_cases.find(
-      (item) => (evt.key == item.id)
-    )
-    this.setState({ selectTestCase: filteredTest })
+    let filteredTest = this.state.originalTemplate.test_cases &&
+      this.state.originalTemplate.test_cases.find(
+        (item) => (evt.key == item.id)
+      )
+
+    let filteredTemplate = this.state.originalTemplate
+    filteredTemplate.test_cases = []
+    filteredTemplate.test_cases.push(filteredTest)
+
+    console.log("filteredTemplate", filteredTemplate)
+
+    this.setState({ selectTestCase: filteredTest, template: filteredTemplate })
   };
 
   getTestNamesMenu = () => {
     // let keyPrefix = 'TestNamesMenu'
-    const menuItems = this.state.template.test_cases && this.state.template.test_cases.map((item, key) => {
+    const menuItems = this.state.originalTemplate.test_cases && this.state.originalTemplate.test_cases.map((item, key) => {
       return (
         <Menu.Item key={item.id}>
           {item.name}
@@ -606,6 +615,7 @@ class LearningPage extends React.Component {
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     this.state.template = this.convertTemplate(this.state.template)
+
     await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, this.state.template, { headers: { 'Content-Type': 'application/json' } })
     message.success({ content: 'Test case initiated', key: 'outboundSendProgress', duration: 2 });
 
@@ -873,7 +883,7 @@ class LearningPage extends React.Component {
                                     size="sm"
                                     onClick={this.handleSendClick}
                                   >
-                                    Send
+                                    Send All
                               </Button>
                                   <Popover
                                     className="float-right"
@@ -925,24 +935,25 @@ class LearningPage extends React.Component {
                   </Row>
 
                   {/* <Collapse.Panel> */}
-                    <Row>
-                      <Col>
-                        <InputValues
-                          values={this.state.template.inputValues}
-                          onChange={this.handleInputValuesChange}
-                          onDelete={this.handleInputValuesDelete} />
-                      </Col>
-                    </Row>
+                  <Row>
+                    <Col>
+                      <InputValues
+                        values={this.state.template.inputValues}
+                        onChange={this.handleInputValuesChange}
+                        onDelete={this.handleInputValuesDelete} />
+                    </Col>
+                  </Row>
                   {/* </Collapse.Panel> */}
 
-                  {/* <Row className="pt-2">
+                  <Row className="pt-2">
                     {this.getTestCaseItems()}
-                  </Row> */}
+                  </Row>
                   {/* <Collapse.Panel> */}
 
-                  <Row className="pt-2">
+                  {/* <Row className="pt-2">
                     {this.getSelectedTestCaseItem()}
-                  </Row>
+                  </Row> */}
+
                   <Row>
                     <Popover
                       className="float-left"
