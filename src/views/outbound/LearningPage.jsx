@@ -920,28 +920,29 @@ class LearningPage extends React.Component {
                             </CardBody>
                           </Card>
                         </Collapse.Panel>
-
                       </Collapse>
                     </Col>
                   </Row>
 
-                  <Row>
-                    <Col>
-                      <InputValues
-                        values={this.state.template.inputValues}
-                        onChange={this.handleInputValuesChange}
-                        onDelete={this.handleInputValuesDelete} />
-                    </Col>
-                  </Row>
+                  {/* <Collapse.Panel> */}
+                    <Row>
+                      <Col>
+                        <InputValues
+                          values={this.state.template.inputValues}
+                          onChange={this.handleInputValuesChange}
+                          onDelete={this.handleInputValuesDelete} />
+                      </Col>
+                    </Row>
+                  {/* </Collapse.Panel> */}
 
                   {/* <Row className="pt-2">
                     {this.getTestCaseItems()}
                   </Row> */}
+                  {/* <Collapse.Panel> */}
 
                   <Row className="pt-2">
                     {this.getSelectedTestCaseItem()}
                   </Row>
-
                   <Row>
                     <Popover
                       className="float-left"
@@ -960,6 +961,7 @@ class LearningPage extends React.Component {
                       </Button>
                     </Popover>
                   </Row>
+                  {/* </Collapse.Panel> */}
                 </Col>
 
                 <Col
