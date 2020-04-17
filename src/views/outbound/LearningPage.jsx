@@ -22,6 +22,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  CardTitle,
   Form,
   Container,
   Button,
@@ -33,7 +34,10 @@ import socketIOClient from "socket.io-client";
 import Header from "../../components/Headers/Header.jsx";
 
 
-import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Upload, Progress } from 'antd';
+import { Menu, Dropdown, Input, Row, Col, Descriptions, Modal, Icon, message, Popover, Upload, Progress } from 'antd';
+
+import { DownOutlined } from '@ant-design/icons';
+
 
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
@@ -167,6 +171,7 @@ class LearningPage extends React.Component {
     this.state = {
       request: {},
       template: {},
+      selectTestCase: {},
       additionalData: {},
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
@@ -229,11 +234,57 @@ class LearningPage extends React.Component {
     this.forceUpdate()
   }
 
+  handleSelectTestIncomingProgress = (progress) => {
+    if (progress.status === 'FINISHED') {
+      message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
+    } else {
+      let testCase = this.state.selectTestCase
+      let request = testCase.requests.find(item => item.id === progress.requestId)
+
+      if (request.status) {
+        // Update total passed count
+        const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+        this.state.totalPassedCount += passedCount
+        if (progress.status === 'SUCCESS') {
+
+          request.status.state = 'finish'
+          request.status.response = progress.response
+          request.status.callback = progress.callback
+          request.status.requestSent = progress.requestSent
+          request.status.testResult = progress.testResult
+        } else if (progress.status === 'ERROR') {
+          request.status.state = 'error'
+          request.status.response = progress.response
+          request.status.callback = progress.callback
+          request.status.requestSent = progress.requestSent
+          request.status.testResult = progress.testResult
+          // Clear the waiting status of the remaining requests
+          for (let i in testCase.requests) {
+            if (!testCase.requests[i].status) {
+              testCase.requests[i].status = {}
+            }
+            if (testCase.requests[i].status.state === 'process') {
+              testCase.requests[i].status.state = 'wait'
+              testCase.requests[i].status.response = null
+              testCase.requests[i].status.callback = null
+              testCase.requests[i].status.requestSent = null
+              testCase.requests[i].status.testResult = null
+            }
+
+          }
+          // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
+        }
+        this.forceUpdate()
+      }
+    }
+  }
+
   handleIncomingProgress = (progress) => {
     if (progress.status === 'FINISHED') {
       message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
     } else {
-      let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
+      // let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
+      let testCase = this.state.selectTestCase
       let request = testCase.requests.find(item => item.id === progress.requestId)
       if (request.status) {
         // Update total passed count
@@ -444,11 +495,14 @@ class LearningPage extends React.Component {
   }
 
   handleLoadSampleTemplate = () => {
-    const sampleJson = JSON.parse(JSON.stringify(require('./sample1.json')))
+    const sampleJson = JSON.parse(JSON.stringify(require('./dfsp-tests.json')))
     console.log(sampleJson)
     this.setState({ template: sampleJson, additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
-    message.success({ content: 'Sample Loaded', key: 'importFileProgress', duration: 2 })
+    message.success({
+      content: 'Input Values Loaded',
+      key: 'importFileProgress', duration: 2
+    })
   }
 
   handleTestCaseChange = () => {
@@ -494,6 +548,83 @@ class LearningPage extends React.Component {
       })
     }
     return null
+  }
+
+  getSelectedTestCaseItem = () => {
+    if (Object.keys(this.state.selectTestCase).length > 0) {
+      return (
+        <Row>
+          <Col>
+            <TestCaseViewer
+              testCase={this.state.selectTestCase}
+              onChange={this.handleTestCaseChange}
+              inputValues={this.state.template.inputValues}
+              // onEdit={() => { this.setState({ showTestCaseIndex: testCaseIndex }) }}
+              onDelete={this.handleTestCaseDelete}
+              onDuplicate={this.handleTestCaseDuplicate}
+              onRename={this.handleTestCaseChange}
+            />
+          </Col>
+        </Row>
+      )
+    }
+    return null
+  }
+
+  testNamesMenuonClick = (evt) => {
+    let filteredTest = this.state.template.test_cases && this.state.template.test_cases.find(
+      (item) => (evt.key == item.id)
+    )
+    this.setState({ selectTestCase: filteredTest })
+  };
+
+  getTestNamesMenu = () => {
+    // let keyPrefix = 'TestNamesMenu'
+    const menuItems = this.state.template.test_cases && this.state.template.test_cases.map((item, key) => {
+      return (
+        <Menu.Item key={item.id}>
+          {item.name}
+        </Menu.Item>
+      )
+    })
+
+    return (
+      <Menu onClick={this.testNamesMenuonClick}>
+        {menuItems}
+      </Menu>
+    )
+  }
+
+  handleSendTransfer = async () => {
+    this.state.totalPassedCount = 0
+    this.state.totalAssertionsCount = 0
+
+    const traceIdPrefix = traceHeaderUtilsObj.getTraceIdPrefix()
+    const endToEndId = traceHeaderUtilsObj.generateEndToEndId()
+    const traceId = traceIdPrefix + this.state.sessionId + endToEndId
+    console.log('Trace ID is ', traceId)
+    message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
+    const { apiBaseUrl } = getConfig()
+    this.state.template = this.convertTemplate(this.state.template)
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    message.success({ content: 'Test case initiated', key: 'outboundSendProgress', duration: 2 });
+
+    console.log("selectTestCase", this.state.selectTestCase)
+
+    if (this.state.selectTestCase.requests) {
+      for (let j in this.state.selectTestCase.requests) {
+        const request = this.state.selectTestCase.requests[j]
+        console.log(request)
+        // Also update the total assertion count
+        this.state.totalAssertionsCount += (request.tests && request.tests.assertions) ? request.tests.assertions.length : 0
+        if (!request.status) {
+          request.status = {}
+        }
+        request.status.state = 'process'
+      }
+    }
+
+    this.forceUpdate()
   }
 
   render() {
@@ -567,6 +698,8 @@ class LearningPage extends React.Component {
       </>
     )
 
+    console.log('selectTestCase', this.state.selectTestCase)
+
     return (
       <>
         <Modal
@@ -607,13 +740,72 @@ class LearningPage extends React.Component {
               <Row>
                 <Col
                   span={14}
-                  // flex={3}
                 >
-                  {/* <Affix offsetTop={2}> */}
                   <Row>
                     <Col>
                       <Card className="bg-white shadow mb-2">
                         <CardBody>
+                          <CardTitle>
+                            Simulator DFSP
+                          </CardTitle>
+
+                          <Row>
+                            <Col span={8}>
+                              <Dropdown overlay={this.getTestNamesMenu()}>
+                                <Button>
+                                  Select Test Scenario <DownOutlined />
+                                </Button>
+                              </Dropdown>
+                            </Col>
+
+                            <Col span={4} className="text-center">
+                              {
+                                this.state.totalAssertionsCount > 0
+                                  ? (
+                                    <>
+                                      <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
+
+                                      <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
+                                    </>
+                                  )
+                                  : null
+                              }
+                            </Col>
+
+                            <Col span={8}>
+                              <Button
+                                className="m-1"
+                                color="info"
+                                size="sm"
+                                disabled={
+                                  Object.keys(this.state.selectTestCase).length === 0
+                                }
+                                onClick={this.handleSendTransfer}
+                              >
+                                Run Selected Simulation
+                              </Button>
+                            </Col>
+                          </Row>
+                          <Row justify="space-around">
+                            <Col>
+                              {
+                                this.state.selectTestCase ?
+                                  (<CardBody>
+                                    <CardTitle>
+                                      {this.state.selectTestCase.name}
+                                    </CardTitle>
+                                  </CardBody>) :
+                                  null
+                              }
+                            </Col>
+                          </Row>
+                        </CardBody>
+                      </Card>
+
+                      {/* Advanced */}
+                      <Card className="bg-white shadow mb-2">
+                        <CardBody>
+                          <CardTitle>Advanced</CardTitle>
                           <Row className="mb-2">
                             <span>
                               {
@@ -734,18 +926,24 @@ class LearningPage extends React.Component {
                       </Card>
                     </Col>
                   </Row>
-                  {/* </Affix> */}
+
                   <Row>
                     <Col>
-                      <InputValues 
-                      values={this.state.template.inputValues} 
-                      onChange={this.handleInputValuesChange} 
-                      onDelete={this.handleInputValuesDelete} />
+                      <InputValues
+                        values={this.state.template.inputValues}
+                        onChange={this.handleInputValuesChange}
+                        onDelete={this.handleInputValuesDelete} />
                     </Col>
                   </Row>
-                  <Row className="pt-2">
+
+                  {/* <Row className="pt-2">
                     {this.getTestCaseItems()}
+                  </Row> */}
+
+                  <Row className="pt-2">
+                    {this.getSelectedTestCaseItem()}
                   </Row>
+
                   <Row>
                     <Popover
                       className="float-left"
@@ -765,6 +963,7 @@ class LearningPage extends React.Component {
                     </Popover>
                   </Row>
                 </Col>
+
                 <Col
                   span={10}
                   // flex={2}
