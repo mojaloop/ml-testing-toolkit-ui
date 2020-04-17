@@ -34,7 +34,7 @@ import socketIOClient from "socket.io-client";
 import Header from "../../components/Headers/Header.jsx";
 
 
-import { Menu, Dropdown, Input, Row, Col, Descriptions, Modal, Icon, message, Popover, Upload, Progress } from 'antd';
+import { Menu, Dropdown, Input, Row, Col, Collapse, Descriptions, Modal, Icon, message, Popover, Upload, Progress } from 'antd';
 
 import { DownOutlined } from '@ant-design/icons';
 
@@ -749,8 +749,8 @@ class LearningPage extends React.Component {
                             Simulator DFSP
                           </CardTitle>
 
-                          <Row>
-                            <Col span={8}>
+                          <Row justify="space-between">
+                            <Col span={10}>
                               <Dropdown overlay={this.getTestNamesMenu()}>
                                 <Button>
                                   Select Test Scenario <DownOutlined />
@@ -772,7 +772,7 @@ class LearningPage extends React.Component {
                               }
                             </Col>
 
-                            <Col span={8}>
+                            <Col span={10}>
                               <Button
                                 className="m-1"
                                 color="info"
@@ -803,127 +803,125 @@ class LearningPage extends React.Component {
                       </Card>
 
                       {/* Advanced */}
-                      <Card className="bg-white shadow mb-2">
-                        <CardBody>
-                          <CardTitle>Advanced</CardTitle>
-                          <Row className="mb-2">
-                            <span>
-                              {
-                                this.state.template.name
-                                  ? (
-                                    <>
-                                      <b>Template Name:</b> {this.state.template.name}
-                                    </>
-                                  )
-                                  : ''
-                              }
-                            </span>
-                            <span className='ml-4'>
-                              {
-                                this.state.additionalData.importedFilename
-                                  ? (
-                                    <>
-                                      <b>Imported File Name:</b> {this.state.additionalData.importedFilename}
-                                    </>
-                                  )
-                                  : ''
-                              }
-                            </span>
-                          </Row>
-                          <Row>
-                            <Col span={10}>
-                              <Upload
-                                accept='.json'
-                                showUploadList={false}
-                                beforeUpload={file => {
-                                  this.handleImportFile(file)
-                                  return false;
-                                }}
-                              >
-                                <Button
-                                  className="m-1"
-                                  color="success"
-                                  size="sm"
-                                  onClick={e => e.preventDefault()}
-                                >
-                                  Import Template
+                      <Collapse defaultActiveKey={['2']}>
+                        <Collapse.Panel
+                          header="Advanced"
+                          key="2">
+                          <Card className="bg-white shadow mb-2">
+                            <CardBody>
+                              <Row className="mb-2">
+                                <span>
+                                  {
+                                    this.state.template.name
+                                      ? (
+                                        <>
+                                          <b>Template Name:</b> {this.state.template.name}
+                                        </>
+                                      )
+                                      : ''
+                                  }
+                                </span>
+                                <span className='ml-4'>
+                                  {
+                                    this.state.additionalData.importedFilename
+                                      ? (
+                                        <>
+                                          <b>Imported File Name:</b> {this.state.additionalData.importedFilename}
+                                        </>
+                                      )
+                                      : ''
+                                  }
+                                </span>
+                              </Row>
+                              <Row>
+                                <Col span={10}>
+                                  <Upload
+                                    accept='.json'
+                                    showUploadList={false}
+                                    beforeUpload={file => {
+                                      this.handleImportFile(file)
+                                      return false;
+                                    }}
+                                  >
+                                    <Button
+                                      className="m-1"
+                                      color="success"
+                                      size="sm"
+                                      onClick={e => e.preventDefault()}
+                                    >
+                                      Import Template
                                 </Button>
-                              </Upload>
-                              <Button
-                                className="m-1"
-                                color="info"
-                                size="sm"
-                                onClick={this.handleLoadSampleTemplate}
-                              >
-                                Load Sample Template
-                              </Button>
-                            </Col>
-                            <Col span={4} className="text-center">
-                              {
-                                this.state.totalAssertionsCount > 0
-                                  ? (
-                                    <>
-                                      <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
+                                  </Upload>
+                                </Col>
+                                <Col span={4} className="text-center">
+                                  {
+                                    this.state.totalAssertionsCount > 0
+                                      ? (
+                                        <>
+                                          <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
 
-                                      <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
-                                    </>
-                                  )
-                                  : null
-                              }
-                            </Col>
-                            <Col span={10}>
-                              <Button
-                                className="float-right m-1"
-                                color="danger"
-                                size="sm"
-                                onClick={this.handleSendClick}
-                              >
-                                Send
+                                          <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
+                                        </>
+                                      )
+                                      : null
+                                  }
+                                </Col>
+                                <Col span={10}>
+                                  <Button
+                                    className="float-right m-1"
+                                    color="danger"
+                                    size="sm"
+                                    onClick={this.handleSendClick}
+                                  >
+                                    Send
                               </Button>
-                              <Popover
-                                className="float-right"
-                                content={saveTemplateDialogContent}
-                                title="Enter filename to save"
-                                trigger="click"
-                                visible={this.state.saveTemplateDialogVisible}
-                                onVisibleChange={(visible) => this.setState({ saveTemplateDialogVisible: visible })}
-                              >
-                                <Button
-                                  className="text-right float-right m-1"
-                                  color="success"
-                                  size="sm"
-                                >
-                                  Save
+                                  <Popover
+                                    className="float-right"
+                                    content={saveTemplateDialogContent}
+                                    title="Enter filename to save"
+                                    trigger="click"
+                                    visible={this.state.saveTemplateDialogVisible}
+                                    onVisibleChange={(visible) => this.setState({ saveTemplateDialogVisible: visible })}
+                                  >
+                                    <Button
+                                      className="text-right float-right m-1"
+                                      color="success"
+                                      size="sm"
+                                    >
+                                      Save
                                 </Button>
-                              </Popover>
-                              <Button
-                                className="float-right m-1"
-                                color="info"
-                                size="sm"
-                                onClick={() => { this.setState({ showTemplate: true }) }}
-                              >
-                                Show Template
-                              </Button>
-                              <Popover
-                                className="float-right"
-                                content={createNewTemplateDialogContent}
-                                title="Enter a name for the template"
-                                trigger="click"
-                                visible={this.state.createNewTemplateDialogVisible}
-                                onVisibleChange={(visible) => this.setState({ createNewTemplateDialogVisible: visible })}
-                              >
-                                <Button
-                                  className="text-right float-right"
-                                  color="primary"
-                                  size="sm"
-                                >
-                                  New Template
+                                  </Popover>
+                                  <Button
+                                    className="float-right m-1"
+                                    color="info"
+                                    size="sm"
+                                    onClick={() => { this.setState({ showTemplate: true }) }}
+                                  >
+                                    Show Template
+                                  </Button>
+                                  <Popover
+                                    className="float-right"
+                                    content={createNewTemplateDialogContent}
+                                    title="Enter a name for the template"
+                                    trigger="click"
+                                    visible={this.state.createNewTemplateDialogVisible}
+                                    onVisibleChange={(visible) => this.setState({ createNewTemplateDialogVisible: visible })}
+                                  >
+                                    <Button
+                                      className="text-right float-right"
+                                      color="primary"
+                                      size="sm"
+                                    >
+                                      New Template
                                 </Button>
-                              </Popover>
-                            </Col>
-                          </Row>
-                        </CardBody>
-                      </Card>
+                                  </Popover>
+                                </Col>
+                              </Row>
+                            </CardBody>
+                          </Card>
+                        </Collapse.Panel>
+
+                      </Collapse>
                     </Col>
                   </Row>
 
