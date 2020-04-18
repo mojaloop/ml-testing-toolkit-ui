@@ -3,9 +3,9 @@ import { Select } from 'antd';
 
 const FilterSelect = ({ testCases, onChangeFilterSelect }) => {
 
-    const onChange = (value) => {
-        console.log(`selected ${value}`);
-    }
+    // const onChange = (value) => {
+    //     console.log(`selected ${value}`);
+    // }
 
     const onBlur = () => {
         console.log('blur');
@@ -18,6 +18,11 @@ const FilterSelect = ({ testCases, onChangeFilterSelect }) => {
     const onSearch = (val) => {
         console.log('search:', val);
     }
+
+    const onFilterOption = (input, option) => {
+        return option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+    }
+
     return (
         <Select
             showSearch
@@ -28,9 +33,7 @@ const FilterSelect = ({ testCases, onChangeFilterSelect }) => {
             onFocus={onFocus}
             onBlur={onBlur}
             onSearch={onSearch}
-            filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
+            filterOption={onFilterOption}
         >
             {
                 testCases && testCases.map((item, key) => {
@@ -41,7 +44,7 @@ const FilterSelect = ({ testCases, onChangeFilterSelect }) => {
                     )
                 })
             }
-        </Select>
+        </Select >
     )
 }
 

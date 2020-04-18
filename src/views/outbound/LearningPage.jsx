@@ -173,6 +173,7 @@ class LearningPage extends React.Component {
       originalTemplate: {},
       template: {},
       selectTestCase: {},
+      allTestCases: [],
       additionalData: {},
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
@@ -185,7 +186,8 @@ class LearningPage extends React.Component {
       renameTestCase: false,
       totalPassedCount: 0,
       totalAssertionsCount: 0,
-      sessionId: sessionId
+      sessionId: sessionId,
+      collapseActiveKeys: [1, 3]
     };
   }
 
@@ -233,51 +235,6 @@ class LearningPage extends React.Component {
     delete this.state.template.inputValues[name]
     this.autoSave = true
     this.forceUpdate()
-  }
-
-  handleSelectTestIncomingProgress = (progress) => {
-    if (progress.status === 'FINISHED') {
-      message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
-    } else {
-      let testCase = this.state.selectTestCase
-      let request = testCase.requests.find(item => item.id === progress.requestId)
-
-      if (request.status) {
-        // Update total passed count
-        const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
-        this.state.totalPassedCount += passedCount
-        if (progress.status === 'SUCCESS') {
-
-          request.status.state = 'finish'
-          request.status.response = progress.response
-          request.status.callback = progress.callback
-          request.status.requestSent = progress.requestSent
-          request.status.testResult = progress.testResult
-        } else if (progress.status === 'ERROR') {
-          request.status.state = 'error'
-          request.status.response = progress.response
-          request.status.callback = progress.callback
-          request.status.requestSent = progress.requestSent
-          request.status.testResult = progress.testResult
-          // Clear the waiting status of the remaining requests
-          for (let i in testCase.requests) {
-            if (!testCase.requests[i].status) {
-              testCase.requests[i].status = {}
-            }
-            if (testCase.requests[i].status.state === 'process') {
-              testCase.requests[i].status.state = 'wait'
-              testCase.requests[i].status.response = null
-              testCase.requests[i].status.callback = null
-              testCase.requests[i].status.requestSent = null
-              testCase.requests[i].status.testResult = null
-            }
-
-          }
-          // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
-        }
-        this.forceUpdate()
-      }
-    }
   }
 
   handleIncomingProgress = (progress) => {
@@ -498,7 +455,7 @@ class LearningPage extends React.Component {
   handleLoadSampleTemplate = () => {
     const sampleJson = JSON.parse(JSON.stringify(require('./dfsp-tests.json')))
     console.log(sampleJson)
-    this.setState({ originalTemplate: sampleJson, additionalData: { importedFilename: 'Sample' } })
+    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
     message.success({
       content: 'Input Values Loaded',
@@ -552,8 +509,8 @@ class LearningPage extends React.Component {
   }
 
   onChangeFilterSelect = (selectVal) => {
-    let filteredTest = this.state.originalTemplate.test_cases &&
-      this.state.originalTemplate.test_cases.find(
+    let filteredTest = this.state.allTestCases &&
+      this.state.allTestCases.find(
         (item) => (selectVal == item.id)
       )
 
@@ -561,10 +518,23 @@ class LearningPage extends React.Component {
     filteredTemplate.test_cases = []
     filteredTemplate.test_cases.push(filteredTest)
 
-    console.log("filteredTemplate", filteredTemplate)
+    let updatedActiveKey = this.state.collapseActiveKeys
+    if (updatedActiveKey.indexOf('3') !== -1) {
+      updatedActiveKey[updatedActiveKey.indexOf('3')] = '4'
+    }
 
-    this.setState({ selectTestCase: filteredTest, template: filteredTemplate })
+    // console.log("filteredTemplate", updatedDefActiveKey)
+
+    this.setState({
+      selectTestCase: filteredTest,
+      template: filteredTemplate, 
+      collapseActiveKeys: updatedActiveKey
+    })
   };
+
+  onChangeCollapse = (activeArray) => {
+    this.setState({ collapseActiveKeys: activeArray })
+  }
 
   render() {
 
@@ -677,11 +647,11 @@ class LearningPage extends React.Component {
           <Row>
             <Col span={24}>
               <Row>
-                <Col
-                  span={14}
-                >
-                  <Collapse defaultActiveKey={['1', '3']}>
-
+                <Col span={14}>
+                  <Collapse
+                    onChange={this.onChangeCollapse}
+                    activeKey={this.state.collapseActiveKeys}
+                    defaultActiveKey={[1, 3]}>
                     <Collapse.Panel
                       header="Simulator DFSP"
                       className="collapse_panel"
@@ -690,18 +660,13 @@ class LearningPage extends React.Component {
                       <Card className="bg-white shadow">
                         <CardBody>
                           <Row justify="space-between">
-                            <Col
-                              lg={12}
-                              xs={24}>
+                            <Col lg={12} xs={24}>
                               <FilterSelect
                                 onChangeFilterSelect={this.onChangeFilterSelect}
-                                testCases={this.state.originalTemplate.test_cases} />
+                                testCases={this.state.allTestCases} />
                             </Col>
 
-                            <Col
-                              lg={9}
-                              offset={3}
-                              xs={21}>
+                            <Col lg={9} xs={21} offset={3}>
                               <Button
                                 className="m-1"
                                 color="info"
@@ -716,15 +681,15 @@ class LearningPage extends React.Component {
                             </Col>
                           </Row>
 
-                          <Row>
+                          <Row justify="space-around" align="middle" className="m-1">
                             {
                               this.state.totalAssertionsCount > 0
                                 ? (
-                                  <>
+                                  <Col span={12} offset={12}>
                                     <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
 
                                     <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
-                                  </>
+                                  </Col>
                                 )
                                 : null
                             }
