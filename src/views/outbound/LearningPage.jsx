@@ -187,7 +187,7 @@ class LearningPage extends React.Component {
       totalPassedCount: 0,
       totalAssertionsCount: 0,
       sessionId: sessionId,
-      collapseActiveKeys: [1, 3]
+      collapseActiveKeys: ["1", "3"]
     };
   }
 
@@ -519,15 +519,16 @@ class LearningPage extends React.Component {
     filteredTemplate.test_cases.push(filteredTest)
 
     let updatedActiveKey = this.state.collapseActiveKeys
-    if (updatedActiveKey.indexOf('3') !== -1) {
-      updatedActiveKey[updatedActiveKey.indexOf('3')] = '4'
-    }
+    let inputValKeyIndex = updatedActiveKey.indexOf("3")
+    let testCaseViewKeyIndex = updatedActiveKey.indexOf("4")
 
-    // console.log("filteredTemplate", updatedDefActiveKey)
+    if (inputValKeyIndex !== -1 && testCaseViewKeyIndex === -1) {
+      updatedActiveKey[inputValKeyIndex] = "4"
+    }
 
     this.setState({
       selectTestCase: filteredTest,
-      template: filteredTemplate, 
+      template: filteredTemplate,
       collapseActiveKeys: updatedActiveKey
     })
   };
@@ -651,7 +652,7 @@ class LearningPage extends React.Component {
                   <Collapse
                     onChange={this.onChangeCollapse}
                     activeKey={this.state.collapseActiveKeys}
-                    defaultActiveKey={[1, 3]}>
+                    defaultActiveKey={["1", "3"]}>
                     <Collapse.Panel
                       header="Simulator DFSP"
                       className="collapse_panel"
