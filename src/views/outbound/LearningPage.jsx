@@ -661,7 +661,7 @@ class LearningPage extends React.Component {
                       <Card className="bg-white shadow">
                         <CardBody>
                           <Row justify="space-between">
-                            <Col lg={12} xs={24}>
+                            <Col xl={12} xs={24}>
                               <FilterSelect
                                 onChangeFilterSelect={this.onChangeFilterSelect}
                                 testCases={this.state.allTestCases} />
