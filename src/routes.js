@@ -79,7 +79,7 @@ var routes = [
   },
   {
     path: "/demo",
-    name: "Demo",
+    name: "Mojaloop Modusbox lab",
     icon: "ni ni-money-coins text-blue",
     component: LearningPage,
     layout: "/user"
