@@ -148,7 +148,7 @@ class InputValues extends React.Component {
                 <Form>
                   <Descriptions title="Input Values"
                     bordered
-                    column={{ xxl: 4, xl: 2, lg: 1, md: 1, sm: 1, xs: 1 }}
+                    column={{ xxl: 2, xl: 2, lg: 1, md: 1, sm: 1, xs: 1 }}
                     size='small'>
                     {this.getInputItems()}
                   </Descriptions>
