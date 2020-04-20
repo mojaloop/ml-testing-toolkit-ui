@@ -440,8 +440,9 @@ class LearningPage extends React.Component {
       var content = e.target.result;
       try {
         var intern = JSON.parse(content);
+        let importedTestCases = intern.test_cases ? intern.test_cases : {}
         console.log(file_to_read)
-        this.setState({ template: intern, additionalData: { importedFilename: file_to_read.name } })
+        this.setState({ originalTemplate: intern, allTestCases: importedTestCases, additionalData: { importedFilename: file_to_read.name } })
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
       } catch (err) {
