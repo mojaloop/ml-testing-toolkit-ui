@@ -148,7 +148,7 @@ class InputValues extends React.Component {
                 <Form>
                   <Descriptions title="Input Values"
                     bordered
-                    column={{ xxl: 4, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
+                    column={{ xxl: 4, xl: 2, lg: 1, md: 1, sm: 1, xs: 1 }}
                     size='small'>
                     {this.getInputItems()}
                   </Descriptions>
@@ -647,8 +647,8 @@ class LearningPage extends React.Component {
         <Container className="mt--7" fluid>
           <Row>
             <Col span={24}>
-              <Row>
-                <Col span={14}>
+              <Row gutter={8}>
+                <Col xs={24} lg={12}>
                   <Collapse
                     onChange={this.onChangeCollapse}
                     activeKey={this.state.collapseActiveKeys}
@@ -661,7 +661,7 @@ class LearningPage extends React.Component {
                       <Card className="bg-white shadow">
                         <CardBody>
                           <Row justify="space-between">
-                            <Col lg={12} xs={24}>
+                            <Col xl={12} xs={24}>
                               <FilterSelect
                                 onChangeFilterSelect={this.onChangeFilterSelect}
                                 testCases={this.state.allTestCases} />
@@ -873,10 +873,7 @@ class LearningPage extends React.Component {
 
                 </Col>
 
-                <Col
-                  span={10}
-                  // flex={2}
-                  className="pl-2" >
+                <Col xs={24} lg={12}>
                   <IncomingMonitor sessionId={this.state.sessionId} />
                 </Col>
               </Row>
