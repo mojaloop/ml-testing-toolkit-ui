@@ -19,13 +19,13 @@ const Welcome = () => {
         <Col span={24}>
           <Card>
             <CardBody>
-              <CardTitle>Welcome to Mojaloop Lab</CardTitle>
+              <CardTitle>Welcome to Mojaloop Training Lab</CardTitle>
               <Link to="/demo">
                 <Button
                   className="m-1"
                   color="info"
                   size="sm"
-                  // onClick={handleClick}
+                // onClick={handleClick}
                 >
                   Start Here
                 </Button>
