@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 const Welcome = () => {
   return (
     <Container className="mt--7" fluid>
-      <Row>
+      <Row justify="center">
         <Col span={24}>
           <Card>
             <CardBody>
