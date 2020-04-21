@@ -456,7 +456,7 @@ class LearningPage extends React.Component {
   handleLoadSampleTemplate = () => {
     const sampleJson = JSON.parse(JSON.stringify(require('./dfsp-tests.json')))
     console.log(sampleJson)
-    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, additionalData: { importedFilename: 'Sample' } })
+    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, selectTestCase: {}, additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
     message.success({
       content: 'Input Values Loaded',
