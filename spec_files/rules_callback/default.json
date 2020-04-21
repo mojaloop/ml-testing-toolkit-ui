@@ -56,9 +56,13 @@
       ]
     },
     "event": {
-      "method": null,
-      "path": null,
-      "params": {},
+      "method": "put",
+      "path": "/transfers/{ID}",
+      "params": {
+        "body": {
+          "transferState": "COMMITTED"
+        }
+      },
       "delay": 0,
       "type": "MOCK_CALLBACK"
     }
