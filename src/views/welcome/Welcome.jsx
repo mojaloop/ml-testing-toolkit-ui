@@ -14,27 +14,25 @@ import { Link } from "react-router-dom";
 import Header from "../../components/Headers/Header.jsx";
 
 import "./Welcome.css"
-import { classnames } from 'classnames';
-
 
 
 const Welcome = () => {
   return (
     <>
       <Header />
-      <Container className="mt--7" fluid>
-        <Row>
-          <Col span={12} offset={6}>
+      <Container className="mt--6" fluid>
+        <Row type="flex" align="middle" justify="center">
+          <Col>
             <Card className="custom-card">
               <CardBody>
-                <Row align="middle" justify="center" className="mt-5">
-                  <Col>
-                    <Typography.Title level={4}>
+                <Row type="flex" align="middle" justify="center">
+                  <Col span={24}>
+                    <Typography.Title level={4} className="custom-heading mb-4">
                       Welcome to Mojaloop Training Lab
                   </Typography.Title>
                   </Col>
-                  <Col span={12} offset={6}>
-                    <Link to="/demo">
+                  <Col span={10}>
+                    <Link to="/user/demo">
                       <Button
                         className="m-1 custom-button"
                         color="default"

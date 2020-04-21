@@ -3,6 +3,16 @@
     box-shadow: 0px 5px #d7d7d7;
 }
 
+.custom-card .card-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .custom-button {
     border-radius: 20px;
+}
+
+.custom-heading {
+    text-align: center;
 }
