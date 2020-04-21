@@ -33,12 +33,12 @@ const Welcome = () => {
                       Welcome to Mojaloop Training Lab
                   </Typography.Title>
                   </Col>
-                  <Col>
+                  <Col span={12} offset={6}>
                     <Link to="/demo">
                       <Button
                         className="m-1 custom-button"
                         color="default"
-                        size="md"
+                        size="sm"
                         block
                       // onClick={handleClick}
                       >
