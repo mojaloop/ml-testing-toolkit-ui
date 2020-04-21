@@ -87,7 +87,7 @@ var routes = [
   },
   {
     path: "/welcome",
-    name: "Mojaloop Training lab",
+    name: "Welcome Page",
     icon: "ni ni-money-coins text-blue",
     component: Welcome,
     layout: "/user"
