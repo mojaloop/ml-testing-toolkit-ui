@@ -23,7 +23,7 @@ const Welcome = () => {
               <Link to="/demo">
                 <Button
                   className="m-1"
-                  color="info"
+                  color="default"
                   size="sm"
                 // onClick={handleClick}
                 >

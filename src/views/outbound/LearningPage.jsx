@@ -138,7 +138,7 @@ class InputValues extends React.Component {
                 >
                   <Button
                     className="text-right float-right"
-                    color="primary"
+                    color="info"
                     size="sm"
                   >
                     Add Input Value
@@ -668,7 +668,7 @@ class LearningPage extends React.Component {
                                 testCases={this.state.allTestCases} />
                             </Col>
 
-                            <Col lg={9} xs={21} offset={3}>
+                            <Col xl={{span: 9, offset: 2}} lg={{span: 8, offset: 4}} xs={21} offset={3}>
                               <Button
                                 className="m-1"
                                 color="info"

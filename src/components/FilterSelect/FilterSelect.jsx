@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Select } from 'antd';
 
+import './FilterSelect.css'
+
 const FilterSelect = ({ testCases, onChangeFilterSelect }) => {
 
     // const onChange = (value) => {
@@ -26,7 +28,7 @@ const FilterSelect = ({ testCases, onChangeFilterSelect }) => {
     return (
         <Select
             showSearch
-            style={{ width: 350 }}
+            className="filter-select"
             placeholder="Select a Test Case"
             optionFilterProp="children"
             onChange={onChangeFilterSelect}
