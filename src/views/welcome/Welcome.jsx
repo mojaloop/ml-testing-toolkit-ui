@@ -7,11 +7,13 @@ import {
   Button,
 } from "reactstrap";
 
-import { Row, Col } from 'antd';
+import { Typography, Row, Col } from 'antd';
 
 import { Link } from "react-router-dom";
 
 import Header from "../../components/Headers/Header.jsx";
+
+import "./Welcome.css"
 
 
 
@@ -20,22 +22,29 @@ const Welcome = () => {
     <>
       <Header />
       <Container className="mt--7" fluid>
-        <Row justify="center">
-          <Col span={24}>
-            <Card>
+        <Row>
+          <Col span={12} offset={6}>
+            <Card className="custom-card">
               <CardBody>
-                <CardTitle>Welcome to Mojaloop Training Lab</CardTitle>
-                <Link to="/demo">
-                  <Button
-                    className="m-1"
-                    color="default"
-                    size="sm"
-                  // onClick={handleClick}
-                  >
-                    Start Here
-                </Button>
-                </Link>
-
+                <Row align="middle">
+                  <Col>
+                    <Typography.Title level={4}>
+                      Welcome to Mojaloop Training Lab
+                  </Typography.Title>
+                  </Col>
+                  <Col offset={9}>
+                    <Link to="/demo">
+                      <Button
+                        className="m-1"
+                        color="default"
+                        size="sm"
+                      // onClick={handleClick}
+                      >
+                        Start Here
+                      </Button>
+                    </Link>
+                  </Col>
+                </Row>
               </CardBody>
             </Card>
           </Col>
