@@ -33,7 +33,6 @@ const Welcome = () => {
 
             </CardBody>
           </Card>
-          <h1>Welcome</h1>
         </Col>
       </Row>
     </Container>

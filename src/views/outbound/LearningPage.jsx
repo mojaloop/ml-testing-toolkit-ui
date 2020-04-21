@@ -670,7 +670,7 @@ class LearningPage extends React.Component {
 
                             <Col xl={{span: 9, offset: 2}} lg={{span: 8, offset: 4}} xs={21} offset={3}>
                               <Button
-                                className="m-1"
+                                className="m-1 button-select"
                                 color="info"
                                 size="sm"
                                 disabled={
