@@ -14,8 +14,6 @@ import { Link } from "react-router-dom";
 import Header from "../../components/Headers/Header.jsx";
 
 import "./Welcome.css"
-import { classnames } from 'classnames';
-
 
 
 const Welcome = () => {
@@ -29,12 +27,12 @@ const Welcome = () => {
               <CardBody>
                 <Row type="flex" align="middle" justify="center">
                   <Col span={24}>
-                    <Typography.Title level={4} className="mb-4">
+                    <Typography.Title level={4} className="custom-heading mb-4">
                       Welcome to Mojaloop Training Lab
                   </Typography.Title>
                   </Col>
                   <Col span={10}>
-                    <Link to="/demo">
+                    <Link to="/user/demo">
                       <Button
                         className="m-1 custom-button"
                         color="default"
