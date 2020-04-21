@@ -1,3 +1,7 @@
 .custom-card {
     height: 300px;
 }
+
+.custom-button {
+    border-radius: 20px;
+}

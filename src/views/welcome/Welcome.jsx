@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import Header from "../../components/Headers/Header.jsx";
 
 import "./Welcome.css"
+import { classnames } from 'classnames';
 
 
 
@@ -26,18 +27,19 @@ const Welcome = () => {
           <Col span={12} offset={6}>
             <Card className="custom-card">
               <CardBody>
-                <Row align="middle">
+                <Row align="middle" justify="center" className="mt-5">
                   <Col>
                     <Typography.Title level={4}>
                       Welcome to Mojaloop Training Lab
                   </Typography.Title>
                   </Col>
-                  <Col offset={9}>
+                  <Col>
                     <Link to="/demo">
                       <Button
-                        className="m-1"
+                        className="m-1 custom-button"
                         color="default"
-                        size="sm"
+                        size="md"
+                        block
                       // onClick={handleClick}
                       >
                         Start Here
