@@ -138,7 +138,7 @@ class InputValues extends React.Component {
                 >
                   <Button
                     className="text-right float-right"
-                    color="primary"
+                    color="info"
                     size="sm"
                   >
                     Add Input Value
@@ -148,7 +148,7 @@ class InputValues extends React.Component {
                 <Form>
                   <Descriptions title="Input Values"
                     bordered
-                    column={{ xxl: 4, xl: 2, lg: 1, md: 1, sm: 1, xs: 1 }}
+                    column={{ xxl: 2, xl: 2, lg: 1, md: 1, sm: 1, xs: 1 }}
                     size='small'>
                     {this.getInputItems()}
                   </Descriptions>
@@ -440,8 +440,9 @@ class LearningPage extends React.Component {
       var content = e.target.result;
       try {
         var intern = JSON.parse(content);
+        let importedTestCases = intern.test_cases ? intern.test_cases : {}
         console.log(file_to_read)
-        this.setState({ template: intern, additionalData: { importedFilename: file_to_read.name } })
+        this.setState({ originalTemplate: intern, allTestCases: importedTestCases, additionalData: { importedFilename: file_to_read.name } })
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
       } catch (err) {
@@ -455,7 +456,7 @@ class LearningPage extends React.Component {
   handleLoadSampleTemplate = () => {
     const sampleJson = JSON.parse(JSON.stringify(require('./dfsp-tests.json')))
     console.log(sampleJson)
-    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, additionalData: { importedFilename: 'Sample' } })
+    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, selectTestCase: {}, additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
     message.success({
       content: 'Input Values Loaded',
@@ -667,9 +668,9 @@ class LearningPage extends React.Component {
                                 testCases={this.state.allTestCases} />
                             </Col>
 
-                            <Col lg={9} xs={21} offset={3}>
+                            <Col xl={{span: 9, offset: 2}} lg={{span: 8, offset: 4}} xs={21} offset={3}>
                               <Button
-                                className="m-1"
+                                className="m-1 button-select"
                                 color="info"
                                 size="sm"
                                 disabled={

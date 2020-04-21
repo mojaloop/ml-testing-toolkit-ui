@@ -1,0 +1,9 @@
+.filter-select {
+    width: 350px;
+}
+
+@media only screen and (min-width: 2000px) {
+    .filter-select {
+        width: 500px;
+    }
+}
