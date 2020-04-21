@@ -11,31 +11,37 @@ import { Row, Col } from 'antd';
 
 import { Link } from "react-router-dom";
 
+import Header from "../../components/Headers/Header.jsx";
+
+
 
 const Welcome = () => {
   return (
-    <Container className="mt--7" fluid>
-      <Row justify="center">
-        <Col span={24}>
-          <Card>
-            <CardBody>
-              <CardTitle>Welcome to Mojaloop Training Lab</CardTitle>
-              <Link to="/demo">
-                <Button
-                  className="m-1"
-                  color="default"
-                  size="sm"
-                // onClick={handleClick}
-                >
-                  Start Here
+    <>
+      <Header />
+      <Container className="mt--7" fluid>
+        <Row justify="center">
+          <Col span={24}>
+            <Card>
+              <CardBody>
+                <CardTitle>Welcome to Mojaloop Training Lab</CardTitle>
+                <Link to="/demo">
+                  <Button
+                    className="m-1"
+                    color="default"
+                    size="sm"
+                  // onClick={handleClick}
+                  >
+                    Start Here
                 </Button>
-              </Link>
+                </Link>
 
-            </CardBody>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </>
   )
 }
 
