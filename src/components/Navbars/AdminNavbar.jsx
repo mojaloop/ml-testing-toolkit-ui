@@ -20,8 +20,13 @@ import { Link } from "react-router-dom";
 // reactstrap components
 import {
   Navbar,
+  NavbarBrand,
   Container,
 } from "reactstrap";
+
+import './Navbar.css';
+
+import MbxLogoWhite from "../../assets/img/brand/mbx/Logo_Modusbox_Horizontal_White.png";
 
 class AdminNavbar extends React.Component {
   render() {
@@ -29,12 +34,17 @@ class AdminNavbar extends React.Component {
       <>
         <Navbar className="navbar-top navbar-dark" expand="md" id="navbar-main">
           <Container fluid>
-            <Link
+            <NavbarBrand to="/" tag={Link}>
+              <img className="mbx-logo" alt="logo" src={MbxLogoWhite} />
+            </NavbarBrand>
+
+            {/* <Link
               className="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block"
               to="/"
             >
               {this.props.brandText}
-            </Link>
+            </Link> */}
+
             {/* <Form className="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
               <FormGroup className="mb-0">
                 <InputGroup className="input-group-alternative">
@@ -47,7 +57,7 @@ class AdminNavbar extends React.Component {
                 </InputGroup>
               </FormGroup>
             </Form> */}
-            
+
           </Container>
         </Navbar>
       </>

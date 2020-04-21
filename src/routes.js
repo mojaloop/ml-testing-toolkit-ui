@@ -23,6 +23,7 @@ import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
 import LearningPage from "./views/outbound/LearningPage.jsx";
 import Monitor from "./views/monitor/Monitor.jsx";
 import Settings from "./views/settings/Settings.jsx";
+import Welcome from './views/welcome/Welcome';
 
 var routes = [
   {
@@ -82,6 +83,13 @@ var routes = [
     name: "Mojaloop Training lab",
     icon: "ni ni-money-coins text-blue",
     component: LearningPage,
+    layout: "/user"
+  },
+  {
+    path: "/welcome",
+    name: "Mojaloop Training lab",
+    icon: "ni ni-money-coins text-blue",
+    component: Welcome,
     layout: "/user"
   },
   // {
