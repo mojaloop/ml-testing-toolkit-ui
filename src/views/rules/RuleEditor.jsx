@@ -73,7 +73,8 @@ class ResourceSelector extends React.Component {
               if(this.props.mode === 'response') {
                 this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
               } else {
-                if (pathKey === '/parties/{Type}/{ID}' || pathKey === '/quotes' || pathKey === '/transfers') {
+                // if (pathKey === '/parties/{Type}/{ID}' || pathKey === '/quotes' || pathKey === '/transfers') {
+                if (this.props.callbackMap[pathKey]) {
                   this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)                
                 }
               }
@@ -485,7 +486,7 @@ class RulesEditor extends React.Component {
                         <tr>
                           <td align='right'><b>Resource:</b></td>
                           <td>
-                            <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} mode={this.props.mode} onSelect={this.resourceSelectHandler} />
+                            <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} mode={this.props.mode} callbackMap={this.state.callbackMap} onSelect={this.resourceSelectHandler} />
                           </td>
                         </tr>
                         </tbody>
