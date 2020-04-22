@@ -410,7 +410,7 @@ class LearningPage extends React.Component {
     this.autoSaveIntervalId = setInterval(() => {
       if (this.autoSave) {
         this.autoSave = false
-        this.autoSaveTemplate(this.convertTemplate(this.state.template))
+        this.autoSaveTemplate(this.convertTemplate(this.state.originalTemplate))
         this.autoSaveAdditionalData(this.state.additionalData)
       }
     },
@@ -458,6 +458,7 @@ class LearningPage extends React.Component {
     console.log(sampleJson)
     this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, selectTestCase: {}, additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
+    // this.onChangeFilterSelect(1)
     message.success({
       content: 'Input Values Loaded',
       key: 'importFileProgress', duration: 2
@@ -510,10 +511,13 @@ class LearningPage extends React.Component {
   }
 
   onChangeFilterSelect = (selectVal) => {
+    console.log("onChangeFilterSelect", selectVal)
+
     let filteredTest = this.state.allTestCases &&
       this.state.allTestCases.find(
         (item) => (selectVal == item.id)
       )
+    console.log("filteredTest", filteredTest)
 
     let filteredTemplate = this.state.originalTemplate
     filteredTemplate.test_cases = []
@@ -609,8 +613,6 @@ class LearningPage extends React.Component {
       </>
     )
 
-    console.log('selectTestCase', this.state.selectTestCase)
-
     return (
       <>
         <Modal
@@ -668,7 +670,7 @@ class LearningPage extends React.Component {
                                 testCases={this.state.allTestCases} />
                             </Col>
 
-                            <Col xl={{span: 9, offset: 2}} lg={{span: 8, offset: 4}} xs={21} offset={3}>
+                            <Col xl={{ span: 9, offset: 2 }} lg={{ span: 8, offset: 4 }} xs={21} offset={3}>
                               <Button
                                 className="m-1 button-select"
                                 color="info"
