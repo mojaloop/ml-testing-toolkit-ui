@@ -442,7 +442,10 @@ class LearningPage extends React.Component {
         var intern = JSON.parse(content);
         let importedTestCases = intern.test_cases ? intern.test_cases : {}
         console.log(file_to_read)
-        this.setState({ originalTemplate: intern, allTestCases: importedTestCases, additionalData: { importedFilename: file_to_read.name } })
+        this.setState({ originalTemplate: intern, 
+          // template: intern, 
+          allTestCases: importedTestCases, 
+          additionalData: { importedFilename: file_to_read.name } })
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
       } catch (err) {
@@ -816,7 +819,7 @@ class LearningPage extends React.Component {
                               >
                                 <Button
                                   className="text-right float-right m-1"
-                                  color="primary"
+                                  color="info"
                                   size="sm"
                                 >
                                   New Template
@@ -861,7 +864,7 @@ class LearningPage extends React.Component {
                         >
                           <Button
                             className="text-left float-left mb-2 mt-2"
-                            color="primary"
+                            color="info"
                             size="sm"
                           >
                             Add Test Case
