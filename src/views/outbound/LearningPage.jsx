@@ -521,7 +521,6 @@ class LearningPage extends React.Component {
   }
 
   onChangeFilterSelect = (selectVal) => {
-    console.log('onChangeFilterSelect', selectVal)
     if (this.state.allTestCases.length === 0) return
 
     let filteredTest = this.state.allTestCases &&
@@ -529,11 +528,9 @@ class LearningPage extends React.Component {
         (item) => (selectVal == item.id)
       )
       
-      let filteredTemplate = this.state.originalTemplate
-      filteredTemplate.test_cases = []
-      filteredTemplate.test_cases.push(filteredTest)
-
-      console.log("filteredTemplate", filteredTemplate)
+    let filteredTemplate = this.state.originalTemplate
+    filteredTemplate.test_cases = []
+    filteredTemplate.test_cases.push(filteredTest)
 
     let updatedActiveKey = this.state.collapseActiveKeys
     let inputValKeyIndex = updatedActiveKey.indexOf("3")
