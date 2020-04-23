@@ -212,7 +212,7 @@ class LearningPage extends React.Component {
 
     const storedTemplate = this.restoreSavedTemplate()
     if (storedTemplate) {
-      this.setState({ template: storedTemplate })
+      this.setState({ originalTemplate: storedTemplate })
     }
     const additionalData = this.restoreAdditionalData()
     if (additionalData) {
@@ -458,7 +458,10 @@ class LearningPage extends React.Component {
   handleLoadSampleTemplate = () => {
     const sampleJson = JSON.parse(JSON.stringify(require('./dfsp-tests.json')))
     console.log(sampleJson)
-    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, template: sampleJson, additionalData: { importedFilename: 'Sample' } })
+    this.setState({ originalTemplate: sampleJson, 
+      allTestCases: sampleJson.test_cases,
+      template: sampleJson,
+      additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
     message.success({
       content: 'Input Values Loaded',
