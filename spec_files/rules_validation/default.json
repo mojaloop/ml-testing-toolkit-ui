@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "ruleId": 1,
+    "priority": 1,
+    "description": "get /parties for MSISDN ID 123",
+    "apiVersion": {
+      "minorVersion": 0,
+      "majorVersion": 1,
+      "type": "fspiop",
+      "asynchronous": true
+    },
+    "conditions": {
+      "all": [
+        {
+          "fact": "pathParams",
+          "operator": "equal",
+          "value": "123",
+          "path": "ID"
+        },
+        {
+          "fact": "operationPath",
+          "operator": "equal",
+          "value": "/parties/{Type}/{ID}"
+        },
+        {
+          "fact": "method",
+          "operator": "equal",
+          "value": "get"
+        }
+      ]
+    },
+    "event": {
+      "method": "put",
+      "path": "/parties/{Type}/{ID}/error",
+      "params": {
+        "body": {
+          "errorInformation": {
+            "errorCode": "3200",
+            "errorDescription": "The Generic ID not found"
+          }
+        }
+      },
+      "delay": 0,
+      "type": "MOCK_ERROR_CALLBACK"
+    }
+  }
+]
