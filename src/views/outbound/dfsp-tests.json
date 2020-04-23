@@ -345,8 +345,131 @@
 				}
 			]
 		},
+    {
+      "id": 2,
+      "name": "Transaction Request Service",
+      "requests": [
+        {
+          "id": 1,
+          "description": "Get party information",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/parties/{Type}/{ID}",
+          "method": "get",
+          "headers": {
+            "Accept": "{$inputs.accept}",
+            "Content-Type": "{$inputs.contentType}",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "{$inputs.toFspId}"
+          },
+          "params": {
+            "Type": "{$inputs.fromIdType}",
+            "ID": "{$inputs.fromIdValue}"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response should be 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              },
+              {
+                "id": 2,
+                "description": "Callback body should contain party",
+                "exec": [
+                  "expect(callback.body).to.have.property('party')"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": 2,
+          "description": "Send Transaction Request to Payer",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/transactionRequests",
+          "path": "/transactionRequests",
+          "method": "post",
+          "body": {
+            "transactionRequestId": "{$function.generic.generateUUID}",
+            "payee": {
+              "partyIdInfo": {
+                "partyIdType": "{$inputs.toIdType}",
+                "partyIdentifier": "{$inputs.toIdValue}",
+                "fspId": "{$inputs.toFspId}"
+              },
+              "merchantClassificationCode": "98",
+              "name": "nisi in",
+              "personalInfo": {
+                "complexName": {
+                  "firstName": "User",
+                  "middleName": "FSP",
+                  "lastName": "DFSP"
+                },
+                "dateOfBirth": "{$inputs.fromDOB}"
+              }
+            },
+            "payer": {
+              "partyIdType": "{$inputs.fromIdType}",
+              "partyIdentifier": "{$inputs.fromIdValue}",
+              "fspId": "{$prev.1.callback.body.party.partyIdInfo.fspId}"
+            },
+            "amount": {
+              "currency": "{$inputs.currency}",
+              "amount": "{$inputs.amount}"
+            },
+            "transactionType": {
+              "scenario": "PAYMENT",
+              "initiator": "PAYEE",
+              "initiatorType": "BUSINESS",
+              "refundInfo": {
+                "originalTransactionId": "{$function.generic.generateUUID}",
+                "refundReason": "Reason"
+              },
+              "balanceOfPayments": "968"
+            },
+            "note": "{$inputs.note}"
+          },
+          "headers": {
+            "Accept": "{$inputs.accept}",
+            "Content-Type": "{$inputs.contentType}",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "{$inputs.toFspId}"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response should be 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              },
+              {
+                "id": 2,
+                "description": "Callback body should contain transactionRequestState",
+                "exec": [
+                  "expect(callback.body).to.have.property('transactionRequestState')"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
 		{
-			"id": 2,
+			"id": 3,
 			"name": "Party info with missing header",
 			"requests": [
 				{
@@ -585,7 +708,7 @@
 			]
 		},
 		{
-			"id": 3,
+			"id": 4,
 			"name": "Party info of unprovisioned party",
 			"requests": [
 				{
@@ -674,7 +797,7 @@
 			]
 		},
 		{
-			"id": 4,
+			"id": 5,
 			"name": "Party info with wrong header values",
 			"requests": [
 				{
@@ -917,7 +1040,7 @@
 			]
 		},
 		{
-			"id": 5,
+			"id": 6,
 			"name": "POST /quotes with missing headers",
 			"requests": [
 				{
@@ -1459,7 +1582,7 @@
 			]
 		},
 		{
-			"id": 6,
+			"id": 7,
 			"name": "POST /quotes with wrong headers",
 			"requests": [
 				{
@@ -2002,7 +2125,7 @@
 			]
 		},
 		{
-			"id": 7,
+			"id": 8,
 			"name": "POST /Transfers with missing headers",
 			"requests": [
 				{
@@ -2518,7 +2641,7 @@
 			]
 		},
 		{
-			"id": 8,
+			"id": 9,
 			"name": "POST /Transfers with wrong headers",
 			"requests": [
 				{
@@ -3038,7 +3161,7 @@
 			]
 		},
 		{
-			"id": 9,
+			"id": 10,
 			"name": "POST /quotes with missing parameters in body",
 			"requests": [
 				{
@@ -3985,7 +4108,7 @@
 			]
 		},
 		{
-			"id": 10,
+			"id": 11,
 			"name": "POST /Transfers with missing parameters in body",
 			"requests": [
 				{

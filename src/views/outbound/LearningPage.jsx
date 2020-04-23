@@ -187,7 +187,8 @@ class LearningPage extends React.Component {
       totalPassedCount: 0,
       totalAssertionsCount: 0,
       sessionId: sessionId,
-      collapseActiveKeys: ["1", "3"]
+      collapseActiveKeys: ["1", "3"],
+      currentEndToEndId: null
     };
   }
 
@@ -238,46 +239,48 @@ class LearningPage extends React.Component {
   }
 
   handleIncomingProgress = (progress) => {
-    if (progress.status === 'FINISHED') {
-      message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
-    } else {
-      let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
-      // let testCase = this.state.selectTestCase
-      let request = testCase.requests.find(item => item.id === progress.requestId)
-      if (request.status) {
-        // Update total passed count
-        const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
-        this.state.totalPassedCount += passedCount
-        if (progress.status === 'SUCCESS') {
+    if ( this.state.currentEndToEndId === progress.outboundID) {
+      if (progress.status === 'FINISHED') {
+        message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
+      } else {
+        let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
+        // let testCase = this.state.selectTestCase
+        let request = testCase.requests.find(item => item.id === progress.requestId)
+        if (request.status) {
+          // Update total passed count
+          const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+          this.state.totalPassedCount += passedCount
+          if (progress.status === 'SUCCESS') {
 
-          request.status.state = 'finish'
-          request.status.response = progress.response
-          request.status.callback = progress.callback
-          request.status.requestSent = progress.requestSent
-          request.status.testResult = progress.testResult
-        } else if (progress.status === 'ERROR') {
-          request.status.state = 'error'
-          request.status.response = progress.response
-          request.status.callback = progress.callback
-          request.status.requestSent = progress.requestSent
-          request.status.testResult = progress.testResult
-          // Clear the waiting status of the remaining requests
-          for (let i in testCase.requests) {
-            if (!testCase.requests[i].status) {
-              testCase.requests[i].status = {}
-            }
-            if (testCase.requests[i].status.state === 'process') {
-              testCase.requests[i].status.state = 'wait'
-              testCase.requests[i].status.response = null
-              testCase.requests[i].status.callback = null
-              testCase.requests[i].status.requestSent = null
-              testCase.requests[i].status.testResult = null
-            }
+            request.status.state = 'finish'
+            request.status.response = progress.response
+            request.status.callback = progress.callback
+            request.status.requestSent = progress.requestSent
+            request.status.testResult = progress.testResult
+          } else if (progress.status === 'ERROR') {
+            request.status.state = 'error'
+            request.status.response = progress.response
+            request.status.callback = progress.callback
+            request.status.requestSent = progress.requestSent
+            request.status.testResult = progress.testResult
+            // Clear the waiting status of the remaining requests
+            for (let i in testCase.requests) {
+              if (!testCase.requests[i].status) {
+                testCase.requests[i].status = {}
+              }
+              if (testCase.requests[i].status.state === 'process') {
+                testCase.requests[i].status.state = 'wait'
+                testCase.requests[i].status.response = null
+                testCase.requests[i].status.callback = null
+                testCase.requests[i].status.requestSent = null
+                testCase.requests[i].status.testResult = null
+              }
 
+            }
+            // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
           }
-          // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
+          this.forceUpdate()
         }
-        this.forceUpdate()
       }
     }
   }
@@ -291,8 +294,8 @@ class LearningPage extends React.Component {
     // const outboundRequestID = Math.random().toString(36).substring(7);
     // TraceID
     const traceIdPrefix = traceHeaderUtilsObj.getTraceIdPrefix()
-    const endToEndId = traceHeaderUtilsObj.generateEndToEndId()
-    const traceId = traceIdPrefix + this.state.sessionId + endToEndId
+    this.state.currentEndToEndId = traceHeaderUtilsObj.generateEndToEndId()
+    const traceId = traceIdPrefix + this.state.sessionId + this.state.currentEndToEndId
     console.log('Trace ID is ', traceId)
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
