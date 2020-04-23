@@ -221,6 +221,8 @@ class LearningPage extends React.Component {
 
     this.handleLoadSampleTemplate()
 
+    // this.onChangeFilterSelect(1)
+
     this.startAutoSaveTemplateTimer()
 
   }
@@ -456,9 +458,8 @@ class LearningPage extends React.Component {
   handleLoadSampleTemplate = () => {
     const sampleJson = JSON.parse(JSON.stringify(require('./dfsp-tests.json')))
     console.log(sampleJson)
-    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, selectTestCase: {}, additionalData: { importedFilename: 'Sample' } })
+    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, template: sampleJson, additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
-    // this.onChangeFilterSelect(1)
     message.success({
       content: 'Input Values Loaded',
       key: 'importFileProgress', duration: 2
@@ -511,17 +512,19 @@ class LearningPage extends React.Component {
   }
 
   onChangeFilterSelect = (selectVal) => {
-    console.log("onChangeFilterSelect", selectVal)
+    console.log('onChangeFilterSelect', selectVal)
+    if (this.state.allTestCases.length === 0) return
 
     let filteredTest = this.state.allTestCases &&
       this.state.allTestCases.find(
         (item) => (selectVal == item.id)
       )
-    console.log("filteredTest", filteredTest)
+      
+      let filteredTemplate = this.state.originalTemplate
+      filteredTemplate.test_cases = []
+      filteredTemplate.test_cases.push(filteredTest)
 
-    let filteredTemplate = this.state.originalTemplate
-    filteredTemplate.test_cases = []
-    filteredTemplate.test_cases.push(filteredTest)
+      console.log("filteredTemplate", filteredTemplate)
 
     let updatedActiveKey = this.state.collapseActiveKeys
     let inputValKeyIndex = updatedActiveKey.indexOf("3")
