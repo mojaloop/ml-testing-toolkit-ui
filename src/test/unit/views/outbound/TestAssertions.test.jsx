@@ -11,6 +11,19 @@ Enzyme.configure({ disableLifecycleMethods: true })
 
 const { shallow, render, mount } =Enzyme
 
+
+// Mock the Json Editor third party component used
+jest.mock('jsoneditor-react', () => {
+  return function DummyJsonEditor(props) {
+    return (
+      <div>
+       Dummy JSON Editor 
+      </div>
+    )
+  }
+})
+
+
 describe('TestAssertions', () => {
   describe('ConfigurableParameter', () => {
     const rootParameters = {}

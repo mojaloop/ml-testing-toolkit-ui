@@ -29,13 +29,17 @@ import {
 import axios from 'axios';
 // import { Dropdown, DropdownButton } from 'react-bootstrap';
 import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Collapse, Modal, Switch } from 'antd';
+
+import {SortableContainer, SortableElement} from 'react-sortable-hoc';
+import arrayMove from 'array-move';
+
 import 'antd/dist/antd.css';
 // import './index.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-eclipse";
-import getConfig from '../../utils/getConfig'
+import getConfig from '../../utils/getConfig';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -431,7 +435,8 @@ class AssertionEditor extends React.Component {
       configurableParameterSelected: false,
       renameAssertionDialogVisible: false,
       assertionDescription: '',
-      assertionRawEditorEnable: false
+      assertionRawEditorEnable: false,
+      reOrderingEnabled: false
     }
   }
 
@@ -757,7 +762,7 @@ export class TestAssertions extends React.Component {
     this.props.onChange(this.props.request)
   }
 
-
+  
   getAssertionItems = () => {
     const results = this.props.request.status && this.props.request.status.testResult && this.props.request.status.testResult.results ? this.props.request.status.testResult.results : {}
     return this.props.request.tests.assertions.map((assertion, key) => {
@@ -812,11 +817,34 @@ export class TestAssertions extends React.Component {
 
   handleRawAssertionsChange = (newAssertions) => {
     this.props.request.tests.assertions = newAssertions
-    this.updateChanges()
+    this.props.onChange(this.props.request)
   }
+
+  onAssertionSortEnd = ({oldIndex, newIndex}) => {
+    // Change the position in array
+    this.props.request.tests.assertions = arrayMove(this.props.request.tests.assertions, oldIndex, newIndex)
+    this.props.onChange(this.props.request)
+  };
 
 
   render () {
+
+
+    const SortableAssertionItem = SortableElement(({value}) => {
+      const assertion = value
+      return (
+        <Panel header={assertion.description}></Panel>
+    )});
+
+    const SortableAssertionList = SortableContainer(({items}) => {
+      return (
+        <Collapse>
+        {items.map((value, index) => (
+          <SortableAssertionItem key={`item-${value.id}`} index={index} value={value} />
+        ))}
+        </Collapse>
+      );
+    });
 
     const addNewTestDialogContent = (
       <>
@@ -843,71 +871,111 @@ export class TestAssertions extends React.Component {
     return (
       <>
       <strong>Raw Editor</strong> <Switch value={this.state.assertionRawEditorEnable} onChange={(checked) => { this.setState({assertionRawEditorEnable: checked}) }} />
+      &nbsp;
       {
-        !this.state.assertionRawEditorEnable
+        this.state.reOrderingEnabled
         ? (
+          <Button
+            className="text-right"
+            color="danger"
+            href="#pablo"
+            onClick={ () => {
+              this.setState({reOrderingEnabled: false})
+            }}
+            size="sm"
+          >
+            Done
+          </Button>
+        )
+        : (
+          <Button
+            className="text-right"
+            color="success"
+            href="#pablo"
+            onClick={ () => {
+              this.setState({reOrderingEnabled: true})
+            }}
+            size="sm"
+          >
+            Change Order
+          </Button>
+        )
+      }
+      {
+        this.state.reOrderingEnabled
+        ? (
+          <div>
+          <Row>
+            <Col className="text-left mt-4"> 
+              <SortableAssertionList items={this.props.request.tests.assertions} onSortEnd={this.onAssertionSortEnd} />
+            </Col>
+          </Row>
+          </div>
+        )
+        : !this.state.assertionRawEditorEnable
+          ? (
+              <div>
+                <Row>
+                  <Col className="text-left">
+                    <Popover
+                      content={addNewTestDialogContent}
+                      title="Enter a description for the assertion"
+                      trigger="click"
+                      visible={this.state.addNewAssertionDialogVisible}
+                      onVisibleChange={ (visible) => this.setState({addNewAssertionDialogVisible: visible})}
+                    >
+                      <Button
+                          className="text-right float-right"
+                          color="primary"
+                          size="sm"
+                        >
+                          Add New Assertion
+                      </Button>
+                    </Popover>
+                  </Col>
+                  
+                </Row>
+                <Row className='mt-2'>
+                  <Col>
+                  {
+                    this.props.request.tests
+                    ? (
+                      <>
+                      <Collapse
+                        onChange={this.handleRuleItemActivePanelChange}
+                      >
+                        {this.getAssertionItems()}
+                      </Collapse>              
+                      {/* <p><pre>{JSON.stringify(this.props.request.tests, null, 2)}</pre></p> */}
+                      </>
+                    )
+                    : null
+                  }
+        
+                  </Col>
+                </Row>
+              </div>
+            )
+          : (
             <div>
               <Row>
-                <Col className="text-left">
-                  <Popover
-                    content={addNewTestDialogContent}
-                    title="Enter a description for the assertion"
-                    trigger="click"
-                    visible={this.state.addNewAssertionDialogVisible}
-                    onVisibleChange={ (visible) => this.setState({addNewAssertionDialogVisible: visible})}
-                  >
-                    <Button
-                        className="text-right float-right"
-                        color="primary"
-                        size="sm"
-                      >
-                        Add New Assertion
-                    </Button>
-                  </Popover>
-                </Col>
-                
-              </Row>
-              <Row className='mt-2'>
-                <Col>
-                {
-                  this.props.request.tests
-                  ? (
-                    <>
-                    <Collapse
-                      onChange={this.handleRuleItemActivePanelChange}
-                    >
-                      {this.getAssertionItems()}
-                    </Collapse>              
-                    {/* <p><pre>{JSON.stringify(this.props.request.tests, null, 2)}</pre></p> */}
-                    </>
-                  )
-                  : null
-                }
-      
+                <Col className="text-left mt-4">
+                  <Editor
+                    ref="bodyEditor"
+                    value={ this.props.request.tests.assertions }
+                    ace={ace}
+                    ajv={ajv}
+                    theme="ace/theme/tomorrow_night_blue"
+                    mode="code"
+                    search={false}
+                    statusBar={false}
+                    navigationBar={false}
+                    onChange={this.handleRawAssertionsChange}
+                  />
                 </Col>
               </Row>
             </div>
           )
-        : (
-          <div>
-            <Row>
-              <Col className="text-left mt-4">
-                <Editor
-                  ref="bodyEditor"
-                  value={ this.props.request.tests.assertions }
-                  ace={ace}
-                  ajv={ajv}
-                  theme="ace/theme/tomorrow_night_blue"
-                  mode="code"
-                  search={false}
-                  statusBar={false}
-                  navigationBar={false}
-                  onChange={this.handleRawAssertionsChange}
-                />
-              </Col>
-            </Row>
-          </div>
-        )
       }
       </>
     )
