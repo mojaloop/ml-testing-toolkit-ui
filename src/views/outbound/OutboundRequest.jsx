@@ -33,12 +33,13 @@ import socketIOClient from "socket.io-client";
 import Header from "../../components/Headers/Header.jsx";
 
 
-import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Upload, Progress } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Upload, Progress, Menu, Dropdown } from 'antd';
 
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
 import getConfig from '../../utils/getConfig'
+import FileDownload from 'js-file-download'
 
 class InputValues extends React.Component {
 
@@ -170,7 +171,8 @@ class OutboundRequest extends React.Component {
       showTestCaseIndex: null,
       renameTestCase: false,
       totalPassedCount: 0,
-      totalAssertionsCount: 0
+      totalAssertionsCount: 0,
+      testReport: null
     };
   }
 
@@ -221,6 +223,7 @@ class OutboundRequest extends React.Component {
   handleIncomingProgress = (progress) => {
     if (progress.status === 'FINISHED') {
       message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
+      this.setState({testReport: progress.totalResult})
     } else {
       let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
       let request = testCase.requests.find(item => item.id === progress.requestId)
@@ -267,13 +270,15 @@ class OutboundRequest extends React.Component {
     // Initialize counts to zero
     this.state.totalPassedCount = 0
     this.state.totalAssertionsCount = 0
+    this.state.testReport = null
+
 
     const outboundRequestID = Math.random().toString(36).substring(7);
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     this.state.template = this.convertTemplate(this.state.template)
     await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, this.state.template, { headers: { 'Content-Type': 'application/json' } })
-    message.success({ content: 'Test case initiated', key: 'outboundSendProgress', duration: 2 });
+    message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
     // Set the status to waiting for all the requests
     for (let i in this.state.template.test_cases) {
@@ -418,7 +423,6 @@ class OutboundRequest extends React.Component {
       var content = e.target.result;
       try {
         var intern = JSON.parse(content);
-        console.log(file_to_read)
         this.setState({template: intern, additionalData: { importedFilename: file_to_read.name }})
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
@@ -427,6 +431,35 @@ class OutboundRequest extends React.Component {
       }
     };
     fileRead.readAsText(file_to_read);
+  }
+
+  handleDownloadReport = async (event) => {
+    switch(event.key) {
+      case 'json':
+        const jsonReportFileName = this.state.testReport.name + (this.state.testReport.runtimeInformation ? '-' + this.state.testReport.runtimeInformation.completedTimeISO : '') + '.json'
+        FileDownload(JSON.stringify(this.state.testReport, null, 2), jsonReportFileName)
+        break
+      case 'pdf':
+      case 'html':
+      default:
+        message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
+        const { apiBaseUrl } = getConfig()
+        const reportFormat = event.key
+        const response = await axios.post(apiBaseUrl + "/api/reports/testcase/" + reportFormat, this.state.testReport, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
+        let downloadFilename = "test." + reportFormat
+        if (response.headers['content-disposition']) {
+          const disposition = response.headers['content-disposition']
+          if (disposition && disposition.indexOf('attachment') !== -1) {
+            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            var matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) { 
+              downloadFilename = matches[1].replace(/['"]/g, '');
+            }
+          }
+        }
+        FileDownload(response.data, downloadFilename)
+        message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 });
+    }
 
   }
 
@@ -473,6 +506,16 @@ class OutboundRequest extends React.Component {
       })
     }
     return null
+  }
+
+  downloadReportMenu = () => {
+    return (
+      <Menu onClick={this.handleDownloadReport}>
+        <Menu.Item key='json'>JSON format</Menu.Item>
+        <Menu.Item key='pdf'>PDF report</Menu.Item>
+        <Menu.Item key='html'>HTML report</Menu.Item>
+      </Menu>
+    )
   }
 
   render() {
@@ -695,6 +738,22 @@ class OutboundRequest extends React.Component {
                                     New Template
                                 </Button>
                               </Popover>
+                              {
+                                this.state.testReport
+                                ? (
+                                  <Dropdown overlay={this.downloadReportMenu()}>
+                                  <Button
+                                    className="float-right"
+                                    color="danger"
+                                    size="sm"
+                                    onClick={e => e.preventDefault()}
+                                  >
+                                    Download Report
+                                  </Button>
+                                </Dropdown>
+                                )
+                                : null
+                              }
                             </Col>
                           </Row>
                         </CardBody>
