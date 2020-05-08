@@ -232,17 +232,18 @@ class OutboundRequest extends React.Component {
         const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
         this.state.totalPassedCount += passedCount
         if (progress.status === 'SUCCESS') {
-
           request.status.state = 'finish'
           request.status.response = progress.response
           request.status.callback = progress.callback
           request.status.requestSent = progress.requestSent
+          request.status.additionalInfo = progress.additionalInfo
           request.status.testResult = progress.testResult
         } else if (progress.status === 'ERROR') {
           request.status.state = 'error'
           request.status.response = progress.response
           request.status.callback = progress.callback
           request.status.requestSent = progress.requestSent
+          request.status.additionalInfo = progress.additionalInfo
           request.status.testResult = progress.testResult
           // Clear the waiting status of the remaining requests
           for (let i in testCase.requests) {
@@ -254,6 +255,7 @@ class OutboundRequest extends React.Component {
               testCase.requests[i].status.response = null
               testCase.requests[i].status.callback = null
               testCase.requests[i].status.requestSent = null
+              testCase.requests[i].status.additionalInfo = {}
               testCase.requests[i].status.testResult = null
             }
             
@@ -512,7 +514,6 @@ class OutboundRequest extends React.Component {
     return (
       <Menu onClick={this.handleDownloadReport}>
         <Menu.Item key='json'>JSON format</Menu.Item>
-        <Menu.Item key='pdf'>PDF report</Menu.Item>
         <Menu.Item key='html'>HTML report</Menu.Item>
       </Menu>
     )
