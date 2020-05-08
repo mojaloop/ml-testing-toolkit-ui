@@ -441,7 +441,7 @@ class OutboundRequest extends React.Component {
         const jsonReportFileName = this.state.testReport.name + (this.state.testReport.runtimeInformation ? '-' + this.state.testReport.runtimeInformation.completedTimeISO : '') + '.json'
         FileDownload(JSON.stringify(this.state.testReport, null, 2), jsonReportFileName)
         break
-      case 'pdf':
+      case 'printhtml':
       case 'html':
       default:
         message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
@@ -515,6 +515,7 @@ class OutboundRequest extends React.Component {
       <Menu onClick={this.handleDownloadReport}>
         <Menu.Item key='json'>JSON format</Menu.Item>
         <Menu.Item key='html'>HTML report</Menu.Item>
+        <Menu.Item key='printhtml'>Printer Friendly HTML report</Menu.Item>
       </Menu>
     )
   }
