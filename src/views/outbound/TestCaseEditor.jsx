@@ -30,7 +30,7 @@ import {
 } from "reactstrap";
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, message, Popover, Badge } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, message, Popover, Badge, Descriptions } from 'antd';
 
 import { RightCircleOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -39,11 +39,16 @@ import ace from 'brace';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
+import 'brace/theme/github';
 import axios from 'axios';
 import './fixAce.css';
 import RequestBuilder from './RequestBuilder'
 import TestAssertions from './TestAssertions'
 import getConfig from '../../utils/getConfig'
+
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/theme-terminal";
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -527,6 +532,20 @@ class TestCaseEditor extends React.Component {
     }
   }
 
+  getObjectAsDescriptions = (inputObject) => {
+    let inputItems = []
+    for (let key in inputObject) {
+      inputItems.push(
+        <>
+        <Descriptions.Item label={key}>
+          {inputObject[key]}
+        </Descriptions.Item>
+        </>
+      )
+    }
+    return inputItems
+  }
+
   getRequestGeneratorItems = (startIndex, endIndex) => {
     if (this.props.testCase.requests) {
       return this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
@@ -546,23 +565,77 @@ class TestCaseEditor extends React.Component {
                 {
                   requestShow.headers
                   ? (
-                    <>
-                    <h4>Header</h4>
-                    <pre>{JSON.stringify(this.replaceInputValues(requestShow.headers),null,2)}</pre>
-                    </>
+                    <Card className="mb-2">
+                      <CardHeader>
+                        Header
+                      </CardHeader>
+                      <CardBody>
+                        <Descriptions bordered column={1} size='small'>
+                          {this.getObjectAsDescriptions(this.replaceInputValues(requestShow.headers))}
+                        </Descriptions>
+                      </CardBody>
+                    </Card>
                   )
                   : null
                 }
                 {
                   requestShow.body
                   ? (
-                    <>
-                    <h4>Body</h4>
-                    <pre>{JSON.stringify(this.replaceInputValues(requestShow.body),null,2)}</pre>
-                    </>
+                    <Card className="mb-2">
+                      <CardHeader>
+                        Body
+                      </CardHeader>
+                      <CardBody>
+                        <AceEditor
+                          ref="assertionAceEditor"
+                          mode="json"
+                          theme="github"
+                          width='100%'
+                          height='100px'
+                          value= {JSON.stringify(this.replaceInputValues(requestShow.body),null,2)}
+                          name="UNIQUE_ID_OF_DIV"
+                          wrapEnabled={true}
+                          showPrintMargin={true}
+                          showGutter={false}
+                          readOnly={true}
+                          highlightActiveLine={false}
+                          tabSize={2}
+                        />
+                      </CardBody>
+                    </Card>
                   )
                   : null
                 }
+                {
+                  item.status && item.status.additionalInfo && item.status.additionalInfo.curlRequest
+                  ? (
+                    <>
+                    <Card className="mb-2">
+                      <CardHeader>
+                        CURL command
+                      </CardHeader>
+                      <CardBody>
+                        <AceEditor
+                          ref="assertionAceEditor"
+                          mode="javascript"
+                          theme="terminal"
+                          width='100%'
+                          height='100px'
+                          value= {item.status.additionalInfo.curlRequest}
+                          name="UNIQUE_ID_OF_DIV"
+                          wrapEnabled={true}
+                          showPrintMargin={true}
+                          showGutter={false}
+                          readOnly={true}
+                          highlightActiveLine={false}
+                          tabSize={2}
+                        />
+                      </CardBody>
+                    </Card>
+                    </>
+                  )
+                  : null
+                }              
                 </>
               </TabPane>
               <TabPane tab="Editor" key="2">
