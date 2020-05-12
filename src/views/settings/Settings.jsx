@@ -130,13 +130,20 @@ class ConfigurationEditor extends React.Component {
               <ParamInput name="Callback URL" itemKey="CALLBACK_ENDPOINT" value={this.props.config.CALLBACK_ENDPOINT} onChange={this.handleParamValueChange} />
               <ParamInput name="FSP ID" itemKey="FSPID" value={this.props.config.FSPID} onChange={this.handleParamValueChange} />
               <ParamInput name="Send Callback" itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
-              <ParamInput name="Validate Transfers with previous quote" itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
               <ParamInput name="Enable Version Negotiation Support" itemKey="VERSIONING_SUPPORT_ENABLE" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange} />
+              <Divider />
+              <ParamInput name="Validate Transfers with previous quote" itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
+              <ParamInput name="Validate IlpPacket in transfers" itemKey="TRANSFERS_VALIDATION_ILP_PACKET" value={this.props.config.TRANSFERS_VALIDATION_ILP_PACKET} onChange={this.handleParamValueChange} />
+              <ParamInput name="Validate Condition in transfers" itemKey="TRANSFERS_VALIDATION_CONDITION" value={this.props.config.TRANSFERS_VALIDATION_CONDITION} onChange={this.handleParamValueChange} />
+              <ParamInput name="ILP Secret" itemKey="ILP_SECRET" value={this.props.config.ILP_SECRET} onChange={this.handleParamValueChange} />
+              <Divider />
               <ParamInput name="Enable Inbound JWS Validation" itemKey="VALIDATE_INBOUND_JWS" value={this.props.config.VALIDATE_INBOUND_JWS} onChange={this.handleParamValueChange} />
               <ParamInput name="Enable Inbound JWS Validation for PUT /parties" itemKey="VALIDATE_INBOUND_PUT_PARTIES_JWS" value={this.props.config.VALIDATE_INBOUND_PUT_PARTIES_JWS} onChange={this.handleParamValueChange} />
               <ParamInput name="Enable Outbound JWS Signing" itemKey="JWS_SIGN" value={this.props.config.JWS_SIGN} onChange={this.handleParamValueChange} />
               <ParamInput name="Enable Outbound JWS Signing for PUT /parties" itemKey="JWS_SIGN_PUT_PARTIES" value={this.props.config.JWS_SIGN_PUT_PARTIES} onChange={this.handleParamValueChange} />
+              <Divider />
               <ParamInput name="Connection Manager API URL" itemKey="CONNECTION_MANAGER_API_URL" value={this.props.config.CONNECTION_MANAGER_API_URL} onChange={this.handleParamValueChange} />
+              <Divider />
               <ParamInput name="Inbound Mutual TLS" itemKey="INBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
               <ParamInput name="Outbound Mutual TLS" itemKey="OUTBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
             </CardBody>
@@ -182,13 +189,20 @@ class ConfigurationViewer extends React.Component {
               <ParamView name="Callback URL" value={this.props.config.CALLBACK_ENDPOINT} />
               <ParamView name="FSP ID" value={this.props.config.FSPID} />
               <ParamView name="Send Callback" value={this.props.config.SEND_CALLBACK_ENABLE} />
-              <ParamView name="Validate Transfers with previous quote" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} />
               <ParamView name="Enable Version Negotiation Support" value={this.props.config.VERSIONING_SUPPORT_ENABLE} />
+              <Divider />
+              <ParamView name="Validate Transfers with previous quote" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} />
+              <ParamView name="Validate Transfers with previous quote" value={this.props.config.TRANSFERS_VALIDATION_ILP_PACKET} />
+              <ParamView name="Validate Transfers with previous quote" value={this.props.config.TRANSFERS_VALIDATION_CONDITION} />
+              <ParamView name="Validate Transfers with previous quote" value={this.props.config.ILP_SECRET} />
+              <Divider />
               <ParamView name="Enable Inbound JWS Validation" value={this.props.config.VALIDATE_INBOUND_JWS} />
               <ParamView name="Enable Inbound JWS Validation for PUT /parties" value={this.props.config.VALIDATE_INBOUND_PUT_PARTIES_JWS} />
               <ParamView name="Enable Outbound JWS Signing" value={this.props.config.JWS_SIGN} />
               <ParamView name="Enable Outbound JWS Signing for PUT /parties" value={this.props.config.JWS_SIGN_PUT_PARTIES} />
+              <Divider />
               <ParamView name="Connection Manager API URL" value={this.props.config.CONNECTION_MANAGER_API_URL} />
+              <Divider />
               <ParamView name="Enable Inbound Mutual TLS" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} />
               <ParamView name="Enable Outbound Mutual TLS" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} />
             </CardBody>
