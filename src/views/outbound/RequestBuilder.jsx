@@ -437,6 +437,92 @@ class PathBuilder extends React.Component {
   }
 }
 
+class UrlBuilder extends React.Component {
+
+  constructor() {
+    super()
+    this.state = {
+      overrideCheckboxSelected: false
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.request.url) {
+      this.setState({overrideCheckboxSelected: true})
+    }
+    // this.state.params = { ...this.props.request.params }
+  }
+
+  handleValueChange = async (value) => {
+    this.props.request.url = value
+    this.props.onChange()
+  }
+
+  render() {
+
+    let dynamicPathValue = null
+    //Check if the path value is a configurable input parameter
+    if (this.props.request.url && this.props.request.url.startsWith('{$inputs.')) {
+      // Find the parameter name
+      const paramName = this.props.request.url.slice(9,this.props.request.url.length-1)
+      const temp = _.get(this.props.inputValues, paramName)
+      if (temp) {
+        dynamicPathValue = (
+          <Tag style={{ borderStyle: 'dashed' }}>{temp}</Tag>
+        )
+      }
+    }
+  
+    return (
+      <>
+      <Row className="mb-2">
+        <Col>
+          <Card size="small" title="URL">
+            <Row className="mt-2">
+              <Col span={24}>
+                <Checkbox
+                  checked={this.state.overrideCheckboxSelected}
+                  onChange={(e) => { this.setState({overrideCheckboxSelected: e.target.checked })}}
+                />
+                <label
+                  className="form-control-label ml-2"
+                  htmlFor="input-city"
+                >
+                  Override with Custom URL
+                </label>
+              </Col>
+            </Row>
+            {
+              this.state.overrideCheckboxSelected
+              ? (
+                <Row className="mt-2">
+                  <Col span={8}>
+                    <label
+                      className="form-control-label"
+                      htmlFor="input-city"
+                    >
+                      Enter Base URL
+                    </label>
+                  </Col>
+                  <Col span={16}>
+                    <Input
+                      placeholder="URL" value={this.props.request.url}
+                      onChange={(e) => this.handleValueChange(e.target.value)}
+                    />
+                    {dynamicPathValue}
+                  </Col>
+                </Row>
+              )
+              : null
+            }
+          </Card>
+        </Col>
+      </Row>
+      </>
+    )
+  }
+}
+
 class HeaderBodyBuilder extends React.Component {
   constructor() {
     super()
@@ -906,6 +992,11 @@ class RequestBuilder extends React.Component {
             this.props.resource
             ? (
               <>
+              <UrlBuilder 
+                request={this.props.request}
+                inputValues={this.props.inputValues}
+                onChange={this.handleRequestChange}
+              />
               <PathBuilder
                 request={this.props.request}
                 inputValues={this.props.inputValues}
