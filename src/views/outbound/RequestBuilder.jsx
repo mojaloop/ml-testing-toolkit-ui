@@ -22,16 +22,16 @@ import _ from 'lodash';
 import {
   FormGroup,
   Button,
-  CardBody
+  CardBody,
+  CardHeader
 } from "reactstrap";
 // core components
 import axios from 'axios';
 // import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col } from 'antd';
+import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch } from 'antd';
 import 'antd/dist/antd.css';
 // import './index.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
-
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
 import ace from 'brace';
@@ -39,9 +39,13 @@ import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
 import Ajv from 'ajv';
+
+const parseCurl = require('../../utils/curlParser').default
+
 const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
+const { TextArea } = Input;
 
 class ConfigurableParameter extends React.Component {
 
@@ -531,7 +535,8 @@ class HeaderBodyBuilder extends React.Component {
       allParamsFromDefinition: [],
       allParamsObject: {},
       addCustomHeaderDialogVisible: false,
-      newCustomHeaderName: ''
+      newCustomHeaderName: '',
+      headersRawEditorEnable: false
     }
   }
 
@@ -611,6 +616,11 @@ class HeaderBodyBuilder extends React.Component {
   handleAddHeaderClick = (event) => {
     this.addHeaderItem(event.item.props.children);
   };
+
+  handleRawHeadersChange = (newHeaders) => {
+    this.props.request.headers = newHeaders
+    this.updateChanges()
+  }
 
   headerItemsMenu = () => {
     const headerParams = this.state.allParamsFromDefinition.filter(item => {
@@ -745,69 +755,104 @@ class HeaderBodyBuilder extends React.Component {
           <Col>
             <Card size="small" title="Headers">
               <Row>
+                <Col className="float-right">
+                  <strong>Raw Editor</strong> <Switch value={this.state.headersRawEditorEnable} onChange={(checked) => { this.setState({headersRawEditorEnable: checked}) }} />
+                </Col>
                 <Col span={24}>
-                  <FormGroup>
-                    <Row>
-                      <Col span={8}>
-                        <label
-                          className="form-control-label"
-                          htmlFor="input-city"
-                        >
-                          Name
-                        </label>
-                      </Col>
-                      <Col span={8}>
-                        <label
-                          className="form-control-label"
-                          htmlFor="input-city"
-                        >
-                          Value
-                        </label>
-                      </Col>
-                    </Row>
-                    { this.getHeaderItems() }
-                  </FormGroup>
-                  <Dropdown overlay={this.headerItemsMenu()}>
-                    <Button
-                      color="primary"
-                      size="sm"
-                      onClick={e => e.preventDefault()}
-                    >
-                      Add Header
-                    </Button>
-
-                  </Dropdown>
-                  <Button
-                    color="danger"
-                    onClick={() => this.addHeaderItemsFromDefinition(true)}
-                    size="sm"
-                  >
-                    Add Required Headers
-                  </Button>
-                  <Button
-                    color="info"
-                    onClick={() => this.addHeaderItemsFromDefinition(false)}
-                    size="sm"
-                  >
-                    Add All Headers
-                  </Button>
-                  <Popover
-                    content={addCustomHeaderDialogContent}
-                    title="Enter name for the header"
-                    trigger="click"
-                    visible={this.state.addCustomHeaderDialogVisible}
-                    onVisibleChange={ (visible) => this.setState({addCustomHeaderDialogVisible: true})}
-                  >
-                    <Button
-                        color="warning"
-                        size="sm"
-                      >
-                        Add Custom Header
-                    </Button>
-                  </Popover>
-                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                    <Button color="secondary" size="sm">Add Configurable Params</Button>
-                  </Popover>
+                  {
+                    this.state.headersRawEditorEnable
+                    ? (
+                      <div>
+                        <Row>
+                          <Col className="text-left mt-4">
+                            <Editor
+                              ref="headersEditor"
+                              value={ this.props.request.headers }
+                              ace={ace}
+                              ajv={ajv}
+                              theme="ace/theme/tomorrow_night_blue"
+                              mode="code"
+                              search={false}
+                              statusBar={false}
+                              navigationBar={false}
+                              onChange={this.handleRawHeadersChange}
+                            />
+                          </Col>
+                        </Row>
+                      </div>
+                    )
+                    : (
+                      <>
+                      <FormGroup>
+                        <Row>
+                          <Col span={8}>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-city"
+                            >
+                              Name
+                            </label>
+                          </Col>
+                          <Col span={8}>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-city"
+                            >
+                              Value
+                            </label>
+                          </Col>
+                        </Row>
+                        {this.getHeaderItems()}
+                      </FormGroup>
+                      <Row>
+                        <Col>
+                          <Dropdown overlay={this.headerItemsMenu()}>
+                          <Button
+                            color="primary"
+                            size="sm"
+                            onClick={e => e.preventDefault()}
+                          >
+                            Add Header
+                          </Button>
+                          </Dropdown>
+                          <Button
+                            color="danger"
+                            onClick={() => this.addHeaderItemsFromDefinition(true)}
+                            size="sm"
+                          >
+                            Add Required Headers
+                          </Button>
+                          <Button
+                            color="info"
+                            onClick={() => this.addHeaderItemsFromDefinition(false)}
+                            size="sm"
+                          >
+                            Add All Headers
+                          </Button>
+                          <Popover
+                            content={addCustomHeaderDialogContent}
+                            title="Enter name for the header"
+                            trigger="click"
+                            visible={this.state.addCustomHeaderDialogVisible}
+                            onVisibleChange={ (visible) => this.setState({addCustomHeaderDialogVisible: true})}
+                          >
+                            <Button
+                                color="warning"
+                                size="sm"
+                              >
+                                Add Custom Header
+                            </Button>
+                          </Popover>
+                        </Col>
+                        <Col className="mt-2">
+                          <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                            <Button color="secondary" size="sm">Add Configurable Params</Button>
+                          </Popover>
+                        </Col>
+                      </Row>
+                      </>
+                    )
+                  }                  
                 </Col>
               </Row>
             </Card>
@@ -954,6 +999,97 @@ class HeaderInputComponent extends React.Component {
   }
 }
 
+class CurlImporter extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      importCurlCommandDialogVisible: false,
+      curlCommand: '',
+      displayErrorMessage: ''
+    }
+  }
+
+  handleImportClick = () => {
+    try {
+      const decodedCurl = parseCurl(this.state.curlCommand);
+      this.props.request.headers = JSON.parse(JSON.stringify(decodedCurl.headers))
+      if (this.props.resourceDefinition && this.props.resourceDefinition.requestBody) {
+        this.props.request.body = JSON.parse(JSON.stringify(decodedCurl.body))
+      }
+      this.setState({importCurlCommandDialogVisible: false})
+      this.props.onChange()
+    } catch(err) {
+      this.setState({displayErrorMessage: 'Wrong CURL syntax: Parsing Error'})
+    }
+  }
+  render () {
+
+    const importCurlCommandDialogContent = (
+      <>
+      <Row>
+      <Col>
+        <TextArea rows={8}
+          placeholder="Enter name"
+          size="large"
+          type="text"
+          value={this.state.curlCommand}
+          onChange={(e) => { this.setState({curlCommand: e.target.value })}}
+        />
+      </Col>
+      </Row>
+      <Row>
+      <Col>
+        <Button
+            className="text-right mt-2"
+            color="success"
+            href="#pablo"
+            onClick={this.handleImportClick}
+            size="sm"
+          >
+            Import
+        </Button>
+        <Button
+            className="text-right mt-2"
+            color="danger"
+            href="#pablo"
+            onClick={() => {
+              this.setState({importCurlCommandDialogVisible: false})
+            }}
+            size="sm"
+          >
+            Cancel
+        </Button>
+      </Col>
+      </Row>
+      <Row>
+        <Col>
+          {this.state.displayErrorMessage}
+        </Col>
+      </Row>
+      </>
+    )
+  
+    return (
+      <Popover
+        content={importCurlCommandDialogContent}
+        title="Paste the CURL command here"
+        trigger="click"
+        visible={this.state.importCurlCommandDialogVisible}
+        onVisibleChange={ (visible) => this.setState({importCurlCommandDialogVisible: true})}
+      >
+        <Button
+          className="mt-2 mb-2 mr-2"
+          color="info"
+          size="sm"
+        >
+          Import Curl
+        </Button>
+        (Experimental)
+      </Popover>
+    )
+  }
+}
+
 
 class RequestBuilder extends React.Component {
 
@@ -992,6 +1128,11 @@ class RequestBuilder extends React.Component {
             this.props.resource
             ? (
               <>
+              <CurlImporter
+                request={this.props.request}
+                onChange={this.handleRequestChange}
+                resourceDefinition={this.props.resourceDefinition}
+              />
               <UrlBuilder 
                 request={this.props.request}
                 inputValues={this.props.inputValues}
