@@ -443,7 +443,9 @@ class HeaderBodyBuilder extends React.Component {
     this.state = {
       configurableParameterSelected: '',
       allParamsFromDefinition: [],
-      allParamsObject: {}
+      allParamsObject: {},
+      addCustomHeaderDialogVisible: false,
+      newCustomHeaderName: ''
     }
   }
 
@@ -628,6 +630,29 @@ class HeaderBodyBuilder extends React.Component {
       </>
     )
 
+    const addCustomHeaderDialogContent = (
+      <>
+      <Input 
+        placeholder="Enter name"
+        type="text"
+        value={this.state.newCustomHeaderName}
+        onChange={(e) => { this.setState({newCustomHeaderName: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.addHeaderItem(this.state.newCustomHeaderName)
+            this.setState({addCustomHeaderDialogVisible: false})
+          }}
+          size="sm"
+        >
+          Add
+      </Button>
+      </>
+    )
+
     return (
       <>
         <Row>
@@ -680,6 +705,20 @@ class HeaderBodyBuilder extends React.Component {
                   >
                     Add All Headers
                   </Button>
+                  <Popover
+                    content={addCustomHeaderDialogContent}
+                    title="Enter name for the header"
+                    trigger="click"
+                    visible={this.state.addCustomHeaderDialogVisible}
+                    onVisibleChange={ (visible) => this.setState({addCustomHeaderDialogVisible: true})}
+                  >
+                    <Button
+                        color="warning"
+                        size="sm"
+                      >
+                        Add Custom Header
+                    </Button>
+                  </Popover>
                   <Popover content={content} title="Select a Configurable Parameter" trigger="click">
                     <Button color="secondary" size="sm">Add Configurable Params</Button>
                   </Popover>
@@ -800,6 +839,7 @@ class HeaderInputComponent extends React.Component {
               value={this.props.name}
               onChange={this.handleNameChange}
               disabled={false}
+              readOnly={true}
             />
           </Tooltip>
         </Col>
