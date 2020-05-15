@@ -338,10 +338,17 @@ class PathBuilder extends React.Component {
   getPathItems = () => {
     // TODO: read the path parameters from resource parameters also
     // Currently only rootParameters are considered
-    if (!this.props.rootParameters) {
+    let allParameters = []
+    if(this.props.rootParameters) {
+      allParameters = allParameters.concat(this.props.rootParameters)
+    }
+    if(this.props.resourceDefinition && this.props.resourceDefinition.parameters) {
+      allParameters = allParameters.concat(this.props.resourceDefinition.parameters)
+    }
+    if (!allParameters) {
       return null
     }
-    const pathItems = this.props.rootParameters.filter(item => {
+    const pathItems = allParameters.filter(item => {
       return item.in === 'path'
     })
     if (pathItems.length<=0) {
