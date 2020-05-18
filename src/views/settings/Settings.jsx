@@ -28,7 +28,8 @@ import {
   Col,
 } from "reactstrap";
 
-import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon } from 'antd';
+import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon, notification } from 'antd';
+import { BulbTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
 import Header from "../../components/Headers/Header.jsx";
@@ -36,6 +37,7 @@ import axios from 'axios';
 import RulesEditor from '../rules/RuleEditor'
 import RuleViewer from '../rules/RuleViewer'
 import getConfig from '../../utils/getConfig'
+import { getServerConfig } from '../../utils/getConfig'
 
 
 class ParamInput extends React.Component {
@@ -146,6 +148,8 @@ class ConfigurationEditor extends React.Component {
               <Divider />
               <ParamInput name="Inbound Mutual TLS" itemKey="INBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
               <ParamInput name="Outbound Mutual TLS" itemKey="OUTBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
+              <Divider />
+              <ParamInput name="Advanced Features" itemKey="ADVANCED_FEATURES_ENABLED" value={this.props.config.ADVANCED_FEATURES_ENABLED} onChange={this.handleParamValueChange} />
             </CardBody>
           </Card>
         </Col>
@@ -205,6 +209,8 @@ class ConfigurationViewer extends React.Component {
               <Divider />
               <ParamView name="Enable Inbound Mutual TLS" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} />
               <ParamView name="Enable Outbound Mutual TLS" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} />
+              <Divider />
+              <ParamView name="Advanced Features" value={this.props.config.ADVANCED_FEATURES_ENABLED} />
             </CardBody>
           </Card>
         </Col>
@@ -229,13 +235,32 @@ class Settings extends React.Component {
     this.getUserConfiguration()
   }
 
+  showOverrideEnvNotification = () => {
+    const key = `open${Date.now()}`;
+    const btn = (
+      <Button
+        className="float-right"
+        color="danger"
+        href="#pablo"
+        onClick={() => notification.close(key)}
+        size="sm"
+      >
+        Got it
+      </Button>
+    );
+    notification.open({
+      message: 'Override Environment Variables is enabled',
+      description:
+        'Please note that the option "Override Environment Variables" is enabled. So the runtime configuration may not be effected with the changes you did here.',
+      icon: <BulbTwoTone twoToneColor="#eb2f96" />,
+      btn,
+      key,
+    });
+  };
+
   getUserConfiguration = async () => {
     message.loading({ content: 'Getting user config ...', key: 'getUserConfigProgress' });
-    const { apiBaseUrl } = getConfig()
-    console.log('GVK', apiBaseUrl)
-    const response = await axios.get(apiBaseUrl + "/api/config/user")
-    const userConfigRuntime = response.data.runtime
-    const userConfigStored = response.data.stored
+    const { userConfigRuntime, userConfigStored } = await getServerConfig()
     await this.setState(  { userConfigRuntime, userConfigStored } )
     message.success({ content: 'Loaded', key: 'getUserConfigProgress', duration: -1 });
   }
@@ -246,6 +271,9 @@ class Settings extends React.Component {
     await axios.put(apiBaseUrl + "/api/config/user", newConfig, { headers: { 'Content-Type': 'application/json' } })
     await this.getUserConfiguration()
     message.success({ content: 'Saved', key: 'saveUserConfigProgress', duration: 2 });
+    if(newConfig.OVERRIDE_WITH_ENV) {
+      this.showOverrideEnvNotification()
+    }
   }
 
 
