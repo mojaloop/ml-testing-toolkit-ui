@@ -493,7 +493,10 @@ class UrlBuilder extends React.Component {
               <Col span={24}>
                 <Checkbox
                   checked={this.state.overrideCheckboxSelected}
-                  onChange={(e) => { this.setState({overrideCheckboxSelected: e.target.checked })}}
+                  onChange={(e) => {
+                    this.handleValueChange(null)
+                    this.setState({overrideCheckboxSelected: e.target.checked})
+                  }}
                 />
                 <label
                   className="form-control-label ml-2"

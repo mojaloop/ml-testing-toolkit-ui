@@ -20,17 +20,14 @@ import _ from 'lodash';
  
 // reactstrap components
 import {
-  Card,
-  CardBody,
   FormGroup,
-  CardHeader,
   Form,
   Container,
   Button,
 } from "reactstrap";
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, message, Popover, Badge, Descriptions } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, message, Popover, Badge, Descriptions, Collapse, Card } from 'antd';
 
 import { RightCircleOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -49,10 +46,13 @@ import getConfig from '../../utils/getConfig'
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-terminal";
+import "ace-builds/src-noconflict/theme-dracula";
+
 
 const { Option } = Select;
 const { Step } = Steps;
 const { TabPane } = Tabs;
+const { Panel } = Collapse;
 
 class ResourceSelector extends React.Component {
 
@@ -565,15 +565,10 @@ class TestCaseEditor extends React.Component {
                 {
                   requestShow.headers
                   ? (
-                    <Card className="mb-2">
-                      <CardHeader>
-                        Header
-                      </CardHeader>
-                      <CardBody>
-                        <Descriptions bordered column={1} size='small'>
-                          {this.getObjectAsDescriptions(this.replaceInputValues(requestShow.headers))}
-                        </Descriptions>
-                      </CardBody>
+                    <Card title="Header" className="mb-2">
+                      <Descriptions bordered column={1} size='small'>
+                        {this.getObjectAsDescriptions(this.replaceInputValues(requestShow.headers))}
+                      </Descriptions>
                     </Card>
                   )
                   : null
@@ -581,27 +576,22 @@ class TestCaseEditor extends React.Component {
                 {
                   requestShow.body
                   ? (
-                    <Card className="mb-2">
-                      <CardHeader>
-                        Body
-                      </CardHeader>
-                      <CardBody>
-                        <AceEditor
-                          ref="assertionAceEditor"
-                          mode="json"
-                          theme="github"
-                          width='100%'
-                          height='100px'
-                          value= {JSON.stringify(this.replaceInputValues(requestShow.body),null,2)}
-                          name="UNIQUE_ID_OF_DIV"
-                          wrapEnabled={true}
-                          showPrintMargin={true}
-                          showGutter={false}
-                          readOnly={true}
-                          highlightActiveLine={false}
-                          tabSize={2}
-                        />
-                      </CardBody>
+                    <Card className="mb-2" title="Body">
+                      <AceEditor
+                        ref="assertionAceEditor"
+                        mode="json"
+                        theme="github"
+                        width='100%'
+                        height='100px'
+                        value= {JSON.stringify(this.replaceInputValues(requestShow.body),null,2)}
+                        name="UNIQUE_ID_OF_DIV"
+                        wrapEnabled={true}
+                        showPrintMargin={true}
+                        showGutter={false}
+                        readOnly={true}
+                        highlightActiveLine={false}
+                        tabSize={2}
+                      />
                     </Card>
                   )
                   : null
@@ -610,27 +600,22 @@ class TestCaseEditor extends React.Component {
                   item.status && item.status.additionalInfo && item.status.additionalInfo.curlRequest
                   ? (
                     <>
-                    <Card className="mb-2">
-                      <CardHeader>
-                        CURL command
-                      </CardHeader>
-                      <CardBody>
-                        <AceEditor
-                          ref="assertionAceEditor"
-                          mode="javascript"
-                          theme="terminal"
-                          width='100%'
-                          height='100px'
-                          value= {item.status.additionalInfo.curlRequest}
-                          name="UNIQUE_ID_OF_DIV"
-                          wrapEnabled={true}
-                          showPrintMargin={true}
-                          showGutter={false}
-                          readOnly={true}
-                          highlightActiveLine={false}
-                          tabSize={2}
-                        />
-                      </CardBody>
+                    <Card className="mb-2" title="CURL command">
+                      <AceEditor
+                        ref="assertionAceEditor"
+                        mode="javascript"
+                        theme="terminal"
+                        width='100%'
+                        height='100px'
+                        value= {item.status.additionalInfo.curlRequest}
+                        name="UNIQUE_ID_OF_DIV"
+                        wrapEnabled={true}
+                        showPrintMargin={true}
+                        showGutter={false}
+                        readOnly={true}
+                        highlightActiveLine={false}
+                        tabSize={2}
+                      />
                     </Card>
                     </>
                   )
@@ -648,7 +633,68 @@ class TestCaseEditor extends React.Component {
                   onDuplicate={this.handleRequestDuplicate}
                 />
               </TabPane>
-              
+              {
+                this.props.userConfig && this.props.userConfig.ADVANCED_FEATURES_ENABLED
+                ? (
+                  <TabPane tab="Scripts" key="3">
+                    <Tabs type="card" defaultActiveKey='1'>
+                      <TabPane tab="Pre-request" key="1">
+                        <AceEditor
+                          ref="preReqScriptAceEditor"
+                          mode="javascript"
+                          theme="eclipse"
+                          width='100%'
+                          value={ item.scripts && item.scripts.preRequest ? item.scripts.preRequest.exec.join('\n') : '' }
+                          onChange={ (newScript) => {
+                            if (!item.scripts) {
+                              item.scripts = {}
+                            }
+                            if (!item.scripts.preRequest) {
+                              item.scripts.preRequest = {}
+                            }
+                            item.scripts.preRequest.exec = newScript.split('\n')
+                            this.props.onChange(item)
+                          }}
+                          name="UNIQUE_ID_OF_DIV"
+                          wrapEnabled={true}
+                          showPrintMargin={true}
+                          showGutter={true}
+                          tabSize={2}
+                          enableBasicAutocompletion={true}
+                          enableLiveAutocompletion={true}
+                        />
+                      </TabPane>
+                      <TabPane tab="Post-request" key="2">
+                        <AceEditor
+                          ref="postReqScriptAceEditor"
+                          mode="javascript"
+                          theme="eclipse"
+                          width='100%'
+                          value={ item.scripts && item.scripts.postRequest ? item.scripts.postRequest.exec.join('\n') : '' }
+                          onChange={ (newScript) => {
+                            if (!item.scripts) {
+                              item.scripts = {}
+                            }
+                            if (!item.scripts.postRequest) {
+                              item.scripts.postRequest = {}
+                            }
+                            item.scripts.postRequest.exec = newScript.split('\n')
+                            this.props.onChange(item)
+                          }}
+                          name="UNIQUE_ID_OF_DIV"
+                          wrapEnabled={true}
+                          showPrintMargin={true}
+                          showGutter={true}
+                          tabSize={2}
+                          enableBasicAutocompletion={true}
+                          enableLiveAutocompletion={true}
+                        />
+                      </TabPane>
+                    </Tabs>
+                  </TabPane>
+                )
+                : null
+              }
               <TabPane tab={(<Badge offset={[20,0]} style={{ backgroundColor: testStatusColor }} count={testStatus}>Tests</Badge>)} key="4">
                 <TestAssertions
                   request={item}
@@ -829,15 +875,10 @@ class TestCaseEditor extends React.Component {
       return (
         <Row className="mt-4">
           <Col span={24}>
-          <Card className="card-profile shadow">
-            <CardHeader>
-              {this.getStepItems(startIndex, endIndex)}
-            </CardHeader>
-            <CardBody>
-              <Row gutter={16} >
-                {this.getRequestGeneratorItems(startIndex, endIndex)}
-              </Row>
-            </CardBody>
+          <Card className="card-profile shadow" title={this.getStepItems(startIndex, endIndex)}>
+            <Row gutter={16} >
+              {this.getRequestGeneratorItems(startIndex, endIndex)}
+            </Row>
           </Card>
           </Col>
         </Row>

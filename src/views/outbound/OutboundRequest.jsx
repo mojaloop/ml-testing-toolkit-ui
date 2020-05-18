@@ -32,6 +32,7 @@ import socketIOClient from "socket.io-client";
 
 import Header from "../../components/Headers/Header.jsx";
 
+import { getServerConfig } from '../../utils/getConfig'
 
 import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Upload, Progress, Menu, Dropdown } from 'antd';
 
@@ -172,7 +173,8 @@ class OutboundRequest extends React.Component {
       renameTestCase: false,
       totalPassedCount: 0,
       totalAssertionsCount: 0,
-      testReport: null
+      testReport: null,
+      userConfig: null
     };
   }
 
@@ -187,10 +189,14 @@ class OutboundRequest extends React.Component {
     }
   }
   
-  componentDidMount = () => {
+  componentDidMount = async () => {
     // const sampleTemplate = require('./sample1.json')
     // this.setState({template: sampleTemplate})
-    this.socket = socketIOClient('http://127.0.0.1:5050');
+    const { userConfigRuntime } = await getServerConfig()
+    
+    this.setState({userConfig: userConfigRuntime})
+    const { apiBaseUrl } = getConfig()
+    this.socket = socketIOClient(apiBaseUrl);
     this.socket.on("outboundProgress", this.handleIncomingProgress);
 
     const storedTemplate = this.restoreSavedTemplate()
@@ -201,8 +207,6 @@ class OutboundRequest extends React.Component {
     if (additionalData) {
       this.setState({additionalData: additionalData})
     }
-
-    
 
     this.startAutoSaveTemplateTimer()
 
@@ -324,7 +328,7 @@ class OutboundRequest extends React.Component {
   }
 
   // Take the status property out from requests
-  convertTemplate = (template) => {
+  convertTemplate = (template, showAdvancedFeaturesAnyway=false) => {
     let { test_cases, ...remainingTestCaseProps } = template
     let newTestCases = test_cases
     if(test_cases) {
@@ -332,8 +336,12 @@ class OutboundRequest extends React.Component {
         if (testCase.requests) {
           let { requests, ...remainingProps } = testCase
           const newRequests = requests.map(item => {
-            const { status, ...newRequest } = item
-            return newRequest
+            const { status, scripts, ...newRequest } = item
+            if ((this.state.userConfig && this.state.userConfig.ADVANCED_FEATURES_ENABLED) || showAdvancedFeaturesAnyway) {
+              return { ...newRequest, scripts }
+            } else {
+              return newRequest
+            }
           })
           return { ...remainingProps, requests: newRequests }
         } else {
@@ -395,7 +403,7 @@ class OutboundRequest extends React.Component {
     this.autoSaveIntervalId = setInterval ( () => {
       if (this.autoSave) {
         this.autoSave = false
-        this.autoSaveTemplate(this.convertTemplate(this.state.template))
+        this.autoSaveTemplate(this.convertTemplate(this.state.template, true))
         this.autoSaveAdditionalData( this.state.additionalData )
       }
     },
@@ -618,7 +626,7 @@ class OutboundRequest extends React.Component {
           {
             this.state.showTestCaseIndex!=null
             ? (
-              <TestCaseEditor testCase={this.state.template.test_cases[this.state.showTestCaseIndex]} onChange={this.handleTestCaseChange} inputValues={this.state.template.inputValues} />
+              <TestCaseEditor testCase={this.state.template.test_cases[this.state.showTestCaseIndex]} onChange={this.handleTestCaseChange} inputValues={this.state.template.inputValues} userConfig={this.state.userConfig} />
             )
             : null
           }
