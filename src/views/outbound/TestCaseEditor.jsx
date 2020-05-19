@@ -707,7 +707,7 @@ class TestCaseEditor extends React.Component {
               {
                 item.status && item.status.response
                 ? (
-                  <TabPane tab="Response" key="3">
+                  <TabPane tab="Response" key="5">
                     {
                       item.status.response
                       ? (

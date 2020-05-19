@@ -962,7 +962,7 @@ export class TestAssertions extends React.Component {
                 <Col className="text-left mt-4">
                   <Editor
                     ref="bodyEditor"
-                    value={ this.props.request.tests.assertions }
+                    value={ this.props.request.tests ? this.props.request.tests.assertions : [] }
                     ace={ace}
                     ajv={ajv}
                     theme="ace/theme/tomorrow_night_blue"
