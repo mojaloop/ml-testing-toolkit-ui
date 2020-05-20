@@ -24,12 +24,13 @@ import {
   Form,
   Container,
   Button,
+  Util,
 } from "reactstrap";
 // core components
 
 import { Select, Input, Row, Col, Steps, Tabs, message, Popover, Badge, Descriptions, Collapse, Card } from 'antd';
 
-import { RightCircleOutlined } from '@ant-design/icons';
+import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
 import ace from 'brace';
@@ -47,7 +48,6 @@ import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-terminal";
 import "ace-builds/src-noconflict/theme-dracula";
-
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -546,6 +546,62 @@ class TestCaseEditor extends React.Component {
     return inputItems
   }
 
+  getPreRequestScriptConsoleLog = (item) => {
+    if(item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution && item.status.additionalInfo.scriptsExecution.preRequest && item.status.additionalInfo.scriptsExecution.preRequest.consoleLog) {
+      return item.status.additionalInfo.scriptsExecution.preRequest.consoleLog
+    }
+    return null
+  }
+  getPostRequestScriptConsoleLog = (item) => {
+    if(item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution && item.status.additionalInfo.scriptsExecution.postRequest && item.status.additionalInfo.scriptsExecution.postRequest.consoleLog) {
+      return item.status.additionalInfo.scriptsExecution.postRequest.consoleLog
+    }
+    return null
+  }
+  printConsoleLog = (consoleLogArr) => {
+    let consoleLogText = ''
+    if (consoleLogArr) {
+      consoleLogArr.forEach( (logItem) => {
+        if (logItem.length >= 3) {
+          if (logItem[1] == 'log') {
+            const outLog = logItem.slice(2)
+            consoleLogText += '\n/**** console.log ****/\n'
+            outLog.forEach(outObject => {
+              consoleLogText += JSON.stringify(outObject, null, 2) + '\n'
+            })
+          } else if (logItem[1] == 'executionError') {
+            consoleLogText += '\n/**** Send Request Error ****/\n'
+            consoleLogText += JSON.stringify(logItem[2], null, 2) + '\n'
+          }
+        }
+      })
+    }
+    return consoleLogText
+  }
+
+  getPreRequestScriptEnvironmentState = (item) => {
+    if(item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution && item.status.additionalInfo.scriptsExecution.preRequest && item.status.additionalInfo.scriptsExecution.preRequest.environment) {
+      return item.status.additionalInfo.scriptsExecution.preRequest.environment
+    }
+    return null
+  }
+  getPostRequestScriptEnvironmentState = (item) => {
+    if(item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution && item.status.additionalInfo.scriptsExecution.postRequest && item.status.additionalInfo.scriptsExecution.postRequest.environment) {
+      return item.status.additionalInfo.scriptsExecution.postRequest.environment
+    }
+    return null
+  }
+
+  getEnvironmentStateDescriptions = (environmentArr) => {
+    return environmentArr.map((item, index) => {
+      return (
+        <Descriptions.Item key={index} label={item.key}>
+        {item.value}
+        </Descriptions.Item>
+      )
+    })
+  }
+
   getRequestGeneratorItems = (startIndex, endIndex) => {
     if (this.props.testCase.requests) {
       return this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
@@ -690,6 +746,98 @@ class TestCaseEditor extends React.Component {
                           enableLiveAutocompletion={true}
                         />
                       </TabPane>
+                      {
+                        item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution
+                        ? (
+                          <TabPane tab={
+                              <span>
+                                <CodeFilled />
+                                Console Logs
+                              </span>
+                            } key="3">
+                            <strong>Pre Request Log:</strong>
+                            <br />
+                            <AceEditor
+                              ref="scriptsConsoleAceEditor"
+                              mode="javascript"
+                              theme="terminal"
+                              width='100%'
+                              height='100px'
+                              value= { this.printConsoleLog(this.getPreRequestScriptConsoleLog(item)) }
+                              name="UNIQUE_ID_OF_DIV"
+                              wrapEnabled={true}
+                              showPrintMargin={true}
+                              showGutter={false}
+                              readOnly={true}
+                              highlightActiveLine={false}
+                              tabSize={2}
+                            />
+                            <br /><br />
+                            <strong>Post Request Log:</strong>
+                            <br />
+                            <AceEditor
+                              ref="scriptsConsoleAceEditor"
+                              mode="javascript"
+                              theme="terminal"
+                              width='100%'
+                              height='100px'
+                              value= { this.printConsoleLog(this.getPostRequestScriptConsoleLog(item)) }
+                              name="UNIQUE_ID_OF_DIV"
+                              wrapEnabled={true}
+                              showPrintMargin={true}
+                              showGutter={false}
+                              readOnly={true}
+                              highlightActiveLine={false}
+                              tabSize={2}
+                            />
+                          </TabPane>
+                        )
+                        : null
+                      }
+                      {
+                        item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution
+                        ? (
+                          <TabPane tab={
+                              <span>
+                                <HistoryOutlined />
+                                Environment State
+                              </span>
+                            } key="4">
+                            <strong>Pre Request Environment State:</strong>
+                            <br />
+                            <Card className="mb-2">
+                              {
+                                this.getPreRequestScriptEnvironmentState(item)
+                                ? (
+                                  <Descriptions bordered column={1} size='small'>
+                                    {this.getEnvironmentStateDescriptions(this.getPreRequestScriptEnvironmentState(item))}
+                                  </Descriptions>
+                                )
+                                : (
+                                  <span>There are no items</span>
+                                )
+                              }
+                            </Card>
+                            <br /><br />
+                            <strong>Post Request Environment State:</strong>
+                            <br />
+                            <Card className="mb-2">
+                            {
+                                this.getPostRequestScriptEnvironmentState(item)
+                                ? (
+                                  <Descriptions bordered column={1} size='small'>
+                                    {this.getEnvironmentStateDescriptions(this.getPostRequestScriptEnvironmentState(item))}
+                                  </Descriptions>
+                                )
+                                : (
+                                  <span>There are no items</span>
+                                )
+                              }
+                            </Card>
+                          </TabPane>
+                        )
+                        : null
+                      }
                     </Tabs>
                   </TabPane>
                 )
@@ -900,6 +1048,16 @@ class TestCaseEditor extends React.Component {
 
     return (
       <>
+        <Button
+            className="text-right float-right mb-2"
+            color="danger"
+            size="sm"
+            onClick={() => {
+              this.props.onSend()
+            }}
+          >
+            Send
+        </Button>
         <Popover
           content={addNewRequestDialogContent}
           title="Enter a description for the request"

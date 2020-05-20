@@ -120,6 +120,9 @@ class TestCaseViewer extends React.Component {
         case 'duplicate':
           this.props.onDuplicate(this.props.testCase.id)
           break
+        case 'send':
+          this.props.onSend()
+          break
       }
     };
     
@@ -128,6 +131,7 @@ class TestCaseViewer extends React.Component {
         <Menu.Item key="rename">Rename</Menu.Item>
         <Menu.Item key="duplicate">Duplicate</Menu.Item>
         <Menu.Item key="delete">Delete</Menu.Item>
+        <Menu.Item key="send">Send this test case</Menu.Item>
       </Menu>
     );
 

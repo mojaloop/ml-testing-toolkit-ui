@@ -272,7 +272,7 @@ class OutboundRequest extends React.Component {
   }
 
   // mockTypeSuccess = true
-  handleSendClick = async () => {
+  handleSendTemplate = async (template = null) => {
     // Initialize counts to zero
     this.state.totalPassedCount = 0
     this.state.totalAssertionsCount = 0
@@ -283,7 +283,7 @@ class OutboundRequest extends React.Component {
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     this.state.template = this.convertTemplate(this.state.template)
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
     // Set the status to waiting for all the requests
@@ -300,31 +300,16 @@ class OutboundRequest extends React.Component {
       }
     }
     this.forceUpdate()
+  }
 
+  handleSendClick = () => {
+    this.handleSendTemplate()
+  }
 
-
-
-    // // Mock status changes to simulate the outbound transfer in UI
-    // // Loop through the requests and set the status to waiting for each for some particular time
-    // const waitForSomeTime = () => {
-    //   return new Promise(function(resolve, reject) {
-    //     setTimeout(resolve, 800, 'one');
-    //   });
-    // }
-
-    // for (let i in this.state.template.requests) {
-    //   await waitForSomeTime()
-    //   this.state.template.requests[i].status.state = 'finish'
-    //   this.state.template.requests[i].status.response = { body: 'This is a sample response' }
-    //   if (!this.mockTypeSuccess && i==1) {
-    //     this.state.template.requests[i].status.state = 'error'
-    //     this.forceUpdate()
-    //     break;
-    //   }
-    //   this.forceUpdate()
-    // }
-    // this.mockTypeSuccess = !this.mockTypeSuccess
-
+  handleSendSingleTestCase = async (testCaseIndex) => {
+    const { test_cases, ...remainingProps } = this.state.template
+    const testCaseToSend = { test_cases: [ test_cases[testCaseIndex] ], ...remainingProps }
+    this.handleSendTemplate(testCaseToSend)
   }
 
   // Take the status property out from requests
@@ -509,6 +494,7 @@ class OutboundRequest extends React.Component {
                 onDelete={this.handleTestCaseDelete}
                 onDuplicate={this.handleTestCaseDuplicate}
                 onRename={this.handleTestCaseChange}
+                onSend={() => { this.handleSendSingleTestCase(testCaseIndex) } }
               />
             </Col>
           </Row>
@@ -614,7 +600,7 @@ class OutboundRequest extends React.Component {
           <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
         </Modal>
         <Modal
-          centered
+          style={{ top: 20 }}
           destroyOnClose
           forceRender
           title="Test Case Editor"
@@ -626,7 +612,13 @@ class OutboundRequest extends React.Component {
           {
             this.state.showTestCaseIndex!=null
             ? (
-              <TestCaseEditor testCase={this.state.template.test_cases[this.state.showTestCaseIndex]} onChange={this.handleTestCaseChange} inputValues={this.state.template.inputValues} userConfig={this.state.userConfig} />
+              <TestCaseEditor
+                testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
+                inputValues={this.state.template.inputValues}
+                userConfig={this.state.userConfig}
+                onChange={this.handleTestCaseChange}
+                onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) } }
+              />
             )
             : null
           }
