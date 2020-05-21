@@ -76,6 +76,11 @@ class ResourceSelector extends React.Component {
             case 'post':
               this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{itemKey}</Option>)
               break
+            default:
+              if (! (this.props.selectedApiVersion && this.props.selectedApiVersion.asynchronous)) {
+                this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{itemKey}</Option>)
+              }
+              break
           }
         }
       }
@@ -405,7 +410,7 @@ class RequestGenerator extends React.Component {
                         <tr>
                           <td align='right'><b>Resource:</b></td>
                           <td>
-                            <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                            <ResourceSelector value={this.state.selectedResource} selectedApiVersion={this.state.selectedApiVersion} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
                           </td>
                         </tr>
                         </tbody>
