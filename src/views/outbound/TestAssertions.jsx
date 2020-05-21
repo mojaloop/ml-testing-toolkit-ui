@@ -227,6 +227,7 @@ export class FactSelector extends React.Component {
     // Set factTypes Array
     this.factTypes[0]='Response'
     this.factTypes[1]='Callback'
+    this.factTypes[2]='Environment'
   }
 
   factTypes = []
@@ -258,6 +259,9 @@ export class FactSelector extends React.Component {
         _.merge(bodyFactData, errorBodyFactData)
         factData = {type: 'object', properties: { headers: { type: 'object', ...headerFactData }, body: bodyFactData}}
         break
+      case 2:
+        factData = {type: 'input', properties: { placeHolder: 'Enter variable name'}}
+        break
       default:
         factData = null
     }
@@ -267,9 +271,23 @@ export class FactSelector extends React.Component {
 
   getRequestFactComponent = () => {
     if (this.state.factData) {
-      return (
-        <FactSelect key={this.props.name} factData={this.state.factData} onSelect={this.handleFactSelect} enableNodesSelection={true} />
-      )
+      if (this.state.factData.type === 'object') {
+        return (
+          <FactSelect key={this.props.name} factData={this.state.factData} onSelect={this.handleFactSelect} enableNodesSelection={true} />
+        )
+      } else if (this.state.factData.type === 'input') {
+        return (
+          <Input
+            placeholder={this.state.factData.properties.placeHolder}
+            style={{ width: 200 }}
+            onChange={(e) => {
+              this.handleFactSelect( 'environment.' + e.target.value )
+            }}
+          />
+        )
+      } else {
+        return null
+      }
     } else {
       return null
     }

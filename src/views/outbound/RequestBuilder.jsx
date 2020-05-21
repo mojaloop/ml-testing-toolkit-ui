@@ -62,6 +62,7 @@ class ConfigurableParameter extends React.Component {
     this.paramTypes[1]='Previous Request'
     this.paramTypes[2]='Previous Response'
     this.paramTypes[3]='Function'
+    this.paramTypes[4]='Environment'
   }
 
   paramTypes = []
@@ -221,6 +222,21 @@ class ConfigurableParameter extends React.Component {
           >
             {functionOptionItems}
           </Select>
+          </>
+        )
+        break
+      case 4:
+        return (
+          <>
+          <Input
+            placeholder="Enter environment variable name"
+            style={{ width: 200 }}
+            value={this.state.selectedValueComponent}
+            onChange={(e) => {
+              this.state.selectedValueComponent = e.target.value
+              this.handleParamSelect('{$environment.'+e.target.value+'}')
+            }}
+          />
           </>
         )
         break
