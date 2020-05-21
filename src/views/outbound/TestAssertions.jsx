@@ -688,6 +688,14 @@ class AssertionEditor extends React.Component {
       </Popover>
       <Button
         className="float-right mb-2"
+        color="info"
+        size="sm"
+        onClick={() => { this.props.onDuplicate(this.props.itemKey) }}
+      >
+        Duplicate
+      </Button>
+      <Button
+        className="float-right mb-2"
         color="danger"
         size="sm"
         onClick={() => { this.props.onDelete(this.props.itemKey) }}
@@ -785,6 +793,7 @@ export class TestAssertions extends React.Component {
                 onChange={this.handleAssertionChange}
                 onRename={this.handleRenameAssertion}
                 onDelete={this.handleDeleteAssertionClick}
+                onDuplicate={this.handleDuplicateAssertionClick}
               />
             </Col>
           </Row>
@@ -807,6 +816,18 @@ export class TestAssertions extends React.Component {
 
   handleDeleteAssertionClick = (index) => {
     this.props.request.tests.assertions.splice(index, 1)
+    this.props.onChange(this.props.request)
+  }
+
+  handleDuplicateAssertionClick = (index) => {
+    const { id, description, ...otherProps } = this.props.request.tests.assertions[index]
+    // Find highest request id to determine the new ID
+    let maxId = +this.props.request.tests.assertions.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+    // Deep copy other properties
+    const clonedProps = JSON.parse(JSON.stringify(otherProps))
+
+    this.props.request.tests.assertions.push({ id: maxId+1, description: description + ' Copy', ...clonedProps })
+
     this.props.onChange(this.props.request)
   }
 
