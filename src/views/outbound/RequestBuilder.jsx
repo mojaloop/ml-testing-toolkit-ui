@@ -464,7 +464,7 @@ class PathBuilder extends React.Component {
   }
 }
 
-class UrlBuilder extends React.Component {
+class OptionsBuilder extends React.Component {
 
   constructor() {
     super()
@@ -480,7 +480,7 @@ class UrlBuilder extends React.Component {
     // this.state.params = { ...this.props.request.params }
   }
 
-  handleValueChange = async (value) => {
+  handleUrlChange = async (value) => {
     this.props.request.url = value
     this.props.onChange()
   }
@@ -504,13 +504,13 @@ class UrlBuilder extends React.Component {
       <>
       <Row className="mb-2">
         <Col>
-          <Card size="small" title="URL">
+          <Card size="small" title="Options">
             <Row className="mt-2">
               <Col span={24}>
                 <Checkbox
                   checked={this.state.overrideCheckboxSelected}
                   onChange={(e) => {
-                    this.handleValueChange(null)
+                    this.handleUrlChange(null)
                     this.setState({overrideCheckboxSelected: e.target.checked})
                   }}
                 />
@@ -537,7 +537,7 @@ class UrlBuilder extends React.Component {
                   <Col span={16}>
                     <Input
                       placeholder="URL" value={this.props.request.url}
-                      onChange={(e) => this.handleValueChange(e.target.value)}
+                      onChange={(e) => this.handleUrlChange(e.target.value)}
                     />
                     {dynamicPathValue}
                   </Col>
@@ -545,6 +545,23 @@ class UrlBuilder extends React.Component {
               )
               : null
             }
+            <Row className="mt-2">
+              <Col span={24}>
+                <Checkbox
+                  checked={this.props.request.ignoreCallbacks}
+                  onChange={(e) => {
+                    this.props.request.ignoreCallbacks = e.target.checked
+                    this.props.onChange()
+                  }}
+                />
+                <label
+                  className="form-control-label ml-2"
+                  htmlFor="input-city"
+                >
+                  Ignore Callbacks
+                </label>
+              </Col>
+            </Row>
           </Card>
         </Col>
       </Row>
@@ -1158,7 +1175,7 @@ class RequestBuilder extends React.Component {
                 onChange={this.handleRequestChange}
                 resourceDefinition={this.props.resourceDefinition}
               />
-              <UrlBuilder 
+              <OptionsBuilder 
                 request={this.props.request}
                 inputValues={this.props.inputValues}
                 onChange={this.handleRequestChange}

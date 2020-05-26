@@ -626,7 +626,7 @@ class TestCaseEditor extends React.Component {
                 {
                   requestShow.headers
                   ? (
-                    <Card title="Header" className="mb-2">
+                    <Card size="small" title="Header" className="mb-2">
                       <Descriptions bordered column={1} size='small'>
                         {this.getObjectAsDescriptions(this.replaceInputValues(requestShow.headers))}
                       </Descriptions>
@@ -637,7 +637,7 @@ class TestCaseEditor extends React.Component {
                 {
                   requestShow.body
                   ? (
-                    <Card className="mb-2" title="Body">
+                    <Card size="small" className="mb-2" title="Body">
                       <AceEditor
                         ref="assertionAceEditor"
                         mode="json"
@@ -661,7 +661,7 @@ class TestCaseEditor extends React.Component {
                   item.status && item.status.additionalInfo && item.status.additionalInfo.curlRequest
                   ? (
                     <>
-                    <Card className="mb-2" title="CURL command">
+                    <Card size="small" className="mb-2" title="CURL command">
                       <AceEditor
                         ref="assertionAceEditor"
                         mode="javascript"
