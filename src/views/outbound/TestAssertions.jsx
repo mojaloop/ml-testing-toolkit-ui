@@ -227,6 +227,7 @@ export class FactSelector extends React.Component {
     // Set factTypes Array
     this.factTypes[0]='Response'
     this.factTypes[1]='Callback'
+    this.factTypes[2]='Environment'
   }
 
   factTypes = []
@@ -258,6 +259,9 @@ export class FactSelector extends React.Component {
         _.merge(bodyFactData, errorBodyFactData)
         factData = {type: 'object', properties: { headers: { type: 'object', ...headerFactData }, body: bodyFactData}}
         break
+      case 2:
+        factData = {type: 'input', properties: { placeHolder: 'Enter variable name'}}
+        break
       default:
         factData = null
     }
@@ -267,9 +271,23 @@ export class FactSelector extends React.Component {
 
   getRequestFactComponent = () => {
     if (this.state.factData) {
-      return (
-        <FactSelect key={this.props.name} factData={this.state.factData} onSelect={this.handleFactSelect} enableNodesSelection={true} />
-      )
+      if (this.state.factData.type === 'object') {
+        return (
+          <FactSelect key={this.props.name} factData={this.state.factData} onSelect={this.handleFactSelect} enableNodesSelection={true} />
+        )
+      } else if (this.state.factData.type === 'input') {
+        return (
+          <Input
+            placeholder={this.state.factData.properties.placeHolder}
+            style={{ width: 200 }}
+            onChange={(e) => {
+              this.handleFactSelect( 'environment.' + e.target.value )
+            }}
+          />
+        )
+      } else {
+        return null
+      }
     } else {
       return null
     }
@@ -688,6 +706,14 @@ class AssertionEditor extends React.Component {
       </Popover>
       <Button
         className="float-right mb-2"
+        color="info"
+        size="sm"
+        onClick={() => { this.props.onDuplicate(this.props.itemKey) }}
+      >
+        Duplicate
+      </Button>
+      <Button
+        className="float-right mb-2"
         color="danger"
         size="sm"
         onClick={() => { this.props.onDelete(this.props.itemKey) }}
@@ -785,6 +811,7 @@ export class TestAssertions extends React.Component {
                 onChange={this.handleAssertionChange}
                 onRename={this.handleRenameAssertion}
                 onDelete={this.handleDeleteAssertionClick}
+                onDuplicate={this.handleDuplicateAssertionClick}
               />
             </Col>
           </Row>
@@ -807,6 +834,18 @@ export class TestAssertions extends React.Component {
 
   handleDeleteAssertionClick = (index) => {
     this.props.request.tests.assertions.splice(index, 1)
+    this.props.onChange(this.props.request)
+  }
+
+  handleDuplicateAssertionClick = (index) => {
+    const { id, description, ...otherProps } = this.props.request.tests.assertions[index]
+    // Find highest request id to determine the new ID
+    let maxId = +this.props.request.tests.assertions.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+    // Deep copy other properties
+    const clonedProps = JSON.parse(JSON.stringify(otherProps))
+
+    this.props.request.tests.assertions.push({ id: maxId+1, description: description + ' Copy', ...clonedProps })
+
     this.props.onChange(this.props.request)
   }
 
@@ -962,7 +1001,7 @@ export class TestAssertions extends React.Component {
                 <Col className="text-left mt-4">
                   <Editor
                     ref="bodyEditor"
-                    value={ this.props.request.tests.assertions }
+                    value={ this.props.request.tests ? this.props.request.tests.assertions : [] }
                     ace={ace}
                     ajv={ajv}
                     theme="ace/theme/tomorrow_night_blue"

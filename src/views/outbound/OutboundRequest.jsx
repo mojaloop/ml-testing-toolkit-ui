@@ -32,6 +32,7 @@ import socketIOClient from "socket.io-client";
 
 import Header from "../../components/Headers/Header.jsx";
 
+import { getServerConfig } from '../../utils/getConfig'
 
 import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Upload, Progress, Menu, Dropdown } from 'antd';
 
@@ -172,7 +173,8 @@ class OutboundRequest extends React.Component {
       renameTestCase: false,
       totalPassedCount: 0,
       totalAssertionsCount: 0,
-      testReport: null
+      testReport: null,
+      userConfig: null
     };
   }
 
@@ -187,10 +189,14 @@ class OutboundRequest extends React.Component {
     }
   }
   
-  componentDidMount = () => {
+  componentDidMount = async () => {
     // const sampleTemplate = require('./sample1.json')
     // this.setState({template: sampleTemplate})
-    this.socket = socketIOClient('http://127.0.0.1:5050');
+    const { userConfigRuntime } = await getServerConfig()
+    
+    this.setState({userConfig: userConfigRuntime})
+    const { apiBaseUrl } = getConfig()
+    this.socket = socketIOClient(apiBaseUrl);
     this.socket.on("outboundProgress", this.handleIncomingProgress);
 
     const storedTemplate = this.restoreSavedTemplate()
@@ -201,8 +207,6 @@ class OutboundRequest extends React.Component {
     if (additionalData) {
       this.setState({additionalData: additionalData})
     }
-
-    
 
     this.startAutoSaveTemplateTimer()
 
@@ -268,7 +272,7 @@ class OutboundRequest extends React.Component {
   }
 
   // mockTypeSuccess = true
-  handleSendClick = async () => {
+  handleSendTemplate = async (template = null) => {
     // Initialize counts to zero
     this.state.totalPassedCount = 0
     this.state.totalAssertionsCount = 0
@@ -279,7 +283,7 @@ class OutboundRequest extends React.Component {
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     this.state.template = this.convertTemplate(this.state.template)
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
     // Set the status to waiting for all the requests
@@ -296,35 +300,20 @@ class OutboundRequest extends React.Component {
       }
     }
     this.forceUpdate()
+  }
 
+  handleSendClick = () => {
+    this.handleSendTemplate()
+  }
 
-
-
-    // // Mock status changes to simulate the outbound transfer in UI
-    // // Loop through the requests and set the status to waiting for each for some particular time
-    // const waitForSomeTime = () => {
-    //   return new Promise(function(resolve, reject) {
-    //     setTimeout(resolve, 800, 'one');
-    //   });
-    // }
-
-    // for (let i in this.state.template.requests) {
-    //   await waitForSomeTime()
-    //   this.state.template.requests[i].status.state = 'finish'
-    //   this.state.template.requests[i].status.response = { body: 'This is a sample response' }
-    //   if (!this.mockTypeSuccess && i==1) {
-    //     this.state.template.requests[i].status.state = 'error'
-    //     this.forceUpdate()
-    //     break;
-    //   }
-    //   this.forceUpdate()
-    // }
-    // this.mockTypeSuccess = !this.mockTypeSuccess
-
+  handleSendSingleTestCase = async (testCaseIndex) => {
+    const { test_cases, ...remainingProps } = this.state.template
+    const testCaseToSend = { test_cases: [ test_cases[testCaseIndex] ], ...remainingProps }
+    this.handleSendTemplate(testCaseToSend)
   }
 
   // Take the status property out from requests
-  convertTemplate = (template) => {
+  convertTemplate = (template, showAdvancedFeaturesAnyway=false) => {
     let { test_cases, ...remainingTestCaseProps } = template
     let newTestCases = test_cases
     if(test_cases) {
@@ -332,8 +321,12 @@ class OutboundRequest extends React.Component {
         if (testCase.requests) {
           let { requests, ...remainingProps } = testCase
           const newRequests = requests.map(item => {
-            const { status, ...newRequest } = item
-            return newRequest
+            const { status, scripts, ...newRequest } = item
+            if ((this.state.userConfig && this.state.userConfig.ADVANCED_FEATURES_ENABLED) || showAdvancedFeaturesAnyway) {
+              return { ...newRequest, scripts }
+            } else {
+              return newRequest
+            }
           })
           return { ...remainingProps, requests: newRequests }
         } else {
@@ -395,7 +388,7 @@ class OutboundRequest extends React.Component {
     this.autoSaveIntervalId = setInterval ( () => {
       if (this.autoSave) {
         this.autoSave = false
-        this.autoSaveTemplate(this.convertTemplate(this.state.template))
+        this.autoSaveTemplate(this.convertTemplate(this.state.template, true))
         this.autoSaveAdditionalData( this.state.additionalData )
       }
     },
@@ -501,6 +494,7 @@ class OutboundRequest extends React.Component {
                 onDelete={this.handleTestCaseDelete}
                 onDuplicate={this.handleTestCaseDuplicate}
                 onRename={this.handleTestCaseChange}
+                onSend={() => { this.handleSendSingleTestCase(testCaseIndex) } }
               />
             </Col>
           </Row>
@@ -606,7 +600,7 @@ class OutboundRequest extends React.Component {
           <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
         </Modal>
         <Modal
-          centered
+          style={{ top: 20 }}
           destroyOnClose
           forceRender
           title="Test Case Editor"
@@ -618,7 +612,13 @@ class OutboundRequest extends React.Component {
           {
             this.state.showTestCaseIndex!=null
             ? (
-              <TestCaseEditor testCase={this.state.template.test_cases[this.state.showTestCaseIndex]} onChange={this.handleTestCaseChange} inputValues={this.state.template.inputValues} />
+              <TestCaseEditor
+                testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
+                inputValues={this.state.template.inputValues}
+                userConfig={this.state.userConfig}
+                onChange={this.handleTestCaseChange}
+                onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) } }
+              />
             )
             : null
           }

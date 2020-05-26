@@ -62,6 +62,7 @@ class ConfigurableParameter extends React.Component {
     this.paramTypes[1]='Previous Request'
     this.paramTypes[2]='Previous Response'
     this.paramTypes[3]='Function'
+    this.paramTypes[4]='Environment'
   }
 
   paramTypes = []
@@ -221,6 +222,21 @@ class ConfigurableParameter extends React.Component {
           >
             {functionOptionItems}
           </Select>
+          </>
+        )
+        break
+      case 4:
+        return (
+          <>
+          <Input
+            placeholder="Enter environment variable name"
+            style={{ width: 200 }}
+            value={this.state.selectedValueComponent}
+            onChange={(e) => {
+              this.state.selectedValueComponent = e.target.value
+              this.handleParamSelect('{$environment.'+e.target.value+'}')
+            }}
+          />
           </>
         )
         break
@@ -493,7 +509,10 @@ class UrlBuilder extends React.Component {
               <Col span={24}>
                 <Checkbox
                   checked={this.state.overrideCheckboxSelected}
-                  onChange={(e) => { this.setState({overrideCheckboxSelected: e.target.checked })}}
+                  onChange={(e) => {
+                    this.handleValueChange(null)
+                    this.setState({overrideCheckboxSelected: e.target.checked})
+                  }}
                 />
                 <label
                   className="form-control-label ml-2"
@@ -572,10 +591,9 @@ class HeaderBodyBuilder extends React.Component {
   }
 
   componentDidUpdate = () => {
-    console.log(this.props)
-    if(this.refs.bodyEditor) {
-      this.refs.bodyEditor.jsonEditor.update(this.props.request.body? this.props.request.body : {})
-    }
+    // if(this.refs.bodyEditor) {
+    //   this.refs.bodyEditor.jsonEditor.update(this.props.request.body? this.props.request.body : {})
+    // }
     // console.log(this.props.resourceDefinition.parameters)
     // console.log(this.props.resourceDefinition)
   }
