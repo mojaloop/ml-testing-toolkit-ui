@@ -34,13 +34,37 @@ import Header from "../../components/Headers/Header.jsx";
 
 import { getServerConfig } from '../../utils/getConfig'
 
-import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Upload, Progress, Menu, Dropdown } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Progress, Menu, Dropdown, Radio } from 'antd';
 
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
+
+
+function buildFileSelector( multi = false ){
+  const fileSelector = document.createElement('input');
+  fileSelector.setAttribute('type', 'file');
+  if (multi) {
+    fileSelector.setAttribute('multiple', 'multiple');
+  }
+  return fileSelector;
+}
+
+function readFileAsync(file) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
+
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+
+    reader.onerror = reject;
+
+    reader.readAsText(file);
+  })
+}
 
 class InputValues extends React.Component {
 
@@ -169,6 +193,7 @@ class OutboundRequest extends React.Component {
       createNewTestCaseDialogVisible: false,
       saveTemplateFileName: '',
       saveTemplateDialogVisible: false,
+      saveTemplateOption: 1,
       showTestCaseIndex: null,
       renameTestCase: false,
       totalPassedCount: 0,
@@ -190,6 +215,19 @@ class OutboundRequest extends React.Component {
   }
   
   componentDidMount = async () => {
+    this.collectionFileSelector = buildFileSelector(true);
+    this.environmentFileSelector = buildFileSelector();
+    this.collectionFileSelector.addEventListener ('input', (e) => {
+      if (e.target.files.length == 1) {
+        this.handleImportCollectionFile(e.target.files[0])
+      } else if (e.target.files.length > 1) {
+        this.handleImportCollectionFileMulti(e.target.files)
+      }
+    })
+    this.environmentFileSelector.addEventListener ('input', (e) => {
+      this.handleImportEnvironmentFile(e.target.files[0])
+    })
+
     // const sampleTemplate = require('./sample1.json')
     // this.setState({template: sampleTemplate})
     const { userConfigRuntime } = await getServerConfig()
@@ -230,43 +268,45 @@ class OutboundRequest extends React.Component {
       this.setState({testReport: progress.totalResult})
     } else {
       let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
-      let request = testCase.requests.find(item => item.id === progress.requestId)
-      if (request.status) {
-        // Update total passed count
-        const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
-        this.state.totalPassedCount += passedCount
-        if (progress.status === 'SUCCESS') {
-          request.status.state = 'finish'
-          request.status.response = progress.response
-          request.status.callback = progress.callback
-          request.status.requestSent = progress.requestSent
-          request.status.additionalInfo = progress.additionalInfo
-          request.status.testResult = progress.testResult
-        } else if (progress.status === 'ERROR') {
-          request.status.state = 'error'
-          request.status.response = progress.response
-          request.status.callback = progress.callback
-          request.status.requestSent = progress.requestSent
-          request.status.additionalInfo = progress.additionalInfo
-          request.status.testResult = progress.testResult
-          // Clear the waiting status of the remaining requests
-          for (let i in testCase.requests) {
-            if (!testCase.requests[i].status) {
-              testCase.requests[i].status = {}
+      if (testCase) {
+        let request = testCase.requests.find(item => item.id === progress.requestId)
+        if (request.status) {
+          // Update total passed count
+          const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+          this.state.totalPassedCount += passedCount
+          if (progress.status === 'SUCCESS') {
+            request.status.state = 'finish'
+            request.status.response = progress.response
+            request.status.callback = progress.callback
+            request.status.requestSent = progress.requestSent
+            request.status.additionalInfo = progress.additionalInfo
+            request.status.testResult = progress.testResult
+          } else if (progress.status === 'ERROR') {
+            request.status.state = 'error'
+            request.status.response = progress.response
+            request.status.callback = progress.callback
+            request.status.requestSent = progress.requestSent
+            request.status.additionalInfo = progress.additionalInfo
+            request.status.testResult = progress.testResult
+            // Clear the waiting status of the remaining requests
+            for (let i in testCase.requests) {
+              if (!testCase.requests[i].status) {
+                testCase.requests[i].status = {}
+              }
+              if (testCase.requests[i].status.state === 'process') {
+                testCase.requests[i].status.state = 'wait'
+                testCase.requests[i].status.response = null
+                testCase.requests[i].status.callback = null
+                testCase.requests[i].status.requestSent = null
+                testCase.requests[i].status.additionalInfo = {}
+                testCase.requests[i].status.testResult = null
+              }
+              
             }
-            if (testCase.requests[i].status.state === 'process') {
-              testCase.requests[i].status.state = 'wait'
-              testCase.requests[i].status.response = null
-              testCase.requests[i].status.callback = null
-              testCase.requests[i].status.requestSent = null
-              testCase.requests[i].status.additionalInfo = {}
-              testCase.requests[i].status.testResult = null
-            }
-            
+            // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
           }
-          // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
+          this.forceUpdate()
         }
-        this.forceUpdate()
       }
     }
   }
@@ -408,19 +448,87 @@ class OutboundRequest extends React.Component {
       message.error('Filename should be ended with .json');
       return
     }
-    this.download(JSON.stringify(this.convertTemplate(this.state.template), null, 2), fileName, 'text/plain');
+    let templateContent = {}
+    const { inputValues, ...remainingTemplateContent } = this.state.template
+    if (this.state.saveTemplateOption === 1) {
+      templateContent = { ...remainingTemplateContent }
+    } else if (this.state.saveTemplateOption === 2) {
+      templateContent = { inputValues }
+    }
+    this.download(JSON.stringify(this.convertTemplate(templateContent), null, 2), fileName, 'text/plain');
   }
 
-  handleImportFile = (file_to_read) => {
+  handleImportCollectionFile = (file_to_read) => {
     message.loading({ content: 'Reading the file...', key: 'importFileProgress' });
     var fileRead = new FileReader();
     fileRead.onload = (e) => {
       var content = e.target.result;
       try {
-        var intern = JSON.parse(content);
-        this.setState({template: intern, additionalData: { importedFilename: file_to_read.name }})
+        var templateContent = JSON.parse(content);
+        this.state.template.test_cases = templateContent.test_cases
+        this.state.additionalData = {
+          importedFilename: file_to_read.name
+        }
+        this.forceUpdate()
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
+      } catch (err) {
+        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+      }
+    };
+    fileRead.readAsText(file_to_read);
+  }
+
+  handleImportCollectionFileMulti = async (fileList) => {
+    message.loading({ content: 'Reading the selected files...', key: 'importFileProgress' });
+    let testCases = []
+    let startIndex = 0
+    for (var i = 0; i < fileList.length; i++) {
+      const file_to_read = fileList.item(i)
+      var fileRead = new FileReader();
+      try {
+        const content = await readFileAsync(file_to_read)
+        const templateContent = JSON.parse(content);
+        
+        templateContent.test_cases = templateContent.test_cases.map((testCase, index) => {
+          const { id, ...remainingProps } = testCase
+          return {
+            id: startIndex + index + 1,
+            ...remainingProps
+          }
+        })
+        startIndex = templateContent.test_cases.length
+        testCases = testCases.concat(templateContent.test_cases)
+      } catch(err) {
+        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+        break;
+      }
+    }
+    this.state.template.test_cases = testCases
+    this.state.additionalData = {
+      importedFilename: 'Multiple Files'
+    }
+    this.forceUpdate()
+    this.autoSave = true
+    message.success({ content: 'Collections Loaded', key: 'importFileProgress', duration: 2 });
+
+  }
+
+  handleImportEnvironmentFile = (file_to_read) => {
+    message.loading({ content: 'Reading the file...', key: 'importFileProgress' });
+    var fileRead = new FileReader();
+    fileRead.onload = (e) => {
+      var content = e.target.result;
+      try {
+        var templateContent = JSON.parse(content);
+        if (templateContent.inputValues) {
+          this.state.template.inputValues = templateContent.inputValues
+          this.forceUpdate()
+          this.autoSave = true
+          message.success({ content: 'Environment Loaded', key: 'importFileProgress', duration: 2 });
+        } else {
+          message.error({ content: 'Input Values not found in the file', key: 'importFileProgress', duration: 2 });
+        }
       } catch (err) {
         message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
       }
@@ -564,24 +672,45 @@ class OutboundRequest extends React.Component {
 
     const saveTemplateDialogContent = (
       <>
-      <Input 
-        placeholder="File name"
-        type="text"
-        value={this.state.saveTemplateFileName}
-        onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
-      />
-      <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
-          onClick={ () => {
-            this.handleTemplateSaveClick(this.state.saveTemplateFileName)
-            this.setState({saveTemplateDialogVisible: false})
-          }}
-          size="sm"
-        >
-          Create
-      </Button>
+      <Row>
+        <Col>
+          <Input 
+            placeholder="File name"
+            type="text"
+            value={this.state.saveTemplateFileName}
+            onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Radio.Group
+            onChange={e => {
+              this.setState({saveTemplateOption: e.target.value})
+            }}
+            value={this.state.saveTemplateOption}
+          >
+            <Radio value={1}>Collection</Radio>
+            <Radio value={2}>Environment</Radio>
+          </Radio.Group>      
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Button
+              className="text-right mt-2"
+              color="success"
+              href="#pablo"
+              onClick={ () => {
+                this.handleTemplateSaveClick(this.state.saveTemplateFileName)
+                this.setState({saveTemplateDialogVisible: false})
+              }}
+              size="sm"
+            >
+              Create
+          </Button>
+        </Col>
+      </Row>
       </>
     )
 
@@ -661,22 +790,26 @@ class OutboundRequest extends React.Component {
                           </Row>
                           <Row>
                             <Col span={8}>
-                              <Upload 
-                                accept = '.json'
-                                showUploadList = {false}
-                                beforeUpload = {file => {
-                                  this.handleImportFile(file)
-                                  return false;
+                              <Button
+                                color="success"
+                                size="sm"
+                                onClick={ e => {
+                                  e.preventDefault();
+                                  this.collectionFileSelector.click();
                                 }}
                               >
-                                <Button
-                                  color="success"
-                                  size="sm"
-                                  onClick={e => e.preventDefault()}
-                                >
-                                  Import Template
-                                </Button>
-                              </Upload>
+                                Import Collection
+                              </Button>
+                              <Button
+                                color="info"
+                                size="sm"
+                                onClick={ e => {
+                                  e.preventDefault();
+                                  this.environmentFileSelector.click();
+                                }}
+                              >
+                                Import Environment
+                              </Button>
                             </Col>
                             <Col span={8} className="text-center">
                             {
