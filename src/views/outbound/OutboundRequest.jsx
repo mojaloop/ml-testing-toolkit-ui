@@ -465,6 +465,7 @@ class OutboundRequest extends React.Component {
       var content = e.target.result;
       try {
         var templateContent = JSON.parse(content);
+        this.state.template.name = templateContent.name ? templateContent.name : file_to_read.name 
         this.state.template.test_cases = templateContent.test_cases
         this.state.additionalData = {
           importedFilename: file_to_read.name
@@ -485,7 +486,7 @@ class OutboundRequest extends React.Component {
     let startIndex = 0
     for (var i = 0; i < fileList.length; i++) {
       const file_to_read = fileList.item(i)
-      var fileRead = new FileReader();
+      const fileRead = new FileReader();
       try {
         const content = await readFileAsync(file_to_read)
         const templateContent = JSON.parse(content);
@@ -497,14 +498,15 @@ class OutboundRequest extends React.Component {
             ...remainingProps
           }
         })
-        startIndex = templateContent.test_cases.length
+        startIndex = startIndex + templateContent.test_cases.length
         testCases = testCases.concat(templateContent.test_cases)
       } catch(err) {
         message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
         break;
       }
     }
-    this.state.template.test_cases = testCases
+    this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
+    this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files'
     }
