@@ -23,6 +23,7 @@ WORKDIR /usr/share/nginx/html
 COPY --from=builder /opt/mojaloop-testing-toolkit-ui/build /usr/share/nginx/html
 RUN rm /etc/nginx/conf.d/default.conf /etc/nginx/nginx.conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/start.sh /usr/share/nginx/start.sh
 
 EXPOSE 6060
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "/usr/share/nginx/start.sh"]
