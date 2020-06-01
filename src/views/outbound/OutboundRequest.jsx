@@ -199,7 +199,8 @@ class OutboundRequest extends React.Component {
       totalPassedCount: 0,
       totalAssertionsCount: 0,
       testReport: null,
-      userConfig: null
+      userConfig: null,
+      sendingOutboundRequestID: null
     };
   }
 
@@ -265,7 +266,10 @@ class OutboundRequest extends React.Component {
   handleIncomingProgress = (progress) => {
     if (progress.status === 'FINISHED') {
       message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
-      this.setState({testReport: progress.totalResult})
+      this.setState({sendingOutboundRequestID: null, testReport: progress.totalResult})
+    } else if (progress.status === 'TERMINATED') {
+      message.success({ content: 'Test case terminated', key: 'outboundStopProgress', duration: 2 });
+      this.setState({sendingOutboundRequestID: null, testReport: progress.totalResult})
     } else {
       let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
       if (testCase) {
@@ -324,6 +328,7 @@ class OutboundRequest extends React.Component {
     const { apiBaseUrl } = getConfig()
     this.state.template = this.convertTemplate(this.state.template)
     await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    this.state.sendingOutboundRequestID = outboundRequestID
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
     // Set the status to waiting for all the requests
@@ -342,8 +347,18 @@ class OutboundRequest extends React.Component {
     this.forceUpdate()
   }
 
-  handleSendClick = () => {
-    this.handleSendTemplate()
+  handleStopExecution = async (outboundRequestID) => {
+    message.loading({ content: 'Terminating the execution...', key: 'outboundStopProgress' });
+    const { apiBaseUrl } = getConfig()
+    await axios.delete(apiBaseUrl + "/api/outbound/template/" + outboundRequestID)
+  }
+
+  handleSendStopClick = () => {
+    if (this.state.sendingOutboundRequestID) {
+      this.handleStopExecution(this.state.sendingOutboundRequestID)
+    } else {
+      this.handleSendTemplate()
+    }
   }
 
   handleSendSingleTestCase = async (testCaseIndex) => {
@@ -831,9 +846,9 @@ class OutboundRequest extends React.Component {
                                 className="float-right"
                                 color="danger"
                                 size="sm"
-                                onClick={this.handleSendClick}
+                                onClick={this.handleSendStopClick}
                               >
-                                Send
+                                { this.state.sendingOutboundRequestID ? 'Stop' : 'Send' }
                               </Button>
                               <Popover
                                 className="float-right"
