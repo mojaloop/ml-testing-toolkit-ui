@@ -18,6 +18,7 @@
 import React from "react";
 import socketIOClient from "socket.io-client";
 import { Grid, GridColumn as Column, GridDetailRow } from '@progress/kendo-react-grid';
+import getConfig from '../../utils/getConfig'
 import '@progress/kendo-theme-default/dist/all.css'
 
 // reactstrap components
@@ -83,13 +84,12 @@ export class Logs extends React.Component {
   constructor() {
     super();
     this.state = {
-      logs: [],
-      endpoint: "http://127.0.0.1:5050",
+      logs: []
     };
   }
   componentDidMount() {
-    const { endpoint } = this.state;
-    const socket = socketIOClient(endpoint);
+    const { apiBaseUrl } = getConfig()
+    const socket = socketIOClient(apiBaseUrl);
     socket.on("newLog", newLog => {
       // console.log('New log received', newLog)
       const updatedLogs = this.state.logs.concat(newLog)
@@ -189,7 +189,6 @@ class IncomingMonitor extends React.Component {
     incomingItemsObj: {},
     incomingItemsArr: [],
     lastIncomingTime: null,
-    endpoint: "http://127.0.0.1:5050",
   }
 
   socket = null
@@ -204,8 +203,8 @@ class IncomingMonitor extends React.Component {
   }
 
   componentDidMount() {
-    const { endpoint } = this.state;
-    this.socket = socketIOClient(endpoint);
+    const { apiBaseUrl } = getConfig()
+    this.socket = socketIOClient(apiBaseUrl);
     this.socket.on("newLog", newLog => {
       // console.log('New log received', newLog)
       this.state.logs.push(newLog)

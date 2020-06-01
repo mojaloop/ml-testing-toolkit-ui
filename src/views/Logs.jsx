@@ -79,13 +79,12 @@ export class Logs extends React.Component {
   constructor() {
     super();
     this.state = {
-      logs: [],
-      endpoint: "http://127.0.0.1:5050",
+      logs: []
     };
   }
   componentDidMount() {
-    const { endpoint } = this.state;
-    const socket = socketIOClient(endpoint);
+    const { apiBaseUrl } = getConfig()
+    const socket = socketIOClient(apiBaseUrl);
     socket.on("newLog", newLog => {
       // console.log('New log received', newLog)
       const updatedLogs = this.state.logs.concat(newLog)
