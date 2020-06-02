@@ -601,7 +601,7 @@ class TestCaseEditor extends React.Component {
     return environmentArr.map((item, index) => {
       return (
         <Descriptions.Item key={index} label={item.key}>
-        {item.value}
+        <pre>{JSON.stringify(item.value, null, 2)}</pre>
         </Descriptions.Item>
       )
     })

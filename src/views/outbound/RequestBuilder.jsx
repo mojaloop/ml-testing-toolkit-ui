@@ -570,6 +570,277 @@ class OptionsBuilder extends React.Component {
   }
 }
 
+class QueryParamsBuilder extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      addQueryParamDialogVisible: false,
+      newQueryParamName: '',
+      queryParamRawEditorEnable: false
+    }
+  }
+
+  addQueryParamItem = (itemName) => {
+    if (!this.props.request.queryParams) {
+      this.props.request.queryParams = {}
+    }
+    this.props.request.queryParams[itemName] = this.props.request.queryParams[itemName] ? this.props.request.queryParams[itemName] : ""
+    this.updateChanges()
+  }
+  handleQueryParamChange = (key, name, value) => {
+    this.props.request.queryParams[name] = value
+    this.updateChanges()
+  }
+  handleQueryParamDelete = async (name) => {
+    delete this.props.request.queryParams[name]
+    this.updateChanges()
+  }
+
+  handleRawQueryParamsChange = (newParams) => {
+    this.props.request.queryParams = newParams
+    this.updateChanges()
+  }
+
+  updateChanges = () => {
+    this.props.onChange(this.props.request)
+  }
+
+  getQueryParamItems = () => {
+    // console.log(this.props.resourceDefinition)
+    let paramItems = []
+    let k=0
+    if (this.props.request) {
+      for( let paramName in this.props.request.queryParams ) {
+        const item = {
+          name: paramName,
+          value: this.props.request.queryParams[paramName]
+        }
+        const key = k++
+        paramItems.push(
+          <QueryParamsInputComponent
+            key={key}
+            itemKey={item.name}
+            name={item.name}
+            value={item.value}
+            resourceDefinition={this.props.resourceDefinition}
+            onChange={this.handleQueryParamChange}
+            onDelete={this.handleQueryParamDelete}
+            inputValues={this.props.inputValues}
+          />
+        )
+      }
+    }
+    return paramItems
+
+  }
+
+  render() {
+
+    const addQueryParamDialogContent = (
+      <>
+      <Input 
+        placeholder="Enter name"
+        type="text"
+        value={this.state.newQueryParamName}
+        onChange={(e) => { this.setState({newQueryParamName: e.target.value })}}
+      />
+      <Button
+          className="text-right mt-2"
+          color="success"
+          href="#pablo"
+          onClick={ () => {
+            this.addQueryParamItem(this.state.newQueryParamName)
+            this.setState({addQueryParamDialogVisible: false})
+          }}
+          size="sm"
+        >
+          Add
+      </Button>
+      </>
+    )
+
+    return (
+      <>
+        <Row className="mb-2">
+          <Col>
+            <Card size="small" title="Query Parameters">
+              <Row>
+                <Col className="float-right">
+                  <strong>Raw Editor</strong> <Switch value={this.state.queryParamRawEditorEnable} onChange={(checked) => { this.setState({queryParamRawEditorEnable: checked}) }} />
+                </Col>
+                <Col span={24}>
+                  {
+                    this.state.queryParamRawEditorEnable
+                    ? (
+                      <div>
+                        <Row>
+                          <Col className="text-left mt-4">
+                            <Editor
+                              ref="queryParamsEditor"
+                              value={ this.props.request.queryParams }
+                              ace={ace}
+                              ajv={ajv}
+                              theme="ace/theme/tomorrow_night_blue"
+                              mode="code"
+                              search={false}
+                              statusBar={false}
+                              navigationBar={false}
+                              onChange={this.handleRawQueryParamsChange}
+                            />
+                          </Col>
+                        </Row>
+                      </div>
+                    )
+                    : (
+                      <>
+                      <FormGroup>
+                        <Row>
+                          <Col span={8}>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-city"
+                            >
+                              Name
+                            </label>
+                          </Col>
+                          <Col span={8}>
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-city"
+                            >
+                              Value
+                            </label>
+                          </Col>
+                        </Row>
+                        {this.getQueryParamItems()}
+                      </FormGroup>
+                      <Row>
+                        <Col>
+                          <Popover
+                            content={addQueryParamDialogContent}
+                            title="Enter name for the parameter"
+                            trigger="click"
+                            visible={this.state.addQueryParamDialogVisible}
+                            onVisibleChange={ (visible) => this.setState({addQueryParamDialogVisible: true})}
+                          >
+                            <Button
+                                color="warning"
+                                size="sm"
+                              >
+                                Add Param
+                            </Button>
+                          </Popover>
+                        </Col>
+                      </Row>
+                      </>
+                    )
+                  }                  
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+      </>
+    )
+  }
+}
+
+
+class QueryParamsInputComponent extends React.Component {
+
+  constructor() {
+    super()
+    this.state = {
+      name: '',
+      value: ''
+    }
+  }
+  inputValue = null
+
+  componentDidMount = () => {
+    this.inputValue = this.props.value
+  }
+
+  componentDidUpdate = () => {
+    this.inputValue = this.props.value
+  }
+
+  getDynamicValue = () => {
+    let dynamicValue = null
+    //Check if the path value is a configurable input parameter
+    if (this.inputValue && this.inputValue.startsWith('{$inputs.')) {
+      // Find the parameter name
+      const paramName = this.inputValue.slice(9,this.inputValue.length-1)
+      // if (this.props.inputValues)
+      const temp = _.get(this.props.inputValues, paramName)
+      if (temp) {
+        dynamicValue = (
+          <Tag style={{ borderStyle: 'dashed' }}>{temp}</Tag>
+        )
+      }
+    }
+    return dynamicValue
+  }
+
+  handleNameChange = (event) => {
+    // this.setState({name: event.target.value})
+    this.props.onChange(this.props.itemKey, event.target.value, this.props.value)
+  }
+  handleValueChange = (event) => {
+    this.inputValue = event.target.value
+    // console.log(event.target.value)
+    // this.setState({value: event.target.value})
+    this.props.onChange(this.props.itemKey, this.props.name, this.inputValue)
+  }
+
+  handleDelete = () => {
+    this.props.onDelete(this.props.itemKey)
+  }
+
+  
+  render() {
+    return (
+      <>
+      <Row className="mb-2" gutter={16}>
+        <Col span={8}>
+          <Tooltip placement="topLeft" title={this.props.description}>
+            <Input
+              className="form-control-alternative"
+              placeholder="Name"
+              type="text"
+              defaultValue={this.props.name}
+              value={this.props.name}
+              onChange={this.handleNameChange}
+              disabled={false}
+              readOnly={true}
+            />
+          </Tooltip>
+        </Col>
+        
+        <Col span={14}>
+          <Input
+            className="form-control-alternative"
+            placeholder="Value"
+            type="text"
+            defaultValue={this.props.value}
+            value={this.props.value}
+            onChange={this.handleValueChange}
+            disabled={false}
+          />
+          {this.getDynamicValue()}
+        </Col>
+        <Col span={2}>
+          <Icon type="delete" theme="twoTone" twoToneColor="#eb2f96"
+            key={this.props.name}
+            onClick={this.handleDelete}
+          />
+        </Col>
+      </Row>
+      </>
+    )
+  }
+}
+
 class HeaderBodyBuilder extends React.Component {
   constructor() {
     super()
@@ -1186,6 +1457,16 @@ class RequestBuilder extends React.Component {
                 onChange={this.handleRequestChange}
                 resourceDefinition={this.props.resourceDefinition}
                 rootParameters = {this.props.rootParameters}
+              />
+              <QueryParamsBuilder
+                request={this.props.request}
+                inputValues={this.props.inputValues}
+                allRequests={this.props.allRequests}
+                onChange={this.handleRequestChange}
+                resourceDefinition={this.props.resourceDefinition}
+                rootParameters = {this.props.rootParameters}
+                openApiDefinition={this.props.openApiDefinition}
+                callbackMap={this.props.callbackMap}
               />
               <HeaderBodyBuilder
                 request={this.props.request}
