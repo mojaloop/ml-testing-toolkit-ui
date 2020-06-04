@@ -1,4 +1,4 @@
-FROM node:10.15.3-alpine AS builder
+FROM node:12.16.0-alpine AS builder
 
 WORKDIR /opt/mojaloop-testing-toolkit-ui
 ENV PATH /opt/mojaloop-testing-toolkit-ui/node_modules/.bin:$PATH
