@@ -34,7 +34,7 @@ import Header from "../../components/Headers/Header.jsx";
 
 import { getServerConfig } from '../../utils/getConfig'
 
-import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Progress, Menu, Dropdown, Radio } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Progress, Menu, Dropdown, Radio, Tabs, Table } from 'antd';
 
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
@@ -200,7 +200,10 @@ class OutboundRequest extends React.Component {
       totalAssertionsCount: 0,
       testReport: null,
       userConfig: null,
-      sendingOutboundRequestID: null
+      sendingOutboundRequestID: null,
+      loadSampleDialogVisible: false,
+      loadSampleFiles: {},
+      loadSampleChecked: {}
     };
   }
 
@@ -639,6 +642,96 @@ class OutboundRequest extends React.Component {
     )
   }
 
+  handleLoadSample = async () => {
+    message.loading({ content: 'Loading Sample...', key: 'loadSampleProgress' });
+    try {
+      if (!this.state.loadSampleChecked.collections || this.state.loadSampleChecked.collections.length === 0) {
+        message.error({ content: 'please select at least one collection', key: 'loadSampleProgress', duration: 2 });
+        return
+      }
+      if (this.state.loadSampleChecked.environment === 'none') {
+        this.state.loadSampleChecked.environment = null
+      }
+      const { apiBaseUrl } = getConfig()
+      const resp = await axios.get(apiBaseUrl + '/api/outbound/samples/data', {
+        params: this.state.loadSampleChecked
+      })
+      this.state.template.name = resp.data.body.name
+      if (resp.data.body.inputValues) { 
+        this.state.template.inputValues = resp.data.body.inputValues
+      }
+      this.state.template.test_cases = resp.data.body.test_cases
+      this.state.additionalData = {
+        importedFilename: (this.state.loadSampleChecked.collections.length > 1) ? 'Multiple Files' : this.state.loadSampleChecked.collections[0]
+      }
+      this.forceUpdate()
+      this.autoSave = true
+    } catch (err) {
+      message.error({ content: ((err.response) ? err.response.data : err.message), key: 'loadSampleProgress', duration: 2 });
+      return
+    }
+    message.success({ content: 'Sample Loaded', key: 'loadSampleProgress', duration: 2 });
+  }
+
+  loadSampleContent = async (type) => {
+    const { apiBaseUrl } = getConfig()
+    const resp = await axios.get(apiBaseUrl + `/api/outbound/samples?type=${type}`)
+    this.state.loadSampleFiles[type] = resp.data.body
+    this.state.loadSampleFiles[type].environments.push('none')
+  }
+
+  loadSampleCollections = (type) => {
+    const arr = []
+    if (this.state.loadSampleFiles[type]) {
+      for (const i in this.state.loadSampleFiles[type].collections) {
+        arr.push({
+          key: `${i}`,
+          collection: this.state.loadSampleFiles[type].collections[i]
+        })
+      }
+    }
+    return arr
+  }
+
+  loadSampleEnvironments = (type) => {
+    const arr = []
+    if (this.state.loadSampleFiles[type]) {
+      for (const i in this.state.loadSampleFiles[type].environments) {
+        arr.push({
+          key: `${i}`,
+          environment: this.state.loadSampleFiles[type].environments[i]
+        })
+      }
+    }
+    return arr
+  }
+
+  loadSampleTabContent = (type) => {
+    return (
+      <Row>
+        <Col span={11}>
+          <Table
+            rowSelection={{type: 'checkbox', onChange: (selectedRowKeys, selectedRows) => {
+              this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => {return selectedRow.collection})
+            }}}
+            columns={[{title: 'Collections', dataIndex: 'collection', render: text => <a>{text}</a>}]}
+            dataSource={this.loadSampleCollections(type)}
+          />
+        </Col>
+        <Col span={2}/>
+        <Col span={11}>
+          <Table
+            rowSelection={{type: 'radio', onChange: (selectedRowKeys, selectedRows) => {
+              this.state.loadSampleChecked.environment = selectedRows[0].environment
+            }}}
+            columns={[{title: 'Environments', dataIndex: 'environment', render: text => <a>{text}</a>}]}
+            dataSource={this.loadSampleEnvironments(type)}
+          />
+        </Col>
+      </Row>
+    )
+  }
+
   render() {
 
     const createNewTestCaseDialogContent = (
@@ -807,6 +900,34 @@ class OutboundRequest extends React.Component {
                           </Row>
                           <Row>
                             <Col span={8}>
+                              <Button color="primary" size="sm" onClick={async (e) => {
+                                await this.loadSampleContent('hub')
+                                await this.loadSampleContent('dfsp')
+                                this.setState({loadSampleDialogVisible: true})
+                              }}>
+                                Load Sample
+                              </Button>
+                              <Modal
+                                title="Loaded Samples"
+                                visible={this.state.loadSampleDialogVisible}
+                                width='90%'
+                                onOk={async () => {
+                                  await this.handleLoadSample()
+                                  this.setState({loadSampleDialogVisible: false})
+                                }}
+                                onCancel={() => {
+                                  this.setState({loadSampleDialogVisible: false})
+                                }}
+                              >
+                                <Tabs defaultActiveKey="hub" >
+                                  <Tabs.TabPane tab="hub" key="hub">
+                                    {this.loadSampleTabContent('hub')}
+                                  </Tabs.TabPane>
+                                  <Tabs.TabPane tab="dfsp" key="dfsp">
+                                    {this.loadSampleTabContent('dfsp')}
+                                  </Tabs.TabPane>
+                                </Tabs>
+                              </Modal>
                               <Button
                                 color="success"
                                 size="sm"
