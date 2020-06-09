@@ -34,7 +34,7 @@ import Header from "../../components/Headers/Header.jsx";
 
 import { getServerConfig } from '../../utils/getConfig'
 
-import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Progress, Menu, Dropdown, Radio, Tabs, Table } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Progress, Menu, Dropdown, Radio, Tabs, Table, Collapse } from 'antd';
 
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
@@ -645,24 +645,24 @@ class OutboundRequest extends React.Component {
   handleLoadSample = async () => {
     message.loading({ content: 'Loading Sample...', key: 'loadSampleProgress' });
     try {
-      if (!this.state.loadSampleChecked.collections || this.state.loadSampleChecked.collections.length === 0) {
-        message.error({ content: 'please select at least one collection', key: 'loadSampleProgress', duration: 2 });
-        return
+      if (this.state.loadSampleChecked.collections) {
+        this.state.additionalData.importedFilename = (this.state.loadSampleChecked.collections.length > 1) ? 'Multiple Files' : this.state.loadSampleChecked.collections[0]
       }
       if (this.state.loadSampleChecked.environment === 'none') {
         this.state.loadSampleChecked.environment = null
       }
       const { apiBaseUrl } = getConfig()
-      const resp = await axios.get(apiBaseUrl + '/api/outbound/samples/data', {
+      const resp = await axios.get(apiBaseUrl + '/api/outbound/samples', {
         params: this.state.loadSampleChecked
       })
-      this.state.template.name = resp.data.body.name
+      if (resp.data.body.name) {
+        this.state.template.name = resp.data.body.name
+      }
       if (resp.data.body.inputValues) { 
         this.state.template.inputValues = resp.data.body.inputValues
       }
-      this.state.template.test_cases = resp.data.body.test_cases
-      this.state.additionalData = {
-        importedFilename: (this.state.loadSampleChecked.collections.length > 1) ? 'Multiple Files' : this.state.loadSampleChecked.collections[0]
+      if (resp.data.body.test_cases) {
+        this.state.template.test_cases = resp.data.body.test_cases
       }
       this.forceUpdate()
       this.autoSave = true
@@ -673,37 +673,57 @@ class OutboundRequest extends React.Component {
     message.success({ content: 'Sample Loaded', key: 'loadSampleProgress', duration: 2 });
   }
 
-  loadSampleContent = async (type) => {
+  loadSampleContent = async () => {
     const { apiBaseUrl } = getConfig()
-    const resp = await axios.get(apiBaseUrl + `/api/outbound/samples?type=${type}`)
-    this.state.loadSampleFiles[type] = resp.data.body
-    this.state.loadSampleFiles[type].environments.push('none')
+    if (!this.state.loadSampleCollections) {
+      this.state.loadSampleCollections = {}
+      for (const index in this.state.loadSampleCollectionTypes) {
+        const resp = await axios.get(apiBaseUrl + `/api/outbound/samples/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
+        this.state.loadSampleCollections[this.state.loadSampleCollectionTypes[index]] = resp.data.body
+      }
+    }
+    if (!this.state.loadSampleEnvironments) {
+      const resp = await axios.get(apiBaseUrl + `/api/outbound/samples/environments`)
+      resp.data.body.push('none')
+      this.state.loadSampleEnvironments = resp.data.body
+    }
   }
 
   loadSampleCollections = (type) => {
-    const arr = []
-    if (this.state.loadSampleFiles[type]) {
-      for (const i in this.state.loadSampleFiles[type].collections) {
-        arr.push({
-          key: `${i}`,
-          collection: this.state.loadSampleFiles[type].collections[i]
-        })
+    const collections = []
+    if (this.state.loadSampleCollections && this.state.loadSampleCollections[type]) {
+      for (const i in this.state.loadSampleCollections[type]) {
+        collections.push({key: i, collection: this.state.loadSampleCollections[type][i]})
       }
     }
-    return arr
+    return collections
   }
 
-  loadSampleEnvironments = (type) => {
-    const arr = []
-    if (this.state.loadSampleFiles[type]) {
-      for (const i in this.state.loadSampleFiles[type].environments) {
-        arr.push({
-          key: `${i}`,
-          environment: this.state.loadSampleFiles[type].environments[i]
-        })
+  loadSampleEnvironments = () => {
+    const environments = []
+    if (this.state.loadSampleEnvironments) {
+      for (const i in this.state.loadSampleEnvironments) {
+        environments.push({key: i, environment: this.state.loadSampleEnvironments[i]})
       }
     }
-    return arr
+    return environments
+  }
+
+  loadSampleCollectionsTabContent = () => {
+    return this.state.loadSampleCollectionTypes.map(type => {
+      return (
+        <Tabs.TabPane tab={type} key={type}>
+          <Table
+            rowSelection={{type: 'checkbox', selectedRowKeys: this.state.selectedCollections, onChange: (selectedRowKeys, selectedRows) => {
+              this.setState({selectedCollections: selectedRowKeys})
+              this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => {return selectedRow.collection})
+            }}}
+            columns={[{title: 'Select all', dataIndex: 'collection', render: text => <a>{text}</a>}]}
+            dataSource={this.loadSampleCollections(type)}
+          />
+        </Tabs.TabPane>
+      )
+    })
   }
 
   loadSampleTabContent = (type) => {
@@ -900,9 +920,8 @@ class OutboundRequest extends React.Component {
                           </Row>
                           <Row>
                             <Col span={8}>
-                              <Button color="primary" size="sm" onClick={async (e) => {
-                                await this.loadSampleContent('hub')
-                                await this.loadSampleContent('dfsp')
+                            <Button color="primary" size="sm" onClick={async (e) => {
+                                await this.loadSampleContent()
                                 this.setState({loadSampleDialogVisible: true})
                               }}>
                                 Load Sample
@@ -910,7 +929,7 @@ class OutboundRequest extends React.Component {
                               <Modal
                                 title="Loaded Samples"
                                 visible={this.state.loadSampleDialogVisible}
-                                width='90%'
+                                width='50%'
                                 onOk={async () => {
                                   await this.handleLoadSample()
                                   this.setState({loadSampleDialogVisible: false})
@@ -919,14 +938,25 @@ class OutboundRequest extends React.Component {
                                   this.setState({loadSampleDialogVisible: false})
                                 }}
                               >
-                                <Tabs defaultActiveKey="hub" >
-                                  <Tabs.TabPane tab="hub" key="hub">
-                                    {this.loadSampleTabContent('hub')}
-                                  </Tabs.TabPane>
-                                  <Tabs.TabPane tab="dfsp" key="dfsp">
-                                    {this.loadSampleTabContent('dfsp')}
-                                  </Tabs.TabPane>
-                                </Tabs>
+                                <Collapse defaultActiveKey={['1']}>
+                                  <Collapse.Panel header="Collections" key="1">
+                                    <Tabs defaultActiveKey={this.state.loadSampleCollectionTypes[0]} onChange={() => {
+                                      this.setState({selectedCollections: []})
+                                    }}>
+                                      {this.loadSampleCollectionsTabContent()}
+                                    </Tabs>
+                                  </Collapse.Panel>
+                                  <Collapse.Panel header="Environments" key="2">
+                                    <Table
+                                      rowSelection={{type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
+                                        this.setState({selectedEnvironments: selectedRowKeys})
+                                        this.state.loadSampleChecked.environment = selectedRows[0].environment
+                                      }}}
+                                      columns={[{dataIndex: 'environment', render: text => <a>{text}</a>}]}
+                                      dataSource={this.loadSampleEnvironments()}
+                                    />
+                                  </Collapse.Panel>
+                                </Collapse>
                               </Modal>
                               <Button
                                 color="success"

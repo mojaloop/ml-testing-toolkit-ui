@@ -37,12 +37,18 @@ import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
 import ResponseRulesService from '../../services/rules/response'
 import getConfig from '../../utils/getConfig'
+import ImportExportSpecFiles from '../../utils/importExportSpecFiles'
 
 const ResponseRulesServiceObj = new ResponseRulesService()
 const { Option } = Select;
 const { SubMenu } = Menu;
 const { Panel } = Collapse;
 
+function buildFileSelector( multi = false ){
+  const fileSelector = document.createElement('input');
+  fileSelector.setAttribute('type', 'file');
+  return fileSelector;
+}
 
 class RulesResponse extends React.Component {
 
@@ -60,6 +66,10 @@ class RulesResponse extends React.Component {
 
   componentDidMount() {
     this.getResponseRulesFiles()
+    this.rulesFileSelector = buildFileSelector();
+    this.rulesFileSelector.addEventListener ('input', (e) => {
+      this.handleRulesFileImport(e.target.files[0])
+    })
   }
 
   getResponseRulesFiles = async () => {
@@ -232,6 +242,26 @@ class RulesResponse extends React.Component {
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });
   }
 
+  handleRuleFileExport = async (ruleTypes) => {
+    message.loading({ content: 'Exporting rule file...', key: 'exportingFileProgress' });
+    try {
+      await ImportExportSpecFiles.handleRuleFileExport(ruleTypes)
+      message.success({ content: 'Export rules completed', key: 'exportingFileProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'exportingFileProgress', duration: 6 })
+    }
+  }
+
+  handleRulesFileImport = async (file_to_read) => {
+    message.loading({ content: 'Importing rule file...', key: 'importRulesFileProgress' });
+    try {
+      await ImportExportSpecFiles.handleRulesFileImport(file_to_read, 'readAsArrayBuffer')
+      await this.getResponseRulesFiles()
+      message.success({ content: 'Import rules completed', key: 'importRulesFileProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'importRulesFileProgress', duration: 6 })
+    }
+  }
 
   render() {
     var newFileName = ''
@@ -286,6 +316,25 @@ class RulesResponse extends React.Component {
                       size="sm"
                     >
                       New Rules File
+                    </Button>
+                    <Button
+                      color="success"
+                      size="sm"
+                      onClick={() => {
+                        this.handleRuleFileExport(['rules_response'])
+                      }}
+                    >
+                      Export Rules
+                    </Button>
+                    <Button
+                      color="primary"
+                      size="sm"
+                      onClick={ (e) => {
+                        e.preventDefault();
+                        this.rulesFileSelector.click();
+                      }}
+                    >
+                      Import Rules
                     </Button>
                     {
                       this.state.selectedRuleFile

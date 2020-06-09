@@ -33,7 +33,7 @@ import {
 // core components
 import { Dropdown, DropdownButton } from 'react-bootstrap';
 
-import { Select } from 'antd';
+import { Select, message } from 'antd';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -329,7 +329,12 @@ class RulesEditor extends React.Component {
   handleSave = () => {
     // const newJson = this.refs.editor.jsonEditor.get()
     // // this.setState( { curJson: [ ...newJson ]} )
-    this.props.onSave(JSON.parse(this.getRule()))
+    const rule = JSON.parse(this.getRule())
+    if (!rule.event.type) {
+      message.error(({ content: 'rule event type is required', key: 'ruleSaveProgress', duration: 4 }));
+      return;
+    }
+    this.props.onSave(rule)
   }
 
   apiVersionSelectHandler = (apiVersion) => {

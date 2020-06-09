@@ -38,7 +38,13 @@ import RulesEditor from '../rules/RuleEditor'
 import RuleViewer from '../rules/RuleViewer'
 import getConfig from '../../utils/getConfig'
 import { getServerConfig } from '../../utils/getConfig'
+import ImportExportSpecFiles from '../../utils/importExportSpecFiles'
 
+function buildFileSelector( multi = false ){
+  const fileSelector = document.createElement('input');
+  fileSelector.setAttribute('type', 'file');
+  return fileSelector;
+}
 
 class ParamInput extends React.Component {
 
@@ -93,6 +99,17 @@ class ParamInput extends React.Component {
 
 class ConfigurationEditor extends React.Component {
 
+  componentDidMount() {
+    this.rulesFileSelector = buildFileSelector();
+    this.rulesFileSelector.addEventListener ('input', (e) => {
+      this.handleSettingsFileImport(e.target.files[0])
+    })
+    this.specFilesSelector = buildFileSelector();
+    this.specFilesSelector.addEventListener ('input', (e) => {
+      this.handleRulesFileImport(e.target.files[0])
+    })
+  }
+
   handleParamValueChange = (name, value) => {
     this.props.config[name] = value
     this.forceUpdate()
@@ -100,6 +117,48 @@ class ConfigurationEditor extends React.Component {
 
   handleSave = () => {
     this.props.onSave(this.props.config)
+  }
+
+  handleSettingsFileExport = async () => {
+    message.loading({ content: 'Exporting settings file...', key: 'exportFileProgress' });
+    try {
+      await ImportExportSpecFiles.handleSettingsFileExport(this.props.config)
+      message.success({ content: 'Export settings completed', key: 'exportFileProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'exportFileProgress', duration: 6 })
+    }
+  }
+
+  handleSettingsFileImport = async (file_to_read) => {
+    message.loading({ content: 'Importing settings file...', key: 'importSettingsFileProgress' });
+    try {
+      const settings = await ImportExportSpecFiles.handleSettingsFileImport(file_to_read)
+      this.props.onSave(settings)
+      message.success({ content: 'Import settings completed', key: 'importSettingsFileProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'importSettingsFileProgress', duration: 6 })
+    }
+  }
+
+  handleRuleFileExport = async (ruleTypes) => {
+    message.loading({ content: 'Export all rules and settings...', key: 'exportFileProgress' });
+    try {
+      await ImportExportSpecFiles.handleRuleFileExport(ruleTypes)
+      message.success({ content: 'Export rules and settings completed', key: 'exportFileProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'exportFileProgress', duration: 6 })
+    }
+  }
+
+  handleRulesFileImport = async (file_to_read) => {
+    message.loading({ content: 'Importing all rules and settings...', key: 'importFileProgress' });
+    try {
+      await ImportExportSpecFiles.handleRulesFileImport(file_to_read, 'readAsArrayBuffer')
+      this.props.doRefresh()
+      message.success({ content: 'Import rules and settings completed', key: 'importFileProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'importFileProgress', duration: 6 })
+    }
   }
 
   render () {
@@ -110,6 +169,44 @@ class ConfigurationEditor extends React.Component {
           <Card className="card-profile shadow">
             <CardHeader>
               <div className="d-flex float-right">
+                <Button
+                  color="success"
+                  size="sm"
+                  onClick={async () => {
+                    await this.handleSettingsFileExport()
+                  }}
+                >
+                  Export Settings
+                </Button>
+                <Button
+                  color="info"
+                  size="sm"
+                  onClick={ (e) => {
+                    e.preventDefault();
+                    this.rulesFileSelector.click();
+                  }}
+                >
+                  Import Settings
+                </Button>
+                <Button
+                  color="primary"
+                  size="sm"
+                  onClick={async () => {
+                    await this.handleRuleFileExport(['rules_response','rules_callback','rules_validation','user_config.json'])
+                  }}
+                >
+                  Export All Rules
+                </Button>
+                <Button
+                  color="success"
+                  size="sm"
+                  onClick={ (e) => {
+                    e.preventDefault();
+                    this.specFilesSelector.click();
+                  }}
+                >
+                  Import All Rules
+                </Button>
                 <Button
                   className="float-right"
                   color="primary"
@@ -319,7 +416,7 @@ class Settings extends React.Component {
                   <h3 className="mb-0">Edit Global Configuration</h3>
                 </CardHeader>
                 <CardBody>
-                  <ConfigurationEditor config={this.state.userConfigStored} onSave={this.handleSaveUserConfig} />
+                  <ConfigurationEditor config={this.state.userConfigStored} onSave={this.handleSaveUserConfig} doRefresh={this.getUserConfiguration} />
                 </CardBody>
               </Card>
             </Col>
