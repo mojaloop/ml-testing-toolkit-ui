@@ -733,30 +733,39 @@ class OutboundRequest extends React.Component {
     })
   }
 
-  loadSampleTabContent = (type) => {
-    return (
-      <Row>
-        <Col span={11}>
-          <Table
-            rowSelection={{type: 'checkbox', onChange: (selectedRowKeys, selectedRows) => {
-              this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => {return selectedRow.collection})
-            }}}
-            columns={[{title: 'Collections', dataIndex: 'collection', render: text => <a>{text}</a>}]}
-            dataSource={this.loadSampleCollections(type)}
-          />
-        </Col>
-        <Col span={2}/>
-        <Col span={11}>
-          <Table
-            rowSelection={{type: 'radio', onChange: (selectedRowKeys, selectedRows) => {
-              this.state.loadSampleChecked.environment = selectedRows[0].environment
-            }}}
-            columns={[{title: 'Environments', dataIndex: 'environment', render: text => <a>{text}</a>}]}
-            dataSource={this.loadSampleEnvironments(type)}
-          />
-        </Col>
-      </Row>
-    )
+  clearSampleSelectionState = () => {
+    this.setState({selectedCollections: []})
+    this.setState({selectedEnvironments: []})
+  }
+
+  loadSampleTabContent = () => {
+    return this.state.loadSampleTypes.map(type => {
+      return (
+        <Tabs.TabPane tab={type} key={type}>
+          <Col span={11}>
+            <Table
+              rowSelection={{type: 'checkbox', selectedRowKeys: this.state.selectedCollections, onChange: (selectedRowKeys, selectedRows) => {
+                this.setState({selectedCollections: selectedRowKeys})
+                this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => {return selectedRow.collection})
+              }}}
+              columns={[{title: 'Collections', dataIndex: 'collection', render: text => <a>{text}</a>}]}
+              dataSource={this.loadSampleCollections(type)}
+            />
+          </Col>
+          <Col span={2}/>
+          <Col span={11}>
+            <Table
+              rowSelection={{type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
+                this.setState({selectedEnvironments: selectedRowKeys})
+                this.state.loadSampleChecked.environment = selectedRows[0].environment
+              }}}
+              columns={[{title: 'Environments', dataIndex: 'environment', render: text => <a>{text}</a>}]}
+              dataSource={this.loadSampleEnvironments(type)}
+            />
+          </Col>
+        </Tabs.TabPane>
+      )
+    })
   }
 
   render() {
@@ -927,7 +936,8 @@ class OutboundRequest extends React.Component {
                           </Row>
                           <Row>
                             <Col span={8}>
-                            <Button color="primary" size="sm" onClick={async (e) => {
+                              <Button color="primary" size="sm" onClick={async (e) => {
+
                                 await this.loadSampleContent()
                                 this.setState({loadSampleDialogVisible: true})
                               }}>
@@ -939,9 +949,11 @@ class OutboundRequest extends React.Component {
                                 width='50%'
                                 onOk={async () => {
                                   await this.handleLoadSample()
+                                  this.clearSampleSelectionState()
                                   this.setState({loadSampleDialogVisible: false})
                                 }}
                                 onCancel={() => {
+                                  this.clearSampleSelectionState()
                                   this.setState({loadSampleDialogVisible: false})
                                 }}
                               >
