@@ -28,7 +28,7 @@ import {
   Col,
 } from "reactstrap";
 
-import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon, notification } from 'antd';
+import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon, notification, Modal, Table } from 'antd';
 import { BulbTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
@@ -38,7 +38,34 @@ import RulesEditor from '../rules/RuleEditor'
 import RuleViewer from '../rules/RuleViewer'
 import getConfig from '../../utils/getConfig'
 import { getServerConfig } from '../../utils/getConfig'
+import FileDownload from 'js-file-download'
 
+function buildFileSelector( multi = false ){
+  const fileSelector = document.createElement('input');
+  fileSelector.setAttribute('type', 'file');
+  return fileSelector;
+}
+
+
+const readFileAsync = (file, type) => {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
+
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+
+    reader.onerror = reject;
+
+    switch (type) {
+      case 'readAsArrayBuffer':
+        reader.readAsArrayBuffer(file)
+        break;
+      default: 
+        reader.readAsText(file)
+    }
+  })
+}
 
 class ParamInput extends React.Component {
 
@@ -93,6 +120,32 @@ class ParamInput extends React.Component {
 
 class ConfigurationEditor extends React.Component {
 
+  constructor() {
+    super();
+    this.state = {
+      exportDialogVisible: false,
+      importExportOptions: {
+        rules_response: 'Sync Response Rules',
+        rules_validation: 'Validation Rules (Error callbacks)',
+        rules_callback: 'Callback Rules (Success Callback)',
+        'user_config.json': 'Settings'
+      },
+      exportSelectedRowKeys: [],
+      importSelectedRowKeys: []
+    };
+  }
+
+  componentDidMount() {
+    this.specFilesSelector = buildFileSelector();
+    this.specFilesSelector.addEventListener ('input', async (e) => {
+      if (e.target.files) {
+        await this.handleImport(e.target.files[0])
+        this.props.doRefresh()
+        this.specFilesSelector.value = null
+      }
+    })
+  }
+
   handleParamValueChange = (name, value) => {
     this.props.config[name] = value
     this.forceUpdate()
@@ -100,6 +153,54 @@ class ConfigurationEditor extends React.Component {
 
   handleSave = () => {
     this.props.onSave(this.props.config)
+  }
+
+  handleImport = async (file_to_read) => {
+    message.loading({ content: 'Importing ...', key: 'importProgress' });
+    try {
+      const { apiBaseUrl } = getConfig()
+      if (this.state.importSelectedRowKeys.length === 1 && this.state.importSelectedRowKeys[0] === 'user_config.json' && file_to_read.name.endsWith('.json')) {
+        const settings = JSON.parse(await readFileAsync(file_to_read))
+        await axios.put(apiBaseUrl + "/api/config/user", settings, { headers: { 'Content-Type': 'application/json' }})
+      } else {
+        await axios.post(apiBaseUrl + "/api/settings/import", 
+          { buffer: Buffer.from(await readFileAsync(file_to_read, 'readAsArrayBuffer')), }, 
+          { params: { options: this.state.importSelectedRowKeys }, headers: { 'Content-Type': 'application/json' }})
+      }
+      message.success({ content: 'Import completed', key: 'importProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'importProgress', duration: 6 })
+    }
+    this.setState({importSelectedRowKeys: []})
+  }
+
+  handleExport = async () => {
+    message.loading({ content: 'Export all rules and settings...', key: 'exportFileProgress' });
+    try {
+      let filename
+      let data
+      if (this.state.exportSelectedRowKeys.length === 1 && this.state.exportSelectedRowKeys[0] === 'user_config.json') {
+        filename = `user_config_${new Date().toISOString()}.json`
+        data = JSON.stringify(this.props.config, null, 2)
+      } else {
+        const { apiBaseUrl } = getConfig()
+        const exportRulesResponse = await axios.get(apiBaseUrl + '/api/settings/export', {params: { options: this.state.exportSelectedRowKeys }})
+        filename = `${exportRulesResponse.data.body.namePrefix}_${new Date().toISOString()}.zip`
+        data = Buffer.from(Buffer.from(exportRulesResponse.data.body.buffer.data))
+      }
+      FileDownload(data, filename)
+      message.success({ content: 'Export rules and settings completed', key: 'exportFileProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'exportFileProgress', duration: 6 })
+    }
+  }
+
+  importExportDataSource = () => {
+    const options = []
+    Object.keys(this.state.importExportOptions).forEach((element) => {
+      options.push({key: element, option: this.state.importExportOptions[element]})
+    })
+    return options
   }
 
   render () {
@@ -110,6 +211,67 @@ class ConfigurationEditor extends React.Component {
           <Card className="card-profile shadow">
             <CardHeader>
               <div className="d-flex float-right">
+                <Button color="success" size="sm" onClick={(e) => {
+                  this.setState({exportDialogVisible: true})
+                }}>
+                  Export
+                </Button>
+                <Modal
+                  title="Export"
+                  visible={this.state.exportDialogVisible}
+                  width='50%'
+                  onOk={async () => {
+                    if (this.state.exportSelectedRowKeys.length !== 0) {
+                      await this.handleExport()
+                      this.setState({exportDialogVisible: false})
+                      this.setState({exportSelectedRowKeys: []})
+                    } else {
+                      message.error({ content: 'please select at least one option', key: 'importEmptySelection', duration: 6 })
+                    }
+                  }}
+                  onCancel={() => {
+                    this.setState({exportDialogVisible: false})
+                    this.setState({exportSelectedRowKeys: []})
+                  }}
+                >
+                <Table
+                  rowSelection={{type: 'checkbox', selectedRowKeys: this.state.exportSelectedRowKeys, onChange: (selectedRowKeys) => {
+                    this.setState({exportSelectedRowKeys: selectedRowKeys})
+                  }}}
+                  columns={[{title: 'Select all', dataIndex: 'option', render: text => <a>{text}</a>}]}
+                  dataSource={this.importExportDataSource()}
+                />
+                </Modal>
+                <Button color="info" size="sm" onClick={(e) => {
+                  this.setState({importDialogVisible: true})
+                }}>
+                  Import
+                </Button>
+                <Modal
+                  title="Import"
+                  visible={this.state.importDialogVisible}
+                  width='50%'
+                  onOk={() => {
+                    if (this.state.importSelectedRowKeys.length !== 0) {
+                      this.specFilesSelector.click();
+                      this.setState({importDialogVisible: false})
+                    } else {
+                      message.error({ content: 'please select at least one option', key: 'importEmptySelection', duration: 6 })
+                    }
+                  }}
+                  onCancel={() => {
+                    this.setState({importSelectedRowKeys: []})
+                    this.setState({importDialogVisible: false})
+                  }}
+                >
+                  <Table
+                    rowSelection={{type: 'checkbox', selectedRowKeys: this.state.importSelectedRowKeys, onChange: (selectedRowKeys) => {
+                      this.setState({importSelectedRowKeys: selectedRowKeys})
+                    }}}
+                    columns={[{title: 'Select all', dataIndex: 'option', render: text => <a>{text}</a>}]}
+                    dataSource={this.importExportDataSource()}
+                  />
+                </Modal>
                 <Button
                   className="float-right"
                   color="primary"
@@ -122,13 +284,6 @@ class ConfigurationEditor extends React.Component {
               </div>
             </CardHeader>
             <CardBody>
-              <ParamInput
-                name="Override with Environment Variables"
-                tooltip="Check this if you are passing the configuration through environment variables. The below configuration may be overridden by the environment variables." 
-                itemKey="OVERRIDE_WITH_ENV"
-                value={this.props.config.OVERRIDE_WITH_ENV}
-                onChange={this.handleParamValueChange} />
-              <Divider />
               <ParamInput name="Callback URL" itemKey="CALLBACK_ENDPOINT" value={this.props.config.CALLBACK_ENDPOINT} onChange={this.handleParamValueChange} />
               <ParamInput name="FSP ID" itemKey="FSPID" value={this.props.config.FSPID} onChange={this.handleParamValueChange} />
               <ParamInput name="Send Callback" itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
@@ -319,7 +474,7 @@ class Settings extends React.Component {
                   <h3 className="mb-0">Edit Global Configuration</h3>
                 </CardHeader>
                 <CardBody>
-                  <ConfigurationEditor config={this.state.userConfigStored} onSave={this.handleSaveUserConfig} />
+                  <ConfigurationEditor config={this.state.userConfigStored} onSave={this.handleSaveUserConfig} doRefresh={this.getUserConfiguration} />
                 </CardBody>
               </Card>
             </Col>

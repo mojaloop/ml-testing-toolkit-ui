@@ -43,7 +43,6 @@ const { Option } = Select;
 const { SubMenu } = Menu;
 const { Panel } = Collapse;
 
-
 class RulesResponse extends React.Component {
 
   constructor() {
@@ -231,7 +230,6 @@ class RulesResponse extends React.Component {
     this.updateRulesFileDisplay()
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });
   }
-
 
   render() {
     var newFileName = ''

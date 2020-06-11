@@ -41,7 +41,6 @@ const { Option } = Select;
 const { SubMenu } = Menu;
 const { Panel } = Collapse;
 
-
 class RulesCallback extends React.Component {
 
   constructor() {
@@ -235,7 +234,6 @@ class RulesCallback extends React.Component {
     this.updateRulesFileDisplay()
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });
   }
-
 
   render() {
     var newFileName = ''
