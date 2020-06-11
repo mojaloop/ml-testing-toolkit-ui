@@ -659,7 +659,7 @@ class OutboundRequest extends React.Component {
         this.state.loadSampleChecked.environment = null
       }
       const { apiBaseUrl } = getConfig()
-      const resp = await axios.get(apiBaseUrl + '/api/outbound/samples', {
+      const resp = await axios.get(apiBaseUrl + '/api/samples/load', {
         params: this.state.loadSampleChecked
       })
       if (resp.data.body.name) {
@@ -685,12 +685,12 @@ class OutboundRequest extends React.Component {
     if (!this.state.loadSampleCollections) {
       this.state.loadSampleCollections = {}
       for (const index in this.state.loadSampleCollectionTypes) {
-        const resp = await axios.get(apiBaseUrl + `/api/outbound/samples/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
+        const resp = await axios.get(apiBaseUrl + `/api/samples/load/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
         this.state.loadSampleCollections[this.state.loadSampleCollectionTypes[index]] = resp.data.body
       }
     }
     if (!this.state.loadSampleEnvironments) {
-      const resp = await axios.get(apiBaseUrl + `/api/outbound/samples/environments`)
+      const resp = await axios.get(apiBaseUrl + `/api/samples/load/environments`)
       resp.data.body.push('none')
       this.state.loadSampleEnvironments = resp.data.body
     }
