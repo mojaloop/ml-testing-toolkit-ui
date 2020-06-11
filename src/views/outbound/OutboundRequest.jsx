@@ -203,7 +203,8 @@ class OutboundRequest extends React.Component {
       sendingOutboundRequestID: null,
       loadSampleDialogVisible: false,
       loadSampleFiles: {},
-      loadSampleChecked: {}
+      loadSampleChecked: {},
+      loadSampleCollectionTypes: ['hub','dfsp','provisioning']
     };
   }
 
@@ -222,14 +223,20 @@ class OutboundRequest extends React.Component {
     this.collectionFileSelector = buildFileSelector(true);
     this.environmentFileSelector = buildFileSelector();
     this.collectionFileSelector.addEventListener ('input', (e) => {
-      if (e.target.files.length == 1) {
-        this.handleImportCollectionFile(e.target.files[0])
-      } else if (e.target.files.length > 1) {
-        this.handleImportCollectionFileMulti(e.target.files)
+      if (e.target.files) {
+        if (e.target.files.length == 1) {
+          this.handleImportCollectionFile(e.target.files[0])
+        } else if (e.target.files.length > 1) {
+          this.handleImportCollectionFileMulti(e.target.files)
+        }
+        this.collectionFileSelector.value = null
       }
     })
     this.environmentFileSelector.addEventListener ('input', (e) => {
-      this.handleImportEnvironmentFile(e.target.files[0])
+      if (e.target.files) {
+        this.handleImportEnvironmentFile(e.target.files[0])
+        this.environmentFileSelector.value = null
+      }
     })
 
     // const sampleTemplate = require('./sample1.json')

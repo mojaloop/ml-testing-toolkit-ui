@@ -36,17 +36,10 @@ import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
 import getConfig from '../../utils/getConfig'
-import ImportExportSpecFiles from '../../utils/importExportSpecFiles'
 
 const { Option } = Select;
 const { SubMenu } = Menu;
 const { Panel } = Collapse;
-
-function buildFileSelector( multi = false ){
-  const fileSelector = document.createElement('input');
-  fileSelector.setAttribute('type', 'file');
-  return fileSelector;
-}
 
 class RulesCallback extends React.Component {
 
@@ -64,10 +57,6 @@ class RulesCallback extends React.Component {
 
   componentDidMount() {
     this.getCallbackRulesFiles()
-    this.rulesFileSelector = buildFileSelector();
-    this.rulesFileSelector.addEventListener ('input', (e) => {
-      this.handleRulesFileImport(e.target.files[0])
-    })
   }
 
   getCallbackRulesFiles = async () => {
@@ -246,27 +235,6 @@ class RulesCallback extends React.Component {
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });
   }
 
-  handleRuleFileExport = async () => {
-    message.loading({ content: 'Exporting rule file...', key: 'exportingFileProgress' });
-    try {
-      await ImportExportSpecFiles.handleRuleFileExport(['callback_rules'])
-      message.success({ content: 'Export rules completed', key: 'exportingFileProgress', duration: 2 })
-    } catch (err) {
-      message.error({ content: err.response ? err.response.data : err.message, key: 'exportingFileProgress', duration: 6 })
-    }
-  }
-
-  handleRulesFileImport = async (file_to_read) => {
-    message.loading({ content: 'Importing rule file...', key: 'importRulesFileProgress' });
-    try {
-      await ImportExportSpecFiles.handleRulesFileImport(file_to_read, 'readAsArrayBuffer')
-      await this.getCallbackRulesFiles()
-      message.success({ content: 'Import rules completed', key: 'importRulesFileProgress', duration: 2 })
-    } catch (err) {
-      message.error({ content: err.response ? err.response.data : err.message, key: 'importRulesFileProgress', duration: 6 })
-    }
-  }
-
   render() {
     var newFileName = ''
     var newFileNameErrorMessage = ''
@@ -320,25 +288,6 @@ class RulesCallback extends React.Component {
                       size="sm"
                     >
                       New Rules File
-                    </Button>
-                    <Button
-                      color="success"
-                      size="sm"
-                      onClick={() => {
-                        this.handleRuleFileExport()
-                      }}
-                    >
-                      Export Rules
-                    </Button>
-                    <Button
-                      color="primary"
-                      size="sm"
-                      onClick={ (e) => {
-                        e.preventDefault();
-                        this.rulesFileSelector.click();
-                      }}
-                    >
-                      Import Rules
                     </Button>
                     {
                       this.state.selectedRuleFile
