@@ -36,6 +36,8 @@ import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
 import getConfig from '../../utils/getConfig'
+import {SortableContainer, SortableElement} from 'react-sortable-hoc'
+import arrayMove from 'array-move'
 
 const { Option } = Select;
 const { SubMenu } = Menu;
@@ -51,7 +53,9 @@ class RulesValidation extends React.Component {
       selectedRuleFile: null,
       curRules: [],
       editRule: null,
-      mode: null
+      mode: null,
+      reOrderingEnabled: false,
+      curRulesUpdated: false
     };
   }
 
@@ -185,13 +189,23 @@ class RulesValidation extends React.Component {
     }
 
     if (updatedRules) {
-      message.loading({ content: 'Saving the rule...', key: 'ruleSaveProgress' });
-      const { apiBaseUrl } = getConfig()
-      await axios.put(apiBaseUrl + "/api/rules/files/validation/" + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
-      await this.setState({editRule: null, curRules: updatedRules})
-      message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 });
+      await this.updateRules({editRule: null, curRules: updatedRules})
     }
   }
+
+  updateRules = async (newState) => {
+    message.loading({ content: 'Saving the rule...', key: 'ruleSaveProgress' });
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + "/api/rules/files/validation/" + this.state.selectedRuleFile, newState.curRules, { headers: { 'Content-Type': 'application/json' } })
+    this.setState(newState)
+    message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 });
+  }
+
+  onRulesSortEnd = ({oldIndex, newIndex}) => {
+    // Change the position in array
+    this.setState({curRulesUpdated: true})
+    this.setState({curRules: arrayMove(this.state.curRules, oldIndex, newIndex)})
+  };
 
   handleRuleDelete = (ruleId) => {
     return async () => {
@@ -255,6 +269,18 @@ class RulesValidation extends React.Component {
       this.setState({ mode: null})
       this.handleNewRulesFileClick(newFileName)
     }
+
+    const SortableRuleItem = SortableElement(({value}) => <Panel header={value.description}></Panel>)
+
+    const SortableRuleList = SortableContainer(({items}) => {
+      return (
+        <Collapse>
+        {items.map((value, index) => (
+          <SortableRuleItem key={`item-${value.ruleId}`} index={index} value={value} />
+        ))}
+        </Collapse>
+      );
+    });
 
     return (
       <>
@@ -376,11 +402,46 @@ class RulesValidation extends React.Component {
               ? (
                 <Card className="bg-secondary shadow">
                   <CardHeader className="bg-white border-0">
-                    <Row className="align-items-center">
-                      <Col xs="6">
-                        <h3 className="mb-0">{this.state.selectedRuleFile}</h3>
+                  <Row className="align-items-center">
+                      <Col md="9">
+                        <h3 >{this.state.selectedRuleFile}</h3>
                       </Col>
-                      <Col className="text-right" xs="6">
+                      <Col md="3">
+                      {
+                          this.state.reOrderingEnabled
+                          ? (
+                            <Button
+                              className="text-right"
+                              color="danger"
+                              href="#pablo"
+                              onClick={async () => {
+                                if (this.state.curRulesUpdated) {
+                                  await this.updateRules({curRules: this.state.curRules})
+                                } else {
+                                  message.error({ content: 'No changes found', key: 'ruleSaveProgress', duration: 2 });
+                                }
+                                this.setState({curRulesUpdated: false})
+                                this.setState({reOrderingEnabled: false})
+                              }}
+                              size="sm"
+                            >
+                              Apply Order
+                            </Button>
+                          )
+                          : (
+                            <Button
+                              className="text-right"
+                              color="success"
+                              href="#pablo"
+                              onClick={ () => {
+                                this.setState({reOrderingEnabled: true})
+                              }}
+                              size="sm"
+                            >
+                              Change Order
+                            </Button>
+                          )
+                        }
                         <Button
                           color="info"
                           href="#pablo"
@@ -393,11 +454,17 @@ class RulesValidation extends React.Component {
                     </Row>
                   </CardHeader>
                   <CardBody>
-                    <Collapse
-                      onChange={this.handleRuleItemActivePanelChange}
-                    >
-                      {this.getRulesFileContentItems()}
-                    </Collapse>
+                    {
+                      this.state.reOrderingEnabled
+                      ? (
+                        <SortableRuleList items={this.state.curRules} onSortEnd={this.onRulesSortEnd} />
+                      )
+                      : (
+                        <Collapse onChange={this.handleRuleItemActivePanelChange}>
+                          {this.getRulesFileContentItems()}
+                        </Collapse>
+                      )
+                    }
                   </CardBody>
                 </Card>
               )

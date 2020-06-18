@@ -562,6 +562,49 @@ class OptionsBuilder extends React.Component {
                 </label>
               </Col>
             </Row>
+            <Row className="mt-2">
+              <Col span={24}>
+                <Checkbox
+                  checked={this.state.delayCheckboxSelected}
+                  onChange={(e) => {
+                    this.props.request.delay = null
+                    this.props.onChange()
+                    this.setState({delayCheckboxSelected: e.target.checked})
+                  }}
+                />
+                <label
+                  className="form-control-label ml-2"
+                  htmlFor="input-city"
+                >
+                  Use delay
+                </label>
+              </Col>
+              {
+                  this.state.delayCheckboxSelected
+                  ? (
+                    <Row className="mt-2">
+                      <Col span={8}>
+                        <label
+                          className="form-control-label"
+                          htmlFor="input-city"
+                        >
+                          Enter Delay in milliseconds
+                        </label>
+                      </Col>
+                      <Col span={16}>
+                        <Input
+                          placeholder="delay" value={this.props.request.delay}
+                          onChange={(e) => {
+                            this.props.request.delay = e.target.value
+                            this.props.onChange()
+                          }}
+                        />
+                      </Col>
+                    </Row>
+                  )
+                  : null
+                }
+            </Row>
           </Card>
         </Col>
       </Row>
