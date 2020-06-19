@@ -789,6 +789,25 @@ class EventResponseBuilder extends React.Component {
               <FormGroup>
                 <label
                   className="form-control-label"
+                  htmlFor="input-country"
+                >
+                  Delay in milliseconds
+                </label>
+                <br />
+                <Input placeholder="0" value={this.props.event.params.delay} onChange={(e) => {
+                    const newValue = parseInt(e.target.value)
+                    this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue
+                    this.handleEventChange()
+                  }}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col md="12">
+              <FormGroup>
+                <label
+                  className="form-control-label"
                   htmlFor="input-address"
                 >
                   Event Type

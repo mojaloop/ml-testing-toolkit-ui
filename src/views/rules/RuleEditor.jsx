@@ -174,7 +174,9 @@ class RulesEditor extends React.Component {
       origJson: [],
       curJson: {},
       description: '',
-      event: {},
+      event: {
+        params: {}
+      },
       conditions: [],
       pathMethodConditions: [],
       apiVersions: [],
@@ -226,8 +228,7 @@ class RulesEditor extends React.Component {
     let event = {
       method: null,
       path: null,
-      params: {},
-      delay: 0
+      params: {}
     }
     if (inputRule.event) {
       event = inputRule.event
