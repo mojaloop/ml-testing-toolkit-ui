@@ -213,7 +213,7 @@ class LearningPage extends React.Component {
 
     const storedTemplate = this.restoreSavedTemplate()
     if (storedTemplate) {
-      this.setState({ template: storedTemplate })
+      this.setState({ originalTemplate: storedTemplate })
     }
     const additionalData = this.restoreAdditionalData()
     if (additionalData) {
@@ -221,6 +221,8 @@ class LearningPage extends React.Component {
     }
 
     this.handleLoadSampleTemplate()
+
+    // this.onChangeFilterSelect(1)
 
     this.startAutoSaveTemplateTimer()
 
@@ -413,7 +415,7 @@ class LearningPage extends React.Component {
     this.autoSaveIntervalId = setInterval(() => {
       if (this.autoSave) {
         this.autoSave = false
-        this.autoSaveTemplate(this.convertTemplate(this.state.template))
+        this.autoSaveTemplate(this.convertTemplate(this.state.originalTemplate))
         this.autoSaveAdditionalData(this.state.additionalData)
       }
     },
@@ -445,7 +447,10 @@ class LearningPage extends React.Component {
         var intern = JSON.parse(content);
         let importedTestCases = intern.test_cases ? intern.test_cases : {}
         console.log(file_to_read)
-        this.setState({ originalTemplate: intern, allTestCases: importedTestCases, additionalData: { importedFilename: file_to_read.name } })
+        this.setState({ originalTemplate: intern, 
+          // template: intern, 
+          allTestCases: importedTestCases, 
+          additionalData: { importedFilename: file_to_read.name } })
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
       } catch (err) {
@@ -459,7 +464,10 @@ class LearningPage extends React.Component {
   handleLoadSampleTemplate = () => {
     const sampleJson = JSON.parse(JSON.stringify(require('./dfsp-tests.json')))
     console.log(sampleJson)
-    this.setState({ originalTemplate: sampleJson, allTestCases: sampleJson.test_cases, selectTestCase: {}, additionalData: { importedFilename: 'Sample' } })
+    this.setState({ originalTemplate: sampleJson, 
+      allTestCases: sampleJson.test_cases,
+      template: sampleJson,
+      additionalData: { importedFilename: 'Sample' } })
     this.autoSave = true
     message.success({
       content: 'Input Values Loaded',
@@ -513,11 +521,13 @@ class LearningPage extends React.Component {
   }
 
   onChangeFilterSelect = (selectVal) => {
+    if (this.state.allTestCases.length === 0) return
+
     let filteredTest = this.state.allTestCases &&
       this.state.allTestCases.find(
         (item) => (selectVal == item.id)
       )
-
+      
     let filteredTemplate = this.state.originalTemplate
     filteredTemplate.test_cases = []
     filteredTemplate.test_cases.push(filteredTest)
@@ -612,8 +622,6 @@ class LearningPage extends React.Component {
       </>
     )
 
-    console.log('selectTestCase', this.state.selectTestCase)
-
     return (
       <>
         <Modal
@@ -671,7 +679,7 @@ class LearningPage extends React.Component {
                                 testCases={this.state.allTestCases} />
                             </Col>
 
-                            <Col xl={{span: 9, offset: 2}} lg={{span: 8, offset: 4}} xs={21} offset={3}>
+                            <Col xl={{ span: 9, offset: 2 }} lg={{ span: 8, offset: 4 }} xs={21} offset={3}>
                               <Button
                                 className="m-1 button-select"
                                 color="info"
@@ -819,7 +827,7 @@ class LearningPage extends React.Component {
                               >
                                 <Button
                                   className="text-right float-right m-1"
-                                  color="primary"
+                                  color="info"
                                   size="sm"
                                 >
                                   New Template
@@ -864,7 +872,7 @@ class LearningPage extends React.Component {
                         >
                           <Button
                             className="text-left float-left mb-2 mt-2"
-                            color="primary"
+                            color="info"
                             size="sm"
                           >
                             Add Test Case
