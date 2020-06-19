@@ -741,7 +741,8 @@ class EventBuilder extends React.Component {
                 </label>
                 <br />
                 <Input placeholder="0" value={this.props.event.params.delay} onChange={(e) => {
-                    this.props.event.params.delay = (e.target.value && e.target.value.trim() !== '' && e.target.value !== '0') ? e.target.value : undefined
+                    const newValue = parseInt(e.target.value)
+                    this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue
                     this.handleEventChange()
                   }}
                 />
