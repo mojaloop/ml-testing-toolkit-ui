@@ -28,10 +28,11 @@ import {
 } from "reactstrap";
 // core components
 import axios from 'axios';
-import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd';
+import { Select, TreeSelect, Input, Tooltip, Tag, message, Popover } from 'antd';
 import 'antd/dist/antd.css';
 
 import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
+import { ConfigurableParameter } from './RuleEditor'
 // import './index.css';
 import Ajv from 'ajv';
 const ajv = new Ajv({allErrors: true});
@@ -55,10 +56,11 @@ class ValueSelector extends React.Component {
       // Its due to the hight level component in RulesCallback which is trying to re-render the whole page if any change in conditions detected.
       this.validateAjv = ajv.compile(this.props.selectedFact);
       const valid = this.validateAjv(newValue);
-      if (valid) {
+      if (valid || newValue.startsWith('{$environment')) {
         this.props.onChange(newValue)
         this.setState({ajvErrors: ''})
       } else {
+        console.log(newValue)
         this.props.onChange(newValue)
         this.setState({ajvErrors: this.validateAjv.errors})
       }
@@ -346,7 +348,6 @@ class Condition extends React.Component {
   }
 
   render() {
-
     return (
       <>
         <Table className="shadow">
@@ -472,6 +473,7 @@ class ConditionBuilder extends React.Component {
   constructor() {
     super();
     this.state = {
+      configurableParameterSelected: ''
     };
   }
 
@@ -495,8 +497,40 @@ class ConditionBuilder extends React.Component {
     this.props.onChange({ conditions: this.props.conditions })
   }
 
-  render() {
+  handleAddConfigParam = (newValue) => {
+    this.setState({configurableParameterSelected: `{$environment.${newValue}}`})
+  }
 
+  handleConfigParamCopyToClipboard = () => {
+    navigator.clipboard.writeText(this.state.configurableParameterSelected)
+    message.success('Copied to clipboard')
+  }
+
+  render() {
+    const content = (
+      <>
+      <Row>
+        <Col>
+        <ConfigurableParameter
+          onChange={this.handleAddConfigParam}
+          environment={this.props.environment}
+        />
+        </Col>
+      </Row>
+      {
+        this.state.configurableParameterSelected ?
+        (
+          <Row className="mt-4 text-center">
+            <Col>
+              Click below to copy <br/>
+              <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
+            </Col>
+          </Row>
+        )
+        : null
+      }
+      </>
+    )
     return (
       <>
         <Conditions 
@@ -506,14 +540,24 @@ class ConditionBuilder extends React.Component {
           rootParameters={this.props.rootParameters}
           onConditionsChange={this.handleConditionsChange}
         />
-        <Button
-          color="primary"
-          onClick={() => this.addCondition()}
-          disabled={(this.props.resource? false : true)}
-          size="sm"
-        >
-          Add Condition
-        </Button>
+        <Row>
+          <Col className="mt-2">
+            <Button
+              color="primary"
+              onClick={() => this.addCondition()}
+              disabled={(this.props.resource? false : true)}
+              size="sm"
+            >
+              Add Condition
+            </Button>
+          </Col>
+          <Col className="mt-2">
+            <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+              <Button color="secondary" size="sm">Add Configurable Params</Button>
+            </Popover>
+          </Col>
+        </Row>
+        
       </>
     );
   }
