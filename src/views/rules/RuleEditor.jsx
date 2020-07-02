@@ -33,7 +33,7 @@ import {
 // core components
 import { Dropdown, DropdownButton } from 'react-bootstrap';
 
-import { Select, message, Tabs, Collapse, Checkbox, Tag, Popover } from 'antd';
+import { Select, message, Tabs, Collapse, Checkbox, Tag, Popover, Descriptions} from 'antd';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -588,6 +588,16 @@ class RulesEditor extends React.Component {
     message.success('Copied to clipboard')
   }
 
+  getEnvironmentStateDescriptions = () => {
+    return Object.keys(this.state.environment).map((key, index) => {
+      return (
+        <Descriptions.Item key={index} label={key}>
+          <pre>{JSON.stringify(this.state.environment[key], null, 2)}</pre>
+        </Descriptions.Item>
+      )
+    })
+  }
+
   render() {
     const content = (
       <>
@@ -678,39 +688,57 @@ class RulesEditor extends React.Component {
                       }}>Enable scripts</Checkbox>
                     </Col>
                   </Row>
-                    {
-                      this.state.scriptsEnabled
-                      ? (
-                        <>
-                          <div className="pl-lg-4">
-                          <AceEditor
-                            ref="preReqScriptAceEditor"
-                            mode="javascript"
-                            theme="eclipse"
-                            width='100%'
-                            value={ this.state.scripts ? this.state.scripts.join('\n') : '' }
-                            onChange={ (newScript) => {
-                              this.state.scripts = newScript.split('\n')
-                            }}
-                            name="UNIQUE_ID_OF_DIV"
-                            wrapEnabled={true}
-                            showPrintMargin={true}
-                            showGutter={true}
-                            tabSize={2}
-                            enableBasicAutocompletion={true}
-                            enableLiveAutocompletion={true}
-                          />
-                          <Col className="mt-2">
-                            <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                              <Button color="secondary" size="sm">Add Configurable Params</Button>
-                            </Popover>
-                          </Col>
-                          </div>
-                        </>
-                      )
-                      :
-                      null
-                    }
+                  <Tabs defaultActiveKey='scripts'>
+                    <Tabs.TabPane tab="Scripts" disabled={!this.state.scriptsEnabled} key="scripts">
+                      {
+                        this.state.scriptsEnabled
+                        ? (
+                          <>
+                            <div className="pl-lg-4">
+                            <AceEditor
+                              ref="preReqScriptAceEditor"
+                              mode="javascript"
+                              theme="eclipse"
+                              width='100%'
+                              value={ this.state.scripts ? this.state.scripts.join('\n') : '' }
+                              onChange={ (newScript) => {
+                                this.state.scripts = newScript.split('\n')
+                              }}
+                              name="UNIQUE_ID_OF_DIV"
+                              wrapEnabled={true}
+                              showPrintMargin={true}
+                              showGutter={true}
+                              tabSize={2}
+                              enableBasicAutocompletion={true}
+                              enableLiveAutocompletion={true}
+                            />
+                            <Col className="mt-2">
+                              <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                                <Button color="secondary" size="sm">Add Configurable Params</Button>
+                              </Popover>
+                            </Col>
+                            </div>
+                          </>
+                        )
+                        :
+                        null
+                      }
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="Environment" disabled={Object.keys(this.state.environment).length === 0} key="environment">
+                      {
+                        Object.keys(this.state.environment).length > 0
+                        ? (
+                          <Descriptions bordered column={1} size='small'>
+                            {this.getEnvironmentStateDescriptions()}
+                          </Descriptions>
+                        )
+                        : (
+                          <span>There are no items</span>
+                        )
+                      }
+                    </Tabs.TabPane>
+                  </Tabs>
+                  
                     <hr className="my-4" />
                     <h6 className="heading-small text-muted mb-4">
                       Conditions
