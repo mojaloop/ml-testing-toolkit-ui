@@ -550,8 +550,6 @@ class ConditionBuilder extends React.Component {
             >
               Add Condition
             </Button>
-          </Col>
-          <Col className="mt-2">
             <Popover content={content} title="Select a Configurable Parameter" trigger="click">
               <Button color="secondary" size="sm">Add Configurable Params</Button>
             </Popover>

@@ -712,11 +712,9 @@ class RulesEditor extends React.Component {
                               enableBasicAutocompletion={true}
                               enableLiveAutocompletion={true}
                             />
-                            <Col className="mt-2">
-                              <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                                <Button color="secondary" size="sm">Add Configurable Params</Button>
-                              </Popover>
-                            </Col>
+                            <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                              <Button color="secondary" size="sm">Add Configurable Params</Button>
+                            </Popover>
                             </div>
                           </>
                         )
