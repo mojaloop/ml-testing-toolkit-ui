@@ -780,7 +780,7 @@ class RulesEditor extends React.Component {
                           </Popover>
                         </div>
                       </Tabs.TabPane>
-                      <Tabs.TabPane tab="Environment" disabled={Object.keys(this.state.environment).length === 0} key="environment">
+                      <Tabs.TabPane tab="Environment" disabled={Object.keys(this.state.environment).length === 0} key={Object.keys(this.state.environment).length === 0 ? undefined : "environment"} >
                         <Descriptions bordered column={1} size='small'>
                           {this.getEnvironmentStateDescriptions()}
                         </Descriptions>
