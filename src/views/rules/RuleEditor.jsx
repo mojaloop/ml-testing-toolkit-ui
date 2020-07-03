@@ -31,7 +31,7 @@ import {
   Col,
 } from "reactstrap";
 // core components
-import { Dropdown, DropdownButton } from 'react-bootstrap';
+import { Dropdown, DropdownButton, Tab } from 'react-bootstrap';
 
 import { Select, message, Tabs, Collapse, Checkbox, Tag, Popover, Descriptions} from 'antd';
 
@@ -278,7 +278,6 @@ class RulesEditor extends React.Component {
       event: {
         params: {}
       },
-      scriptsEnabled: false,
       scripts: null,
       conditions: [],
       pathMethodConditions: [],
@@ -314,7 +313,6 @@ class RulesEditor extends React.Component {
 
     let pathMethodConditions = []
     let conditions = []
-    let scriptsEnabled
     let scripts
     try {
       pathMethodConditions = inputRule.conditions.all.filter(item => {
@@ -345,7 +343,6 @@ class RulesEditor extends React.Component {
     if (inputRule.event) {
       event = inputRule.event
       if (event.params && event.params.scripts) {
-        scriptsEnabled = event.params.scripts.enabled
         scripts = event.params.scripts.exec
       }
     }
@@ -367,7 +364,7 @@ class RulesEditor extends React.Component {
       environment = await this.getEnvironment()
     } catch (err) {}
 
-    this.setState({description, conditions, pathMethodConditions, event, selectedResource, apiVersions, selectedApiVersion, scriptsEnabled, scripts, environment })
+    this.setState({description, conditions, pathMethodConditions, event, selectedResource, apiVersions, selectedApiVersion, scripts, environment })
   }
 
   fetchAllApiData = async (apiType, version) => {
@@ -411,7 +408,6 @@ class RulesEditor extends React.Component {
       event: {...this.state.event}
     }
     rule.event.params.scripts = {
-      enabled: this.state.scriptsEnabled,
       exec: (this.state.scripts && this.state.scripts.length === 1 && this.state.scripts[0].trim() === '') ? undefined : this.state.scripts
     }
     return JSON.stringify(rule, null, 2)
@@ -457,6 +453,14 @@ class RulesEditor extends React.Component {
   getEnvironment = async () => {
     const { apiBaseUrl } = getConfig()
     const response = await axios.get(`${apiBaseUrl}/api/objectstore/inboundEnvironment`)
+    return response.data
+    // this.setState(  { callbackMap: response.data } )
+  }
+
+  clearEnvironment = async () => {
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.delete(`${apiBaseUrl}/api/objectstore/inboundEnvironment`)
+    this.setState({environment: {}})
     return response.data
     // this.setState(  { callbackMap: response.data } )
   }
@@ -681,130 +685,112 @@ class RulesEditor extends React.Component {
                 </CardHeader>
                 <CardBody>
                   <Form>
-                  <Row>
-                    <Col>
-                      <Checkbox checked={this.state.scriptsEnabled} onChange={(e) => {
-                        this.setState({scriptsEnabled: e.target.checked})
-                      }}>Enable scripts</Checkbox>
-                    </Col>
-                  </Row>
-                  <Tabs defaultActiveKey='scripts'>
-                    <Tabs.TabPane tab="Scripts" disabled={!this.state.scriptsEnabled} key="scripts">
-                      {
-                        this.state.scriptsEnabled
-                        ? (
-                          <>
-                            <div className="pl-lg-4">
-                            <AceEditor
-                              ref="preReqScriptAceEditor"
-                              mode="javascript"
-                              theme="eclipse"
-                              width='100%'
-                              value={ this.state.scripts ? this.state.scripts.join('\n') : '' }
-                              onChange={ (newScript) => {
-                                this.state.scripts = newScript.split('\n')
-                              }}
-                              name="UNIQUE_ID_OF_DIV"
-                              wrapEnabled={true}
-                              showPrintMargin={true}
-                              showGutter={true}
-                              tabSize={2}
-                              enableBasicAutocompletion={true}
-                              enableLiveAutocompletion={true}
+                    <Tabs defaultActiveKey='rules'>
+                      <Tabs.TabPane tab="Rules" key="rules">
+                        <hr className="my-4" />
+                        <h6 className="heading-small text-muted mb-4">
+                          Conditions
+                        </h6>
+                        <div className="pl-lg-4">
+
+                          <ConditionBuilder
+                            conditions={this.getConditions()}
+                            pathMethodConditions={this.getPathMethodConditions()}
+                            onChange={this.handleConditionsChange} 
+                            openApiDefinition={this.state.openApiDefinition}
+                            resource={this.state.selectedResource}
+                            resourceDefinition={this.getResourceDefinition()}
+                            rootParameters={this.getRootParameters()}
+                            environment={this.state.environment}
+                          />
+                        </div>
+                        <hr className="my-4" />
+                        {/* Address */}
+                        <h6 className="heading-small text-muted mb-4">
+                          Event
+                        </h6>
+                        {
+                          this.props.mode === 'response'
+                          ? (
+                            <EventResponseBuilder
+                              event={this.getEvent()}
+                              onChange={this.handleEventChange}
+                              resource={this.state.selectedResource}
+                              resourceDefinition={this.getResourceDefinition()}
+                              rootParameters={this.getRootParameters()}
+                              responses={this.getResponses()}
+                              callbackRootParameters={this.getCallbackRootParameters()}
+                              responseObject={this.getResponseObject()}
+                              mode={this.props.mode}
                             />
-                            <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                              <Button color="secondary" size="sm">Add Configurable Params</Button>
-                            </Popover>
-                            </div>
-                          </>
-                        )
-                        :
-                        null
-                      }
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="Environment" disabled={Object.keys(this.state.environment).length === 0} key="environment">
-                      {
-                        Object.keys(this.state.environment).length > 0
-                        ? (
-                          <Descriptions bordered column={1} size='small'>
-                            {this.getEnvironmentStateDescriptions()}
-                          </Descriptions>
-                        )
-                        : (
-                          <span>There are no items</span>
-                        )
-                      }
-                    </Tabs.TabPane>
-                  </Tabs>
-                  
-                    <hr className="my-4" />
-                    <h6 className="heading-small text-muted mb-4">
-                      Conditions
-                    </h6>
-                    <div className="pl-lg-4">
+                          )
+                          : (
+                            <EventBuilder
+                              event={this.getEvent()}
+                              onChange={this.handleEventChange}
+                              resource={this.state.selectedResource}
+                              resourceDefinition={this.getResourceDefinition()}
+                              rootParameters={this.getRootParameters()}
+                              callbackDefinition={this.getCallbackDefinition()}
+                              callbackRootParameters={this.getCallbackRootParameters()}
+                              callbackObject={this.getCallbackObject()}
+                              mode={this.props.mode}
+                            />
+                          )
+                        }
 
-                      <ConditionBuilder
-                        conditions={this.getConditions()}
-                        pathMethodConditions={this.getPathMethodConditions()}
-                        onChange={this.handleConditionsChange} 
-                        openApiDefinition={this.state.openApiDefinition}
-                        resource={this.state.selectedResource}
-                        resourceDefinition={this.getResourceDefinition()}
-                        rootParameters={this.getRootParameters()}
-                        environment={this.state.environment}
-                      />
-                    </div>
-                    <hr className="my-4" />
-                    {/* Address */}
-                    <h6 className="heading-small text-muted mb-4">
-                      Event
-                    </h6>
-                    {
-                      this.props.mode === 'response'
-                      ? (
-                        <EventResponseBuilder
-                          event={this.getEvent()}
-                          onChange={this.handleEventChange}
-                          resource={this.state.selectedResource}
-                          resourceDefinition={this.getResourceDefinition()}
-                          rootParameters={this.getRootParameters()}
-                          responses={this.getResponses()}
-                          callbackRootParameters={this.getCallbackRootParameters()}
-                          responseObject={this.getResponseObject()}
-                          mode={this.props.mode}
-                        />
-                      )
-                      : (
-                        <EventBuilder
-                          event={this.getEvent()}
-                          onChange={this.handleEventChange}
-                          resource={this.state.selectedResource}
-                          resourceDefinition={this.getResourceDefinition()}
-                          rootParameters={this.getRootParameters()}
-                          callbackDefinition={this.getCallbackDefinition()}
-                          callbackRootParameters={this.getCallbackRootParameters()}
-                          callbackObject={this.getCallbackObject()}
-                          mode={this.props.mode}
-                        />
-                      )
-                    }
-
-                    <hr className="my-4" />
-                    {/* Description */}
-                    <h6 className="heading-small text-muted mb-4">Rule Details</h6>
-                    <div className="pl-lg-4">
-                      <FormGroup>
-                        <label>Rule Description</label>
-                        <Input
-                          className="form-control-alternative"
-                          placeholder="A few words about the rule ..."
-                          onChange={(e) => this.handleDescriptionChange(e.target.value)}
-                          rows="4"
-                          value={this.state.description}
-                          type="textarea"
-                        />
-                      </FormGroup>
-                    </div>
+                        <hr className="my-4" />
+                        {/* Description */}
+                        <h6 className="heading-small text-muted mb-4">Rule Details</h6>
+                        <div className="pl-lg-4">
+                          <FormGroup>
+                            <label>Rule Description</label>
+                            <Input
+                              className="form-control-alternative"
+                              placeholder="A few words about the rule ..."
+                              onChange={(e) => this.handleDescriptionChange(e.target.value)}
+                              rows="4"
+                              value={this.state.description}
+                              type="textarea"
+                            />
+                          </FormGroup>
+                        </div>
+                      </Tabs.TabPane>
+                      <Tabs.TabPane tab="Scripts" key="scripts">
+                        <div className="pl-lg-4">
+                          <AceEditor
+                            ref="preReqScriptAceEditor"
+                            mode="javascript"
+                            theme="eclipse"
+                            width='100%'
+                            value={ this.state.scripts ? this.state.scripts.join('\n') : '' }
+                            onChange={ (newScript) => {
+                              this.state.scripts = newScript.split('\n')
+                            }}
+                            name="UNIQUE_ID_OF_DIV"
+                            wrapEnabled={true}
+                            showPrintMargin={true}
+                            showGutter={true}
+                            tabSize={2}
+                            enableBasicAutocompletion={true}
+                            enableLiveAutocompletion={true}
+                          />
+                          <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                            <Button color="secondary" size="sm">Add Configurable Params</Button>
+                          </Popover>
+                        </div>
+                      </Tabs.TabPane>
+                      <Tabs.TabPane tab="Environment" disabled={Object.keys(this.state.environment).length === 0} key="environment">
+                        <Descriptions bordered column={1} size='small'>
+                          {this.getEnvironmentStateDescriptions()}
+                        </Descriptions>
+                        <br/>
+                        <Button color="danger" size="sm" onClick={() => {
+                          this.clearEnvironment()
+                          this.handleConditionsChange()
+                        }}>Clear environment</Button>
+                      </Tabs.TabPane>
+                    </Tabs>
                   </Form>
                 </CardBody>
               </Card>
