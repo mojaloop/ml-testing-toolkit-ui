@@ -687,7 +687,6 @@ class RulesEditor extends React.Component {
                   <Form>
                     <Tabs defaultActiveKey='rules'>
                       <Tabs.TabPane tab="Rules" key="rules">
-                        <hr className="my-4" />
                         <h6 className="heading-small text-muted mb-4">
                           Conditions
                         </h6>
