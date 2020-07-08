@@ -31,9 +31,9 @@ import {
   Col,
 } from "reactstrap";
 // core components
-import { Dropdown, DropdownButton } from 'react-bootstrap';
+import { Dropdown, DropdownButton, Tab } from 'react-bootstrap';
 
-import { Select, message } from 'antd';
+import { Select, message, Tabs, Collapse, Checkbox, Tag, Popover, Descriptions} from 'antd';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -47,9 +47,110 @@ import ConditionBuilder from './ConditionBuilder'
 import EventBuilder from './EventBuilder'
 import EventResponseBuilder from './EventResponseBuilder'
 import getConfig from '../../utils/getConfig'
+import AceEditor from "react-ace";
+import { FactSelect } from './BuilderTools.jsx';
 
 const { Option } = Select;
 
+export class ConfigurableParameter extends React.Component {
+
+  constructor() {
+    super()
+    this.state = {
+      paramType: null,
+      factData: null,
+      selectedValueComponent: null
+    }
+
+    // Set paramTypes Array
+    this.paramTypes[0]='Environment'
+  }
+
+  paramTypes = []
+  inputValue = null
+
+  getParamTypeMenu = () => {
+    return this.paramTypes.map((item, key) => {
+      return (
+        <Option key={key} value={key}>
+          {item}
+        </Option>
+      )
+    })
+  }
+
+  handleParamTypeChange = async (paramType) => {
+    this.setState( {paramType: paramType, factData: null, selectedValueComponent: null} )
+  }
+
+  getValueComponent = () => {
+    switch(this.state.paramType) {
+      case 0:
+        let inputOptionItems = []
+        for (let item in this.props.environment) {
+          inputOptionItems.push(
+            <Option key={item} value={item}>{item}</Option>
+          )
+        }
+        return (
+          <>
+          <Select
+            placeholder="Please Select"
+            style={{ width: 200 }}
+            value={this.state.selectedValueComponent}
+            onChange={(value) => {
+              this.state.selectedValueComponent = value
+              this.handleParamSelect(value)
+            }}
+          >
+            {inputOptionItems}
+          </Select>
+          </>
+        )
+        break
+      default:
+        return null
+    }
+  }
+  handleParamSelect = (paramValue) => {
+    this.props.onChange(paramValue)
+  }
+
+  getRequestFactComponent = () => {
+    if (this.state.factData) {
+      return (
+        <FactSelect key={this.props.name} factData={this.state.factData} onSelect={this.handleFactSelect} />
+      )
+    } else {
+      return null
+    }
+
+  }
+
+  render() {
+
+    return (
+      <Row>
+        <Col>
+          <Select
+            placeholder="Please Select"
+            style={{ width: 200 }}
+            value={this.paramTypes[this.state.paramType]}
+            onSelect={this.handleParamTypeChange}
+          >
+            {this.getParamTypeMenu()}
+          </Select>
+        </Col>
+        <Col>
+          {this.getValueComponent()}
+        </Col>
+        <Col>
+          {this.getRequestFactComponent()}
+        </Col>
+      </Row>
+    )
+  }
+}
 class ResourceSelector extends React.Component {
 
   constructor() {
@@ -177,6 +278,7 @@ class RulesEditor extends React.Component {
       event: {
         params: {}
       },
+      scripts: null,
       conditions: [],
       pathMethodConditions: [],
       apiVersions: [],
@@ -184,7 +286,10 @@ class RulesEditor extends React.Component {
       selectedResource: null,
       selectedApiVersion: null,
       callbackMap: {},
-      responseMap: {}
+      responseMap: {},
+      showConfigurableParameterDialog: false,
+      configurableParameterSelected: '',
+      environment: {}
     };
   }
 
@@ -208,6 +313,7 @@ class RulesEditor extends React.Component {
 
     let pathMethodConditions = []
     let conditions = []
+    let scripts
     try {
       pathMethodConditions = inputRule.conditions.all.filter(item => {
         if(item.fact === 'method' || item.fact === 'operationPath') {
@@ -228,11 +334,19 @@ class RulesEditor extends React.Component {
     let event = {
       method: null,
       path: null,
-      params: {}
+      params: {
+        scripts: {
+          enabled: false
+        }
+      }
     }
     if (inputRule.event) {
       event = inputRule.event
+      if (event.params && event.params.scripts) {
+        scripts = event.params.scripts.exec
+      }
     }
+
 
     let description = ''
     if (inputRule.description) {
@@ -241,11 +355,16 @@ class RulesEditor extends React.Component {
 
     let selectedApiVersion = null
     if(inputRule.apiVersion) {
-        selectedApiVersion = inputRule.apiVersion
-        await this.fetchAllApiData(inputRule.apiVersion.type, inputRule.apiVersion.majorVersion+'.'+inputRule.apiVersion.minorVersion)
+      selectedApiVersion = inputRule.apiVersion
+      await this.fetchAllApiData(inputRule.apiVersion.type, inputRule.apiVersion.majorVersion+'.'+inputRule.apiVersion.minorVersion)
     }
 
-    this.setState({description, conditions, pathMethodConditions, event, selectedResource, apiVersions, selectedApiVersion})
+    let environment
+    try {
+      environment = await this.getEnvironment()
+    } catch (err) {}
+
+    this.setState({description, conditions, pathMethodConditions, event, selectedResource, apiVersions, selectedApiVersion, scripts, environment })
   }
 
   fetchAllApiData = async (apiType, version) => {
@@ -259,6 +378,7 @@ class RulesEditor extends React.Component {
     try {
       responseMap = await this.getResponseMap(apiType, version)
     } catch(err) {}
+
     this.setState({openApiDefinition, callbackMap, responseMap})
   }
 
@@ -285,7 +405,10 @@ class RulesEditor extends React.Component {
       conditions: {
         "all": [...this.state.conditions, ...this.state.pathMethodConditions]
       },
-      event: this.state.event,
+      event: {...this.state.event}
+    }
+    rule.event.params.scripts = {
+      exec: (this.state.scripts && this.state.scripts.length === 1 && this.state.scripts[0].trim() === '') ? undefined : this.state.scripts
     }
     return JSON.stringify(rule, null, 2)
   }
@@ -323,6 +446,21 @@ class RulesEditor extends React.Component {
   getCallbackMap = async (apiType, version) => {
     const { apiBaseUrl } = getConfig()
     const response = await axios.get(`${apiBaseUrl}/api/openapi/callback_map/${apiType}/${version}`)
+    return response.data
+    // this.setState(  { callbackMap: response.data } )
+  }
+
+  getEnvironment = async () => {
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/objectstore/inboundEnvironment`)
+    return response.data
+    // this.setState(  { callbackMap: response.data } )
+  }
+
+  clearEnvironment = async () => {
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.delete(`${apiBaseUrl}/api/objectstore/inboundEnvironment`)
+    this.setState({environment: {}})
     return response.data
     // this.setState(  { callbackMap: response.data } )
   }
@@ -401,15 +539,13 @@ class RulesEditor extends React.Component {
   }
 
   getCallbackRootParameters = () => {
-      try {
-        const callbackObj = this.getCallbackObject()
-        return this.state.openApiDefinition.paths[callbackObj.path].parameters
-      } catch(err) {
-        return []
-      }
- 
+    try {
+      const callbackObj = this.getCallbackObject()
+      return this.state.openApiDefinition.paths[callbackObj.path].parameters
+    } catch(err) {
+      return []
+    }
   }
-
   getCallbackDefinition = () => {
     if (this.state.selectedResource) {
       try {
@@ -447,32 +583,53 @@ class RulesEditor extends React.Component {
     this.setState({description: newValue})
   }
 
+  handleAddConfigParam = (newValue) => {
+    this.setState({configurableParameterSelected: `pm.environment.get('${newValue}')`})
+  }
+
+  handleConfigParamCopyToClipboard = () => {
+    navigator.clipboard.writeText(this.state.configurableParameterSelected)
+    message.success('Copied to clipboard')
+  }
+
+  getEnvironmentStateDescriptions = () => {
+    return Object.keys(this.state.environment).map((key, index) => {
+      return (
+        <Descriptions.Item key={index} label={key}>
+          <pre>{JSON.stringify(this.state.environment[key], null, 2)}</pre>
+        </Descriptions.Item>
+      )
+    })
+  }
+
   render() {
+    const content = (
+      <>
+      <Row>
+        <Col>
+        <ConfigurableParameter
+          onChange={this.handleAddConfigParam}
+          environment={this.state.environment}
+        />
+        </Col>
+      </Row>
+      {
+        this.state.configurableParameterSelected ?
+        (
+          <Row className="mt-4 text-center">
+            <Col>
+              Click below to copy <br/>
+              <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
+            </Col>
+          </Row>
+        )
+        : null
+      }
+      </>
+    )
     return (
       <>
           <Row>
-            {/* <Col className="order-xl-2 mb-5 mb-xl-0" xl="6">
-              <Card className="card-profile shadow">
-                <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                  <div className="d-flex float-right">
-                    <Button
-                      className="float-right"
-                      color="primary"
-                      href="#pablo"
-                      onClick={this.handleSave}
-                      size="sm"
-                    >
-                      Save
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardBody className="pt-0 pt-md-4">
-                  <div className="text-left">
-                    <pre>{this.getRule()}</pre>
-                  </div>
-                </CardBody>
-              </Card>
-            </Col> */}
             <Col className="order-xl-1" xl="12">
               <Card className="bg-secondary shadow">
                 <CardHeader className="bg-white border-0">
@@ -528,72 +685,111 @@ class RulesEditor extends React.Component {
                 </CardHeader>
                 <CardBody>
                   <Form>
-                    <h6 className="heading-small text-muted mb-4">
-                      Conditions
-                    </h6>
-                    <div className="pl-lg-4">
+                    <Tabs defaultActiveKey='rules'>
+                      <Tabs.TabPane tab="Rules" key="rules">
+                        <h6 className="heading-small text-muted mb-4">
+                          Conditions
+                        </h6>
+                        <div className="pl-lg-4">
 
-                      <ConditionBuilder
-                        conditions={this.getConditions()}
-                        pathMethodConditions={this.getPathMethodConditions()}
-                        onChange={this.handleConditionsChange} 
-                        openApiDefinition={this.state.openApiDefinition}
-                        resource={this.state.selectedResource}
-                        resourceDefinition={this.getResourceDefinition()}
-                        rootParameters={this.getRootParameters()}
-                      />
-                    </div>
-                    <hr className="my-4" />
-                    {/* Address */}
-                    <h6 className="heading-small text-muted mb-4">
-                      Event
-                    </h6>
-                    {
-                      this.props.mode === 'response'
-                      ? (
-                        <EventResponseBuilder
-                          event={this.getEvent()}
-                          onChange={this.handleEventChange}
-                          resource={this.state.selectedResource}
-                          resourceDefinition={this.getResourceDefinition()}
-                          rootParameters={this.getRootParameters()}
-                          responses={this.getResponses()}
-                          callbackRootParameters={this.getCallbackRootParameters()}
-                          responseObject={this.getResponseObject()}
-                          mode={this.props.mode}
-                        />
-                      )
-                      : (
-                        <EventBuilder
-                          event={this.getEvent()}
-                          onChange={this.handleEventChange}
-                          resource={this.state.selectedResource}
-                          resourceDefinition={this.getResourceDefinition()}
-                          rootParameters={this.getRootParameters()}
-                          callbackDefinition={this.getCallbackDefinition()}
-                          callbackRootParameters={this.getCallbackRootParameters()}
-                          callbackObject={this.getCallbackObject()}
-                          mode={this.props.mode}
-                        />
-                      )
-                    }
+                          <ConditionBuilder
+                            conditions={this.getConditions()}
+                            pathMethodConditions={this.getPathMethodConditions()}
+                            onChange={this.handleConditionsChange} 
+                            openApiDefinition={this.state.openApiDefinition}
+                            resource={this.state.selectedResource}
+                            resourceDefinition={this.getResourceDefinition()}
+                            rootParameters={this.getRootParameters()}
+                            environment={this.state.environment}
+                          />
+                        </div>
+                        <hr className="my-4" />
+                        {/* Address */}
+                        <h6 className="heading-small text-muted mb-4">
+                          Event
+                        </h6>
+                        {
+                          this.props.mode === 'response'
+                          ? (
+                            <EventResponseBuilder
+                              event={this.getEvent()}
+                              onChange={this.handleEventChange}
+                              resource={this.state.selectedResource}
+                              resourceDefinition={this.getResourceDefinition()}
+                              rootParameters={this.getRootParameters()}
+                              responses={this.getResponses()}
+                              callbackRootParameters={this.getCallbackRootParameters()}
+                              responseObject={this.getResponseObject()}
+                              mode={this.props.mode}
+                            />
+                          )
+                          : (
+                            <EventBuilder
+                              event={this.getEvent()}
+                              onChange={this.handleEventChange}
+                              resource={this.state.selectedResource}
+                              resourceDefinition={this.getResourceDefinition()}
+                              rootParameters={this.getRootParameters()}
+                              callbackDefinition={this.getCallbackDefinition()}
+                              callbackRootParameters={this.getCallbackRootParameters()}
+                              callbackObject={this.getCallbackObject()}
+                              mode={this.props.mode}
+                            />
+                          )
+                        }
 
-                    <hr className="my-4" />
-                    {/* Description */}
-                    <h6 className="heading-small text-muted mb-4">Rule Details</h6>
-                    <div className="pl-lg-4">
-                      <FormGroup>
-                        <label>Rule Description</label>
-                        <Input
-                          className="form-control-alternative"
-                          placeholder="A few words about the rule ..."
-                          onChange={(e) => this.handleDescriptionChange(e.target.value)}
-                          rows="4"
-                          value={this.state.description}
-                          type="textarea"
-                        />
-                      </FormGroup>
-                    </div>
+                        <hr className="my-4" />
+                        {/* Description */}
+                        <h6 className="heading-small text-muted mb-4">Rule Details</h6>
+                        <div className="pl-lg-4">
+                          <FormGroup>
+                            <label>Rule Description</label>
+                            <Input
+                              className="form-control-alternative"
+                              placeholder="A few words about the rule ..."
+                              onChange={(e) => this.handleDescriptionChange(e.target.value)}
+                              rows="4"
+                              value={this.state.description}
+                              type="textarea"
+                            />
+                          </FormGroup>
+                        </div>
+                      </Tabs.TabPane>
+                      <Tabs.TabPane tab="Scripts" key="scripts">
+                        <div className="pl-lg-4">
+                          <AceEditor
+                            ref="preReqScriptAceEditor"
+                            mode="javascript"
+                            theme="eclipse"
+                            width='100%'
+                            value={ this.state.scripts ? this.state.scripts.join('\n') : '' }
+                            onChange={ (newScript) => {
+                              this.state.scripts = newScript.split('\n')
+                            }}
+                            name="UNIQUE_ID_OF_DIV"
+                            wrapEnabled={true}
+                            showPrintMargin={true}
+                            showGutter={true}
+                            tabSize={2}
+                            enableBasicAutocompletion={true}
+                            enableLiveAutocompletion={true}
+                          />
+                          <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                            <Button color="secondary" size="sm">Add Configurable Params</Button>
+                          </Popover>
+                        </div>
+                      </Tabs.TabPane>
+                      <Tabs.TabPane tab="Environment" disabled={Object.keys(this.state.environment).length === 0} key={Object.keys(this.state.environment).length === 0 ? undefined : "environment"} >
+                        <Descriptions bordered column={1} size='small'>
+                          {this.getEnvironmentStateDescriptions()}
+                        </Descriptions>
+                        <br/>
+                        <Button color="danger" size="sm" onClick={() => {
+                          this.clearEnvironment()
+                          this.handleConditionsChange()
+                        }}>Clear environment</Button>
+                      </Tabs.TabPane>
+                    </Tabs>
                   </Form>
                 </CardBody>
               </Card>
