@@ -31,6 +31,7 @@ import {
 import socketIOClient from "socket.io-client";
 
 import Header from "../../components/Headers/Header.jsx";
+import TraceHeaderUtils from "../../utils/traceHeaderUtils"
 
 import { getServerConfig } from '../../utils/getConfig'
 
@@ -42,6 +43,7 @@ import TestCaseViewer from './TestCaseViewer'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 
+const traceHeaderUtilsObj = new TraceHeaderUtils()
 
 function buildFileSelector( multi = false ){
   const fileSelector = document.createElement('input');
@@ -182,6 +184,7 @@ class OutboundRequest extends React.Component {
 
   constructor() {
     super();
+    const sessionId = traceHeaderUtilsObj.generateSessionId()
     this.state = {
       request: {},
       template: {},
@@ -198,6 +201,7 @@ class OutboundRequest extends React.Component {
       renameTestCase: false,
       totalPassedCount: 0,
       totalAssertionsCount: 0,
+      sessionId: sessionId,
       testReport: null,
       userConfig: null,
       sendingOutboundRequestID: null,
@@ -246,7 +250,8 @@ class OutboundRequest extends React.Component {
     this.setState({userConfig: userConfigRuntime})
     const { apiBaseUrl } = getConfig()
     this.socket = socketIOClient(apiBaseUrl);
-    this.socket.on("outboundProgress", this.handleIncomingProgress);
+    // this.socket.on("outboundProgress", this.handleIncomingProgress);
+    this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
 
     const storedTemplate = this.restoreSavedTemplate()
     if (storedTemplate) {
@@ -332,12 +337,17 @@ class OutboundRequest extends React.Component {
     this.state.totalAssertionsCount = 0
     this.state.testReport = null
 
+    const traceIdPrefix = traceHeaderUtilsObj.getTraceIdPrefix()
+    this.state.currentEndToEndId = traceHeaderUtilsObj.generateEndToEndId()
+    const traceId = traceIdPrefix + this.state.sessionId + this.state.currentEndToEndId
 
     const outboundRequestID = Math.random().toString(36).substring(7);
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     this.state.template = this.convertTemplate(this.state.template)
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, this.state.template, { headers: { 'Content-Type': 'application/json' } })
+
     this.state.sendingOutboundRequestID = outboundRequestID
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
