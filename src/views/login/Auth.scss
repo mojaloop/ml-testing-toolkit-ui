@@ -1,0 +1,41 @@
+.auth {
+  background: #303460;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.auth__form {
+  width: 420px;
+  background: #f8f8f8;
+  padding: 20px;
+  flex: 0 0 auto;
+  border: 2px solid #eee;
+  animation: fadeInAuthForm 0.5s ease-out 1 forwards;
+
+}
+.auth__form__username {
+  margin-bottom: 20px;
+}
+.auth__form__password {
+  margin-bottom: 20px;
+}
+
+.auth__form__submit__btn {
+  background: #303460;
+  width: 100%;
+}
+
+
+@keyframes fadeInAuthForm {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
