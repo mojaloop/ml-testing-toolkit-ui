@@ -28,10 +28,14 @@ import routes from "../routes.js";
 
 class Admin extends React.Component {
   componentDidUpdate(e) {
+    if (!localStorage.getItem('JWT_COOKIE_EXP_AT')){
+      return
+    }
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     this.refs.mainContent.scrollTop = 0;
   }
+
   getRoutes = routes => {
     return routes.map((prop, key) => {
       if (prop.layout === "/admin") {
@@ -59,30 +63,37 @@ class Admin extends React.Component {
     }
     return "Brand";
   };
+
   render() {
-    return (
-      <>
-        <Sidebar
-          {...this.props}
-          routes={routes}
-          logo={{
-            innerLink: "/admin/index",
-            imgSrc: require("../assets/img/brand/mojaloop.png"),
-            imgAlt: "..."
-          }}
-        />
-        <div className="main-content" ref="mainContent">
-          <AdminNavbar
+    if (localStorage.getItem('JWT_COOKIE_EXP_AT')) {
+      return (
+        <>
+          <Sidebar
             {...this.props}
-            brandText={this.getBrandText(this.props.location.pathname)}
+            routes={routes}
+            logo={{
+              innerLink: "/admin/index",
+              imgSrc: require("../assets/img/brand/mojaloop.png"),
+              imgAlt: "..."
+            }}
           />
-          <Switch>{this.getRoutes(routes)}</Switch>
-          <Container fluid>
-            <AdminFooter />
-          </Container>
-        </div>
-      </>
-    );
+          <div className="main-content" ref="mainContent">
+            <AdminNavbar
+              {...this.props}
+              brandText={this.getBrandText(this.props.location.pathname)}
+            />
+            <Switch>{this.getRoutes(routes)}</Switch>
+            <Container fluid>
+              <AdminFooter />
+            </Container>
+          </div>
+        </>
+      );
+    } else {
+      return (
+        <>{this.props.history.push("/login")}</>
+      )
+    }
   }
 }
 

@@ -75,9 +75,11 @@ function App() {
                 <Route path="/admin" render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
                 <Redirect from='/' to='/admin/index' />
               </>
-              : null
+              :
+              <>
+                <Redirect to='/login' />
+              </>
             }
-            <Redirect to='/login' />
           </>
           :
           <>
