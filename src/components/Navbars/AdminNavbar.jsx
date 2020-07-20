@@ -28,6 +28,7 @@ import getConfig from '../../utils/getConfig'
 
 class AdminNavbar extends React.Component {
   render() {
+    const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
     const { isAuthEnabled } = getConfig()
     return (
       <>
@@ -39,6 +40,14 @@ class AdminNavbar extends React.Component {
             >
               {this.props.brandText}
             </Link>
+            {
+              dfspId
+              ?
+              <span>{dfspId}</span>
+              :
+              null
+            }
+
             {
               isAuthEnabled
               ?

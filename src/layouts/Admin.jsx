@@ -33,7 +33,6 @@ class Admin extends React.Component {
   isAuthEnabled = getConfig().isAuthEnabled
 
   componentDidUpdate(e) {
-    console.log(this.isAuthEnabled)
     if (this.isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')){
       return
     }

@@ -205,7 +205,14 @@ class IncomingMonitor extends React.Component {
   componentDidMount() {
     const { apiBaseUrl } = getConfig()
     this.socket = socketIOClient(apiBaseUrl);
-    this.socket.on("newLog", newLog => {
+    let socketTopic = 'newLog'
+    if (getConfig().isAuthEnabled) {
+      const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
+      if (dfspId) {
+        socketTopic = 'newLog/' + dfspId
+      }
+    }
+    this.socket.on(socketTopic, newLog => {
       // console.log('New log received', newLog)
       this.state.logs.push(newLog)
 
