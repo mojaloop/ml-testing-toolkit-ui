@@ -25,10 +25,16 @@ import AdminFooter from "../components/Footers/AdminFooter.jsx";
 import Sidebar from "../components/Sidebar/Sidebar.jsx";
 
 import routes from "../routes.js";
+import getConfig from '../utils/getConfig'
+
 
 class Admin extends React.Component {
+
+  isAuthEnabled = getConfig().isAuthEnabled
+
   componentDidUpdate(e) {
-    if (!localStorage.getItem('JWT_COOKIE_EXP_AT')){
+    console.log(this.isAuthEnabled)
+    if (this.isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')){
       return
     }
     document.documentElement.scrollTop = 0;
@@ -65,7 +71,7 @@ class Admin extends React.Component {
   };
 
   render() {
-    if (localStorage.getItem('JWT_COOKIE_EXP_AT')) {
+    if (localStorage.getItem('JWT_COOKIE_EXP_AT') || !this.isAuthEnabled) {
       return (
         <>
           <Sidebar
