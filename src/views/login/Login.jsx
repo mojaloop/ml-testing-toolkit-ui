@@ -37,9 +37,7 @@ class Login extends React.Component {
         username: this.state.username,
         password: this.state.password
       }, { headers: { 'Content-Type': 'application/json' } })
-      console.log(res)
       if (res.status === 200) {
-        console.log(res)
         this.props.handleLogin(e, res.data.token.payload)
         message.success({ content: 'login successful', key: 'login', duration: 1 });
         this.props.history.push("/admin/index")
