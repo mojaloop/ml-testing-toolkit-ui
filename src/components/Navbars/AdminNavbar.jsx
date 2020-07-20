@@ -21,10 +21,14 @@ import { Link } from "react-router-dom";
 import {
   Navbar,
   Container,
+  Button
 } from "reactstrap";
+import getConfig from '../../utils/getConfig'
+
 
 class AdminNavbar extends React.Component {
   render() {
+    const { isAuthEnabled } = getConfig()
     return (
       <>
         <Navbar className="navbar-top navbar-dark" expand="md" id="navbar-main">
@@ -35,6 +39,23 @@ class AdminNavbar extends React.Component {
             >
               {this.props.brandText}
             </Link>
+            {
+              isAuthEnabled
+              ?
+              <Button
+                color="danger"
+                href="#pablo"
+                onClick={e => {
+                  e.preventDefault()
+                  this.props.handleLogout()
+                }}
+                size="sm"
+              >
+                Logout
+              </Button>
+              : null
+            }
+            
             {/* <Form className="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
               <FormGroup className="mb-0">
                 <InputGroup className="input-group-alternative">
