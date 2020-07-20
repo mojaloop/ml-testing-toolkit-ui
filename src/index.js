@@ -28,12 +28,19 @@ import AdminLayout from "./layouts/Admin.jsx";
 import Login from './views/login/Login.jsx';
 
 import getConfig from './utils/getConfig'
+const axios = require('axios').default
 
 function App() {
 
   const { isAuthEnabled } = getConfig()
 
   const isLoggedIn = () => {
+    if (!isAuthEnabled) {
+      return true
+    }
+    if (!axios.defaults.withCredentials) {
+      axios.defaults.withCredentials = true
+    }
     const expAt = localStorage.getItem('JWT_COOKIE_EXP_AT')
     if (expAt) {
       const currentTime = Date.now() / 1000
@@ -47,7 +54,7 @@ function App() {
     return false
   }
 
-  const [user, setUser] = useState(isAuthEnabled && isLoggedIn());
+  const [user, setUser] = useState(isLoggedIn());
 
   const handleLogin = (e, token) => {
     e.preventDefault()
@@ -67,7 +74,7 @@ function App() {
           isAuthEnabled
           ?
           <>
-            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} handleLogout={handleLogout} user={user} />} />
+            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
             {
               user
               ?
