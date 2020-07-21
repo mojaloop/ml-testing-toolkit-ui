@@ -54,8 +54,10 @@ class ValueSelector extends React.Component {
     if (this.props.selectedFact) {
       // TODO: The props propagation and state changes should be optimized. Currently this method is called when we update the value in props.
       // Its due to the hight level component in RulesCallback which is trying to re-render the whole page if any change in conditions detected.
-      this.validateAjv = ajv.compile(this.props.selectedFact);
-      const valid = this.validateAjv(newValue);
+      // this.validateAjv = ajv.compile(this.props.selectedFact);
+      // const valid = this.validateAjv(newValue);
+      // Disabling AJV validation as it is failing to validate for integer types in value
+      const valid = true
       if (valid || newValue.startsWith('{$environment')) {
         this.props.onChange(newValue)
         this.setState({ajvErrors: ''})
