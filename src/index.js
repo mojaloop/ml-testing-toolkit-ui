@@ -70,32 +70,27 @@ function App() {
 
   return (
     <Router>
-      <Switch>
         {
           isAuthEnabled
           ?
-          <>
-            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
-            {
-              user
-              ?
-              <>
-                <Route path="/admin" render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
-                <Redirect from='/' to='/admin/index' />
-              </>
-              :
-              <>
-                <Redirect to='/login' />
-              </>
-            }
-          </>
+            user
+            ?
+            <Switch>
+              <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
+              <Route path="/admin" render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
+              <Redirect from='/' to='/admin/index' />
+            </Switch>
+            :
+            <Switch>
+              <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
+              <Redirect to='/login' />
+            </Switch>
           :
-          <>
+          <Switch>
             <Route path="/admin" render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
             <Redirect from='/' to='/admin/index' />
-          </>
+          </Switch>
         }
-      </Switch>
     </Router>
   )
 }
