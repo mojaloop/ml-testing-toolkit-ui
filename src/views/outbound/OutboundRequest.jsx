@@ -341,14 +341,14 @@ class OutboundRequest extends React.Component {
     this.state.currentEndToEndId = traceHeaderUtilsObj.generateEndToEndId()
     const traceId = traceIdPrefix + this.state.sessionId + this.state.currentEndToEndId
 
-    const outboundRequestID = Math.random().toString(36).substring(7);
+    // const outboundRequestID = Math.random().toString(36).substring(7);
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     this.state.template = this.convertTemplate(this.state.template)
     // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, this.state.template, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
 
-    this.state.sendingOutboundRequestID = outboundRequestID
+    this.state.sendingOutboundRequestID = traceId
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
     // Set the status to waiting for all the requests
