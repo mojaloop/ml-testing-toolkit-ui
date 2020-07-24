@@ -33,7 +33,7 @@ import {
 // core components
 import Header from "../../components/Headers/Header.jsx";
 
-import { Icon, Tag, Timeline } from 'antd';
+import { Icon, Tag, Timeline, Card as CardAnt } from 'antd';
 
 class DetailComponent extends GridDetailRow {
   render() {
@@ -181,6 +181,75 @@ class IncomingTimelineItem extends React.Component {
     )
   }
 }
+class IncomingTimelineSet extends React.Component {
+
+  constructor() {
+    super();
+    this.state = {
+      logsVisible: false
+    }
+  }
+  expandChange = (event) => {
+    event.dataItem.expanded = !event.dataItem.expanded;
+    this.forceUpdate();
+  }
+
+  toggleLogsVisibility = () => {
+      this.setState({logsVisible: !this.state.logsVisible})
+  }
+
+  getTimelineItems = () => {
+    return this.props.logSetObj.secondaryItemsArr.map(item => {
+      if (item) {
+        return (
+          <IncomingTimelineItem key={item.id} info={item} logs={this.props.logSetObj.secondaryItemsObj[item.id]} />
+        )
+      } else {
+        return (
+          <Timeline.Item dot={<Icon type="clock-circle-o" style={{ fontSize: '16px' }} />} color="red"><br /><br /></Timeline.Item>
+        )
+      }
+
+    })
+  }
+
+  render () {
+    const logSetObj = this.props.logSetObj
+    // const log = { logTime: 'TEMP TIME' }
+    // const info = { name: 'TEMP NAME', erroneous: false }
+    if (this.props.logSetObj.secondaryItemsArr.length > 1) {
+      return (
+        <>
+        <Timeline.Item position='right'>
+          <b>{logSetObj.logTime}</b>
+          <br /><Tag color={logSetObj.erroneous ? "#f50" : "#2db7f5"} onClick={this.toggleLogsVisibility}>{logSetObj.name}</Tag>
+          <br />
+          {
+            this.state.logsVisible
+            ? (
+                <CardAnt>
+                  <Timeline reverse={false}>
+                    {this.getTimelineItems()}
+                  </Timeline>
+                </CardAnt>
+            )
+            : null
+          }
+        </Timeline.Item>
+        </>
+      )
+    } else {
+      if (this.props.logSetObj.secondaryItemsArr.length === 1) {
+        const item = this.props.logSetObj.secondaryItemsArr[0]
+        return (
+        <IncomingTimelineItem key={item.id} info={item} logs={this.props.logSetObj.secondaryItemsObj[item.id]} />
+        )
+      } else {
+        return null
+      }
+    }
+  }
+}
 
 class IncomingMonitor extends React.Component {
 
@@ -215,43 +284,60 @@ class IncomingMonitor extends React.Component {
     this.socket.on(socketTopic, newLog => {
       // console.log('New log received', newLog)
       this.state.logs.push(newLog)
+      let primaryGroupId = 'misc'
+      if(newLog.traceID) {
+        primaryGroupId = newLog.traceID
+      } else {
+        primaryGroupId = newLog.uniqueId
+      }
 
       // Group by unique ID
-      if(!this.state.incomingItemsObj.hasOwnProperty(newLog.uniqueId)) {
-        this.state.incomingItemsObj[newLog.uniqueId] = []
-        if (!this.state.lastIncomingTime) {
-          this.state.lastIncomingTime = new Date(newLog.logTime)
-        } else {
-          const timeDiffMillis = new Date(newLog.logTime) -  this.state.lastIncomingTime
-          this.state.lastIncomingTime = new Date(newLog.logTime)
-          if (timeDiffMillis > 1000) {
-            this.state.incomingItemsArr.push(null)          }
+      if(!this.state.incomingItemsObj.hasOwnProperty(primaryGroupId)) {
+        this.state.incomingItemsObj[primaryGroupId] = {
+          name: '',
+          erroneous: false,
+          logTime: null,
+          secondaryItemsArr: [],
+          secondaryItemsObj: {}
         }
+        
+        this.state.incomingItemsArr.push(primaryGroupId)
+      }
+      let primaryName = ''
+
+      const secondaryGroupId = newLog.uniqueId
+      if(!this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj.hasOwnProperty(secondaryGroupId)) {  
+        this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId] = []
         let name = newLog.message
         if (newLog.resource) {
           name = newLog.resource.method.toUpperCase() + ' ' + newLog.resource.path
+          primaryName = newLog.resource.method.toUpperCase() + ' > '
         }
-        this.state.incomingItemsArr.push({ id: newLog.uniqueId, name, erroneous: false })
-        
+        this.state.incomingItemsObj[primaryGroupId].logTime = newLog.logTime
+        this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.push({ id: secondaryGroupId, name, erroneous: false })
       }
+
+      this.state.incomingItemsObj[primaryGroupId].name += primaryName + ' '
       
       // If the verbosity of the log is error, set the entire group as erroneous
       if (newLog.verbosity === 'error') {
         // Find the group in incomingItemsArr array
-        const itemIndex = this.state.incomingItemsArr.findIndex(item => item? (item.id === newLog.uniqueId) : false)
-        this.state.incomingItemsArr[itemIndex].erroneous = true
+        this.state.incomingItemsObj[primaryGroupId].erroneous = true
+        // Find the group in secondaryItemsArr array
+        const secondaryItemIndex = this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.findIndex(item => item? (item.id === secondaryGroupId) : false)
+        this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr[secondaryItemIndex].erroneous = true
       }
 
-      this.state.incomingItemsObj[newLog.uniqueId].push(newLog)
+      this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId].push(newLog)
       this.forceUpdate()
     });
   }
 
-  getTimelineItems = () => {
+  getTimelineSets = () => {
     return this.state.incomingItemsArr.map(item => {
       if (item) {
         return (
-          <IncomingTimelineItem key={item.id} info={item} logs={this.state.incomingItemsObj[item.id]} />
+          <IncomingTimelineSet key={item.id} info={item} logSetObj={this.state.incomingItemsObj[item]} />
         )
       } else {
         return (
@@ -285,18 +371,7 @@ class IncomingMonitor extends React.Component {
           </CardHeader>
           <CardBody>
             <Timeline reverse={true} pending="Monitoring..." >
-              {/* <Timeline.Item>Create a services site 2015-09-01</Timeline.Item>
-              <Timeline.Item color="green">Solve initial network problems 2015-09-01</Timeline.Item>
-              <Timeline.Item>
-                <Tag color="#2db7f5">GET /quotes asdf</Tag>
-                2019-01-01 00:00:00GMT
-              </Timeline.Item>
-              <Timeline.Item color="red">Network problems being solved 2015-09-01</Timeline.Item>
-              <Timeline.Item>Create a services site 2015-09-01</Timeline.Item>
-              <Timeline.Item dot={<Icon type="clock-circle-o" style={{ fontSize: '16px' }} />}>
-                Technical testing 2015-09-01
-              </Timeline.Item> */}
-              {this.getTimelineItems()}
+              {this.getTimelineSets()}
             </Timeline>
           </CardBody>
         </Card>
