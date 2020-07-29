@@ -194,9 +194,12 @@ class RequestGenerator extends React.Component {
   componentDidMount = async () => {
 
     const apiVersions = await this.getApiVersions()
+    this.state.apiVersions = apiVersions
+    await this.fetchRequest()
+  }
 
+  fetchRequest = async () => {
     // Deep clone the input rule to a new object to work with (Copying without object references recursively)
-    const inputRule = {}
     let selectedResource = null
     if (this.props.request && this.props.request.operationPath && this.props.request.method) {
       selectedResource = {
@@ -206,28 +209,32 @@ class RequestGenerator extends React.Component {
     }
 
     let selectedApiVersion = null
+    let fetchAllApiData = {}
     if(this.props.request && this.props.request.apiVersion) {
         selectedApiVersion = this.props.request.apiVersion
-        await this.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion+'.'+selectedApiVersion.minorVersion)
+        fetchAllApiData = await this.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion+'.'+selectedApiVersion.minorVersion, selectedApiVersion.asynchronous)
     }
     const newRequestDescription = this.props.request.description
-
-    this.setState({selectedResource, apiVersions, selectedApiVersion, newRequestDescription})
+    this.setState({selectedResource, selectedApiVersion, newRequestDescription, ...fetchAllApiData})
   }
 
-  fetchAllApiData = async (apiType, version) => {
+  fetchAllApiData = async (apiType, version, asynchronous) => {
 
     const openApiDefinition = await this.getDefinition(apiType, version)
     let callbackMap = {}
-    try {
-      callbackMap = await this.getCallbackMap(apiType, version)
-    } catch(err) {}
-
     let responseMap = {}
-    try {
-      responseMap = await this.getResponseMap(apiType, version)
-    } catch(err) {}
-    this.setState({openApiDefinition, callbackMap, responseMap})
+
+    if (asynchronous) {
+      try {
+        callbackMap = await this.getCallbackMap(apiType, version)
+      } catch(err) {}
+    } else {
+      try {
+        responseMap = await this.getResponseMap(apiType, version)
+      } catch(err) {}
+    }
+
+    return {openApiDefinition, callbackMap, responseMap}
   }
 
   getConditions = () => {
@@ -423,7 +430,10 @@ class RequestGenerator extends React.Component {
                             className="float-right"
                             color="danger"
                             size="sm"
-                            onClick={() => {this.props.onDelete(this.props.request.id)}}
+                            onClick={async () => {
+                              await this.props.onDelete(this.props.request.id)
+                              await this.fetchRequest()
+                            }}
                           >
                             Delete
                           </Button>
