@@ -909,7 +909,7 @@ export class TestAssertions extends React.Component {
     )
     return (
       <>
-      <strong>Raw Editor</strong> <Switch value={this.state.assertionRawEditorEnable} onChange={(checked) => { this.setState({assertionRawEditorEnable: checked}) }} />
+      <strong>Raw Editor</strong> <Switch checked={this.state.assertionRawEditorEnable} onChange={(checked) => { this.setState({assertionRawEditorEnable: checked}) }} />
       &nbsp;
       {
         this.state.reOrderingEnabled

@@ -709,7 +709,7 @@ class QueryParamsBuilder extends React.Component {
             <Card size="small" title="Query Parameters">
               <Row>
                 <Col className="float-right">
-                  <strong>Raw Editor</strong> <Switch value={this.state.queryParamRawEditorEnable} onChange={(checked) => { this.setState({queryParamRawEditorEnable: checked}) }} />
+                  <strong>Raw Editor</strong> <Switch checked={this.state.queryParamRawEditorEnable} onChange={(checked) => { this.setState({queryParamRawEditorEnable: checked}) }} />
                 </Col>
                 <Col span={24}>
                   {
@@ -1112,7 +1112,7 @@ class HeaderBodyBuilder extends React.Component {
             <Card size="small" title="Headers">
               <Row>
                 <Col className="float-right">
-                  <strong>Raw Editor</strong> <Switch value={this.state.headersRawEditorEnable} onChange={(checked) => { this.setState({headersRawEditorEnable: checked}) }} />
+                  <strong>Raw Editor</strong> <Switch checked={this.state.headersRawEditorEnable} onChange={(checked) => { this.setState({headersRawEditorEnable: checked}) }} />
                 </Col>
                 <Col span={24}>
                   {
