@@ -696,12 +696,12 @@ class OutboundRequest extends React.Component {
     if (!this.state.loadSampleCollections) {
       this.state.loadSampleCollections = {}
       for (const index in this.state.loadSampleCollectionTypes) {
-        const resp = await axios.get(apiBaseUrl + `/api/samples/load/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
+        const resp = await axios.get(apiBaseUrl + `/api/samples/list/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
         this.state.loadSampleCollections[this.state.loadSampleCollectionTypes[index]] = resp.data.body
       }
     }
     if (!this.state.loadSampleEnvironments) {
-      const resp = await axios.get(apiBaseUrl + `/api/samples/load/environments`)
+      const resp = await axios.get(apiBaseUrl + `/api/samples/list/environments`)
       resp.data.body.push({name: 'none'})
       this.state.loadSampleEnvironments = resp.data.body.map(file => file.name)
     }
