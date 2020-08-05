@@ -745,7 +745,6 @@ class OutboundRequest extends React.Component {
       return (
         <Tabs.TabPane tab={type} key={type}>
           <SampleFilesViewer files={this.loadSampleCollectionsAsFilesArray(type)} prefix={'examples/collections/' + type + '/'} onChange={ (selectedCollections) => {
-            console.log(selectedCollections)
             // this.setState({selectedCollections: selectedRowKeys})
             this.state.loadSampleChecked.collections = selectedCollections
           }} />

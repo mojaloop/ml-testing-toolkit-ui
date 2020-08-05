@@ -68,16 +68,15 @@ class SampleFilesViewer extends React.Component {
         }}
         detailRenderer={() => null}
         showFoldersOnFilter={false}
-        onSelectFile = {() => {
-          if (this.refs.fileBrowser.ref.current.state.selection.length > 0) {
-            this.props.onChange(this.refs.fileBrowser.ref.current.state.selection.map(item => {
-              if(this.props.prefix) {
-                return this.props.prefix + item
-              } else {
-                return item
-              }
-            }))
-          }
+        onSelect = {() => {
+          const selectedFiles = this.refs.fileBrowser.ref.current.state.selection.filter(item => item.endsWith('.json'))
+          this.props.onChange(selectedFiles.map(item => {
+            if(this.props.prefix) {
+              return this.props.prefix + item
+            } else {
+              return item
+            }
+          }))
         }}
       />
     )
