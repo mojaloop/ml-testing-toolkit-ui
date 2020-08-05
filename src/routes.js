@@ -19,6 +19,7 @@ import Dashboard from "./views/dashboard/Dashboard.jsx";
 import RulesResponse from "./views/rules/RulesResponse.jsx";
 import RulesValidation from "./views/rules/RulesValidation.jsx";
 import RulesCallback from "./views/rules/RulesCallback.jsx";
+import RulesForward from "./views/rules/RulesForward.jsx";
 import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
 import Monitor from "./views/monitor/Monitor.jsx";
 import Settings from "./views/settings/Settings.jsx";
@@ -54,6 +55,14 @@ var routes = [
     component: RulesValidation,
     layout: "/admin"
   },
+  // {
+  //   path: "/rules_forward",
+  //   name: "Forward Rules",
+  //   subTitle: "(Success Callbacks)",
+  //   icon: "ni ni-bullet-list-67 text-primary",
+  //   component: RulesForward,
+  //   layout: "/admin"
+  // },
   {
     path: "/rules_callback",
     name: "Callback Rules",

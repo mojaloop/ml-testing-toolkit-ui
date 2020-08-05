@@ -744,8 +744,7 @@ class OutboundRequest extends React.Component {
   }
 
   clearSampleSelectionState = () => {
-    this.setState({selectedCollections: []})
-    this.setState({selectedEnvironments: []})
+    this.setState({selectedCollections: [], selectedEnvironments: [], loadSampleChecked: {}})
   }
 
   loadSampleTabContent = () => {
