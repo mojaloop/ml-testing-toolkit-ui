@@ -564,11 +564,7 @@ class DFSPWiseEndpoints extends React.Component {
         payer: {},
         payee: {}
       },
-      users: {
-        payer: '',
-        payee: ''
-      },
-      dfspsIterator: {
+      dfspsEntries: {
         payer: '',
         payee: ''
       },
@@ -600,15 +596,14 @@ class DFSPWiseEndpoints extends React.Component {
             condition.value = dfspId
           }
         })
-        if (rule.conditions.all.some(condition => condition.fact === 'operationPath' && condition.operator === 'equal' && condition.value === '/parties/{Type}/{ID}')) {
-          rule.conditions.all.forEach(condition => {
-            if (condition.fact === 'pathParams' && condition.path === 'ID'){
-              const newValue = rule.event.params.to === 'payer' ? this.state.users.payer : this.state.users.payee
-              if (newValue) {
-                condition.value = rule.event.params.to === 'payer' ? this.state.users.payer : this.state.users.payee
-              }
+        if (rule.conditions.all.some(condition => condition.fact === 'operationPath' && condition.operator === 'equal'  && condition.value === '/parties/{Type}/{ID}')) {
+          if (rule.conditions.all.some(condition => condition.fact === 'method' && condition.operator === 'equal'  && condition.value === 'get')) {
+            const condition = rule.conditions.all.find(condition => condition.fact === 'headers' && condition.path.toLowerCase() === 'fspiop-source')
+            const newValue = rule.event.params.to === 'payer' ? this.state.dfsps.payee : this.state.dfsps.payer
+            if (newValue) {
+              condition.value = newValue
             }
-          })
+          }
         }
       })
       await axios.put(apiBaseUrl + "/api/rules/files/forward/default.json", rules, { headers: { 'Content-Type': 'application/json' } })
@@ -628,7 +623,7 @@ class DFSPWiseEndpoints extends React.Component {
         const {endpoints, ...rest}  = this.props.config.ENDPOINTS_DFSP_WISE.dfsps[dfspId]
         const dfspType = index === 0 ? 'payer' : 'payee'
         local[dfspType][dfspId] = { ...rest, endpoints: []}
-        this.state.dfspsIterator[dfspType] = dfspId
+        this.state.dfspsEntries[dfspType] = dfspId
         this.state.dfsps[dfspType] = dfspId
         endpoints.forEach(endpoint => {
           local[dfspType][dfspId].endpoints.push({...endpoint})
@@ -682,7 +677,7 @@ class DFSPWiseEndpoints extends React.Component {
 
   getTabs = () => {
     const tabs = []
-    for (const [dfspType, dfspId] of Object.entries(this.state.dfspsIterator)) {
+    for (const [dfspType, dfspId] of Object.entries(this.state.dfspsEntries)) {
       tabs.push(
         <Tabs.TabPane tab={dfspType} key={dfspId}>
           <Row>
@@ -697,23 +692,6 @@ class DFSPWiseEndpoints extends React.Component {
                 <Input value={this.state.dfsps[dfspType]} onChange={(e) => {
                     this.state.dfsps[dfspType] = e.target.value
                     this.setState({dfsps: this.state.dfsps})
-                  }}
-                />
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <FormGroup>
-                <label
-                  className="form-control-label"
-                  htmlFor="input-country"
-                >
-                  userId
-                </label>
-                <Input value={this.state.users[dfspType]} onChange={(e) => {
-                    this.state.users[dfspType] = e.target.value
-                    this.forceUpdate()
                   }}
                 />
               </FormGroup>
@@ -761,7 +739,7 @@ class DFSPWiseEndpoints extends React.Component {
       )
     }
     return (
-      <Tabs defaultActiveKey={this.state.dfspsIterator.payer} >
+      <Tabs defaultActiveKey={this.state.dfspsEntries.payer} >
         {tabs}
       </Tabs>
     )
@@ -801,7 +779,7 @@ class DFSPWiseEndpoints extends React.Component {
                 this.state.endpointsLocal['payee'][this.state.dfsps.payee] = temp
                 delete this.state.endpointsLocal['payee'][payeeKey]
               }
-              this.state.dfspsIterator = {...this.state.dfsps}
+              this.state.dfspsEntries = {...this.state.dfsps}
               const updatedDfsps = {...this.state.endpointsLocal['payer'], ...this.state.endpointsLocal['payee']}
               this.props.config.ENDPOINTS_DFSP_WISE.dfsps = updatedDfsps
               this.props.handleSave()
