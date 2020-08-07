@@ -40,6 +40,7 @@ import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Pr
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
+import SampleFilesViewer from './SampleFilesViewer'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 
@@ -695,14 +696,14 @@ class OutboundRequest extends React.Component {
     if (!this.state.loadSampleCollections) {
       this.state.loadSampleCollections = {}
       for (const index in this.state.loadSampleCollectionTypes) {
-        const resp = await axios.get(apiBaseUrl + `/api/samples/load/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
+        const resp = await axios.get(apiBaseUrl + `/api/samples/list/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
         this.state.loadSampleCollections[this.state.loadSampleCollectionTypes[index]] = resp.data.body
       }
     }
     if (!this.state.loadSampleEnvironments) {
-      const resp = await axios.get(apiBaseUrl + `/api/samples/load/environments`)
-      resp.data.body.push('none')
-      this.state.loadSampleEnvironments = resp.data.body
+      const resp = await axios.get(apiBaseUrl + `/api/samples/list/environments`)
+      resp.data.body.push({name: 'none'})
+      this.state.loadSampleEnvironments = resp.data.body.map(file => file.name)
     }
   }
 
@@ -714,6 +715,19 @@ class OutboundRequest extends React.Component {
       }
     }
     return collections
+  }
+
+  loadSampleCollectionsAsFilesArray = (type) => {
+    if (this.state.loadSampleCollections && this.state.loadSampleCollections[type]) {
+      return this.state.loadSampleCollections[type].map((file) => {
+        return {
+          key: file.name,
+          size: file.size,
+        }
+      })
+    } else {
+      return []
+    }
   }
 
   loadSampleEnvironments = () => {
@@ -730,14 +744,10 @@ class OutboundRequest extends React.Component {
     return this.state.loadSampleCollectionTypes.map(type => {
       return (
         <Tabs.TabPane tab={type} key={type}>
-          <Table
-            rowSelection={{type: 'checkbox', selectedRowKeys: this.state.selectedCollections, onChange: (selectedRowKeys, selectedRows) => {
-              this.setState({selectedCollections: selectedRowKeys})
-              this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => {return selectedRow.collection})
-            }}}
-            columns={[{title: 'Select all', dataIndex: 'collection', render: text => <a>{text}</a>}]}
-            dataSource={this.loadSampleCollections(type)}
-          />
+          <SampleFilesViewer files={this.loadSampleCollectionsAsFilesArray(type)} prefix={'examples/collections/' + type + '/'} onChange={ (selectedCollections) => {
+            // this.setState({selectedCollections: selectedRowKeys})
+            this.state.loadSampleChecked.collections = selectedCollections
+          }} />
         </Tabs.TabPane>
       )
     })
