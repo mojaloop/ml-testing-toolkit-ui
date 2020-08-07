@@ -26,9 +26,10 @@ import {
   Row,
   Button,
   Col,
+  FormGroup,
 } from "reactstrap";
 
-import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon, notification, Modal, Table, Select } from 'antd';
+import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon, notification, Modal, Table, Select, Tabs } from 'antd';
 import { BulbTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
@@ -179,6 +180,25 @@ class CallbackResourceEndpointsInput extends React.Component {
         </Col>
         <Col lg="1">
           <CallBackResourceEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
+        </Col>
+      </Row>
+    )
+  }
+}
+
+class DFSPWiseEndpointsInput extends React.Component {
+
+  handleValueChange = (event) => {}
+
+  render() {
+
+    return (
+      <Row className="mb-4">
+        <Col lg="4">
+          <h4>{this.props.name}</h4>
+        </Col>
+        <Col lg="1">
+          <DFSPWiseEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
         </Col>
       </Row>
     )
@@ -369,7 +389,11 @@ class ConfigurationEditor extends React.Component {
               <ParamInput name="Send Callback" itemRef={this.props.config} itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
               <ParamInput name="Enable Version Negotiation Support" itemRef={this.props.config}  itemKey="VERSIONING_SUPPORT_ENABLE" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange}  />
               <Divider />
+              <ParamInput name="Enable Hub Only Mode" itemRef={this.props.config} itemKey="HUB_ONLY_MODE" value={this.props.config.HUB_ONLY_MODE} onChange={this.handleParamValueChange} />
+              <Divider />
               <CallbackResourceEndpointsInput name="Enable Callback resource endpoints" itemRef={this.props.config.CALLBACK_RESOURCE_ENDPOINTS}  itemKey="enabled" value={this.props.config.CALLBACK_RESOURCE_ENDPOINTS.enabled} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
+              <Divider />
+              <DFSPWiseEndpointsInput name="DFSP Wise endpoints" itemRef={this.props.config.ENDPOINTS_DFSP_WISE} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
               <Divider />
               <ParamInput name="Validate Transfers with previous quote" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
               <ParamInput name="Validate IlpPacket in transfers" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_ILP_PACKET" value={this.props.config.TRANSFERS_VALIDATION_ILP_PACKET} onChange={this.handleParamValueChange} />
@@ -401,16 +425,16 @@ class CallBackResourceEndpoints extends React.Component {
   constructor() {
     super();
     this.state = {
-      callbackResourceEndpoints: false,
-      callbackResourceEndpointsLocal: [],
-      callbackResourceEndpointsInputs: [],
-      callbackResourceEndpointsColumns: [
+      endpoints: false,
+      endpointsLocal: {},
+      endpointsInputs: [],
+      endpointsColumns: [
         { title: 'method', dataIndex: 'method', key: 'method', width: '10%'},
         { title: 'path', dataIndex: 'path', key: 'path', width: '40%'},
         { title: 'endpoint', dataIndex: 'endpoint', key: 'endpoint', width: '40%'},
         { dataIndex: '', key: 'delete', width: '10%', render: (text, record) => (
           <Button color="danger" size="sm" onClick={(e) => {
-            this.setState({callbackResourceEndpointsLocal: this.state.callbackResourceEndpointsLocal.filter((local, index) => {
+            this.setState({endpointsLocal: this.state.endpointsLocal.filter((local, index) => {
               return (+record.key !== index)
             })})
           }}>Delete</Button>
@@ -422,7 +446,7 @@ class CallBackResourceEndpoints extends React.Component {
   componentDidMount() {}
 
 
-  getCallbackResourceEndpointsLocal = () => {
+  endpointsLocal = () => {
     const local = []
     this.props.config.CALLBACK_RESOURCE_ENDPOINTS.endpoints.forEach(endpoint => {
       local.push({...endpoint})
@@ -430,9 +454,9 @@ class CallBackResourceEndpoints extends React.Component {
     return local
   }
 
-  getCallbackResourceEndpointsInputs = () => {
+  endpointsInputs = () => {
     const inputs = []
-    this.state.callbackResourceEndpointsLocal.forEach((endpoint, index) => {
+    this.state.endpointsLocal.forEach((endpoint, index) => {
       const endpointInputs = {}
       Object.keys(endpoint).forEach(key => {
         endpointInputs[key] = 
@@ -462,43 +486,43 @@ class CallBackResourceEndpoints extends React.Component {
           ?
           <>
           <Button color="info" size="sm" onClick={(e) => {
-            this.setState({callbackResourceEndpointsLocal: this.getCallbackResourceEndpointsLocal()})
-            this.setState({callbackResourceEndpointsVisible: true})
+            this.setState({endpointsLocal: this.endpointsLocal()})
+            this.setState({endpointsVisible: true})
           }}>
             Edit
           </Button>
           {
-            this.state.callbackResourceEndpointsVisible
+            this.state.endpointsVisible
             ?
             <Modal
             title="Edit Callback resources endpoints"
-            visible={this.state.callbackResourceEndpointsVisible}
+            visible={this.state.endpointsVisible}
             width='70%'
             onOk={() => {
-              this.props.config.CALLBACK_RESOURCE_ENDPOINTS.endpoints = this.state.callbackResourceEndpointsLocal
+              this.props.config.CALLBACK_RESOURCE_ENDPOINTS.endpoints = this.state.endpointsLocal
               if (!this.props.configRuntime.CALLBACK_RESOURCE_ENDPOINTS.enabled) {
                 this.props.config.CALLBACK_RESOURCE_ENDPOINTS.enabled = true
               }
               this.props.handleSave()
-              this.setState({callbackResourceEndpointsVisible: false})
+              this.setState({endpointsVisible: false})
             }}
             onCancel={() => {
-              this.setState({callbackResourceEndpointsVisible: false})
+              this.setState({endpointsVisible: false})
             }}
             >
               <Row>
                 <Col>
                   <Button color="info" size="sm" onClick={(e) => {
                   const newEndpoint = {method: 'put', path: null, endpoint: null}
-                  this.setState({callbackResourceEndpointsLocal: [...this.state.callbackResourceEndpointsLocal, newEndpoint]})
+                  this.setState({endpointsLocal: [...this.state.endpointsLocal, newEndpoint]})
                 }}>Add Callback Resource Endpoint</Button>
                 </Col>
               </Row>
               <Row>
                 <Col>
                   <Table
-                    columns={this.state.callbackResourceEndpointsColumns}
-                    dataSource={this.getCallbackResourceEndpointsInputs()}
+                    columns={this.state.endpointsColumns}
+                    dataSource={this.endpointsInputs()}
                   />
                 </Col>
               </Row>
@@ -514,27 +538,251 @@ class CallBackResourceEndpoints extends React.Component {
     )
   }
 }
-// class ParamView extends React.Component {
 
-//   render() {
-//     return (
-//       <Row className="mb-4">
-//         <Col lg="6">
-//           <h4>{this.props.name}</h4>
-//         </Col>
-//         <Col lg="6">
-//           {
-//             (typeof this.props.value) === 'boolean'
-//             ? this.props.value ? (<Icon type="check" />) : (<Icon type="close" />)
-//             : (
-//               <Tag color="red">{this.props.value}</Tag>
-//             )
-//           }
-//         </Col>
-//       </Row>
-//     )
-//   }
-// }
+class DFSPWiseEndpoints extends React.Component {
+
+  constructor() {
+    super();
+    this.state = {
+      endpointsLocal: {
+        payer: {},
+        payee: {}
+      },
+      dfspsEntries: {
+        payer: '',
+        payee: ''
+      },
+      dfsps: {
+        payer: '',
+        payee: ''
+      },
+      curRules: []
+    };
+  }
+
+  componentDidMount() {
+  }
+
+  updateRules = async () => {
+    message.loading({ content: 'Saving the rule...', key: 'ruleSaveProgress' });
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + "/api/rules/files/forward/default.json")
+    if (response.data && Array.isArray(response.data)) {
+      let rules = response.data
+      rules.forEach(rule => {
+        const dfspId = Object.keys(this.state.endpointsLocal[rule.event.params.to])[0]
+        rule.event.params.dfspId = dfspId
+        rule.conditions.all.forEach(condition => {
+          if (
+            (condition.fact === 'headers' && condition.path.toLowerCase() === 'fspiop-destination') || 
+            (condition.fact === 'body' && condition.path === 'payeeFsp')
+          ) {
+            condition.value = dfspId
+          }
+        })
+        if (rule.conditions.all.some(condition => condition.fact === 'operationPath' && condition.operator === 'equal'  && condition.value === '/parties/{Type}/{ID}')) {
+          if (rule.conditions.all.some(condition => condition.fact === 'method' && condition.operator === 'equal'  && condition.value === 'get')) {
+            const condition = rule.conditions.all.find(condition => condition.fact === 'headers' && condition.path.toLowerCase() === 'fspiop-source')
+            const newValue = rule.event.params.to === 'payer' ? this.state.dfsps.payee : this.state.dfsps.payer
+            if (newValue) {
+              condition.value = newValue
+            }
+          }
+        }
+      })
+      await axios.put(apiBaseUrl + "/api/rules/files/forward/default.json", rules, { headers: { 'Content-Type': 'application/json' } })
+    }
+    message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 });
+  }
+
+  endpointsLocal = () => {
+    const dfsps = Object.keys(this.props.config.ENDPOINTS_DFSP_WISE.dfsps)
+    const local = {
+      payer: {},
+      payee: {},
+    }
+    
+    if (dfsps) {
+      dfsps.forEach((dfspId, index) => {
+        const {endpoints, ...rest}  = this.props.config.ENDPOINTS_DFSP_WISE.dfsps[dfspId]
+        const dfspType = index === 0 ? 'payer' : 'payee'
+        local[dfspType][dfspId] = { ...rest, endpoints: []}
+        this.state.dfspsEntries[dfspType] = dfspId
+        this.state.dfsps[dfspType] = dfspId
+        endpoints.forEach(endpoint => {
+          local[dfspType][dfspId].endpoints.push({...endpoint})
+        })
+      })
+    }
+    return local
+  }
+
+  endpointsInputs = (dfspType, dfspId) => {
+    const inputs = []
+    this.state.endpointsLocal[dfspType][dfspId].endpoints.forEach((endpoint, index) => {
+      const endpointInputs = {}
+      Object.keys(endpoint).forEach(key => {
+        endpointInputs[key] = 
+          <>
+            {
+              (key === 'method') ?
+                <Select style={{width: '100px'}} defaultValue={endpoint[key]} onChange={(value) => {
+                  this.props.handleParamValueChange(endpoint, key, value)
+                }}>
+                  <Select.Option value="get">get</Select.Option>
+                  <Select.Option value="post">post</Select.Option>
+                  <Select.Option value="put">put</Select.Option>
+                </Select>
+              :
+              <EndpointInput itemRef={endpoint} itemKey={key} value={endpoint[key]} onChange={this.props.handleParamValueChange} />
+            }
+          </>
+      })
+      inputs.push({key: index + "", ...endpointInputs})
+    })
+    return inputs
+  }
+
+  endpointsColumns = (dfspType, dfspId) => {
+    return [
+      { title: 'method', dataIndex: 'method', key: 'method', width: '10%'},
+      { title: 'path', dataIndex: 'path', key: 'path', width: '40%'},
+      { title: 'endpoint', dataIndex: 'endpoint', key: 'endpoint', width: '40%'},
+      { dataIndex: '', key: 'delete', width: '10%', render: (text, record, key) => (
+        <Button color="danger" size="sm" onClick={(e) => {
+          this.state.endpointsLocal[dfspType][dfspId].endpoints = this.state.endpointsLocal[dfspType][dfspId].endpoints.filter((local, index) => {
+            return (key !== index)
+          })
+          this.forceUpdate()
+        }}>Delete</Button>
+      )}
+    ]
+  }
+
+  getTabs = () => {
+    const tabs = []
+    for (const [dfspType, dfspId] of Object.entries(this.state.dfspsEntries)) {
+      tabs.push(
+        <Tabs.TabPane tab={dfspType} key={dfspId}>
+          <Row>
+            <Col>
+              <FormGroup>
+                <label
+                  className="form-control-label"
+                  htmlFor="input-country"
+                >
+                  dfspId
+                </label>
+                <Input value={this.state.dfsps[dfspType]} onChange={(e) => {
+                    this.state.dfsps[dfspType] = e.target.value
+                    this.setState({dfsps: this.state.dfsps})
+                  }}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <FormGroup>
+                <label
+                  className="form-control-label"
+                  htmlFor="input-country"
+                >
+                  default endpoint
+                </label>
+                <Input value={this.state.endpointsLocal[dfspType][dfspId].defaultEndpoint} onChange={(e) => {
+                    this.state.endpointsLocal[dfspType][dfspId].defaultEndpoint = e.target.value
+                    this.forceUpdate()
+                  }}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Button color="info" size="sm" onClick={(e) => {
+                if (!this.state.endpointsLocal[dfspType][dfspId].endpoints) {
+                  this.state.endpointsLocal[dfspType][dfspId].endpoints = []
+                }
+                this.state.endpointsLocal[dfspType][dfspId].endpoints.push({method: 'put', path: null, endpoint: null})
+                this.forceUpdate()
+              }}>Add DFSP Wise Endpoint</Button>
+            </Col>
+          </Row>
+          {
+            this.state.endpointsLocal[dfspType][dfspId].endpoints && this.state.endpointsLocal[dfspType][dfspId].endpoints.length > 0
+            ?
+            <Table
+              columns={this.endpointsColumns(dfspType, dfspId)}
+              dataSource={this.endpointsInputs(dfspType, dfspId)}
+            />
+            :
+            null
+          }
+        </Tabs.TabPane>
+      )
+    }
+    return (
+      <Tabs defaultActiveKey={this.state.dfspsEntries.payer} >
+        {tabs}
+      </Tabs>
+    )
+  }
+
+  render () {
+    return (
+      <>
+        <Button color="info" size="sm" onClick={(e) => {
+          this.setState({endpointsLocal: this.endpointsLocal()})
+          this.setState({endpointsVisible: true})
+        }}>
+          Edit
+        </Button>
+        {
+          this.state.endpointsVisible
+          ?
+          <Modal
+          title="Edit DFSP wise endpoints"
+          visible={this.state.endpointsVisible}
+          width='70%'
+          onOk={async () => {
+            const payerKey = Object.keys(this.state.endpointsLocal['payer'])[0]
+            const payeeKey = Object.keys(this.state.endpointsLocal['payee'])[0]
+
+            if (this.state.dfsps.payer !== payerKey) {
+              const temp = {...this.state.endpointsLocal['payer'][payerKey]}
+              this.state.endpointsLocal['payer'][this.state.dfsps.payer] = temp
+              delete this.state.endpointsLocal['payer'][payerKey]
+            }
+            if (this.state.dfsps.payee !== payeeKey) {
+              const temp = {...this.state.endpointsLocal['payee'][payeeKey]}
+              this.state.endpointsLocal['payee'][this.state.dfsps.payee] = temp
+              delete this.state.endpointsLocal['payee'][payeeKey]
+            }
+            this.state.dfspsEntries = {...this.state.dfsps}
+            const updatedDfsps = {...this.state.endpointsLocal['payer'], ...this.state.endpointsLocal['payee']}
+            this.props.config.ENDPOINTS_DFSP_WISE.dfsps = updatedDfsps
+            this.props.handleSave()
+            await this.updateRules(Object.keys(updatedDfsps))
+            this.setState({endpointsVisible: false})
+          }}
+          onCancel={() => {
+            this.setState({endpointsVisible: false})
+          }}
+          >
+            <Row>
+              <Col>
+                {this.getTabs()}
+              </Col>
+            </Row>
+          </Modal>
+          :
+          null
+        }
+      </>
+    )
+  }
+}
 
 class Settings extends React.Component {
 
@@ -545,12 +793,22 @@ class Settings extends React.Component {
         CALLBACK_RESOURCE_ENDPOINTS: {
           enabled: false,
           endpoints: []
+        },
+        ENDPOINTS_DFSP_WISE: {
+          usersdfsp1: {
+            endpoints: []
+          }
         }
       },
       userConfigStored: {
         CALLBACK_RESOURCE_ENDPOINTS: {
           enabled: false,
           endpoints: []
+        },
+        ENDPOINTS_DFSP_WISE: {
+          usersdfsp1: {
+            endpoints: []
+          }
         }
       }
     };
