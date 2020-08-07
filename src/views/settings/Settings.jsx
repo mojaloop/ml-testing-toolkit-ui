@@ -188,32 +188,14 @@ class CallbackResourceEndpointsInput extends React.Component {
 
 class DFSPWiseEndpointsInput extends React.Component {
 
-  inputValue = null
-
-  handleValueChange = (event) => {
-    this.inputValue = event.target.checked
-    this.props.onChange(this.props.itemRef, this.props.itemKey, event.target.checked)
-  }
+  handleValueChange = (event) => {}
 
   render() {
-
-    const inputElement = (
-      <Checkbox checked={this.props.value} onChange={this.handleValueChange}></Checkbox>
-    )
 
     return (
       <Row className="mb-4">
         <Col lg="4">
           <h4>{this.props.name}</h4>
-        </Col>
-        <Col lg="1">
-          {
-            this.props.tooltip
-            ? (
-            <Tooltip placement="topLeft" title={this.props.tooltip}>{inputElement}</Tooltip>
-            )
-            : inputElement
-          }
         </Col>
         <Col lg="1">
           <DFSPWiseEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
@@ -407,9 +389,11 @@ class ConfigurationEditor extends React.Component {
               <ParamInput name="Send Callback" itemRef={this.props.config} itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
               <ParamInput name="Enable Version Negotiation Support" itemRef={this.props.config}  itemKey="VERSIONING_SUPPORT_ENABLE" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange}  />
               <Divider />
+              <ParamInput name="Enable Hub Only Mode" itemRef={this.props.config} itemKey="HUB_ONLY_MODE" value={this.props.config.HUB_ONLY_MODE} onChange={this.handleParamValueChange} />
+              <Divider />
               <CallbackResourceEndpointsInput name="Enable Callback resource endpoints" itemRef={this.props.config.CALLBACK_RESOURCE_ENDPOINTS}  itemKey="enabled" value={this.props.config.CALLBACK_RESOURCE_ENDPOINTS.enabled} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
               <Divider />
-              <DFSPWiseEndpointsInput name="Enable Hub mode" itemRef={this.props.config.ENDPOINTS_DFSP_WISE}  itemKey="enabled" value={this.props.config.ENDPOINTS_DFSP_WISE.enabled} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
+              <DFSPWiseEndpointsInput name="DFSP Wise endpoints" itemRef={this.props.config.ENDPOINTS_DFSP_WISE} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
               <Divider />
               <ParamInput name="Validate Transfers with previous quote" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
               <ParamInput name="Validate IlpPacket in transfers" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_ILP_PACKET" value={this.props.config.TRANSFERS_VALIDATION_ILP_PACKET} onChange={this.handleParamValueChange} />
@@ -748,58 +732,50 @@ class DFSPWiseEndpoints extends React.Component {
   render () {
     return (
       <>
+        <Button color="info" size="sm" onClick={(e) => {
+          this.setState({endpointsLocal: this.endpointsLocal()})
+          this.setState({endpointsVisible: true})
+        }}>
+          Edit
+        </Button>
         {
-          this.props.config.ENDPOINTS_DFSP_WISE && this.props.config.ENDPOINTS_DFSP_WISE.enabled
+          this.state.endpointsVisible
           ?
-          <>
-          <Button color="info" size="sm" onClick={(e) => {
-            this.setState({endpointsLocal: this.endpointsLocal()})
-            this.setState({endpointsVisible: true})
-          }}>
-            Edit
-          </Button>
-          {
-            this.state.endpointsVisible
-            ?
-            <Modal
-            title="Edit DFSP wise endpoints"
-            visible={this.state.endpointsVisible}
-            width='70%'
-            onOk={async () => {
-              const payerKey = Object.keys(this.state.endpointsLocal['payer'])[0]
-              const payeeKey = Object.keys(this.state.endpointsLocal['payee'])[0]
+          <Modal
+          title="Edit DFSP wise endpoints"
+          visible={this.state.endpointsVisible}
+          width='70%'
+          onOk={async () => {
+            const payerKey = Object.keys(this.state.endpointsLocal['payer'])[0]
+            const payeeKey = Object.keys(this.state.endpointsLocal['payee'])[0]
 
-              if (this.state.dfsps.payer !== payerKey) {
-                const temp = {...this.state.endpointsLocal['payer'][payerKey]}
-                this.state.endpointsLocal['payer'][this.state.dfsps.payer] = temp
-                delete this.state.endpointsLocal['payer'][payerKey]
-              }
-              if (this.state.dfsps.payee !== payeeKey) {
-                const temp = {...this.state.endpointsLocal['payee'][payeeKey]}
-                this.state.endpointsLocal['payee'][this.state.dfsps.payee] = temp
-                delete this.state.endpointsLocal['payee'][payeeKey]
-              }
-              this.state.dfspsEntries = {...this.state.dfsps}
-              const updatedDfsps = {...this.state.endpointsLocal['payer'], ...this.state.endpointsLocal['payee']}
-              this.props.config.ENDPOINTS_DFSP_WISE.dfsps = updatedDfsps
-              this.props.handleSave()
-              await this.updateRules(Object.keys(updatedDfsps))
-              this.setState({endpointsVisible: false})
-            }}
-            onCancel={() => {
-              this.setState({endpointsVisible: false})
-            }}
-            >
-              <Row>
-                <Col>
-                  {this.getTabs()}
-                </Col>
-              </Row>
-            </Modal>
-            :
-            null
-          }
-          </>
+            if (this.state.dfsps.payer !== payerKey) {
+              const temp = {...this.state.endpointsLocal['payer'][payerKey]}
+              this.state.endpointsLocal['payer'][this.state.dfsps.payer] = temp
+              delete this.state.endpointsLocal['payer'][payerKey]
+            }
+            if (this.state.dfsps.payee !== payeeKey) {
+              const temp = {...this.state.endpointsLocal['payee'][payeeKey]}
+              this.state.endpointsLocal['payee'][this.state.dfsps.payee] = temp
+              delete this.state.endpointsLocal['payee'][payeeKey]
+            }
+            this.state.dfspsEntries = {...this.state.dfsps}
+            const updatedDfsps = {...this.state.endpointsLocal['payer'], ...this.state.endpointsLocal['payee']}
+            this.props.config.ENDPOINTS_DFSP_WISE.dfsps = updatedDfsps
+            this.props.handleSave()
+            await this.updateRules(Object.keys(updatedDfsps))
+            this.setState({endpointsVisible: false})
+          }}
+          onCancel={() => {
+            this.setState({endpointsVisible: false})
+          }}
+          >
+            <Row>
+              <Col>
+                {this.getTabs()}
+              </Col>
+            </Row>
+          </Modal>
           :
           null
         }
