@@ -762,7 +762,7 @@ class DFSPWiseEndpoints extends React.Component {
             this.state.endpointsVisible
             ?
             <Modal
-            title="Edit Callback resources endpoints"
+            title="Edit DFSP wise endpoints"
             visible={this.state.endpointsVisible}
             width='70%'
             onOk={async () => {
