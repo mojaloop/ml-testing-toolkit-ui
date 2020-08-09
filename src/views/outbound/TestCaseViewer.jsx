@@ -115,7 +115,7 @@ class TestCaseViewer extends React.Component {
           this.props.onDelete(this.props.testCase.id)
           break
         case 'rename':
-          this.setState({renameTestCase: true})
+          this.setState({renameTestCase: true, testCaseName: this.props.testCase.name})
           break
         case 'duplicate':
           this.props.onDuplicate(this.props.testCase.id)
