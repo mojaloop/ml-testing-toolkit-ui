@@ -595,6 +595,16 @@ class DFSPWiseEndpoints extends React.Component {
     message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 });
   }
 
+  setDFSPWiseState = (local, dfspType, dfspId) => {
+    const {endpoints, ...rest}  = this.props.config.ENDPOINTS_DFSP_WISE.dfsps[dfspId]
+    local[dfspType][dfspId] = { ...rest, endpoints: []}
+    this.state.dfspsEntries[dfspType] = dfspId
+    this.state.dfsps[dfspType] = dfspId
+    endpoints.forEach(endpoint => {
+      local[dfspType][dfspId].endpoints.push({...endpoint})
+    })
+  }
+
   endpointsLocal = () => {
     const dfsps = Object.keys(this.props.config.ENDPOINTS_DFSP_WISE.dfsps)
     const local = {
@@ -603,16 +613,8 @@ class DFSPWiseEndpoints extends React.Component {
     }
     
     if (dfsps) {
-      dfsps.forEach((dfspId, index) => {
-        const {endpoints, ...rest}  = this.props.config.ENDPOINTS_DFSP_WISE.dfsps[dfspId]
-        const dfspType = index === 0 ? 'payer' : 'payee'
-        local[dfspType][dfspId] = { ...rest, endpoints: []}
-        this.state.dfspsEntries[dfspType] = dfspId
-        this.state.dfsps[dfspType] = dfspId
-        endpoints.forEach(endpoint => {
-          local[dfspType][dfspId].endpoints.push({...endpoint})
-        })
-      })
+      this.setDFSPWiseState(local, 'payer', dfsps[0])
+      this.setDFSPWiseState(local, 'payee', dfsps[1] || dfsps[0])
     }
     return local
   }
@@ -663,7 +665,7 @@ class DFSPWiseEndpoints extends React.Component {
     const tabs = []
     for (const [dfspType, dfspId] of Object.entries(this.state.dfspsEntries)) {
       tabs.push(
-        <Tabs.TabPane tab={dfspType} key={dfspId}>
+        <Tabs.TabPane tab={dfspType} key={dfspType}>
           <Row>
             <Col>
               <FormGroup>
