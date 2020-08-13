@@ -29,6 +29,7 @@ import {
 // core components
 
 import socketIOClient from "socket.io-client";
+import mermaid from 'mermaid'
 
 import Header from "../../components/Headers/Header.jsx";
 import TraceHeaderUtils from "../../utils/traceHeaderUtils"
@@ -209,7 +210,8 @@ class OutboundRequest extends React.Component {
       loadSampleDialogVisible: false,
       loadSampleFiles: {},
       loadSampleChecked: {},
-      loadSampleCollectionTypes: ['hub','dfsp','provisioning']
+      loadSampleCollectionTypes: ['hub','dfsp','provisioning'],
+      sequenceDiagramVisible: false
     };
   }
 
@@ -640,6 +642,7 @@ class OutboundRequest extends React.Component {
                 onDelete={this.handleTestCaseDelete}
                 onDuplicate={this.handleTestCaseDuplicate}
                 onRename={this.handleTestCaseChange}
+                onShowSequenceDiagram={this.handleShowSequenceDiagram}
                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex) } }
               />
             </Col>
@@ -787,6 +790,55 @@ class OutboundRequest extends React.Component {
     })
   }
 
+  handleShowSequenceDiagram = async (testCase) => {
+    await this.setState({sequenceDiagramVisible: true})  
+    this.seqDiagContainer.removeAttribute('data-processed')
+    let seqSteps = ''
+    const rowCount = testCase.requests.length
+    for (let i=0; i<rowCount; i++) {
+      let transactionBegan = false
+      if ( testCase.requests[i].status && testCase.requests[i].status.requestSent ) {
+        const stepStr = testCase.requests[i].status.requestSent.method + ' ' + testCase.requests[i].status.requestSent.path
+        seqSteps += 'Note over TTK,PEER: ' + testCase.requests[i].status.requestSent.description + '\n'
+        seqSteps += 'TTK->>PEER: [HTTP REQ] ' + stepStr + '\n'
+        transactionBegan  = true
+        seqSteps += 'activate PEER\n'
+      }
+      if ( testCase.requests[i].status && testCase.requests[i].status.response ) {
+        const stepStr = testCase.requests[i].status.response.status + ' ' + testCase.requests[i].status.response.statusText + ' ' +testCase.requests[i].status.state
+        if (testCase.requests[i].status.state === 'error') {
+          seqSteps += 'PEER--xTTK: [HTTP RESP] ' + stepStr + '\n'
+        } else {
+          seqSteps += 'PEER-->>TTK: [HTTP RESP] ' + stepStr + '\n'
+        }
+      }
+      if ( testCase.requests[i].status && testCase.requests[i].status.callback ) {
+        const stepStr = testCase.requests[i].status.callback.url
+        seqSteps += 'PEER-->>TTK: [ASYNC CALLBACK] ' + stepStr + '\n'
+      }
+      if (transactionBegan) {
+        seqSteps += 'deactivate PEER\n'
+      }
+    }
+    if (seqSteps) {
+      // return 'sequenceDiagram\n' + seqSteps
+      const code = 'sequenceDiagram\n' + seqSteps
+      try {
+        mermaid.parse(code)
+        this.seqDiagContainer.innerHTML = code
+        mermaid.init(undefined, this.seqDiagContainer)
+        console.log('Sequence Diagram generated')
+      } catch (e) {
+        // {str, hash}
+        // const base64 = Base64.encodeURI(e.str || e.message)
+        // history.push(`${url}/error/${base64}`)
+        console.log('Diagram generation error', e.str || e.message)
+      }
+    } else {
+      console.log('No data')
+    }
+  }
+
   render() {
 
     const createNewTestCaseDialogContent = (
@@ -892,6 +944,23 @@ class OutboundRequest extends React.Component {
           onCancel={() => { this.setState({showTemplate: false})}}
         >
           <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
+        </Modal>
+        <Modal
+          centered
+          destroyOnClose
+          forceRender
+          title="Sequence Diagram"
+          className="w-50 p-3"
+          visible={this.state.sequenceDiagramVisible? true : false}
+          footer={null}
+          onCancel={() => { this.seqDiagContainer.innerHTML = ''; this.setState({sequenceDiagramVisible: false})}}
+        >
+          <div
+            ref={div => {
+              this.seqDiagContainer = div
+            }}
+          >
+          </div>
         </Modal>
         <Modal
           style={{ top: 20 }}
