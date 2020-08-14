@@ -17,7 +17,7 @@
 */
 import React from "react";
 import _ from 'lodash';
- 
+
 // reactstrap components
 import {
   Card,
@@ -123,6 +123,9 @@ class TestCaseViewer extends React.Component {
         case 'send':
           this.props.onSend()
           break
+        case 'showseqdiag':
+          this.props.onShowSequenceDiagram(this.props.testCase)
+          break
       }
     };
     
@@ -132,6 +135,11 @@ class TestCaseViewer extends React.Component {
         <Menu.Item key="duplicate">Duplicate</Menu.Item>
         <Menu.Item key="delete">Delete</Menu.Item>
         <Menu.Item key="send">Send this test case</Menu.Item>
+        {
+          this.props.testCase && this.props.testCase.requests && this.props.testCase.requests[0] && this.props.testCase.requests[0].status && this.props.testCase.requests[0].status.requestSent
+          ? <Menu.Item key="showseqdiag">Show Sequence Diagram</Menu.Item>
+          : null
+        }
       </Menu>
     );
 
