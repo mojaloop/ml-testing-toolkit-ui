@@ -20,7 +20,11 @@ const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
 
-jsf.option('alwaysFakeOptionals', true);
+jsf.option({
+  alwaysFakeOptionals: true,
+  ignoreMissingRefs: true,
+  maxItems: 2
+})
 
 export class FactSelect extends React.Component {
   constructor () {
