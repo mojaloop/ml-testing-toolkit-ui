@@ -6,6 +6,9 @@ class RuleViewer extends React.Component {
 
   render () {
     const inputRule = this.props.rule
+    if (!inputRule.event.params) {
+      inputRule.event.params = {}
+    }
     let resource = {}
     let conditions = []
     try {

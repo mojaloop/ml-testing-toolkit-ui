@@ -335,9 +335,7 @@ class RulesEditor extends React.Component {
       method: null,
       path: null,
       params: {
-        scripts: {
-          enabled: false
-        }
+        scripts: {}
       }
     }
     if (inputRule.event) {
