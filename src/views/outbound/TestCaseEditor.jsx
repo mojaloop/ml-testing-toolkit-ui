@@ -71,9 +71,13 @@ class ResourceSelector extends React.Component {
       for ( let pathKey in this.props.openApiDefinition.paths ) {
         for ( let methodKey in this.props.openApiDefinition.paths[pathKey]) {
           let itemKey = methodKey + " " + pathKey
+          // Filter the methods based on the api type
           switch(methodKey) {
             case 'get':
             case 'post':
+            case 'put':
+            case 'delete':
+            case 'update':
               this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{itemKey}</Option>)
               break
             default:
@@ -302,12 +306,12 @@ class RequestGenerator extends React.Component {
     // this.setState(  { callbackMap: response.data } )
   }
 
-  apiVersionSelectHandler = (apiVersion) => {
-    this.fetchAllApiData(apiVersion.type, apiVersion.majorVersion+'.'+apiVersion.minorVersion)
+  apiVersionSelectHandler = async (apiVersion) => {
+    let fetchAllApiData = await this.fetchAllApiData(apiVersion.type, apiVersion.majorVersion+'.'+apiVersion.minorVersion, apiVersion.asynchronous)
     const request = this.props.request
     request.apiVersion = apiVersion
     this.props.onChange(request)
-    this.setState({selectedApiVersion: apiVersion})
+    this.setState({selectedApiVersion: apiVersion, ...fetchAllApiData})
   }
 
   resourceSelectHandler = (resource) => {
@@ -316,7 +320,7 @@ class RequestGenerator extends React.Component {
     request.path = resource.path
     request.method = resource.method
     this.props.onChange(request)
-    this.setState({selectedResource: resource, request})
+    this.setState({selectedResource: resource, request}) 
   }
 
   getResourceDefinition = () => {

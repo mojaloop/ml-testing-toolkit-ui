@@ -29,28 +29,33 @@ import {
 // core components
 
 import socketIOClient from "socket.io-client";
+import mermaid from 'mermaid'
 
 import Header from "../../components/Headers/Header.jsx";
 import TraceHeaderUtils from "../../utils/traceHeaderUtils"
 
 import { getServerConfig } from '../../utils/getConfig'
 
-import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Progress, Menu, Dropdown, Radio, Tabs, Table, Collapse } from 'antd';
-
+import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Progress, Menu, Dropdown, Radio, Tabs, Table, Collapse, Drawer } from 'antd';
+import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
 import SampleFilesViewer from './SampleFilesViewer'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
+import FolderBrowser from "./FolderBrowser.jsx";
 
 const traceHeaderUtilsObj = new TraceHeaderUtils()
 
-function buildFileSelector( multi = false ){
+function buildFileSelector( multi = false, directory = false ){
   const fileSelector = document.createElement('input');
   fileSelector.setAttribute('type', 'file');
   if (multi) {
     fileSelector.setAttribute('multiple', 'multiple');
+  }
+  if (directory) {
+    fileSelector.setAttribute('webkitdirectory', '');
   }
   return fileSelector;
 }
@@ -189,7 +194,9 @@ class OutboundRequest extends React.Component {
     this.state = {
       request: {},
       template: {},
-      additionalData: {},
+      additionalData: {
+        selectedFiles: []
+      },
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
       newTemplateName: '',
@@ -209,7 +216,10 @@ class OutboundRequest extends React.Component {
       loadSampleDialogVisible: false,
       loadSampleFiles: {},
       loadSampleChecked: {},
-      loadSampleCollectionTypes: ['hub','dfsp','provisioning']
+      loadSampleCollectionTypes: ['hub','dfsp','provisioning'],
+      sequenceDiagramVisible: false,
+      folderData: [],
+      fileBrowserVisible: false,
     };
   }
 
@@ -226,17 +236,21 @@ class OutboundRequest extends React.Component {
   
   componentDidMount = async () => {
     this.collectionFileSelector = buildFileSelector(true);
-    this.environmentFileSelector = buildFileSelector();
     this.collectionFileSelector.addEventListener ('input', (e) => {
       if (e.target.files) {
-        if (e.target.files.length == 1) {
-          this.handleImportCollectionFile(e.target.files[0])
-        } else if (e.target.files.length > 1) {
-          this.handleImportCollectionFileMulti(e.target.files)
-        }
-        this.collectionFileSelector.value = null
+        this.handleImportCollectionFileMulti(e.target.files)
+        // this.collectionFileSelector.value = null
       }
     })
+
+    this.collectionFolderSelector = buildFileSelector(false, true);
+    this.collectionFolderSelector.addEventListener ('input', (e) => {
+      if (e.target.files) {
+        this.handleLocalFolderImportCollection(e.target.files)
+      }
+    })
+
+    this.environmentFileSelector = buildFileSelector();
     this.environmentFileSelector.addEventListener ('input', (e) => {
       if (e.target.files) {
         this.handleImportEnvironmentFile(e.target.files[0])
@@ -253,17 +267,28 @@ class OutboundRequest extends React.Component {
     this.socket = socketIOClient(apiBaseUrl);
     // this.socket.on("outboundProgress", this.handleIncomingProgress);
     this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
-
-    const storedTemplate = this.restoreSavedTemplate()
-    if (storedTemplate) {
-      this.setState({template: storedTemplate})
-    }
+    
     const additionalData = this.restoreAdditionalData()
-    if (additionalData) {
-      this.setState({additionalData: additionalData})
+    const storedFolderData = this.restoreSavedFolderData()
+    const storedEnvironmentData = this.restoreSavedEnvironmentData()
+
+    if (storedFolderData) {
+      this.regenerateTemplate(storedFolderData, additionalData.selectedFiles)
+      this.state.folderData = storedFolderData
+    }
+    if (storedEnvironmentData) {
+      this.state.template.inputValues = storedEnvironmentData
     }
 
-    this.startAutoSaveTemplateTimer()
+    if (additionalData) {
+      this.state.additionalData = additionalData
+    }
+
+    if(storedFolderData || storedEnvironmentData || additionalData) {
+      this.forceUpdate()
+    }
+
+    this.startAutoSaveTimer()
 
   }
 
@@ -440,11 +465,21 @@ class OutboundRequest extends React.Component {
     a.click();
   }
 
-  restoreSavedTemplate = () => {
-    const storedTemplate = localStorage.getItem('template')
-    if(storedTemplate) {
+  restoreSavedFolderData = () => {
+    const storedFolderData = localStorage.getItem('folderData')
+    if(storedFolderData) {
       try {
-        return JSON.parse(storedTemplate)
+        return JSON.parse(storedFolderData)
+      } catch(err) {}
+    }
+    return null
+  }
+
+  restoreSavedEnvironmentData = () => {
+    const storedEnvironmentData = localStorage.getItem('environmentData')
+    if(storedEnvironmentData) {
+      try {
+        return JSON.parse(storedEnvironmentData)
       } catch(err) {}
     }
     return null
@@ -460,19 +495,25 @@ class OutboundRequest extends React.Component {
     return {}
   }
 
-  startAutoSaveTemplateTimer = () => {
+  startAutoSaveTimer = () => {
     this.autoSaveIntervalId = setInterval ( () => {
       if (this.autoSave) {
         this.autoSave = false
-        this.autoSaveTemplate(this.convertTemplate(this.state.template, true))
+        // this.autoSaveTemplate(this.convertTemplate(this.state.template, true))
+        this.autoSaveFolderData(this.state.folderData)
+        this.autoSaveEnvironmentData( this.state.template.inputValues )
         this.autoSaveAdditionalData( this.state.additionalData )
       }
     },
     2000)
   }
 
-  autoSaveTemplate = (template) => {
-    localStorage.setItem('template', JSON.stringify(template));
+  autoSaveFolderData = (folderData) => {
+    localStorage.setItem('folderData', JSON.stringify(folderData));
+  }
+
+  autoSaveEnvironmentData = (environmentData) => {
+    localStorage.setItem('environmentData', JSON.stringify(environmentData));
   }
 
   autoSaveAdditionalData = (additionalData) => {
@@ -506,6 +547,7 @@ class OutboundRequest extends React.Component {
         this.state.additionalData = {
           importedFilename: file_to_read.name
         }
+        this.state.folderData = []
         this.forceUpdate()
         this.autoSave = true
         message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
@@ -520,13 +562,40 @@ class OutboundRequest extends React.Component {
     message.loading({ content: 'Reading the selected files...', key: 'importFileProgress' });
     let testCases = []
     let startIndex = 0
+    var importFolderData = []
+    var selectedFiles = []
     for (var i = 0; i < fileList.length; i++) {
       const file_to_read = fileList.item(i)
-      const fileRead = new FileReader();
       try {
         const content = await readFileAsync(file_to_read)
         const templateContent = JSON.parse(content);
-        
+        importFolderData.push({
+          name: file_to_read.name,
+          path: 'multi/' + file_to_read.name,
+          size: file_to_read.size,
+          modified: file_to_read.lastModified,
+          content: templateContent
+        })
+        selectedFiles.push('multi/' + file_to_read.name)
+      } catch(err) {
+        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+        break;
+      }
+    }
+    this.regenerateTemplate(importFolderData, selectedFiles)
+    this.autoSave = true
+    message.success({ content: 'Collections Loaded', key: 'importFileProgress', duration: 2 });
+  }
+
+  regenerateTemplate = async (folderData, selectedFiles = null) => {
+    let testCases = []
+    let startIndex = 0
+    for (var i = 0; i < folderData.length; i++) {
+      if (selectedFiles && !selectedFiles.includes(folderData[i].path)) {
+        continue
+      }
+      try {
+        const templateContent = folderData[i].content;
         templateContent.test_cases = templateContent.test_cases.map((testCase, index) => {
           const { id, ...remainingProps } = testCase
           return {
@@ -541,15 +610,45 @@ class OutboundRequest extends React.Component {
         break;
       }
     }
-    this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
+    // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
+    this.state.template.test_cases = testCases
     this.state.template.name = 'multi'
     this.state.additionalData = {
-      importedFilename: 'Multiple Files'
+      importedFilename: 'Multiple Files',
+      selectedFiles: selectedFiles
     }
+    this.state.folderData = folderData
     this.forceUpdate()
-    this.autoSave = true
-    message.success({ content: 'Collections Loaded', key: 'importFileProgress', duration: 2 });
+    // this.autoSave = true
 
+  }
+
+  handleLocalFolderImportCollection = async (fileList) => {
+    message.loading({ content: 'Reading the selected folder...', key: 'importFileProgress' });
+    var importFolderData = []
+    for (var i = 0; i < fileList.length; i++) {
+      const file_to_read = fileList.item(i)
+      if (file_to_read.name.endsWith('.json')) {
+        const fileRead = new FileReader();
+        try {
+          const content = await readFileAsync(file_to_read)
+          const fileContent = JSON.parse(content);
+          importFolderData.push({
+            name: file_to_read.name,
+            path: file_to_read.webkitRelativePath,
+            size: file_to_read.size,
+            modified: file_to_read.lastModified,
+            content: fileContent
+          })
+        } catch(err) {
+          message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+          break;
+        }
+      }
+    }
+    this.regenerateTemplate(importFolderData)
+    this.autoSave = true
+    message.success({ content: 'Folder imported', key: 'importFileProgress', duration: 2 });
   }
 
   handleImportEnvironmentFile = (file_to_read) => {
@@ -640,6 +739,7 @@ class OutboundRequest extends React.Component {
                 onDelete={this.handleTestCaseDelete}
                 onDuplicate={this.handleTestCaseDuplicate}
                 onRename={this.handleTestCaseChange}
+                onShowSequenceDiagram={this.handleShowSequenceDiagram}
                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex) } }
               />
             </Col>
@@ -787,6 +887,61 @@ class OutboundRequest extends React.Component {
     })
   }
 
+  handleShowSequenceDiagram = async (testCase) => {
+    await this.setState({sequenceDiagramVisible: true})  
+    this.seqDiagContainer.removeAttribute('data-processed')
+    let seqSteps = ''
+    const rowCount = testCase.requests.length
+    for (let i=0; i<rowCount; i++) {
+      let transactionBegan = false
+      if ( testCase.requests[i].status && testCase.requests[i].status.requestSent ) {
+        const stepStr = testCase.requests[i].status.requestSent.method + ' ' + testCase.requests[i].status.requestSent.path
+        seqSteps += 'Note over TTK,PEER: ' + testCase.requests[i].status.requestSent.description + '\n'
+        seqSteps += 'TTK->>PEER: [HTTP REQ] ' + stepStr + '\n'
+        transactionBegan  = true
+        seqSteps += 'activate PEER\n'
+      }
+      if ( testCase.requests[i].status && testCase.requests[i].status.response ) {
+        const stepStr = testCase.requests[i].status.response.status + ' ' + testCase.requests[i].status.response.statusText + ' ' +testCase.requests[i].status.state
+        if (testCase.requests[i].status.state === 'error') {
+          seqSteps += 'PEER--xTTK: [HTTP RESP] ' + stepStr + '\n'
+        } else {
+          seqSteps += 'PEER-->>TTK: [HTTP RESP] ' + stepStr + '\n'
+        }
+      }
+      if ( testCase.requests[i].status && testCase.requests[i].status.callback ) {
+        const stepStr = testCase.requests[i].status.callback.url
+        seqSteps += 'PEER-->>TTK: [ASYNC CALLBACK] ' + stepStr + '\n'
+      }
+      if (transactionBegan) {
+        seqSteps += 'deactivate PEER\n'
+      }
+    }
+    if (seqSteps) {
+      // return 'sequenceDiagram\n' + seqSteps
+      const code = 'sequenceDiagram\n' + seqSteps
+      try {
+        mermaid.parse(code)
+        this.seqDiagContainer.innerHTML = code
+        mermaid.init(undefined, this.seqDiagContainer)
+      } catch (e) {
+        // {str, hash}
+        // const base64 = Base64.encodeURI(e.str || e.message)
+        // history.push(`${url}/error/${base64}`)
+        console.log('Diagram generation error', e.str || e.message)
+      }
+    } else {
+      console.log('No data')
+    }
+  }
+
+  handleSelectionChanged = async (selectedFiles) => {
+    this.regenerateTemplate(this.state.folderData, selectedFiles)
+    this.state.additionalData.selectedFiles = selectedFiles
+    this.autoSave = true
+    this.forceUpdate()
+  }
+
   render() {
 
     const createNewTestCaseDialogContent = (
@@ -881,6 +1036,41 @@ class OutboundRequest extends React.Component {
 
     return (
       <>
+        <Drawer
+          title="File Browser"
+          placement="left"
+          width={500}
+          closable={false}
+          onClose={ () => {
+            this.setState({fileBrowserVisible: false})
+          }}
+          visible={this.state.fileBrowserVisible}
+        >
+          <Row>
+            <Col>
+              <Button
+                color="success"
+                size="sm"
+                onClick={ e => {
+                  e.preventDefault();
+                  this.collectionFolderSelector.click();
+                }}
+              >
+                Import Folder
+              </Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <FolderBrowser
+                folderData={this.state.folderData}
+                selectedFiles={this.state.additionalData.selectedFiles}
+                onSelect = {this.handleSelectionChanged}
+              />
+            </Col>
+          </Row>
+        </Drawer>
+
         <Modal
           centered
           destroyOnClose
@@ -892,6 +1082,23 @@ class OutboundRequest extends React.Component {
           onCancel={() => { this.setState({showTemplate: false})}}
         >
           <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
+        </Modal>
+        <Modal
+          centered
+          destroyOnClose
+          forceRender
+          title="Sequence Diagram"
+          className="w-50 p-3"
+          visible={this.state.sequenceDiagramVisible? true : false}
+          footer={null}
+          onCancel={() => { this.seqDiagContainer.innerHTML = ''; this.setState({sequenceDiagramVisible: false})}}
+        >
+          <div
+            ref={div => {
+              this.seqDiagContainer = div
+            }}
+          >
+          </div>
         </Modal>
         <Modal
           style={{ top: 20 }}
@@ -1121,6 +1328,16 @@ class OutboundRequest extends React.Component {
                               Add Test Case
                           </Button>
                         </Popover>
+                        <Button
+                            className="text-right float-left mb-2"
+                            color="primary"
+                            size="sm"
+                            onClick={ () => {
+                              this.setState({fileBrowserVisible: true})
+                            }}
+                          >
+                            Folder Management
+                        </Button>
                       </Row>
                       <Row>
                         { this.getTestCaseItems() }
