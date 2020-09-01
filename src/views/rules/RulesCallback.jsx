@@ -73,7 +73,7 @@ class RulesCallback extends React.Component {
 
     // Select the active rules file by default
     await this.setState({selectedRuleFile: activeRulesFile, ruleItemActive: null})
-    this.updateRulesFileDisplay()
+    await this.updateRulesFileDisplay()
   }
 
   getCallbackRulesFileContent = async (ruleFile) => {
@@ -98,11 +98,11 @@ class RulesCallback extends React.Component {
   handleRuleFileSelect = async (selectedItem) => {
     const selectedRuleFile = selectedItem.key
     await this.setState({selectedRuleFile, ruleItemActive: null})
-    this.updateRulesFileDisplay()
+    await this.updateRulesFileDisplay()
   }
 
-  updateRulesFileDisplay = () => {
-    this.getCallbackRulesFileContent(this.state.selectedRuleFile)
+  updateRulesFileDisplay = async () => {
+    await this.getCallbackRulesFileContent(this.state.selectedRuleFile)
   }
 
   getRulesFileContentItems = () => {
@@ -228,7 +228,7 @@ class RulesCallback extends React.Component {
     await this.getCallbackRulesFiles()
     await this.setState({selectedRuleFile: fileName, ruleItemActive: null})
     message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
-    this.updateRulesFileDisplay()
+    await this.updateRulesFileDisplay()
   }
 
   handleRuleFileDelete = async () => {
@@ -245,7 +245,7 @@ class RulesCallback extends React.Component {
     const { apiBaseUrl } = getConfig()
     await axios.put(apiBaseUrl + "/api/rules/files/callback", { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
     await this.getCallbackRulesFiles()
-    this.updateRulesFileDisplay()
+    await this.updateRulesFileDisplay()
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });
   }
 
