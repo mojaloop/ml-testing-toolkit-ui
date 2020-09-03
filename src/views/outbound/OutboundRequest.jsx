@@ -241,7 +241,9 @@ class OutboundRequest extends React.Component {
   autoSaveIntervalId = null
 
   componentWillUnmount = () => {
-    this.socket.disconnect()
+    if (this.socket) {
+      this.socket.disconnect()
+    }
     if(this.autoSaveIntervalId) {
       clearInterval(this.autoSaveIntervalId)
     }
