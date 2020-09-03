@@ -73,7 +73,7 @@ class RulesValidation extends React.Component {
 
     // Select the active rules file by default
     await this.setState({selectedRuleFile: activeRulesFile, ruleItemActive: null})
-    this.updateRulesFileDisplay()
+    await this.updateRulesFileDisplay()
 
   }
 
@@ -99,10 +99,10 @@ class RulesValidation extends React.Component {
   handleRuleFileSelect = async (selectedItem) => {
     const selectedRuleFile = selectedItem.key
     await this.setState({selectedRuleFile, ruleItemActive: null})
-    this.updateRulesFileDisplay()
+    await this.updateRulesFileDisplay()
   }
 
-  updateRulesFileDisplay = () => {
+  updateRulesFileDisplay = async () => {
     this.getValidationRulesFileContent(this.state.selectedRuleFile)
   }
 
@@ -229,7 +229,7 @@ class RulesValidation extends React.Component {
     await this.getValidationRulesFiles()
     await this.setState({selectedRuleFile: fileName, ruleItemActive: null})
     message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
-    this.updateRulesFileDisplay()
+    await this.updateRulesFileDisplay()
   }
 
   handleRuleFileDelete = async () => {
@@ -246,7 +246,7 @@ class RulesValidation extends React.Component {
     const { apiBaseUrl } = getConfig()
     await axios.put(apiBaseUrl + "/api/rules/files/validation", { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
     await this.getValidationRulesFiles()
-    this.updateRulesFileDisplay()
+    await this.updateRulesFileDisplay()
     message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });
   }
 
