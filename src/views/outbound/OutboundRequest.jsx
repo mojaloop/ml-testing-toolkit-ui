@@ -220,6 +220,19 @@ class OutboundRequest extends React.Component {
       sequenceDiagramVisible: false,
       folderData: [],
       fileBrowserVisible: false,
+      historyReportsVisible: false,
+      historyReportsColumns: [
+        { title: 'name', dataIndex: 'name', key: 'name', width: '50%'},
+        { title: 'timestamp', dataIndex: 'timestamp', key: 'timestamp', width: '20%'},
+        { title: 'run duration in ms', dataIndex: 'duration', key: 'duration', width: '20%'},
+        { dataIndex: '', key: 'download', width: '10%', render: (text, record) => (
+          <Dropdown overlay={this.downloadReportMenu(record)}>
+            <Button className="float-right" color="info" size="sm" onClick={e => e.preventDefault()}>
+              Download
+            </Button>
+          </Dropdown>
+        )}
+      ]
     };
   }
 
@@ -228,7 +241,9 @@ class OutboundRequest extends React.Component {
   autoSaveIntervalId = null
 
   componentWillUnmount = () => {
-    this.socket.disconnect()
+    if (this.socket) {
+      this.socket.disconnect()
+    }
     if(this.autoSaveIntervalId) {
       clearInterval(this.autoSaveIntervalId)
     }
@@ -266,6 +281,12 @@ class OutboundRequest extends React.Component {
     const { apiBaseUrl } = getConfig()
     this.socket = socketIOClient(apiBaseUrl);
     // this.socket.on("outboundProgress", this.handleIncomingProgress);
+    if (getConfig().isAuthEnabled) {
+      const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
+      if (dfspId) {
+        this.state.sessionId  =  dfspId
+      }
+    }
     this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
     
     const additionalData = this.restoreAdditionalData()
@@ -673,11 +694,12 @@ class OutboundRequest extends React.Component {
     fileRead.readAsText(file_to_read);
   }
 
-  handleDownloadReport = async (event) => {
+  handleDownloadReport = async (event, report) => {
+    const testReport = report || this.state.testReport
     switch(event.key) {
       case 'json':
-        const jsonReportFileName = this.state.testReport.name + (this.state.testReport.runtimeInformation ? '-' + this.state.testReport.runtimeInformation.completedTimeISO : '') + '.json'
-        FileDownload(JSON.stringify(this.state.testReport, null, 2), jsonReportFileName)
+        const jsonReportFileName = testReport.name + (testReport.runtimeInformation ? '-' + testReport.runtimeInformation.completedTimeISO : '') + '.json'
+        FileDownload(JSON.stringify(testReport, null, 2), jsonReportFileName)
         break
       case 'printhtml':
       case 'html':
@@ -685,7 +707,7 @@ class OutboundRequest extends React.Component {
         message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
         const { apiBaseUrl } = getConfig()
         const reportFormat = event.key
-        const response = await axios.post(apiBaseUrl + "/api/reports/testcase/" + reportFormat, this.state.testReport, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
+        const response = await axios.post(apiBaseUrl + "/api/reports/testcase/" + reportFormat, testReport, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
         let downloadFilename = "test." + reportFormat
         if (response.headers['content-disposition']) {
           const disposition = response.headers['content-disposition']
@@ -750,9 +772,10 @@ class OutboundRequest extends React.Component {
     return null
   }
 
-  downloadReportMenu = () => {
+  downloadReportMenu = (record) => {
+    const report = record ? this.state.historyReportsLocal.find(report => report._id === record.key) : undefined
     return (
-      <Menu onClick={this.handleDownloadReport}>
+      <Menu onClick={(event) => this.handleDownloadReport(event, report)}>
         <Menu.Item key='json'>JSON format</Menu.Item>
         <Menu.Item key='html'>HTML report</Menu.Item>
         <Menu.Item key='printhtml'>Printer Friendly HTML report</Menu.Item>
@@ -940,6 +963,26 @@ class OutboundRequest extends React.Component {
     this.state.additionalData.selectedFiles = selectedFiles
     this.autoSave = true
     this.forceUpdate()
+  }
+
+  historyReportsLocal = async () => {
+    const { apiBaseUrl } = getConfig()
+    const reports = await axios.get(apiBaseUrl + "/api/history/reports")
+    return reports.data
+  }
+
+  historyReportsDataSource = () => {
+    const dataSource = []
+    this.state.historyReportsLocal.forEach((report) => {
+      const historyReportsDataSource = {
+        key: report._id,
+        name: report.name,
+        timestamp: report.runtimeInformation.completedTimeISO,
+        duration: report.runtimeInformation.runDurationMs
+      }
+      dataSource.push(historyReportsDataSource)
+    })
+    return dataSource
   }
 
   render() {
@@ -1287,20 +1330,58 @@ class OutboundRequest extends React.Component {
                                 </Button>
                               </Popover>
                               {
-                                this.state.testReport
-                                ? (
-                                  <Dropdown overlay={this.downloadReportMenu()}>
-                                  <Button
-                                    className="float-right"
-                                    color="danger"
-                                    size="sm"
-                                    onClick={e => e.preventDefault()}
-                                  >
-                                    Download Report
+                                getConfig().isAuthEnabled ?
+                                <>
+                                  <Button color="info" size="sm" onClick={ async (e) => {
+                                    this.setState({historyReportsLocal: await this.historyReportsLocal()})
+                                    this.setState({historyReportsVisible: true})
+                                  }}>
+                                    Reports history
                                   </Button>
-                                </Dropdown>
-                                )
-                                : null
+                                  {
+                                    this.state.historyReportsVisible
+                                    ?
+                                    <Modal
+                                      title="History reports"
+                                      visible={this.state.historyReportsVisible}
+                                      width='70%'
+                                      onOk={() => {
+                                        this.setState({historyReportsVisible: false})
+                                      }}
+                                      onCancel={() => {
+                                        this.setState({historyReportsVisible: false})
+                                      }}
+                                    >
+                                      <Row>
+                                        <Col>
+                                          <Table
+                                            columns={this.state.historyReportsColumns}
+                                            dataSource={this.historyReportsDataSource()}
+                                          />
+                                        </Col>
+                                      </Row>
+                                    </Modal>
+                                    :
+                                    null
+                                  }
+                                  {
+                                    this.state.testReport
+                                    ?
+                                    <Dropdown overlay={this.downloadReportMenu()}>
+                                      <Button
+                                        className="float-right"
+                                        color="danger"
+                                        size="sm"
+                                        onClick={e => e.preventDefault()}
+                                      >
+                                        Download Report
+                                      </Button>
+                                    </Dropdown>
+                                    : null
+                                  }
+                                </>
+                                :
+                                null
                               }
                             </Col>
                           </Row>

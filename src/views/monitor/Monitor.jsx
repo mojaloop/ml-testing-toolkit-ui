@@ -35,6 +35,8 @@ import Header from "../../components/Headers/Header.jsx";
 
 import { Icon, Tag, Timeline, Card as CardAnt } from 'antd';
 
+import axios from 'axios';
+
 class DetailComponent extends GridDetailRow {
   render() {
       const log = this.props.dataItem;
@@ -271,7 +273,7 @@ class IncomingMonitor extends React.Component {
     this.socket.disconnect()
   }
 
-  componentDidMount() {
+  componentDidMount = async () => {
     const { apiBaseUrl } = getConfig()
     this.socket = socketIOClient(apiBaseUrl);
     let socketTopic = 'newLog'
@@ -280,57 +282,68 @@ class IncomingMonitor extends React.Component {
       if (dfspId) {
         socketTopic = 'newLog/' + dfspId
       }
+      if (this.state.logs.length === 0) {
+        const storedLogs = await axios.get(apiBaseUrl + '/api/history/logs')
+        storedLogs.data.forEach(newLog => {
+          this.appendLog(newLog)
+        })
+      }
     }
+
     this.socket.on(socketTopic, newLog => {
-      // console.log('New log received', newLog)
-      this.state.logs.push(newLog)
-      let primaryGroupId = 'misc'
-      if(newLog.traceID) {
-        primaryGroupId = newLog.traceID
-      } else {
-        primaryGroupId = newLog.uniqueId
-      }
-
-      // Group by unique ID
-      if(!this.state.incomingItemsObj.hasOwnProperty(primaryGroupId)) {
-        this.state.incomingItemsObj[primaryGroupId] = {
-          name: '',
-          erroneous: false,
-          logTime: null,
-          secondaryItemsArr: [],
-          secondaryItemsObj: {}
-        }
-        
-        this.state.incomingItemsArr.push(primaryGroupId)
-      }
-      let primaryName = ''
-
-      const secondaryGroupId = newLog.uniqueId
-      if(!this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj.hasOwnProperty(secondaryGroupId)) {  
-        this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId] = []
-        let name = newLog.message
-        if (newLog.resource) {
-          name = newLog.resource.method.toUpperCase() + ' ' + newLog.resource.path
-          primaryName = newLog.resource.method.toUpperCase() + ' > '
-        }
-        this.state.incomingItemsObj[primaryGroupId].logTime = newLog.logTime
-        this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.push({ id: secondaryGroupId, name, erroneous: false })
-      }
-
-      this.state.incomingItemsObj[primaryGroupId].name += primaryName + ' '
-      
-      // If the verbosity of the log is error, set the entire group as erroneous
-      if (newLog.verbosity === 'error') {
-        // Find the group in incomingItemsArr array
-        this.state.incomingItemsObj[primaryGroupId].erroneous = true
-        // Find the group in secondaryItemsArr array
-        const secondaryItemIndex = this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.findIndex(item => item? (item.id === secondaryGroupId) : false)
-        this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr[secondaryItemIndex].erroneous = true
-      }
-
-      this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId].push(newLog)
+      this.appendLog(newLog)
       this.forceUpdate()
     });
+    this.forceUpdate()
+  }
+
+  appendLog = (newLog) => {
+    this.state.logs.push(newLog)
+    let primaryGroupId = 'misc'
+    if(newLog.traceID) {
+      primaryGroupId = newLog.traceID
+    } else {
+      primaryGroupId = newLog.uniqueId
+    }
+
+    // Group by unique ID
+    if(!this.state.incomingItemsObj.hasOwnProperty(primaryGroupId)) {
+      this.state.incomingItemsObj[primaryGroupId] = {
+        name: '',
+        erroneous: false,
+        logTime: null,
+        secondaryItemsArr: [],
+        secondaryItemsObj: {}
+      }
+      
+      this.state.incomingItemsArr.push(primaryGroupId)
+    }
+    let primaryName = ''
+
+    const secondaryGroupId = newLog.uniqueId
+    if(!this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj.hasOwnProperty(secondaryGroupId)) {  
+      this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId] = []
+      let name = newLog.message
+      if (newLog.resource) {
+        name = newLog.resource.method.toUpperCase() + ' ' + newLog.resource.path
+        primaryName = newLog.resource.method.toUpperCase() + ' > '
+      }
+      this.state.incomingItemsObj[primaryGroupId].logTime = newLog.logTime
+      this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.push({ id: secondaryGroupId, name, erroneous: false })
+    }
+
+    this.state.incomingItemsObj[primaryGroupId].name += primaryName + ' '
+    
+    // If the verbosity of the log is error, set the entire group as erroneous
+    if (newLog.verbosity === 'error') {
+      // Find the group in incomingItemsArr array
+      this.state.incomingItemsObj[primaryGroupId].erroneous = true
+      // Find the group in secondaryItemsArr array
+      const secondaryItemIndex = this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.findIndex(item => item? (item.id === secondaryGroupId) : false)
+      this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr[secondaryItemIndex].erroneous = true
+    }
+
+    this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId].push(newLog)
   }
 
   getTimelineSets = () => {
