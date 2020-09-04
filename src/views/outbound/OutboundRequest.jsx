@@ -44,7 +44,7 @@ import TestCaseViewer from './TestCaseViewer'
 import SampleFilesViewer from './SampleFilesViewer'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
-import FolderBrowser from "./FolderBrowser.jsx";
+import FileManager from "./FileManager.jsx";
 
 const traceHeaderUtilsObj = new TraceHeaderUtils()
 
@@ -243,13 +243,6 @@ class OutboundRequest extends React.Component {
       }
     })
 
-    this.collectionFolderSelector = buildFileSelector(false, true);
-    this.collectionFolderSelector.addEventListener ('input', (e) => {
-      if (e.target.files) {
-        this.handleLocalFolderImportCollection(e.target.files)
-      }
-    })
-
     this.environmentFileSelector = buildFileSelector();
     this.environmentFileSelector.addEventListener ('input', (e) => {
       if (e.target.files) {
@@ -273,8 +266,8 @@ class OutboundRequest extends React.Component {
     const storedEnvironmentData = this.restoreSavedEnvironmentData()
 
     if (storedFolderData) {
-      this.regenerateTemplate(storedFolderData, additionalData.selectedFiles)
       this.state.folderData = storedFolderData
+      this.regenerateTemplate(additionalData.selectedFiles)
     }
     if (storedEnvironmentData) {
       this.state.template.inputValues = storedEnvironmentData
@@ -582,34 +575,108 @@ class OutboundRequest extends React.Component {
         break;
       }
     }
-    this.regenerateTemplate(importFolderData, selectedFiles)
+    this.state.folderData = importFolderData
+    this.regenerateTemplate(selectedFiles)
     this.autoSave = true
     message.success({ content: 'Collections Loaded', key: 'importFileProgress', duration: 2 });
   }
 
-  regenerateTemplate = async (folderData, selectedFiles = null) => {
-    let testCases = []
-    let startIndex = 0
-    for (var i = 0; i < folderData.length; i++) {
-      if (selectedFiles && !selectedFiles.includes(folderData[i].path)) {
-        continue
-      }
-      try {
-        const templateContent = folderData[i].content;
-        templateContent.test_cases = templateContent.test_cases.map((testCase, index) => {
-          const { id, ...remainingProps } = testCase
-          return {
-            id: startIndex + index + 1,
-            ...remainingProps
-          }
-        })
-        startIndex = startIndex + templateContent.test_cases.length
-        testCases = testCases.concat(templateContent.test_cases)
-      } catch(err) {
-        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
-        break;
+  getContentFromAbsolutePath = (path) => {
+    // Get the content of the corresponding node based on the absolute path from this.state.folderData
+    const pathArray = path.split('/')
+    let children = this.state.folderData
+    for (let i=0; i<pathArray.length - 1; i++) {
+      // Check if the key exists in the children
+      const findNode = children.find(item => (item.title === pathArray[i]))
+      if (findNode) {
+        children = findNode.children
+      } else {
+        return null
       }
     }
+    const findNode = children.find(item => (item.title === pathArray[pathArray.length - 1]))
+    if (findNode) {
+      return findNode.content
+    }
+    return null
+  }
+  getAbsolutePathOfRelativeFileRef = (refNode) => {
+    // Calculate the absolute path based on the relative path
+    const basePathArray = refNode.key.split('/')
+    const refPathArray = refNode.extraInfo.path.split('/')
+    let absolutePath = ''
+    if (refPathArray[0] == '.') {
+      absolutePath = basePathArray.slice(0, -1).join('/') + '/' + refPathArray.slice(1).join('/')
+    } else if (refPathArray[0] == '..') {
+      // Count the double dots
+      let doubleDotCount
+      for (doubleDotCount=0; doubleDotCount<refPathArray.length; doubleDotCount++) {
+        if (refPathArray[doubleDotCount] != '..') {
+          break
+        }
+      }
+      // Check if we can not get the base path based on the double dots in relative path
+      if ((basePathArray.length - 1) < doubleDotCount) {
+        return null
+      }
+      const newBasePath = basePathArray.slice(0, -1-doubleDotCount).join('/')
+      absolutePath = (newBasePath? (newBasePath + '/') : '') + refPathArray.slice(doubleDotCount).join('/')
+
+    } else {
+      absolutePath = basePathArray.slice(0, -1).join('/') + '/' + refPathArray.join('/')
+    }
+
+    return absolutePath
+  } 
+
+  addChildrenToTestCases = (nodeChildren, testCases, selectedFiles, startIndex) => {
+    var newTestCases = testCases
+    for (let i=0; i<nodeChildren.length; i++) {
+      if (nodeChildren[i].isLeaf) {
+        if (selectedFiles && !selectedFiles.includes(nodeChildren[i].key)) {
+          continue
+        }
+        let templateContent = {}
+        if (nodeChildren[i].extraInfo && nodeChildren[i].extraInfo.type === 'fileRef') {
+          // Get the content using relative path
+          const absolutePath = this.getAbsolutePathOfRelativeFileRef(nodeChildren[i])
+          if (absolutePath) {
+            const content = this.getContentFromAbsolutePath(absolutePath)
+            if (content) {
+              templateContent = this.getContentFromAbsolutePath(absolutePath)
+            }
+          }
+        } else {
+          templateContent = nodeChildren[i].content;
+        }
+        try {
+          templateContent.test_cases = templateContent.test_cases.map((testCase, index) => {
+            const { id, ...remainingProps } = testCase
+            return {
+              id: startIndex + index + 1,
+              ...remainingProps
+            }
+          })
+          startIndex = startIndex + templateContent.test_cases.length
+          newTestCases = newTestCases.concat(templateContent.test_cases)
+        } catch(err) {
+          message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+          break;
+        }
+      } else {
+        if (nodeChildren[i].children) {
+          // console.log('The node has children', nodeChildren[i].children, newTestCases)
+          newTestCases = this.addChildrenToTestCases(nodeChildren[i].children, newTestCases, selectedFiles, startIndex)
+        }
+      }
+    }
+    return newTestCases
+  }
+
+  regenerateTemplate = async (selectedFiles = null) => {
+    var testCases = []
+    testCases = this.addChildrenToTestCases(this.state.folderData, testCases, selectedFiles, 0)
+    // console.log(testCases)
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
     this.state.template.test_cases = testCases
     this.state.template.name = 'multi'
@@ -617,38 +684,8 @@ class OutboundRequest extends React.Component {
       importedFilename: 'Multiple Files',
       selectedFiles: selectedFiles
     }
-    this.state.folderData = folderData
     this.forceUpdate()
     // this.autoSave = true
-
-  }
-
-  handleLocalFolderImportCollection = async (fileList) => {
-    message.loading({ content: 'Reading the selected folder...', key: 'importFileProgress' });
-    var importFolderData = []
-    for (var i = 0; i < fileList.length; i++) {
-      const file_to_read = fileList.item(i)
-      if (file_to_read.name.endsWith('.json')) {
-        const fileRead = new FileReader();
-        try {
-          const content = await readFileAsync(file_to_read)
-          const fileContent = JSON.parse(content);
-          importFolderData.push({
-            name: file_to_read.name,
-            path: file_to_read.webkitRelativePath,
-            size: file_to_read.size,
-            modified: file_to_read.lastModified,
-            content: fileContent
-          })
-        } catch(err) {
-          message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
-          break;
-        }
-      }
-    }
-    this.regenerateTemplate(importFolderData)
-    this.autoSave = true
-    message.success({ content: 'Folder imported', key: 'importFileProgress', duration: 2 });
   }
 
   handleImportEnvironmentFile = (file_to_read) => {
@@ -935,9 +972,12 @@ class OutboundRequest extends React.Component {
     }
   }
 
-  handleSelectionChanged = async (selectedFiles) => {
-    this.regenerateTemplate(this.state.folderData, selectedFiles)
-    this.state.additionalData.selectedFiles = selectedFiles
+  handleFileManagerContentChange = async (folderData, selectedFiles=null) => {
+    this.state.folderData = folderData
+    if (selectedFiles != null) {
+      this.state.additionalData.selectedFiles = selectedFiles
+    }
+    this.regenerateTemplate(this.state.additionalData.selectedFiles)
     this.autoSave = true
     this.forceUpdate()
   }
@@ -1046,29 +1086,11 @@ class OutboundRequest extends React.Component {
           }}
           visible={this.state.fileBrowserVisible}
         >
-          <Row>
-            <Col>
-              <Button
-                color="success"
-                size="sm"
-                onClick={ e => {
-                  e.preventDefault();
-                  this.collectionFolderSelector.click();
-                }}
-              >
-                Import Folder
-              </Button>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <FolderBrowser
-                folderData={this.state.folderData}
-                selectedFiles={this.state.additionalData.selectedFiles}
-                onSelect = {this.handleSelectionChanged}
-              />
-            </Col>
-          </Row>
+          <FileManager 
+            folderData={this.state.folderData}
+            selectedFiles={this.state.additionalData.selectedFiles}
+            onChange={this.handleFileManagerContentChange}
+          />
         </Drawer>
 
         <Modal
