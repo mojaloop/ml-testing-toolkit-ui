@@ -235,14 +235,6 @@ class OutboundRequest extends React.Component {
   }
   
   componentDidMount = async () => {
-    this.collectionFileSelector = buildFileSelector(true);
-    this.collectionFileSelector.addEventListener ('input', (e) => {
-      if (e.target.files) {
-        this.handleImportCollectionFileMulti(e.target.files)
-        // this.collectionFileSelector.value = null
-      }
-    })
-
     this.environmentFileSelector = buildFileSelector();
     this.environmentFileSelector.addEventListener ('input', (e) => {
       if (e.target.files) {
@@ -526,59 +518,6 @@ class OutboundRequest extends React.Component {
       templateContent = { inputValues }
     }
     this.download(JSON.stringify(this.convertTemplate(templateContent), null, 2), fileName, 'text/plain');
-  }
-
-  handleImportCollectionFile = (file_to_read) => {
-    message.loading({ content: 'Reading the file...', key: 'importFileProgress' });
-    var fileRead = new FileReader();
-    fileRead.onload = (e) => {
-      var content = e.target.result;
-      try {
-        var templateContent = JSON.parse(content);
-        this.state.template.name = templateContent.name ? templateContent.name : file_to_read.name 
-        this.state.template.test_cases = templateContent.test_cases
-        this.state.additionalData = {
-          importedFilename: file_to_read.name
-        }
-        this.state.folderData = []
-        this.forceUpdate()
-        this.autoSave = true
-        message.success({ content: 'File Loaded', key: 'importFileProgress', duration: 2 });
-      } catch (err) {
-        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
-      }
-    };
-    fileRead.readAsText(file_to_read);
-  }
-
-  handleImportCollectionFileMulti = async (fileList) => {
-    message.loading({ content: 'Reading the selected files...', key: 'importFileProgress' });
-    let testCases = []
-    let startIndex = 0
-    var importFolderData = []
-    var selectedFiles = []
-    for (var i = 0; i < fileList.length; i++) {
-      const file_to_read = fileList.item(i)
-      try {
-        const content = await readFileAsync(file_to_read)
-        const templateContent = JSON.parse(content);
-        importFolderData.push({
-          name: file_to_read.name,
-          path: 'multi/' + file_to_read.name,
-          size: file_to_read.size,
-          modified: file_to_read.lastModified,
-          content: templateContent
-        })
-        selectedFiles.push('multi/' + file_to_read.name)
-      } catch(err) {
-        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
-        break;
-      }
-    }
-    this.state.folderData = importFolderData
-    this.regenerateTemplate(selectedFiles)
-    this.autoSave = true
-    message.success({ content: 'Collections Loaded', key: 'importFileProgress', duration: 2 });
   }
 
   getContentFromAbsolutePath = (path) => {
@@ -1167,7 +1106,7 @@ class OutboundRequest extends React.Component {
                                 this.setState({fileBrowserVisible: true})
                               }}
                             >
-                              File Manager
+                              Collections Manager
                             </Button>
                             <span>
                               {
@@ -1235,16 +1174,6 @@ class OutboundRequest extends React.Component {
                                   </Collapse.Panel>
                                 </Collapse>
                               </Modal>
-                              <Button
-                                color="success"
-                                size="sm"
-                                onClick={ e => {
-                                  e.preventDefault();
-                                  this.collectionFileSelector.click();
-                                }}
-                              >
-                                Import Collection
-                              </Button>
                               <Button
                                 color="info"
                                 size="sm"

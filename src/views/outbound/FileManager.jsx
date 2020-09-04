@@ -39,7 +39,14 @@ class FileManager extends React.Component {
     this.collectionFolderSelector = buildFileSelector(false, true);
     this.collectionFolderSelector.addEventListener ('input', (e) => {
       if (e.target.files) {
-        this.handleLocalFolderImportCollection(e.target.files)
+        this.handleLocalFileOrFolderImportCollection(e.target.files)
+      }
+    })
+
+    this.collectionFileSelector = buildFileSelector(true, false);
+    this.collectionFileSelector.addEventListener ('input', (e) => {
+      if (e.target.files) {
+        this.handleLocalFileOrFolderImportCollection(e.target.files)
       }
     })
   }
@@ -73,13 +80,15 @@ class FileManager extends React.Component {
     // Form the array from the object fileTree
     const processFileOrFolder = (inputItem, inputArray, prefix = '') => {
 
-      const actionFileOrFolder = (fileOrFolderItem, extraInfo = {}) => {
+      const actionFileOrFolder = (fileOrFolderItem, extraInfo = null) => {
         if (inputItem[fileOrFolderItem]) {
           if(inputItem[fileOrFolderItem].type === 'file') {
+            extraInfo = extraInfo ? extraInfo : { type: 'file' }
             inputArray.push({ key: (prefix ? (prefix + '/') : '') + fileOrFolderItem, title: fileOrFolderItem, isLeaf: true, extraInfo, content: inputItem[fileOrFolderItem].content })
           } else {
             var children = []
             processFileOrFolder(inputItem[fileOrFolderItem], children, (prefix ? (prefix + '/') : '') + fileOrFolderItem)
+            extraInfo = extraInfo ? extraInfo : { type: 'folder' }
             inputArray.push({ key: (prefix ? (prefix + '/') : '') + fileOrFolderItem, title: fileOrFolderItem, extraInfo, children: children })
           }
         }
@@ -111,8 +120,8 @@ class FileManager extends React.Component {
     return treeDataArray
   }
 
-  handleLocalFolderImportCollection = async (fileList) => {
-    message.loading({ content: 'Reading the selected folder...', key: 'importFileProgress' });
+  handleLocalFileOrFolderImportCollection = async (fileList) => {
+    message.loading({ content: 'Reading the selected files...', key: 'importFileProgress' });
     var importFolderRawData = []
     for (var i = 0; i < fileList.length; i++) {
       const file_to_read = fileList.item(i)
@@ -123,7 +132,7 @@ class FileManager extends React.Component {
           const fileContent = JSON.parse(content);
           importFolderRawData.push({
             name: file_to_read.name,
-            path: file_to_read.webkitRelativePath,
+            path: file_to_read.webkitRelativePath? file_to_read.webkitRelativePath : file_to_read.name,
             size: file_to_read.size,
             modified: file_to_read.lastModified,
             content: fileContent
@@ -134,10 +143,11 @@ class FileManager extends React.Component {
         }
       }
     }
+    importFolderRawData.sort((a, b) => a.path.localeCompare(b.path))
     const folderData = this.convertToFolderNestedArray(importFolderRawData)
     this.props.onChange(folderData, [])
     this.forceUpdate()
-    message.success({ content: 'Folder imported', key: 'importFileProgress', duration: 2 });
+    message.success({ content: 'Files imported', key: 'importFileProgress', duration: 2 });
   }
 
   handleSelectionChanged = async (selectedFiles) => {
@@ -209,18 +219,18 @@ class FileManager extends React.Component {
         <Row>
           <Col>
             <Button
-              type="primary"
+              type="default"
               size="default"
               onClick={ e => {
                 e.preventDefault();
-                this.collectionFolderSelector.click();
+                this.collectionFileSelector.click();
               }}
             >
-              Import Folder
+              Import File
             </Button>
             <Button
               type="primary"
-              className="float-right"
+              className="float-right ml-2"
               size="default"
               onClick={ e => {
                 e.preventDefault();
@@ -229,6 +239,18 @@ class FileManager extends React.Component {
             >
               Export as Zip file
             </Button>
+            <Button
+              type="primary"
+              className="float-right"
+              size="default"
+              onClick={ e => {
+                e.preventDefault();
+                this.collectionFolderSelector.click();
+              }}
+            >
+              Import Folder
+            </Button>
+
           </Col>
         </Row>
         <Row>
