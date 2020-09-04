@@ -1159,6 +1159,16 @@ class OutboundRequest extends React.Component {
                       <Card className="bg-white shadow mb-4">
                         <CardBody>
                           <Row className="mb-2">
+                            <Button
+                              className="text-right float-left mb-2"
+                              color="success"
+                              size="sm"
+                              onClick={ () => {
+                                this.setState({fileBrowserVisible: true})
+                              }}
+                            >
+                              File Manager
+                            </Button>
                             <span>
                               {
                                 this.state.template.name
@@ -1350,16 +1360,6 @@ class OutboundRequest extends React.Component {
                               Add Test Case
                           </Button>
                         </Popover>
-                        <Button
-                            className="text-right float-left mb-2"
-                            color="primary"
-                            size="sm"
-                            onClick={ () => {
-                              this.setState({fileBrowserVisible: true})
-                            }}
-                          >
-                            Folder Management
-                        </Button>
                       </Row>
                       <Row>
                         { this.getTestCaseItems() }
