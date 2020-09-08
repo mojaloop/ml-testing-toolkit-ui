@@ -1,9 +1,9 @@
 import React, {useEffect} from "react";
 import _ from 'lodash';
-import { FileTwoTone, TagTwoTone, FolderTwoTone, FolderOpenTwoTone } from '@ant-design/icons';
-import { Button, Tree } from 'antd';
-
+import { FileTwoTone, TagTwoTone, FolderTwoTone, FolderOpenTwoTone, DownOutlined } from '@ant-design/icons';
+import { Button, Tree, Popconfirm, Input, Menu, Modal, Row, Col } from 'antd';
 import 'antd/dist/antd.css';
+
 
 class FolderBrowser extends React.Component {
   constructor () {
@@ -15,7 +15,23 @@ class FolderBrowser extends React.Component {
       selectedKeys: [],
       autoExpandParent: true,
       rootNodeKey: '',
-      treeDataArray: []
+      treeDataArray: [],
+      rightClickNodeTreeItem: {},
+      contextMenuVisible: false,
+      inputDialogEnabled: false,
+      inputDialogValue: '',
+      inputDialogData: {
+        title: '',
+        key: '',
+        extraData: {}
+      },
+      confirmDialogEnabled: false,
+      confirmDialogData: {
+        title: '',
+        description: '',
+        key: '',
+        extraData: {}
+      }
     }
   }
 
@@ -28,9 +44,10 @@ class FolderBrowser extends React.Component {
 
   componentWillUpdate = () => {
     this.state.checkedKeys = this.props.selectedFiles
-    if (this.state.treeDataArray !== this.props.folderData) {
+
+    if (this.state.treeDataArray != this.props.folderData) {
       this.convertFolderData(this.props.folderData)
-      this.state.treeDataArray = this.props.folderData
+      this.setState({treeDataArray: this.props.folderData})
     }
   }
 
@@ -120,11 +137,152 @@ class FolderBrowser extends React.Component {
     }
   }
 
+  handleTreeNodeRightClick = e => {
+    this.setState({
+      contextMenuVisible: true,
+      rightClickNodeTreeItem: {
+        pageX: e.event.pageX,
+        pageY: e.event.pageY,
+        nodeRef: e.node,
+        categoryName: e.node.title,
+      },
+    });
+  };
+
+  hideContextMenu = () => {
+    this.setState({
+      contextMenuVisible: false
+    })
+  }
+
+  inputDialogRef = null
+
+  handleContextMenuClick = async (e) => {
+    // this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+    // console.log(this.state.rightClickNodeTreeItem.nodeRef.isLeaf())
+    const nodePos = this.state.rightClickNodeTreeItem.nodeRef.props.pos.split('-');
+    const levelInfo = this.getLevelInfo(nodePos)
+    switch(e.key) {
+      case "newFile":
+      case "newFolder":
+        {
+          let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+          if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf()) {
+            levelPrefix = levelInfo.levelPrefix
+          }
+          await this.setState({inputDialogEnabled: true, inputDialogData: { title: 'Enter a file / folder name to create', key:e.key, extraData: { levelPrefix }}})
+          this.inputDialogRef.focus()
+          break
+        }
+      case "rename":
+        {
+          const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+          await this.setState({inputDialogEnabled: true, inputDialogData: { title: 'Enter new file / folder name', key:e.key, extraData: { fileKey, levelPrefix: levelInfo.levelPrefix }}})
+          this.inputDialogRef.focus()
+          break
+        }
+      case "delete":
+        {
+          const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+          this.setState({confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to delte this file?', key: 'deleteFile', extraData: { fileKey }}})
+          break
+        }
+      case "duplicate":
+        {
+          const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+          this.props.onDuplicateFileOrFolder(fileKey, levelInfo.levelPrefix)
+          this.hideContextMenu()
+          break
+        }
+    }
+  }
+
+  handleInputDialogOk = async (e) => {
+    const inputValue = this.state.inputDialogValue
+    // The following line should be await for updating the tree with new changes
+    await this.setState({inputDialogEnabled: false, inputDialogValue: ''})
+    switch(this.state.inputDialogData.key) {
+      case 'newFile':
+        this.props.onAddFileOrFolder(this.state.inputDialogData.extraData.levelPrefix, inputValue, false)
+        break
+      case 'newFolder':
+        this.props.onAddFileOrFolder(this.state.inputDialogData.extraData.levelPrefix, inputValue, true)
+        break
+      case 'rename':
+        this.props.onRenameFileOrFolder(this.state.inputDialogData.extraData.fileKey, inputValue, this.state.inputDialogData.extraData.levelPrefix)
+        break
+    }
+  }
+
+  handleInputDialogCancel = () => {
+    this.setState({inputDialogEnabled: false})
+  }
+
+  handleConfirmDialogOk = async (e) => {
+    // The following line should be await for updating the tree with new changes
+    await this.setState({confirmDialogEnabled: false})
+    switch(this.state.confirmDialogData.key) {
+      case 'deleteFile':
+        this.props.onDeleteFileOrFolder(this.state.confirmDialogData.extraData.fileKey)
+        break
+    }
+  }
+
+  handleConfirmDialogCancel = () => {
+    this.setState({confirmDialogEnabled: false})
+  }
+
+  getNodeTreeRightClickMenu = () => {
+    const { pageX, pageY, id } = { ...this.state.rightClickNodeTreeItem };
+    const tmpStyle = {
+      position: 'absolute',
+      left: `${pageX}px`,
+      top: `${pageY - 130}px`,
+      display: this.state.contextMenuVisible? 'block' : 'none',
+      background:'white',
+      width:'150px',
+      border:'1px solid #D7D7D7'
+    };
+    const menu = (
+      <div style={tmpStyle} onMouseLeave={this.hideContextMenu}>
+        <Menu onClick={this.handleContextMenuClick}>
+          <Menu.Item key='newFile'>New File</Menu.Item>
+          <Menu.Item key='newFolder'>New Folder</Menu.Item>
+          <Menu.Item key='rename'>Rename</Menu.Item>
+          <Menu.Item key='delete'>Delete</Menu.Item>
+          <Menu.Item key='duplicate'>Duplicate</Menu.Item>
+        </Menu>
+      </div>
+    );
+    return this.state.rightClickNodeTreeItem.pageX=="" ? '' : menu;
+  };
 
   render() {
     
     return (
       <>
+      <Modal
+        title={this.state.inputDialogData.title}
+        visible={this.state.inputDialogEnabled}
+        onOk={this.handleInputDialogOk}
+        onCancel={this.handleInputDialogCancel}
+      >
+        <Input
+          value={this.state.inputDialogValue}
+          onChange={(e) => this.setState({inputDialogValue: e.target.value})}
+          ref={input => {
+            this.inputDialogRef = input
+          }}
+        />
+      </Modal>
+      <Modal
+        title={this.state.confirmDialogData.title}
+        visible={this.state.confirmDialogEnabled}
+        onOk={this.handleConfirmDialogOk}
+        onCancel={this.handleConfirmDialogCancel}
+      >
+        {this.state.confirmDialogData.description}
+      </Modal>
       <Tree
         showIcon
         checkable
@@ -139,7 +297,9 @@ class FolderBrowser extends React.Component {
         draggable
         onDragEnter={this.onDragEnter}
         onDrop={this.onDrop}
+        onRightClick={this.handleTreeNodeRightClick}
       />
+      {this.getNodeTreeRightClickMenu()}
       </>
     )
   }

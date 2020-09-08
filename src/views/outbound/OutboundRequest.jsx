@@ -219,7 +219,7 @@ class OutboundRequest extends React.Component {
       loadSampleCollectionTypes: ['hub','dfsp','provisioning'],
       sequenceDiagramVisible: false,
       folderData: [],
-      fileBrowserVisible: false,
+      fileBrowserVisible: true,
       historyReportsVisible: false,
       historyReportsColumns: [
         { title: 'name', dataIndex: 'name', key: 'name', width: '50%'},
