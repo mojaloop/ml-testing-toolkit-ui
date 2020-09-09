@@ -44,8 +44,7 @@ class FolderBrowser extends React.Component {
 
   componentWillUpdate = () => {
     this.state.checkedKeys = this.props.selectedFiles
-
-    if (this.state.treeDataArray != this.props.folderData) {
+if (this.state.treeDataArray != this.props.folderData) {
       this.convertFolderData(this.props.folderData)
       this.setState({treeDataArray: this.props.folderData})
     }
@@ -83,6 +82,8 @@ class FolderBrowser extends React.Component {
 
   onSelect = (selectedKeys, info) => {
     this.setState({selectedKeys})
+    // console.log('ON SELECT', info);
+
   };
 
   getLevelInfo = (posArray) => {
@@ -108,7 +109,9 @@ class FolderBrowser extends React.Component {
       const dropPos = info.node.props.pos.split('-');
       const dragPos = info.dragNode.props.pos.split('-');
       // Check the drag node and drop node are in same level
-      if (dragPos.length === dropPos.length ) {
+      const parentDropPosition = dropPos.slice(0, -1).join('-')
+      const parentDragPosition = dragPos.slice(0, -1).join('-')
+      if (parentDropPosition === parentDragPosition ) {
         const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
         const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1]))/2);
         // console.log(dropKey, dragKey, dropPos, dropPosition, dropIndex)
@@ -133,6 +136,13 @@ class FolderBrowser extends React.Component {
         const newTreeDataArray = [...this.state.treeDataArray]
         this.setState({ treeDataArray: newTreeDataArray})
         this.props.onOrderChange()
+      } else {
+        const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1]))/2);
+        const levelInfo = this.getLevelInfo(dropPos)
+        // Some tweak to set the dropPos correctly
+        const newDropPos = [...dropPos]
+        newDropPos[newDropPos.length - 1] = dropIndex + ''
+        this.setState({confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to move this file?', key: 'moveFile', extraData: { levelPrefix: levelInfo.levelPrefix, dragPos: dragPos.slice(1), dropPos: newDropPos.slice(1) }}})
       }
     }
   }
@@ -224,6 +234,9 @@ class FolderBrowser extends React.Component {
     switch(this.state.confirmDialogData.key) {
       case 'deleteFile':
         this.props.onDeleteFileOrFolder(this.state.confirmDialogData.extraData.fileKey)
+        break
+      case 'moveFile':
+        this.props.onMoveFileOrFolder(this.state.confirmDialogData.extraData.dragPos, this.state.confirmDialogData.extraData.dropPos, this.state.confirmDialogData.extraData.levelPrefix)
         break
     }
   }

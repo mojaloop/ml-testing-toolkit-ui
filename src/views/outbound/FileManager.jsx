@@ -129,6 +129,16 @@ class FileManager extends React.Component {
     }
   }
 
+  getNodeAtPosition = (parentNode, posArray) => {
+    // console.log(posArray, parentNode)
+    const foundNode = parentNode[posArray[0]]
+    if (posArray.length === 1) {
+      return foundNode
+    } else {
+      return this.getNodeAtPosition(foundNode.children, posArray.slice(1))
+    }
+  }
+
   getDuplicateName = (parentNode, index) => {
     const sourceTitle = parentNode[index].title
     const newBaseTitle = parentNode[index].title + '_copy'
@@ -154,6 +164,15 @@ class FileManager extends React.Component {
     }
   }
 
+  resetKeysRecursively = (node, prefix) => {
+    node.key = prefix + '/' + node.title
+    if (!node.isLeaf) {
+      for (let i=0; i<node.children.length; i++) {
+        this.resetKeysRecursively(node.children[i], node.key)
+      }
+    }
+  }
+
   deleteNodeAtLocation = (parentNode, locationArray) => {
     const foundNodeIndex = parentNode.findIndex(item => item.title === locationArray[0])
     if (locationArray.length === 1) {
@@ -161,6 +180,24 @@ class FileManager extends React.Component {
       parentNode.splice(foundNodeIndex,1)
     } else {
       this.deleteNodeAtLocation(parentNode[foundNodeIndex].children, locationArray.slice(1))
+    }
+  }
+
+  deleteNodeAtPosition = (parentNode, posArray) => {
+    if (posArray.length === 1) {
+      // Delete the file or folder
+      parentNode.splice(posArray[0],1)
+    } else {
+      this.deleteNodeAtPosition(parentNode[posArray[0]].children, posArray.slice(1))
+    }
+  }
+
+  addNodeAtPosition = (parentNode, posArray, nodeItem) => {
+    if (posArray.length === 1) {
+      // Delete the file or folder
+      parentNode.splice(posArray[0], 0, nodeItem)
+    } else {
+      this.addNodeAtPosition(parentNode[posArray[0]].children, posArray.slice(1), nodeItem)
     }
   }
 
@@ -271,6 +308,21 @@ class FileManager extends React.Component {
     // this.forceUpdate()
   }
 
+  handleMoveFileOrFolder = async (dragPos, dropPos, levelPrefix) => {
+    // Find the node item from the drag position
+    const nodeItem = this.getNodeAtPosition(this.props.folderData, dragPos)
+    // Deep copy the node data into a variable
+    const nodeItemCopy = JSON.parse(JSON.stringify(nodeItem))
+    // Reset the keys for the moved node
+    this.resetKeysRecursively(nodeItemCopy, levelPrefix)
+    // Delete the node
+    this.deleteNodeAtPosition(this.props.folderData, dragPos)
+    // Add the node at the drop position
+    this.addNodeAtPosition(this.props.folderData, dropPos, nodeItemCopy)
+    const newFolderData = [...this.props.folderData]
+    this.props.onChange(newFolderData, [])
+  }
+
   download = (content, fileName, contentType) => {
     var a = document.createElement("a");
     var file = new Blob([content], {type: contentType});
@@ -377,6 +429,7 @@ class FileManager extends React.Component {
               onDeleteFileOrFolder={this.handleDeleteFileOrFolder}
               onDuplicateFileOrFolder={this.handleDuplicateFileOrFolder}
               onRenameFileOrFolder={this.handleRenameFileOrFolder}
+              onMoveFileOrFolder={this.handleMoveFileOrFolder}
             />
           </Col>
         </Row>
