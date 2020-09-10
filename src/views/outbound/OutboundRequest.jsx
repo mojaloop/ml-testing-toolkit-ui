@@ -223,9 +223,11 @@ class OutboundRequest extends React.Component {
       fileBrowserVisible: false,
       historyReportsVisible: false,
       historyReportsColumns: [
-        { title: 'name', dataIndex: 'name', key: 'name', width: '50%'},
-        { title: 'timestamp', dataIndex: 'timestamp', key: 'timestamp', width: '20%'},
-        { title: 'run duration in ms', dataIndex: 'duration', key: 'duration', width: '20%'},
+        { title: 'Name', dataIndex: 'name', key: 'name', width: '50%'},
+        { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp', width: '20%'},
+        { title: 'Run duration in ms', dataIndex: 'duration', key: 'duration', width: '10%'},
+        { title: 'Passed / Total', dataIndex: 'successRate', key: 'successRate', width: '10%'},
+        { title: 'Status', dataIndex: 'status', key: 'status', width: '10%'},
         { dataIndex: '', key: 'download', width: '10%', render: (text, record) => (
           <Dropdown overlay={this.downloadReportMenu(record)}>
             <Button className="float-right" color="info" size="sm" onClick={e => e.preventDefault()}>
@@ -963,7 +965,9 @@ class OutboundRequest extends React.Component {
         key: report._id,
         name: report.name,
         timestamp: report.runtimeInformation.completedTimeISO,
-        duration: report.runtimeInformation.runDurationMs
+        duration: report.runtimeInformation.runDurationMs,
+        successRate: `${report.runtimeInformation.totalPassedAssertions}/${report.runtimeInformation.totalAssertions}`,
+        status: report.runtimeInformation.totalPassedAssertions === report.runtimeInformation.totalAssertions ? 'PASSED' : 'FAILED'
       }
       dataSource.push(historyReportsDataSource)
     })
@@ -1300,17 +1304,17 @@ class OutboundRequest extends React.Component {
                               {
                                 getConfig().isAuthEnabled ?
                                 <>
-                                  <Button color="info" size="sm" onClick={ async (e) => {
+                                  <Button className="float-right" color="success" size="sm" onClick={ async (e) => {
                                     this.setState({historyReportsLocal: await this.historyReportsLocal()})
                                     this.setState({historyReportsVisible: true})
                                   }}>
-                                    Reports history
+                                    Reports History
                                   </Button>
                                   {
                                     this.state.historyReportsVisible
                                     ?
                                     <Modal
-                                      title="History reports"
+                                      title="Reports History"
                                       visible={this.state.historyReportsVisible}
                                       width='70%'
                                       onOk={() => {
@@ -1332,24 +1336,24 @@ class OutboundRequest extends React.Component {
                                     :
                                     null
                                   }
-                                  {
-                                    this.state.testReport
-                                    ?
-                                    <Dropdown overlay={this.downloadReportMenu()}>
-                                      <Button
-                                        className="float-right"
-                                        color="danger"
-                                        size="sm"
-                                        onClick={e => e.preventDefault()}
-                                      >
-                                        Download Report
-                                      </Button>
-                                    </Dropdown>
-                                    : null
-                                  }
                                 </>
                                 :
                                 null
+                              }
+                              {
+                                this.state.testReport
+                                ?
+                                <Dropdown overlay={this.downloadReportMenu()}>
+                                  <Button
+                                    className="float-right"
+                                    color="danger"
+                                    size="sm"
+                                    onClick={e => e.preventDefault()}
+                                  >
+                                    Download Report
+                                  </Button>
+                                </Dropdown>
+                                : null
                               }
                             </Col>
                           </Row>
