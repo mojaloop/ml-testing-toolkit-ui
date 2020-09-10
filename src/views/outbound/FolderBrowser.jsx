@@ -187,7 +187,8 @@ if (this.state.treeDataArray != this.props.folderData) {
       case "rename":
         {
           const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          await this.setState({inputDialogEnabled: true, inputDialogData: { title: 'Enter new file / folder name', key:e.key, extraData: { fileKey, levelPrefix: levelInfo.levelPrefix }}})
+          const fileKeyArr = fileKey.split('/')
+          await this.setState({inputDialogEnabled: true, inputDialogValue: fileKeyArr[fileKeyArr.length - 1], inputDialogData: { title: 'Enter new file / folder name', key:e.key, extraData: { fileKey, levelPrefix: levelInfo.levelPrefix }}})
           this.inputDialogRef.focus()
           break
         }
