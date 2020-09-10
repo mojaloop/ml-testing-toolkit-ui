@@ -180,6 +180,10 @@ class ResourceSelector extends React.Component {
                 }
               }
               break
+            default:
+              if(this.props.mode === 'response') {
+                this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
+              }
           }
         }
       }
