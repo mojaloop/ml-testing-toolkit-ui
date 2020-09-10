@@ -190,6 +190,7 @@ class OutboundRequest extends React.Component {
 
   constructor() {
     super();
+    this.fileManagerRef = React.createRef();
     const sessionId = traceHeaderUtilsObj.generateSessionId()
     this.state = {
       request: {},
@@ -771,18 +772,23 @@ class OutboundRequest extends React.Component {
         this.state.loadSampleChecked.environment = null
       }
       const { apiBaseUrl } = getConfig()
-      const resp = await axios.get(apiBaseUrl + '/api/samples/load', {
+      const resp = await axios.get(apiBaseUrl + '/api/samples/loadFolderWise', {
         params: this.state.loadSampleChecked
       })
       if (resp.data.body.name) {
         this.state.template.name = resp.data.body.name
       }
-      if (resp.data.body.inputValues) { 
-        this.state.template.inputValues = resp.data.body.inputValues
+      if (resp.data.body.environment) { 
+        this.state.template.inputValues = resp.data.body.environment
       }
       if (resp.data.body.test_cases) {
         this.state.template.test_cases = resp.data.body.test_cases
       }
+      if (resp.data.body.collections && resp.data.body.collections.length > 0) {
+        await this.setState({fileBrowserVisible: true})
+        this.fileManagerRef.current.updateFoldersAndFiles(resp.data.body.collections)
+      }
+      
       this.forceUpdate()
       this.autoSave = true
     } catch (err) {
@@ -1076,6 +1082,7 @@ class OutboundRequest extends React.Component {
             folderData={this.state.folderData}
             selectedFiles={this.state.additionalData.selectedFiles}
             onChange={this.handleFileManagerContentChange}
+            ref={this.fileManagerRef}
           />
         </Drawer>
 
