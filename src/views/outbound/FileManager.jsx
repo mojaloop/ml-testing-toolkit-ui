@@ -232,6 +232,13 @@ class FileManager extends React.Component {
     }
   }
 
+  updateFoldersAndFiles = (importFolderRawData) => {
+    importFolderRawData.sort((a, b) => a.path.localeCompare(b.path))
+    const folderData = this.convertToFolderNestedArray(importFolderRawData)
+    this.props.onChange(folderData, [])
+    this.forceUpdate()
+  }
+
   handleLocalFileOrFolderImportCollection = async (fileList) => {
     message.loading({ content: 'Reading the selected files...', key: 'importFileProgress' });
     var importFolderRawData = []
@@ -255,10 +262,7 @@ class FileManager extends React.Component {
         }
       }
     }
-    importFolderRawData.sort((a, b) => a.path.localeCompare(b.path))
-    const folderData = this.convertToFolderNestedArray(importFolderRawData)
-    this.props.onChange(folderData, [])
-    this.forceUpdate()
+    this.updateFoldersAndFiles(importFolderRawData)
     message.success({ content: 'Files imported', key: 'importFileProgress', duration: 2 });
   }
 
