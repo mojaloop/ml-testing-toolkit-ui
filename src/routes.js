@@ -23,6 +23,7 @@ import RulesForward from "./views/rules/RulesForward.jsx";
 import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
 import Monitor from "./views/monitor/Monitor.jsx";
 import Settings from "./views/settings/Settings.jsx";
+import APIDocs from "./views/APIDocs.jsx";
 
 var routes = [
   {
@@ -83,6 +84,13 @@ var routes = [
     name: "Settings",
     icon: "ni ni-settings text-blue",
     component: Settings,
+    layout: "/admin"
+  },
+  {
+    path: "/apidocs",
+    name: "API Documentation",
+    icon: "ni ni-books text-blue",
+    component: APIDocs,
     layout: "/admin"
   },
   // {
