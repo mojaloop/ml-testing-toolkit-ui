@@ -83,7 +83,8 @@
     "reactstrap": "7.1.0",
     "socket.io-client": "^2.3.0",
     "redoc": "2.0.0-rc.40",
-    "styled-components": "5.2.0"
+    "styled-components": "5.2.0",
+    "ml-testing-toolkit-shared-lib": "11.0.0"
   },
   "devDependencies": {
     "@types/googlemaps": "3.30.18",

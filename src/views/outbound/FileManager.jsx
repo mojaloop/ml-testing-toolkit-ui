@@ -2,6 +2,7 @@ import React from "react";
 import _ from 'lodash';
 import { Button, Row, Col, message } from 'antd';
 import FolderBrowser from "./FolderBrowser.jsx";
+import { FolderParser } from 'ml-testing-toolkit-shared-lib'
 import { DownloadOutlined } from '@ant-design/icons';
 
 import JSZip from "jszip"
@@ -49,75 +50,6 @@ class FileManager extends React.Component {
         this.handleLocalFileOrFolderImportCollection(e.target.files)
       }
     })
-  }
-
-
-  convertToFolderNestedArray = (folderRawData) => {
-    // Form the object tree based from the array of paths
-    var fileTree = {};
-    const mergePathsIntoFileTree = (fileItem) => {
-      return (prevDir, currDir, i, filePath) => {
-        if (i === filePath.length - 1) {
-          prevDir[currDir] = { type: 'file', content: fileItem.content };
-        }
-        if (!prevDir.hasOwnProperty(currDir)) {
-          prevDir[currDir] = {};
-        }
-        return prevDir[currDir];
-      }
-    }
-    function parseFileItem(fileItem) {
-      var fileLocation = fileItem.path.split('/');
-      // If file is in root directory, eg 'index.js'
-      if (fileLocation.length === 1) {
-        return (fileTree[fileLocation[0]] = { type: 'file', content: fileItem.content });
-      }
-      fileLocation.reduce(mergePathsIntoFileTree(fileItem), fileTree);
-    }
-    folderRawData.forEach(parseFileItem);
-
-
-    // Form the array from the object fileTree
-    const processFileOrFolder = (inputItem, inputArray, prefix = '') => {
-
-      const actionFileOrFolder = (fileOrFolderItem, extraInfo = null) => {
-        if (inputItem[fileOrFolderItem]) {
-          if(inputItem[fileOrFolderItem].type === 'file') {
-            extraInfo = extraInfo ? extraInfo : { type: 'file' }
-            inputArray.push({ key: (prefix ? (prefix + '/') : '') + fileOrFolderItem, title: fileOrFolderItem, isLeaf: true, extraInfo, content: inputItem[fileOrFolderItem].content })
-          } else {
-            var children = []
-            processFileOrFolder(inputItem[fileOrFolderItem], children, (prefix ? (prefix + '/') : '') + fileOrFolderItem)
-            extraInfo = extraInfo ? extraInfo : { type: 'folder' }
-            inputArray.push({ key: (prefix ? (prefix + '/') : '') + fileOrFolderItem, title: fileOrFolderItem, extraInfo, children: children })
-          }
-        }
-      }
-      const actionFileRef = (name, refPath) => {
-        const extraInfo = {
-          type: 'fileRef',
-          path: refPath
-        }
-        inputArray.push({ key: (prefix ? (prefix + '/') : '') + name, title: name, extraInfo, isLeaf: true})
-      }
-      // If master.json file exists in inputItem
-      if (inputItem.hasOwnProperty(MASTERFILE_NAME)) {
-        inputItem[MASTERFILE_NAME].content.order.forEach(orderItem => {
-          if(orderItem.type === 'file' || orderItem.type === 'folder') {
-            actionFileOrFolder(orderItem.name, { type: orderItem.type })
-          } else if(orderItem.type === 'fileRef') {
-            actionFileRef(orderItem.name, orderItem.path)
-          }
-        })
-      } else {
-        for (const fileOrFolderItem in inputItem) {
-          actionFileOrFolder(fileOrFolderItem)
-        }
-      }
-    }
-    const treeDataArray = []
-    processFileOrFolder(fileTree, treeDataArray)
-    return treeDataArray
   }
 
   getNodeFromLocation = (parentNode, locationArray) => {
@@ -234,7 +166,7 @@ class FileManager extends React.Component {
 
   updateFoldersAndFiles = (importFolderRawData) => {
     importFolderRawData.sort((a, b) => a.path.localeCompare(b.path))
-    const folderData = this.convertToFolderNestedArray(importFolderRawData)
+    const folderData = FolderParser.getFolderData(importFolderRawData)
     this.props.onChange(folderData, [])
     this.forceUpdate()
   }
