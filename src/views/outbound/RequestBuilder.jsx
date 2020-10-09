@@ -1127,7 +1127,7 @@ class HeaderBodyBuilder extends React.Component {
                           <Col className="text-left mt-4">
                             <Editor
                               ref="headersEditor"
-                              value={ this.props.request.headers }
+                              value={ this.props.request.headers || {}}
                               ace={ace}
                               ajv={ajv}
                               theme="ace/theme/tomorrow_night_blue"
