@@ -261,7 +261,7 @@ class ConfigurableParameter extends React.Component {
 
   handleFactSelect = (value, factObject) => {
     this.inputValue = value
-    this.handleParamSelect('{$prev.'+this.state.selectedValueComponent+'.'+(this.state.paramType===1?'request':'response')+'.'+value+'}')
+    this.handleParamSelect('{$prev.'+this.state.selectedValueComponent+'.'+(this.state.paramType===1?'request':'callback')+'.'+value+'}')
     // this.updateChanges()
   }
 
@@ -565,9 +565,13 @@ class OptionsBuilder extends React.Component {
             <Row className="mt-2">
               <Col span={24}>
                 <Checkbox
-                  checked={this.state.delayCheckboxSelected}
+                  checked={this.state.delayCheckboxSelected || this.props.request.delay}
                   onChange={(e) => {
-                    this.props.request.delay = null
+                    if (!e.target.checked) {
+                      delete this.props.request.delay
+                    } else {
+                      this.props.request.delay = "0"
+                    }
                     this.props.onChange()
                     this.setState({delayCheckboxSelected: e.target.checked})
                   }}
@@ -580,7 +584,7 @@ class OptionsBuilder extends React.Component {
                 </label>
               </Col>
               {
-                  this.state.delayCheckboxSelected
+                  this.state.delayCheckboxSelected || this.props.request.delay
                   ? (
                     <Row className="mt-2">
                       <Col span={8}>
@@ -720,7 +724,7 @@ class QueryParamsBuilder extends React.Component {
                           <Col className="text-left mt-4">
                             <Editor
                               ref="queryParamsEditor"
-                              value={ this.props.request.queryParams }
+                              value={ this.props.request.queryParams || {} }
                               ace={ace}
                               ajv={ajv}
                               theme="ace/theme/tomorrow_night_blue"
@@ -1123,7 +1127,7 @@ class HeaderBodyBuilder extends React.Component {
                           <Col className="text-left mt-4">
                             <Editor
                               ref="headersEditor"
-                              value={ this.props.request.headers }
+                              value={ this.props.request.headers || {}}
                               ace={ace}
                               ajv={ajv}
                               theme="ace/theme/tomorrow_night_blue"

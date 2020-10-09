@@ -688,7 +688,7 @@ class OutboundRequest extends React.Component {
       if (resp.data.body.name) {
         this.state.template.name = resp.data.body.name
       }
-      if (resp.data.body.environment) { 
+      if (Object.keys(resp.data.body.environment || {}).length !== 0) { 
         this.state.template.inputValues = resp.data.body.environment
       }
       if (resp.data.body.test_cases) {
