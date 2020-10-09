@@ -565,9 +565,13 @@ class OptionsBuilder extends React.Component {
             <Row className="mt-2">
               <Col span={24}>
                 <Checkbox
-                  checked={this.state.delayCheckboxSelected}
+                  checked={this.state.delayCheckboxSelected || this.props.request.delay}
                   onChange={(e) => {
-                    this.props.request.delay = null
+                    if (!e.target.checked) {
+                      delete this.props.request.delay
+                    } else {
+                      this.props.request.delay = "0"
+                    }
                     this.props.onChange()
                     this.setState({delayCheckboxSelected: e.target.checked})
                   }}
@@ -580,7 +584,7 @@ class OptionsBuilder extends React.Component {
                 </label>
               </Col>
               {
-                  this.state.delayCheckboxSelected
+                  this.state.delayCheckboxSelected || this.props.request.delay
                   ? (
                     <Row className="mt-2">
                       <Col span={8}>
