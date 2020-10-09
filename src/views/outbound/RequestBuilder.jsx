@@ -724,7 +724,7 @@ class QueryParamsBuilder extends React.Component {
                           <Col className="text-left mt-4">
                             <Editor
                               ref="queryParamsEditor"
-                              value={ this.props.request.queryParams }
+                              value={ this.props.request.queryParams || {} }
                               ace={ace}
                               ajv={ajv}
                               theme="ace/theme/tomorrow_night_blue"
