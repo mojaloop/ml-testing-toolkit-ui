@@ -261,7 +261,7 @@ class ConfigurableParameter extends React.Component {
 
   handleFactSelect = (value, factObject) => {
     this.inputValue = value
-    this.handleParamSelect('{$prev.'+this.state.selectedValueComponent+'.'+(this.state.paramType===1?'request':'response')+'.'+value+'}')
+    this.handleParamSelect('{$prev.'+this.state.selectedValueComponent+'.'+(this.state.paramType===1?'request':'callback')+'.'+value+'}')
     // this.updateChanges()
   }
 
