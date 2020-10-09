@@ -38,17 +38,21 @@ class FileManager extends React.Component {
 
   componentDidMount = () => {
     this.collectionFolderSelector = buildFileSelector(false, true);
-    this.collectionFolderSelector.addEventListener ('input', (e) => {
-      if (e.target.files) {
-        this.handleLocalFileOrFolderImportCollection(e.target.files)
+    this.collectionFolderSelector.addEventListener ('input', async (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        await this.handleLocalFileOrFolderImportCollection(e.target.files)
       }
+      // wait for all async functions to complete before clearing the selector state
+      this.collectionFolderSelector.value = null
     })
 
     this.collectionFileSelector = buildFileSelector(true, false);
-    this.collectionFileSelector.addEventListener ('input', (e) => {
-      if (e.target.files) {
-        this.handleLocalFileOrFolderImportCollection(e.target.files)
+    this.collectionFileSelector.addEventListener ('input', async (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        await this.handleLocalFileOrFolderImportCollection(e.target.files)
       }
+      // wait for all async functions to complete before clearing the selector state
+      this.collectionFileSelector.value = null
     })
   }
 
