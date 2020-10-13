@@ -47,6 +47,11 @@ import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
 import { FolderParser } from 'ml-testing-toolkit-shared-lib'
 
+import {SortableContainer, SortableElement} from 'react-sortable-hoc'
+import arrayMove from 'array-move'
+
+const { Panel } = Collapse;
+
 const traceHeaderUtilsObj = new TraceHeaderUtils()
 
 function buildFileSelector( multi = false, directory = false ){
@@ -236,7 +241,11 @@ class OutboundRequest extends React.Component {
             </Button>
           </Dropdown>
         )}
-      ]
+      ],
+      testCaseReorderingEnabled: false,
+      curTestCasesUpdated: false,
+      testCaseRequestsReorderingEnabled: false,
+      curTestCasesRequestsUpdated: false,
     };
   }
 
@@ -884,6 +893,14 @@ class OutboundRequest extends React.Component {
     return dataSource
   }
 
+  onTestCaseSortEnd = ({oldIndex, newIndex}) => {
+    // Change the position in array
+    this.state.template.test_cases = arrayMove(this.state.template.test_cases, oldIndex, newIndex) 
+    this.state.folderData[0].content.test_cases = this.state.template.test_cases 
+    this.setState({curTestCasesUpdated: true})
+    this.autoSaveFolderData(this.state.folderData)
+  }
+
   render() {
 
     const createNewTestCaseDialogContent = (
@@ -975,6 +992,18 @@ class OutboundRequest extends React.Component {
       </Row>
       </>
     )
+
+    const SortableRuleItem = SortableElement(({value}) => <Panel header={value.name}></Panel>)
+
+    const SortableRuleList = SortableContainer(({items}) => {
+      return (
+        <Collapse>
+        {items.map((value, index) => (
+          <SortableRuleItem key={`item-${value.id}`} index={index} value={value} />
+        ))}
+        </Collapse>
+      )
+    })
 
     return (
       <>
@@ -1148,6 +1177,44 @@ class OutboundRequest extends React.Component {
                               >
                                 Import Environment
                               </Button>
+                              {
+                                this.state.testCaseReorderingEnabled
+                                ? (
+                                  <Button
+                                    className="text-right"
+                                    color="danger"
+                                    href="#pablo"
+                                    onClick={async () => {
+                                      if (this.state.curTestCasesUpdated) {
+                                        this.setState({curTestCasesUpdated: false})
+                                      } else {
+                                        message.error({ content: 'no changes found', key: 'TestCaseRequestsReordering', duration: 3 });
+                                      }
+                                      this.setState({testCaseReorderingEnabled: false})
+                                    }}
+                                    size="sm"
+                                  >
+                                    Apply Reorder test cases
+                                  </Button>
+                                )
+                                : (
+                                  <Button
+                                    className="text-right"
+                                    color="success"
+                                    href="#pablo"
+                                    onClick={ () => {
+                                      if (this.state.folderData && this.state.folderData.length === 1) {
+                                        this.setState({testCaseReorderingEnabled: true})
+                                      } else {
+                                        message.error({ content: 'reordering can\'t be applied on zero or more than one file', key: 'TestCaseReordering', duration: 3 });
+                                      }
+                                    }}
+                                    size="sm"
+                                  >
+                                    Reorder Test Cases
+                                  </Button>
+                                )
+                              }
                             </Col>
                             <Col span={8} className="text-center">
                             {
@@ -1292,9 +1359,17 @@ class OutboundRequest extends React.Component {
                           </Button>
                         </Popover>
                       </Row>
-                      <Row>
-                        { this.getTestCaseItems() }
-                      </Row>
+                      {
+                        this.state.testCaseReorderingEnabled
+                        ? (
+                          <SortableRuleList items={this.state.template.test_cases} onSortEnd={this.onTestCaseSortEnd} />
+                        )
+                        : (
+                          <Row>
+                            { this.getTestCaseItems() }
+                          </Row>
+                        )
+                      }
                     </Col>
                     <Col span={10} className='pl-2'>
                       <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
