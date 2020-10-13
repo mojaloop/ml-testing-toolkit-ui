@@ -135,6 +135,14 @@ class TestCaseViewer extends React.Component {
         case 'send':
           this.props.onSend()
           break
+        case 'reorderRequests': {
+            if (this.props.testCase.requests && this.props.testCase.requests.length > 1) {
+              this.setState({testCaseRequestsReorderingEnabled: true})
+            } else {
+              message.error({ content: 'there must be at least 2 requests to change the order', key: 'TestCaseRequestsReordering', duration: 3 });
+            }
+          }
+          break
         case 'showseqdiag':
           this.props.onShowSequenceDiagram(this.props.testCase)
           break
@@ -147,6 +155,11 @@ class TestCaseViewer extends React.Component {
         <Menu.Item key="duplicate">Duplicate</Menu.Item>
         <Menu.Item key="delete">Delete</Menu.Item>
         <Menu.Item key="send">Send this test case</Menu.Item>
+        {
+          this.props.testCase && this.props.testCase.requests && this.props.testCase.requests.length > 1
+          ? <Menu.Item key="reorderRequests">Reorder requests</Menu.Item>
+          : null
+        }
         {
           this.props.testCase && this.props.testCase.requests && this.props.testCase.requests[0] && this.props.testCase.requests[0].status && this.props.testCase.requests[0].status.requestSent
           ? <Menu.Item key="showseqdiag">Show Sequence Diagram</Menu.Item>
@@ -256,23 +269,7 @@ class TestCaseViewer extends React.Component {
                         Apply Reorder
                       </Button>
                     )
-                    : (
-                      <Button
-                        className="ml-2 float-right"
-                        color="success"
-                        href="#pablo"
-                        onClick={ () => {
-                          if (this.props.testCase.requests && this.props.testCase.requests.length > 1) {
-                            this.setState({testCaseRequestsReorderingEnabled: true})
-                          } else {
-                            message.error({ content: 'there must be at least 2 requests to change the order', key: 'TestCaseRequestsReordering', duration: 3 });
-                          }
-                        }}
-                        size="sm"
-                      >
-                        Reorder
-                      </Button>
-                    )
+                    : null
                   }
                 </Col>
               </Row>
