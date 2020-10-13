@@ -27,8 +27,13 @@ import {
 } from "reactstrap";
 // core components
 
-import { Row, Col, Steps, Tag, Dropdown, Menu, message, Icon, Input } from 'antd';
+import { Row, Col, Steps, Tag, Dropdown, Menu, message, Icon, Input, Collapse } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
+
+import {SortableContainer, SortableElement} from 'react-sortable-hoc'
+import arrayMove from 'array-move'
+
+const { Panel } = Collapse;
 
 const { Step } = Steps;
 
@@ -41,7 +46,8 @@ class TestCaseViewer extends React.Component {
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
       renameTestCase: false,
-      testCaseName: ''
+      testCaseName: '',
+      testCaseRequestsReorderingEnabled: false
     };
   }
 
@@ -106,6 +112,12 @@ class TestCaseViewer extends React.Component {
     this.props.onRename()
   }
 
+  onTestCaseRequestsSortEnd = ({oldIndex, newIndex}) => {
+    // Change the position in array
+    this.props.testCase.requests = arrayMove(this.props.testCase.requests, oldIndex, newIndex) 
+    this.setState({curTestCasesRequestsUpdated: true})
+    this.props.onChange()
+  }
 
   render() {
 
@@ -123,6 +135,14 @@ class TestCaseViewer extends React.Component {
         case 'send':
           this.props.onSend()
           break
+        case 'reorderRequests': {
+            if (this.props.testCase.requests && this.props.testCase.requests.length > 1) {
+              this.setState({testCaseRequestsReorderingEnabled: true})
+            } else {
+              message.error({ content: 'there must be at least 2 requests to change the order', key: 'TestCaseRequestsReordering', duration: 3 });
+            }
+          }
+          break
         case 'showseqdiag':
           this.props.onShowSequenceDiagram(this.props.testCase)
           break
@@ -136,12 +156,30 @@ class TestCaseViewer extends React.Component {
         <Menu.Item key="delete">Delete</Menu.Item>
         <Menu.Item key="send">Send this test case</Menu.Item>
         {
+          this.props.testCase && this.props.testCase.requests && this.props.testCase.requests.length > 1
+          ? <Menu.Item key="reorderRequests">Reorder requests</Menu.Item>
+          : null
+        }
+        {
           this.props.testCase && this.props.testCase.requests && this.props.testCase.requests[0] && this.props.testCase.requests[0].status && this.props.testCase.requests[0].status.requestSent
           ? <Menu.Item key="showseqdiag">Show Sequence Diagram</Menu.Item>
           : null
         }
       </Menu>
     );
+
+    const SortableRuleItem = SortableElement(({value}) => <Panel header={value.description}></Panel>)
+
+    const SortableRuleList = SortableContainer(({items}) => {
+      console.log(items)
+      return (
+        <Collapse>
+        {items.map((value, index) => (
+          <SortableRuleItem key={`item-${value.id}`} index={index} value={value} />
+        ))}
+        </Collapse>
+      )
+    })
 
     return (
       <>
@@ -150,7 +188,7 @@ class TestCaseViewer extends React.Component {
           <Card className="card-profile shadow">
             <CardHeader>
               <Row>
-                <Col span={18}>
+                <Col span={16}>
                   {
                     this.state.renameTestCase
                     ? (
@@ -196,7 +234,7 @@ class TestCaseViewer extends React.Component {
                     : this.props.testCase.name
                   }
                 </Col>
-                <Col span={6}>
+                <Col span={8}>
                   <Dropdown overlay={menu} trigger={['click']} className="ml-4 mt-2 float-right">
                     <MoreOutlined />
                   </Dropdown>
@@ -211,13 +249,43 @@ class TestCaseViewer extends React.Component {
                   >
                     Edit
                   </Button>
+                  {
+                    this.state.testCaseRequestsReorderingEnabled && (this.props.testCase.requests && this.props.testCase.requests.length > 0)
+                    ? (
+                      <Button
+                        className="ml-2 float-right"
+                        color="danger"
+                        href="#pablo"
+                        onClick={async () => {
+                          if (this.state.curTestCasesRequestsUpdated) {
+                            this.setState({curTestCasesRequestsUpdated: false})
+                          } else {
+                            message.error({ content: 'no changes found', key: 'TestCaseRequestsReordering', duration: 3 });
+                          }
+                          this.setState({testCaseRequestsReorderingEnabled: false})
+                        }}
+                        size="sm"
+                      >
+                        Apply Reorder
+                      </Button>
+                    )
+                    : null
+                  }
                 </Col>
               </Row>
             </CardHeader>
             <CardBody>
-              {this.getTestCaseItems()}
-              {/* {this.getStepItems()}
-              {this.getTestCaseDetailItems()} */}
+            {
+              this.state.testCaseRequestsReorderingEnabled
+              ? (
+                <SortableRuleList items={this.props.testCase.requests} onSortEnd={this.onTestCaseRequestsSortEnd} />
+              )
+              : (
+                <Row>
+                  { this.getTestCaseItems() }
+                </Row>
+              )
+            }
             </CardBody>
           </Card>
           </Col>
