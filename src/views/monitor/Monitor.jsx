@@ -20,6 +20,7 @@ import socketIOClient from "socket.io-client";
 import { Grid, GridColumn as Column, GridDetailRow } from '@progress/kendo-react-grid';
 import getConfig from '../../utils/getConfig'
 import '@progress/kendo-theme-default/dist/all.css'
+import { ClockCircleOutlined } from '@ant-design/icons';
 
 // reactstrap components
 import {
@@ -28,6 +29,7 @@ import {
   CardBody,
   Container,
   Row,
+  Col,
   Button
 } from "reactstrap";
 // core components
@@ -62,79 +64,6 @@ class DetailComponent extends GridDetailRow {
   }
 }
 
-// const getMessageTypeIcon = (messageType) => {
-//   let icon_name
-//   switch(messageType) {
-//     case 'request':
-//       icon_name = "ni-bold-right"
-//       break
-//     case 'response':
-//       icon_name = "ni-bold-left"
-//       break
-//     case 'generic':
-//     default:
-//       icon_name = "ni-sound-wave"
-//       break
-
-//   }
-//   const className = "rounded-circle mr-3 ni " + icon_name
-//   return <i className={className}></i>
-// }
-
-
-export class Logs extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      logs: []
-    };
-  }
-  componentDidMount() {
-    const { apiBaseUrl } = getConfig()
-    const socket = socketIOClient(apiBaseUrl);
-    socket.on("newLog", newLog => {
-      // console.log('New log received', newLog)
-      const updatedLogs = this.state.logs.concat(newLog)
-      this.setState({ logs: updatedLogs })
-    });
-  }
-
-  expandChange = (event) => {
-    event.dataItem.expanded = !event.dataItem.expanded;
-    this.forceUpdate();
-  }
-
-
-  render() {
-  
-    return (
-      <>
-        <Row>
-          <div className="col">
-              <Card className="shadow">
-                <CardHeader className="border-0">
-                  <h3 className="mb-0">Logs</h3>
-                </CardHeader>
-                <Grid
-                  className="align-items-center table-flush"
-                  data={this.state.logs}
-                  detail={DetailComponent}
-                  expandField="expanded"
-                  onExpandChange={this.expandChange}
-                >
-                  <Column field="logTime" title="Time" />
-                  <Column field="uniqueId" title="UniqueID" />
-                  <Column field="message" title="Message" />
-                  <Column field="verbosity" title="Verbosity" />
-                </Grid>
-              </Card>
-              </div>
-        </Row>
-      </>
-    );
-  }
-}
-
 class IncomingTimelineItem extends React.Component {
 
   constructor() {
@@ -157,7 +86,6 @@ class IncomingTimelineItem extends React.Component {
     const info = this.props.info
     return (
       <>
-      <Timeline.Item position='right'>
         <b>{log.logTime}</b>
         <br /><Tag color={info.erroneous ? "#f50" : "#2db7f5"} onClick={this.toggleLogsVisibility}>{info.name}</Tag>
         <br />
@@ -178,7 +106,6 @@ class IncomingTimelineItem extends React.Component {
           )
           : null
         }
-      </Timeline.Item>
       </>
     )
   }
@@ -222,7 +149,6 @@ class IncomingTimelineSet extends React.Component {
     if (this.props.logSetObj.secondaryItemsArr.length > 1) {
       return (
         <>
-        <Timeline.Item position='right'>
           <b>{logSetObj.logTime}</b>
           <br /><Tag color={logSetObj.erroneous ? "#f50" : "#2db7f5"} onClick={this.toggleLogsVisibility}>{logSetObj.name}</Tag>
           <br />
@@ -237,14 +163,13 @@ class IncomingTimelineSet extends React.Component {
             )
             : null
           }
-        </Timeline.Item>
         </>
       )
     } else {
       if (this.props.logSetObj.secondaryItemsArr.length === 1) {
         const item = this.props.logSetObj.secondaryItemsArr[0]
         return (
-        <IncomingTimelineItem key={item.id} info={item} logs={this.props.logSetObj.secondaryItemsObj[item.id]} />
+          <IncomingTimelineItem key={item.id} info={item} logs={this.props.logSetObj.secondaryItemsObj[item.id]} />
         )
       } else {
         return null
@@ -259,10 +184,17 @@ class IncomingMonitor extends React.Component {
     logs: [],
     incomingItemsObj: {},
     incomingItemsArr: [],
-    lastIncomingTime: null,
+    timeline: {
+      outbound: {
+        socket: null,
+        socketTopic: "newOutboundLog"
+      },
+      inbound: {
+        socket: null,
+        socketTopic: "newLog"
   }
-
-  socket = null
+    }
+  }
 
   constructor() {
     super();
@@ -270,40 +202,47 @@ class IncomingMonitor extends React.Component {
   }
   
   componentWillUnmount = () => {
-    this.socket.disconnect()
+    if (this.state.timeline.inbound.socket) {
+      this.state.timeline.inbound.socket.disconnect()
+  }
+    if (this.state.timeline.outbound.socket) {
+      this.state.timeline.outbound.socket.disconnect()
+    }
   }
 
   componentDidMount = async () => {
     const { apiBaseUrl } = getConfig()
-    this.socket = socketIOClient(apiBaseUrl);
-    let socketTopic = 'newLog'
+    if (getConfig().isAuthEnabled && this.state.logs.length === 0) {
+      const storedLogs = await axios.get(`${apiBaseUrl}/api/history/logs`)
+      storedLogs.data.forEach(log => {
+        this.appendLog(log)
+      })
+    }
+    for (const logType of Object.keys(this.state.timeline)) {
+      const item = this.state.timeline[logType]
+      item.socket = socketIOClient(apiBaseUrl);
     if (getConfig().isAuthEnabled) {
       const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
       if (dfspId) {
-        socketTopic = 'newLog/' + dfspId
+            item.socketTopic = `${item.socketTopic}/${dfspId}`
       }
-      if (this.state.logs.length === 0) {
-        const storedLogs = await axios.get(apiBaseUrl + '/api/history/logs')
-        storedLogs.data.forEach(newLog => {
-          this.appendLog(newLog)
-        })
       }
-    }
 
-    this.socket.on(socketTopic, newLog => {
-      this.appendLog(newLog)
+      item.socket.on(item.socketTopic, log => {
+        this.appendLog(log)
       this.forceUpdate()
     });
+    }
     this.forceUpdate()
   }
 
-  appendLog = (newLog) => {
-    this.state.logs.push(newLog)
+  appendLog = (log) => {
+    this.state.logs.push(log)
     let primaryGroupId = 'misc'
-    if(newLog.traceID) {
-      primaryGroupId = newLog.traceID
+    if(log.traceID) {
+      primaryGroupId = log.traceID
     } else {
-      primaryGroupId = newLog.uniqueId
+      primaryGroupId = log.uniqueId
     }
 
     // Group by unique ID
@@ -320,22 +259,22 @@ class IncomingMonitor extends React.Component {
     }
     let primaryName = ''
 
-    const secondaryGroupId = newLog.uniqueId
+    const secondaryGroupId = log.uniqueId
     if(!this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj.hasOwnProperty(secondaryGroupId)) {  
       this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId] = []
-      let name = newLog.message
-      if (newLog.resource) {
-        name = newLog.resource.method.toUpperCase() + ' ' + newLog.resource.path
-        primaryName = newLog.resource.method.toUpperCase() + ' > '
+      let name = log.message
+      if (log.resource) {
+        name = log.resource.method.toUpperCase() + ' ' + log.resource.path
+        primaryName = log.resource.method.toUpperCase() + ' > '
       }
-      this.state.incomingItemsObj[primaryGroupId].logTime = newLog.logTime
+      this.state.incomingItemsObj[primaryGroupId].logTime = log.logTime
       this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.push({ id: secondaryGroupId, name, erroneous: false })
     }
 
     this.state.incomingItemsObj[primaryGroupId].name += primaryName + ' '
     
     // If the verbosity of the log is error, set the entire group as erroneous
-    if (newLog.verbosity === 'error') {
+    if (log.verbosity === 'error') {
       // Find the group in incomingItemsArr array
       this.state.incomingItemsObj[primaryGroupId].erroneous = true
       // Find the group in secondaryItemsArr array
@@ -343,21 +282,24 @@ class IncomingMonitor extends React.Component {
       this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr[secondaryItemIndex].erroneous = true
     }
 
-    this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId].push(newLog)
+    this.state.incomingItemsObj[primaryGroupId].position = log.notificationType === "newLog" ? "right" : "left"
+
+    this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId].push(log)
   }
 
   getTimelineSets = () => {
     return this.state.incomingItemsArr.map(item => {
       if (item) {
         return (
-          <IncomingTimelineSet key={item.id} info={item} logSetObj={this.state.incomingItemsObj[item]} />
+          <Timeline.Item position={this.state.incomingItemsObj[item].position}>
+            <IncomingTimelineSet key={item.id} info={item} logSetObj={this.state.incomingItemsObj[item]} />
+          </Timeline.Item>
         )
       } else {
         return (
           <Timeline.Item dot={<Icon type="clock-circle-o" style={{ fontSize: '16px' }} />} color="red"><br /><br /></Timeline.Item>
         )
       }
-
     })
   }
 
@@ -372,18 +314,24 @@ class IncomingMonitor extends React.Component {
       <div className="col">
         <Card className="shadow">
           <CardHeader className="border-0">
-            <Button
-              className="float-right"
-              color="danger"
-              size="sm"
-              onClick={this.handleClearLogs}
-            >
-              Clear
-            </Button>
-            <h3 className="mb-0">Monitor</h3>
+            <Row>
+              <Col className="text-right" ><span className="font-weight-bold">Inbound Requests</span></Col>
+              <Col className="text-center" ><span className="font-weight-bold">|</span></Col>
+              <Col className="text-left"><span className="font-weight-bold">Outbound Requests</span>
+              <Button
+                className="float-right"
+                color="danger"
+                size="sm"
+                onClick={this.handleClearLogs}
+              >
+                Clear
+              </Button>
+              </Col>
+
+            </Row>
           </CardHeader>
           <CardBody>
-            <Timeline reverse={true} pending="Monitoring..." >
+            <Timeline mode="alternate" reverse={true} pending="Monitoring..." >
               {this.getTimelineSets()}
             </Timeline>
           </CardBody>
