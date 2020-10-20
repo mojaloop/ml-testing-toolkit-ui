@@ -105,6 +105,7 @@ class IncomingMonitor extends React.Component {
       if(log.messageType === 'request') {
         this.state.sequenceItems.push({
           logTime: log.logTime,
+          isError: (log.verbosity === 'error'),
           type: 'inboundRequest',
           method: log.resource.method,
           path: log.resource.path,
@@ -113,6 +114,7 @@ class IncomingMonitor extends React.Component {
       } else if(log.messageType === 'response') {
         this.state.sequenceItems.push({
           logTime: log.logTime,
+          isError: (log.verbosity === 'error'),
           type: 'inboundResponse',
           method: log.resource.method,
           path: log.resource.path,
@@ -123,6 +125,7 @@ class IncomingMonitor extends React.Component {
       if (log.message.startsWith("Sending request") || log.message.startsWith("Request:")) {
         this.state.sequenceItems.push({
           logTime: log.logTime,
+          isError: (log.verbosity === 'error'),
           type: 'outboundRequest',
           method: log.resource.method,
           path: log.resource.path,
@@ -132,6 +135,7 @@ class IncomingMonitor extends React.Component {
       if (log.message.startsWith("Received response") || log.message.startsWith("Response:")) {
         this.state.sequenceItems.push({
           logTime: log.logTime,
+          isError: (log.verbosity === 'error'),
           type: 'outboundResponse',
           method: log.resource.method,
           path: log.resource.path,
@@ -153,12 +157,12 @@ class IncomingMonitor extends React.Component {
       let transactionBegan = false
       if ( this.state.sequenceItems[i].type === 'outboundRequest' ) {
         // seqSteps += 'Note over TTK,PEER: ' + testCase.requests[i].status.requestSent.description + '\n'
-        seqSteps += 'TTK->>PEER: [HTTP REQ] ' + this.state.sequenceItems[i].title + '\n'
-        transactionBegan  = true
-        seqSteps += 'activate PEER\n'
+        seqSteps += 'TTK->>+PEER: [HTTP REQ] ' + this.state.sequenceItems[i].title + '\n'
+        // transactionBegan  = true
+        // seqSteps += 'activate PEER\n'
       }
       if ( this.state.sequenceItems[i].type === 'outboundResponse' ) {
-        seqSteps += 'PEER-->>TTK: [HTTP RESP] ' + this.state.sequenceItems[i].title + '\n'
+        seqSteps += 'PEER--' + (this.state.sequenceItems[i].isError ? 'x' : '>>') + '-TTK: [HTTP RESP] ' + this.state.sequenceItems[i].title + '\n'
       }
       // if ( testCase.requests[i].status && testCase.requests[i].status.response ) {
       //   const stepStr = testCase.requests[i].status.response.status + ' ' + testCase.requests[i].status.response.statusText + ' ' +testCase.requests[i].status.state
@@ -173,15 +177,15 @@ class IncomingMonitor extends React.Component {
       //   seqSteps += 'PEER-->>TTK: [ASYNC CALLBACK] ' + stepStr + '\n'
       // }
       if ( this.state.sequenceItems[i].type === 'inboundRequest' ) {
-        seqSteps += 'PEER->>TTK: [HTTP REQ] ' + this.state.sequenceItems[i].title + '\n'
+        seqSteps += 'PEER->>+TTK: [HTTP REQ] ' + this.state.sequenceItems[i].title + '\n'
       }
       if ( this.state.sequenceItems[i].type === 'inboundResponse' ) {
-        seqSteps += 'TTK-->>PEER: [HTTP RESP] ' + this.state.sequenceItems[i].title + '\n'
+        seqSteps += 'TTK--' + (this.state.sequenceItems[i].isError ? 'x' : '>>') + '-PEER: [HTTP RESP] ' + this.state.sequenceItems[i].title + '\n'
       }
 
-      if (transactionBegan) {
-        seqSteps += 'deactivate PEER\n'
-      }
+      // if (transactionBegan) {
+      //   seqSteps += 'deactivate PEER\n'
+      // }
     }
 
     const code = 'sequenceDiagram\n' + seqSteps
