@@ -22,6 +22,7 @@ import RulesCallback from "./views/rules/RulesCallback.jsx";
 import RulesForward from "./views/rules/RulesForward.jsx";
 import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
 import Monitor from "./views/monitor/Monitor.jsx";
+import MonitorDiagram from "./views/monitor/MonitorDiagram.jsx";
 import Settings from "./views/settings/Settings.jsx";
 import APIDocs from "./views/APIDocs.jsx";
 
@@ -30,7 +31,7 @@ var routes = [
     path: "/index",
     name: "Dashboard",
     icon: "ni ni-tv-2 text-primary",
-    component: Dashboard,
+    component: MonitorDiagram,
     layout: "/admin"
   },
   {
