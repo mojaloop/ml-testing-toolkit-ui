@@ -20,7 +20,6 @@ import socketIOClient from "socket.io-client";
 import { Grid, GridColumn as Column, GridDetailRow } from '@progress/kendo-react-grid';
 import getConfig from '../../utils/getConfig'
 import '@progress/kendo-theme-default/dist/all.css'
-import { ClockCircleOutlined } from '@ant-design/icons';
 
 // reactstrap components
 import {
@@ -239,11 +238,14 @@ class IncomingMonitor extends React.Component {
   appendLog = (log) => {
     this.state.logs.push(log)
     let primaryGroupId = 'misc'
-    if(log.traceID) {
-      primaryGroupId = log.traceID
-    } else {
+    if(log.uniqueId) {
       primaryGroupId = log.uniqueId
     }
+    // Disabling grouping by traceID temporarily, need to refactor this functionality to sync with the new inbound and outbound logs structure
+    // if(log.traceID) {
+    //   primaryGroupId = log.traceID
+    // }
+    
 
     // Group by unique ID
     if(!this.state.incomingItemsObj.hasOwnProperty(primaryGroupId)) {
