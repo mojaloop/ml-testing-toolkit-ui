@@ -20,7 +20,6 @@ import socketIOClient from "socket.io-client";
 import { Grid, GridColumn as Column, GridDetailRow } from '@progress/kendo-react-grid';
 import getConfig from '../../utils/getConfig'
 import '@progress/kendo-theme-default/dist/all.css'
-import { ClockCircleOutlined } from '@ant-design/icons';
 
 // reactstrap components
 import {
