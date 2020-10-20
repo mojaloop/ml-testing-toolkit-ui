@@ -198,6 +198,7 @@ class IncomingMonitor extends React.Component {
   handleClearLogs = () => {
     this.state.sequenceItems = []
     this.refreshSequenceDiagram()
+    this.forceUpdate()
   }
 
   render () {
@@ -208,25 +209,36 @@ class IncomingMonitor extends React.Component {
         <Card className="shadow">
           <CardHeader className="border-0">
             <Row>
-              <Col><span className="font-weight-bold">Dashboard</span>
-              <Button
-                className="float-right"
-                color="danger"
-                size="sm"
-                onClick={this.handleClearLogs}
-              >
-                Clear
-              </Button>
+              <Col>
+              {
+                this.state.sequenceItems.length > 0
+                ? (
+                  <Button
+                    className="float-right"
+                    color="danger"
+                    size="sm"
+                    onClick={this.handleClearLogs}
+                  >
+                    Clear
+                  </Button>
+                )
+                : null
+              }
               </Col>
             </Row>
           </CardHeader>
           <CardBody>
-            <div
-            ref={div => {
-              this.seqDiagContainer = div
-            }}
-            >
-            </div>
+            <>
+            <Row style={{'min-height': '200px'}}>
+              <Col className='text-center'>
+                <div
+                ref={div => {
+                  this.seqDiagContainer = div
+                }}
+                ><span className='h2'><br /><br /> Welcome to Testing Toolkit</span> </div>
+              </Col>
+            </Row>
+            </>
           </CardBody>
         </Card>
         </div>
