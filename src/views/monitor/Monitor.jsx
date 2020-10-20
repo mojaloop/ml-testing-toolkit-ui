@@ -239,11 +239,14 @@ class IncomingMonitor extends React.Component {
   appendLog = (log) => {
     this.state.logs.push(log)
     let primaryGroupId = 'misc'
-    if(log.traceID) {
-      primaryGroupId = log.traceID
-    } else {
+    if(log.uniqueId) {
       primaryGroupId = log.uniqueId
     }
+    // Disabling grouping by traceID temporarily, need to refactor this functionality to sync with the new inbound and outbound logs structure
+    // if(log.traceID) {
+    //   primaryGroupId = log.traceID
+    // }
+    
 
     // Group by unique ID
     if(!this.state.incomingItemsObj.hasOwnProperty(primaryGroupId)) {
