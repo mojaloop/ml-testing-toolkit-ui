@@ -353,6 +353,13 @@ class RulesForward extends React.Component {
                           placeholder="File Name"
                           type="text"
                           onChange={(e) => { newFileName = e.target.value }}
+                          onKeyDown={(e) => {
+                            e.preventDefault()
+                            if (e.key === "Escape") {
+                              this.setState({ mode: null})
+                            }
+                          }}
+                          onPressEnter={newFileCreateConfirm}
                         />
                       </td>
                       <td>

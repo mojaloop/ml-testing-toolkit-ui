@@ -139,6 +139,16 @@ class InputValues extends React.Component {
         type="text"
         value={this.state.newInputValueName}
         onChange={(e) => { this.setState({newInputValueName: e.target.value })}}
+        onKeyDown={(e) => {
+          e.preventDefault()
+          if (e.key === "Escape") {
+            this.setState({addInputValueDialogVisible: false})
+          }
+        }}
+        onPressEnter={ () => {
+          this.handleAddInputValue(this.state.newInputValueName)
+          this.setState({addInputValueDialogVisible: false})
+        }}
       />
       <Button
           className="text-right mt-2"
@@ -896,9 +906,22 @@ class OutboundRequest extends React.Component {
   onTestCaseSortEnd = ({oldIndex, newIndex}) => {
     // Change the position in array
     this.state.template.test_cases = arrayMove(this.state.template.test_cases, oldIndex, newIndex) 
-    this.state.folderData[0].content.test_cases = this.state.template.test_cases 
+    this.state.folderData.forEach(element => {
+      this.checkChildren(element.children)
+    })
     this.setState({curTestCasesUpdated: true})
     this.autoSaveFolderData(this.state.folderData)
+  }
+
+  checkChildren = (children) => {
+    children.forEach(child => {
+      if (child.children) {
+          this.checkChildren(child.children)
+      } else if (this.state.additionalData.selectedFiles[0] === child.key) {
+        child.content.test_cases = this.state.template.test_cases
+        this.state.notFound = false
+      }
+    })
   }
 
   render() {
@@ -910,6 +933,16 @@ class OutboundRequest extends React.Component {
         type="text"
         value={this.state.newTestCaseName}
         onChange={(e) => { this.setState({newTestCaseName: e.target.value })}}
+        onKeyDown={(e) => {
+          e.preventDefault()
+          if (e.key === "Escape") {
+            this.setState({createNewTestCaseDialogVisible: false})
+          }
+        }}
+        onPressEnter={ () => {
+          this.handleCreateNewTestCaseClick(this.state.newTestCaseName)
+          this.setState({createNewTestCaseDialogVisible: false})
+        }}
       />
       <Button
           className="text-right mt-2"
@@ -933,6 +966,16 @@ class OutboundRequest extends React.Component {
         type="text"
         value={this.state.newTemplateName}
         onChange={(e) => { this.setState({newTemplateName: e.target.value })}}
+        onKeyDown={(e) => {
+          e.preventDefault()
+          if (e.key === "Escape") {
+            this.setState({createNewTemplateDialogVisible: false})
+          }
+        }}
+        onPressEnter={ () => {
+          this.handleCreateNewTemplateClick(this.state.newTemplateName)
+          this.setState({createNewTemplateDialogVisible: false})
+        }}
       />
       <Button
           className="text-right mt-2"
@@ -958,6 +1001,16 @@ class OutboundRequest extends React.Component {
             type="text"
             value={this.state.saveTemplateFileName}
             onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
+            onKeyDown={(e) => {
+              e.preventDefault()
+              if (e.key === "Escape") {
+                this.setState({saveTemplateDialogVisible: false})
+              }
+            }}
+            onPressEnter={ () => {
+              this.handleTemplateSaveClick(this.state.saveTemplateFileName)
+              this.setState({saveTemplateDialogVisible: false})
+            }}
           />
         </Col>
       </Row>
@@ -1062,6 +1115,7 @@ class OutboundRequest extends React.Component {
           width='90%'
           visible={this.state.showTestCaseIndex!=null? true : false}
           footer={null}
+          keyboard={false}
           onCancel={() => { this.setState({showTestCaseIndex: null})}}
         >
           {
@@ -1198,21 +1252,21 @@ class OutboundRequest extends React.Component {
                                   </Button>
                                 )
                                 : (
+                                  this.state.additionalData && this.state.additionalData.selectedFiles && this.state.additionalData.selectedFiles.length === 1
+                                  ?
                                   <Button
                                     className="text-right"
                                     color="success"
                                     href="#pablo"
                                     onClick={ () => {
-                                      if (this.state.folderData && this.state.folderData.length === 1) {
                                         this.setState({testCaseReorderingEnabled: true})
-                                      } else {
-                                        message.error({ content: 'reordering can\'t be applied on zero or more than one file', key: 'TestCaseReordering', duration: 3 });
-                                      }
                                     }}
                                     size="sm"
                                   >
                                     Reorder Test Cases
                                   </Button>
+                                  :
+                                  null
                                 )
                               }
                             </Col>

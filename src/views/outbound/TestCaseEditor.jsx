@@ -1022,6 +1022,16 @@ class TestCaseEditor extends React.Component {
         type="text"
         value={this.state.newRequestDescription}
         onChange={(e) => { this.setState({newRequestDescription: e.target.value })}}
+        onKeyDown={(e) => {
+          e.preventDefault()
+          if (e.key === "Escape") {
+            this.setState({addNewRequestDialogVisible: false})
+          }
+        }}
+        onPressEnter={ () => {
+          this.handleAddNewRequestClick(this.state.newRequestDescription)
+          this.setState({addNewRequestDialogVisible: false})
+        }}
       />
       <Button
           className="text-right mt-2"
