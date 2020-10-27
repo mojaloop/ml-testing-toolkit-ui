@@ -893,7 +893,6 @@ export class TestAssertions extends React.Component {
         value={this.state.newAssertionDescription}
         onChange={(e) => { this.setState({newAssertionDescription: e.target.value })}}
         onKeyDown={(e) => {
-          e.preventDefault()
           if (e.key === "Escape") {
             this.setState({addNewAssertionDialogVisible: false})
           }

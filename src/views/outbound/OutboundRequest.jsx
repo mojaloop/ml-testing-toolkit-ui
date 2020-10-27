@@ -140,7 +140,6 @@ class InputValues extends React.Component {
         value={this.state.newInputValueName}
         onChange={(e) => { this.setState({newInputValueName: e.target.value })}}
         onKeyDown={(e) => {
-          e.preventDefault()
           if (e.key === "Escape") {
             this.setState({addInputValueDialogVisible: false})
           }
@@ -934,7 +933,6 @@ class OutboundRequest extends React.Component {
         value={this.state.newTestCaseName}
         onChange={(e) => { this.setState({newTestCaseName: e.target.value })}}
         onKeyDown={(e) => {
-          e.preventDefault()
           if (e.key === "Escape") {
             this.setState({createNewTestCaseDialogVisible: false})
           }
@@ -967,7 +965,6 @@ class OutboundRequest extends React.Component {
         value={this.state.newTemplateName}
         onChange={(e) => { this.setState({newTemplateName: e.target.value })}}
         onKeyDown={(e) => {
-          e.preventDefault()
           if (e.key === "Escape") {
             this.setState({createNewTemplateDialogVisible: false})
           }
@@ -1002,7 +999,6 @@ class OutboundRequest extends React.Component {
             value={this.state.saveTemplateFileName}
             onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
             onKeyDown={(e) => {
-              e.preventDefault()
               if (e.key === "Escape") {
                 this.setState({saveTemplateDialogVisible: false})
               }

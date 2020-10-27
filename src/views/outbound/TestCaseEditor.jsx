@@ -1023,7 +1023,6 @@ class TestCaseEditor extends React.Component {
         value={this.state.newRequestDescription}
         onChange={(e) => { this.setState({newRequestDescription: e.target.value })}}
         onKeyDown={(e) => {
-          e.preventDefault()
           if (e.key === "Escape") {
             this.setState({addNewRequestDialogVisible: false})
           }

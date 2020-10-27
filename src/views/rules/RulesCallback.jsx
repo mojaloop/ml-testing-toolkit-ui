@@ -354,7 +354,6 @@ class RulesCallback extends React.Component {
                           type="text" 
                           onChange={(e) => { newFileName = e.target.value }}
                           onKeyDown={(e) => {
-                            e.preventDefault()
                             if (e.key === "Escape") {
                               this.setState({ mode: null})
                             }
