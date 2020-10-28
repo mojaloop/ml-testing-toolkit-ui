@@ -36,7 +36,8 @@ import TraceHeaderUtils from "../../utils/traceHeaderUtils"
 
 import { getServerConfig } from '../../utils/getConfig'
 
-import { Input, Row, Col, Affix, Descriptions, Modal, Icon, message, Popover, Progress, Menu, Dropdown, Radio, Tabs, Table, Collapse, Drawer } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, Icon, message, Popover, Progress, Menu, Dropdown, Radio, Tabs, Table, Collapse, Drawer } from 'antd';
+import { WarningTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
@@ -51,6 +52,7 @@ import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 
 const { Panel } = Collapse;
+const { TabPane } = Tabs;
 
 const traceHeaderUtilsObj = new TraceHeaderUtils()
 
@@ -219,8 +221,8 @@ class OutboundRequest extends React.Component {
       newTestCaseName: '',
       createNewTestCaseDialogVisible: false,
       saveTemplateFileName: '',
-      saveTemplateDialogVisible: false,
-      saveTemplateOption: 1,
+      saveTemplateTestcasesDialogVisible: false,
+      saveTemplateEnvironmentDialogVisible: false,
       showTestCaseIndex: null,
       renameTestCase: false,
       totalPassedCount: 0,
@@ -475,16 +477,6 @@ class OutboundRequest extends React.Component {
     this.autoSave = true
   }
 
-  handleCreateNewTemplateClick = (templateName) => {
-    const newTemplate = {
-      name: templateName,
-      inputValues: {},
-      test_cases: []
-    }
-    this.setState({template: newTemplate, additionalData: { importedFilename: '' }})
-    this.autoSave = true
-  }
-
   download = (content, fileName, contentType) => {
     var a = document.createElement("a");
     var file = new Blob([content], {type: contentType});
@@ -548,16 +540,16 @@ class OutboundRequest extends React.Component {
     localStorage.setItem('additionalData', JSON.stringify(additionalData));
   }
 
-  handleTemplateSaveClick = (fileName) => {
+  handleTemplateSaveClick = (fileName, saveTemplateOption) => {
     if (!fileName.endsWith('.json')) {
       message.error('Filename should be ended with .json');
       return
     }
     let templateContent = {}
     const { inputValues, ...remainingTemplateContent } = this.state.template
-    if (this.state.saveTemplateOption === 1) {
+    if (saveTemplateOption === 1) {
       templateContent = { ...remainingTemplateContent }
-    } else if (this.state.saveTemplateOption === 2) {
+    } else if (saveTemplateOption === 2) {
       templateContent = { inputValues }
     }
     this.download(JSON.stringify(this.convertTemplate(templateContent), null, 2), fileName, 'text/plain');
@@ -957,90 +949,60 @@ class OutboundRequest extends React.Component {
       </>
     )
 
-    const createNewTemplateDialogContent = (
-      <>
-      <Input 
-        placeholder="Template name"
-        type="text"
-        value={this.state.newTemplateName}
-        onChange={(e) => { this.setState({newTemplateName: e.target.value })}}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") {
-            this.setState({createNewTemplateDialogVisible: false})
-          }
-        }}
-        onPressEnter={ () => {
-          this.handleCreateNewTemplateClick(this.state.newTemplateName)
-          this.setState({createNewTemplateDialogVisible: false})
-        }}
-      />
-      <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
-          onClick={ () => {
-            this.handleCreateNewTemplateClick(this.state.newTemplateName)
-            this.setState({createNewTemplateDialogVisible: false})
-          }}
-          size="sm"
-        >
-          Create
-      </Button>
-      </>
-    )
-
-    const saveTemplateDialogContent = (
-      <>
-      <Row>
-        <Col>
-          <Input 
-            placeholder="File name"
-            type="text"
-            value={this.state.saveTemplateFileName}
-            onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                this.setState({saveTemplateDialogVisible: false})
-              }
-            }}
-            onPressEnter={ () => {
-              this.handleTemplateSaveClick(this.state.saveTemplateFileName)
-              this.setState({saveTemplateDialogVisible: false})
-            }}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Radio.Group
-            onChange={e => {
-              this.setState({saveTemplateOption: e.target.value})
-            }}
-            value={this.state.saveTemplateOption}
-          >
-            <Radio value={1}>Collection</Radio>
-            <Radio value={2}>Environment</Radio>
-          </Radio.Group>      
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Button
-              className="text-right mt-2"
-              color="success"
-              href="#pablo"
-              onClick={ () => {
-                this.handleTemplateSaveClick(this.state.saveTemplateFileName)
-                this.setState({saveTemplateDialogVisible: false})
+    const getSaveTemplateDialogContent = (templateOption) => {
+      return (
+        <>
+        <Row>
+          <Col>
+            <Input 
+              placeholder="File name"
+              type="text"
+              value={this.state.saveTemplateFileName}
+              onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  if(templateOption==1) {
+                    this.setState({saveTemplateTestcasesDialogVisible: false})
+                  } else {
+                    this.setState({saveTemplateEnvironemntDialogVisible: false})
+                  }
+                }
               }}
-              size="sm"
-            >
-              Create
-          </Button>
-        </Col>
-      </Row>
-      </>
-    )
+              onPressEnter={ () => {
+                this.handleTemplateSaveClick(this.state.saveTemplateFileName, templateOption)
+                  if(templateOption==1) {
+                    this.setState({saveTemplateTestcasesDialogVisible: false})
+                  } else {
+                    this.setState({saveTemplateEnvironemntDialogVisible: false})
+                  }
+              }}
+            />
+          </Col>
+        </Row>
+
+        <Row>
+          <Col>
+            <Button
+                className="text-right mt-2"
+                color="success"
+                href="#pablo"
+                onClick={ () => {
+                  this.handleTemplateSaveClick(this.state.saveTemplateFileName, templateOption)
+                    if(templateOption==1) {
+                    this.setState({saveTemplateTestcasesDialogVisible: false})
+                  } else {
+                    this.setState({saveTemplateEnvironemntDialogVisible: false})
+                  }
+                }}
+                size="sm"
+              >
+                Create
+            </Button>
+          </Col>
+        </Row>
+        </>
+      )
+    }
 
     const SortableRuleItem = SortableElement(({value}) => <Panel header={value.name}></Panel>)
 
@@ -1217,16 +1179,6 @@ class OutboundRequest extends React.Component {
                                   </Collapse.Panel>
                                 </Collapse>
                               </Modal>
-                              <Button
-                                color="info"
-                                size="sm"
-                                onClick={ e => {
-                                  e.preventDefault();
-                                  this.environmentFileSelector.click();
-                                }}
-                              >
-                                Import Environment
-                              </Button>
                               {
                                 this.state.testCaseReorderingEnabled
                                 ? (
@@ -1288,46 +1240,14 @@ class OutboundRequest extends React.Component {
                               >
                                 { this.state.sendingOutboundRequestID ? 'Stop' : 'Send' }
                               </Button>
-                              <Popover
-                                className="float-right"
-                                content={saveTemplateDialogContent}
-                                title="Enter filename to save"
-                                trigger="click"
-                                visible={this.state.saveTemplateDialogVisible}
-                                onVisibleChange={ (visible) => this.setState({saveTemplateDialogVisible: visible})}
-                              >
-                                <Button
-                                    className="text-right float-right"
-                                    color="success"
-                                    size="sm"
-                                  >
-                                    Save
-                                </Button>
-                              </Popover>
                               <Button
                                 className="float-right"
                                 color="info"
                                 size="sm"
                                 onClick={() => { this.setState({showTemplate: true})}}
                               >
-                                Show Template
+                                Show Current Template
                               </Button>
-                              <Popover
-                                className="float-right"
-                                content={createNewTemplateDialogContent}
-                                title="Enter a name for the template"
-                                trigger="click"
-                                visible={this.state.createNewTemplateDialogVisible}
-                                onVisibleChange={ (visible) => this.setState({createNewTemplateDialogVisible: visible})}
-                              >
-                                <Button
-                                    className="text-right float-right"
-                                    color="primary"
-                                    size="sm"
-                                  >
-                                    New Template
-                                </Button>
-                              </Popover>
                               {
                                 getConfig().isAuthEnabled ?
                                 <>
@@ -1390,39 +1310,89 @@ class OutboundRequest extends React.Component {
                   </Row>
                   </Affix>
                   <Row>
-                    <Col span={14}>
-                      <Row>
-                        <Popover
-                          className="float-right"
-                          content={createNewTestCaseDialogContent}
-                          title="Enter a name for the template"
-                          trigger="click"
-                          visible={this.state.createNewTestCaseDialogVisible}
-                          onVisibleChange={ (visible) => this.setState({createNewTestCaseDialogVisible: visible})}
-                        >
-                          <Button
-                              className="text-right float-right mb-2"
-                              color="primary"
-                              size="sm"
-                            >
-                              Add Test Case
-                          </Button>
-                        </Popover>
-                      </Row>
-                      {
-                        this.state.testCaseReorderingEnabled
-                        ? (
-                          <SortableRuleList items={this.state.template.test_cases} onSortEnd={this.onTestCaseSortEnd} />
-                        )
-                        : (
+                    <Col>
+                      <Tabs defaultActiveKey='1'>
+                        <TabPane tab="Test Cases" key="1">
                           <Row>
-                            { this.getTestCaseItems() }
+                            <Popover
+                              className="float-right"
+                              content={getSaveTemplateDialogContent(1)}
+                              title="Enter filename to save"
+                              trigger="click"
+                              visible={this.state.saveTemplateTestcasesDialogVisible}
+                              onVisibleChange={ (visible) => this.setState({saveTemplateTestcasesDialogVisible: visible})}
+                            >
+                              <Button
+                                  className="text-right float-right"
+                                  color="success"
+                                  size="sm"
+                                >
+                                  Export Loaded Testcases
+                              </Button>
+                            </Popover>
+                            <Popover
+                              content={createNewTestCaseDialogContent}
+                              title="Enter a name for the template"
+                              trigger="click"
+                              visible={this.state.createNewTestCaseDialogVisible}
+                              onVisibleChange={ (visible) => this.setState({createNewTestCaseDialogVisible: visible})}
+                            >
+                              <Button
+                                  className="mb-2"
+                                  color="primary"
+                                  size="sm"
+                                >
+                                  Add Test Case
+                              </Button>
+                            </Popover>
                           </Row>
-                        )
-                      }
-                    </Col>
-                    <Col span={10} className='pl-2'>
-                      <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
+                          {
+                            this.state.testCaseReorderingEnabled
+                            ? (
+                              <SortableRuleList items={this.state.template.test_cases} onSortEnd={this.onTestCaseSortEnd} />
+                            )
+                            : (
+                              <Row>
+                                { this.getTestCaseItems() }
+                              </Row>
+                            )
+                          }
+                        </TabPane>
+                        <TabPane key="2" tab={this.state.template.inputValues && Object.keys(this.state.template.inputValues).length ? 'Input Values' : (<Badge offset={[20,0]} count={<WarningTwoTone twoToneColor="#f5222d" />}>Input Values</Badge>)}>
+                          <Row>
+                            <Popover
+                              className="float-right"
+                              content={getSaveTemplateDialogContent(2)}
+                              title="Enter filename to save"
+                              trigger="click"
+                              visible={this.state.saveTemplateEnvironementDialogVisible}
+                              onVisibleChange={ (visible) => this.setState({saveTemplateEnvironementDialogVisible: visible})}
+                            >
+                              <Button
+                                  className="text-right float-right"
+                                  color="success"
+                                  size="sm"
+                                >
+                                  Export Current Environment
+                              </Button>
+                            </Popover>
+                            <Button
+                              color="info"
+                              size="sm"
+                              className='float-right mr-2' 
+                              onClick={ e => {
+                                e.preventDefault();
+                                this.environmentFileSelector.click();
+                              }}
+                            >
+                              Import Environment
+                            </Button>
+                          </Row>
+                          <Row className='mt-2'>
+                            <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
+                          </Row>
+                        </TabPane>
+                      </Tabs>
                     </Col>
                   </Row>
                 </CardBody>
