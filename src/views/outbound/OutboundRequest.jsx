@@ -469,12 +469,18 @@ class OutboundRequest extends React.Component {
   }
 
   handleCreateNewTestCaseClick = (testCaseName) => {
-    // Find highest request id to determine the new ID
-    let maxId = +this.state.template.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
-
-    this.state.template.test_cases.push({ id: maxId+1, name: testCaseName })
-    this.forceUpdate()
-    this.autoSave = true
+    const fileSelected = this.getSingleFileSelected()
+    if(fileSelected) {
+      const fileTemplate = fileSelected.content
+      // Find highest request id to determine the new ID
+      let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+      fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName })
+      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+      this.forceUpdate()
+      this.autoSave = true
+    } else {
+      message.error('ERROR: no file selected or multiple files are selected');
+    }
   }
 
   download = (content, fileName, contentType) => {
@@ -630,9 +636,19 @@ class OutboundRequest extends React.Component {
   }
 
   handleTestCaseDelete = (testCaseId) => {
-    const deleteIndex = this.state.template.test_cases.findIndex(item => item.id == testCaseId)
-    this.state.template.test_cases.splice(deleteIndex,1)
-    this.handleTestCaseChange()
+    const fileSelected = this.getSingleFileSelected()
+    if(fileSelected) {
+      // const fileTemplate = this.state.template
+      const fileTemplate = fileSelected.content
+      const deleteIndex = fileTemplate.test_cases.findIndex(item => item.id == testCaseId)
+      fileTemplate.test_cases.splice(deleteIndex,1)
+      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+      this.forceUpdate()
+      this.autoSave = true
+      // this.handleTestCaseChange()
+    } else {
+      message.error('ERROR: no file selected or multiple files are selected');
+    }
   }
 
   handleTestCaseDuplicate = (testCaseId) => {
@@ -913,6 +929,22 @@ class OutboundRequest extends React.Component {
         this.state.notFound = false
       }
     })
+  }
+
+  getSingleFileSelected = () => {
+    const selectedFiles = this.state.additionalData.selectedFiles
+    let fileSelected = null
+    for(let i=0; i<selectedFiles.length; i++) {
+      const fileNode = FolderParser.findNodeFromAbsolutePath(selectedFiles[i], this.state.folderData)
+      if (fileNode.extraInfo.type === 'file') {
+        if(fileSelected) {
+          return null
+        } else {
+          fileSelected = fileNode
+        }
+      }
+    }
+    return fileSelected
   }
 
   render() {
