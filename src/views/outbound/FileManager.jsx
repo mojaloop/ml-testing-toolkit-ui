@@ -1,6 +1,6 @@
 import React from "react";
 import _ from 'lodash';
-import { Button, Row, Col, message } from 'antd';
+import { Button, Popconfirm, Row, Col, message } from 'antd';
 import FolderBrowser from "./FolderBrowser.jsx";
 import { FolderParser } from 'ml-testing-toolkit-shared-lib'
 import { DownloadOutlined } from '@ant-design/icons';
@@ -317,11 +317,41 @@ class FileManager extends React.Component {
     }
   }
 
+  handleStartNewFolder = () => {
+    const newFolderData = [
+      {
+        key: 'new-folder',
+        title: 'new-folder',
+        children:[],
+        extraInfo: {type: 'folder'}
+      }
+    ]
+    this.props.onChange(newFolderData, [])
+  }
+
   render() {
     
     return (
       <>
         <Row>
+          <Col>
+            <Popconfirm
+              title="All the changes you did for the existing test cases will be deleted. Are you sure?"
+              onConfirm={this.handleStartNewFolder}
+              okText="Yes"
+              okButtonProps={{type: 'danger'}}
+              cancelText="No"
+            >
+              <Button
+                type="danger"
+                size="default"
+              >
+                Create a new folder
+              </Button>
+            </Popconfirm>
+          </Col>
+        </Row>
+        <Row className="mt-2">
           <Col>
             <Button
               type="default"
@@ -355,7 +385,6 @@ class FileManager extends React.Component {
             >
               Import Folder
             </Button>
-
           </Col>
         </Row>
         <Row>
