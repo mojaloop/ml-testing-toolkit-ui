@@ -257,6 +257,7 @@ class OutboundRequest extends React.Component {
       curTestCasesUpdated: false,
       testCaseRequestsReorderingEnabled: false,
       curTestCasesRequestsUpdated: false,
+      tempReorderedTestCases: [],
     };
   }
 
@@ -912,23 +913,8 @@ class OutboundRequest extends React.Component {
 
   onTestCaseSortEnd = ({oldIndex, newIndex}) => {
     // Change the position in array
-    this.state.template.test_cases = arrayMove(this.state.template.test_cases, oldIndex, newIndex) 
-    this.state.folderData.forEach(element => {
-      this.checkChildren(element.children)
-    })
+    this.state.tempReorderedTestCases = arrayMove(this.state.tempReorderedTestCases, oldIndex, newIndex) 
     this.setState({curTestCasesUpdated: true})
-    this.autoSaveFolderData(this.state.folderData)
-  }
-
-  checkChildren = (children) => {
-    children.forEach(child => {
-      if (child.children) {
-          this.checkChildren(child.children)
-      } else if (this.state.additionalData.selectedFiles[0] === child.key) {
-        child.content.test_cases = this.state.template.test_cases
-        this.state.notFound = false
-      }
-    })
   }
 
   getSingleFileSelected = () => {
@@ -1211,44 +1197,6 @@ class OutboundRequest extends React.Component {
                                   </Collapse.Panel>
                                 </Collapse>
                               </Modal>
-                              {
-                                this.state.testCaseReorderingEnabled
-                                ? (
-                                  <Button
-                                    className="text-right"
-                                    color="danger"
-                                    href="#pablo"
-                                    onClick={async () => {
-                                      if (this.state.curTestCasesUpdated) {
-                                        this.setState({curTestCasesUpdated: false})
-                                      } else {
-                                        message.error({ content: 'no changes found', key: 'TestCaseRequestsReordering', duration: 3 });
-                                      }
-                                      this.setState({testCaseReorderingEnabled: false})
-                                    }}
-                                    size="sm"
-                                  >
-                                    Apply Reorder test cases
-                                  </Button>
-                                )
-                                : (
-                                  this.state.additionalData && this.state.additionalData.selectedFiles && this.state.additionalData.selectedFiles.length === 1
-                                  ?
-                                  <Button
-                                    className="text-right"
-                                    color="success"
-                                    href="#pablo"
-                                    onClick={ () => {
-                                        this.setState({testCaseReorderingEnabled: true})
-                                    }}
-                                    size="sm"
-                                  >
-                                    Reorder Test Cases
-                                  </Button>
-                                  :
-                                  null
-                                )
-                              }
                             </Col>
                             <Col span={8} className="text-center">
                             {
@@ -1345,7 +1293,7 @@ class OutboundRequest extends React.Component {
                     <Col>
                       <Tabs defaultActiveKey='1'>
                         <TabPane tab="Test Cases" key="1">
-                          <Row>
+                          <Row className="mb-2">
                             <Popover
                               className="float-right"
                               content={getSaveTemplateDialogContent(1)}
@@ -1370,18 +1318,77 @@ class OutboundRequest extends React.Component {
                               onVisibleChange={ (visible) => this.setState({createNewTestCaseDialogVisible: visible})}
                             >
                               <Button
-                                  className="mb-2"
                                   color="primary"
                                   size="sm"
                                 >
                                   Add Test Case
                               </Button>
                             </Popover>
+                            {
+                                this.state.testCaseReorderingEnabled
+                                ? (
+                                  <>
+                                  <Button
+                                    className="text-right"
+                                    color="success"
+                                    href="#pablo"
+                                    onClick={async () => {
+                                      if (this.state.curTestCasesUpdated) {
+                                        const fileSelected = this.getSingleFileSelected()
+                                        fileSelected.content.test_cases = this.state.tempReorderedTestCases
+                                        this.regenerateTemplate(this.state.additionalData.selectedFiles)
+                                        this.setState({curTestCasesUpdated: false, tempReorderedTestCases: []})
+                                        this.autoSaveFolderData(this.state.folderData)
+                                      } else {
+                                        message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 });
+                                      }
+                                      this.setState({testCaseReorderingEnabled: false})
+                                    }}
+                                    size="sm"
+                                  >
+                                    Apply Reordering
+                                  </Button>
+                                  <Button
+                                    className="text-right"
+                                    color="danger"
+                                    href="#pablo"
+                                    onClick={async () => {
+                                      this.setState({curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: []})
+                                    }}
+                                    size="sm"
+                                  >
+                                    Cancel Reordering
+                                  </Button>
+                                  </>
+                                )
+                                : (
+                                  this.state.additionalData && this.state.additionalData.selectedFiles
+                                  ?
+                                  <Button
+                                    className="text-right"
+                                    color="info"
+                                    href="#pablo"
+                                    onClick={ () => {
+                                      const fileSelected = this.getSingleFileSelected()
+                                      if(fileSelected) {
+                                        this.setState({tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true})
+                                      } else {
+                                        message.error('ERROR: Only one file should be selected to reorder the testcases')
+                                      }
+                                    }}
+                                    size="sm"
+                                  >
+                                    Reorder Test Cases
+                                  </Button>
+                                  :
+                                  null
+                                )
+                              }
                           </Row>
                           {
                             this.state.testCaseReorderingEnabled
                             ? (
-                              <SortableRuleList items={this.state.template.test_cases} onSortEnd={this.onTestCaseSortEnd} />
+                              <SortableRuleList items={this.state.tempReorderedTestCases} onSortEnd={this.onTestCaseSortEnd} />
                             )
                             : (
                               <Row>
