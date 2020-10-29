@@ -1,6 +1,6 @@
 {
   "name": "ml-testing-toolkit-ui",
-  "version": "11.2.4",
+  "version": "11.2.5",
   "description": "Frontend UI for Mojaloop Testing Toolkit",
   "main": "index.js",
   "repository": {
@@ -84,7 +84,7 @@
     "socket.io-client": "^2.3.0",
     "redoc": "2.0.0-rc.40",
     "styled-components": "5.2.0",
-    "ml-testing-toolkit-shared-lib": "11.0.0"
+    "ml-testing-toolkit-shared-lib": "11.0.1"
   },
   "devDependencies": {
     "@types/googlemaps": "3.30.18",

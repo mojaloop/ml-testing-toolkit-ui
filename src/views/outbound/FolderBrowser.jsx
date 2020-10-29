@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import _ from 'lodash';
 import { FileTwoTone, TagTwoTone, FolderTwoTone, FolderOpenTwoTone, DownOutlined } from '@ant-design/icons';
-import { Button, Tree, Popconfirm, Input, Menu, Modal, Row, Col } from 'antd';
+import { Button, Tree, message, Input, Menu, Modal, Row, Col } from 'antd';
 import 'antd/dist/antd.css';
 
 
@@ -42,9 +42,9 @@ class FolderBrowser extends React.Component {
     this.setState({checkedKeys: this.props.selectedFiles, expandedKeys: [this.state.rootNodeKey]})
   }
 
-  componentWillUpdate = () => {
+  componentDidUpdate = () => {
     this.state.checkedKeys = this.props.selectedFiles
-if (this.state.treeDataArray != this.props.folderData) {
+    if (this.state.treeDataArray != this.props.folderData) {
       this.convertFolderData(this.props.folderData)
       this.setState({treeDataArray: this.props.folderData})
     }
@@ -177,10 +177,14 @@ if (this.state.treeDataArray != this.props.folderData) {
       case "newFolder":
         {
           let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+          let keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.children.map(item => item.key)
           if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf()) {
-            levelPrefix = levelInfo.levelPrefix
+            if(this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo  && this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo.type !== 'folder') {
+              levelPrefix = levelInfo.levelPrefix
+              keysInSameLevel = levelInfo.nodesInSameLevel.map(item => item.key)
+            }
           }
-          await this.setState({inputDialogEnabled: true, inputDialogData: { title: 'Enter a file / folder name to create', key:e.key, extraData: { levelPrefix }}})
+          await this.setState({inputDialogEnabled: true, inputDialogData: { title: 'Enter a file / folder name to create', key:e.key, extraData: { levelPrefix, keysInSameLevel }}})
           this.inputDialogRef.focus()
           break
         }
@@ -213,11 +217,19 @@ if (this.state.treeDataArray != this.props.folderData) {
     // The following line should be await for updating the tree with new changes
     await this.setState({inputDialogEnabled: false, inputDialogValue: ''})
     switch(this.state.inputDialogData.key) {
-      case 'newFile':
-        this.props.onAddFileOrFolder(this.state.inputDialogData.extraData.levelPrefix, inputValue, false)
+      case 'newFile':        
+        if(this.state.inputDialogData.extraData.keysInSameLevel.includes(this.state.inputDialogData.extraData.levelPrefix + '/' + inputValue)) {
+          message.error('ERROR: Filename exists');
+        } else {
+          this.props.onAddFileOrFolder(this.state.inputDialogData.extraData.levelPrefix, inputValue, false)
+        }
         break
       case 'newFolder':
-        this.props.onAddFileOrFolder(this.state.inputDialogData.extraData.levelPrefix, inputValue, true)
+        if(this.state.inputDialogData.extraData.keysInSameLevel.includes(this.state.inputDialogData.extraData.levelPrefix + '/' + inputValue)) {
+          message.error('ERROR: Filename exists');
+        } else {
+          this.props.onAddFileOrFolder(this.state.inputDialogData.extraData.levelPrefix, inputValue, true)
+        }
         break
       case 'rename':
         this.props.onRenameFileOrFolder(this.state.inputDialogData.extraData.fileKey, inputValue, this.state.inputDialogData.extraData.levelPrefix)
