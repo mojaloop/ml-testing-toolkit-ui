@@ -1273,7 +1273,7 @@ class OutboundRequest extends React.Component {
                                 { this.state.sendingOutboundRequestID ? 'Stop' : 'Send' }
                               </Button>
                               <Button
-                                className="float-right"
+                                className="float-right mr-2"
                                 color="info"
                                 size="sm"
                                 onClick={() => { this.setState({showTemplate: true})}}
