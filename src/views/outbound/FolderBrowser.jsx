@@ -31,7 +31,8 @@ class FolderBrowser extends React.Component {
         description: '',
         key: '',
         extraData: {}
-      }
+      },
+      copiedFile: null
     }
   }
 
@@ -209,6 +210,38 @@ class FolderBrowser extends React.Component {
           this.hideContextMenu()
           break
         }
+      case "copy":
+        {
+          const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+          const fileTitle = this.state.rightClickNodeTreeItem.nodeRef.props.title
+          message.info('Copied file')
+          this.setState({copiedFile: { key: fileKey, title: fileTitle, extraInfo: this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo }})
+          this.hideContextMenu()
+          break
+        }
+      case "paste":
+      case "pasteRef":
+        {
+          let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+          let keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.children.map(item => item.key)
+          if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf()) {
+            if(this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo  && this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo.type !== 'folder') {
+              levelPrefix = levelInfo.levelPrefix
+              keysInSameLevel = levelInfo.nodesInSameLevel.map(item => item.key)
+            }
+          }
+          if(keysInSameLevel.includes(levelPrefix + '/' + this.state.copiedFile.title)) {
+            message.error('ERROR: An item with same name exists in this folder');
+          } else {
+            if(e.key === 'pasteRef') {
+              this.props.onPasteReference(this.state.copiedFile.key, this.state.copiedFile.title, levelPrefix)
+            } else {
+              this.props.onPaste(this.state.copiedFile.key, levelPrefix)
+            }
+          }
+          this.hideContextMenu()
+          break
+        }
     }
   }
 
@@ -277,6 +310,19 @@ class FolderBrowser extends React.Component {
           <Menu.Item key='rename'>Rename</Menu.Item>
           <Menu.Item key='delete'>Delete</Menu.Item>
           <Menu.Item key='duplicate'>Duplicate</Menu.Item>
+          <Menu.Item key='copy'>Copy</Menu.Item>
+          {
+            this.state.copiedFile
+            ? (
+              <Menu.Item key='paste'>Paste</Menu.Item>
+            ) : null
+          }
+          {
+            this.state.copiedFile && this.state.copiedFile.extraInfo.type === 'file'
+            ? (
+              <Menu.Item key='pasteRef'>Paste Reference</Menu.Item>
+            ) : null
+          }
         </Menu>
       </div>
     );
