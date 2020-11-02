@@ -66,7 +66,6 @@ class FileManager extends React.Component {
   }
 
   getNodeAtPosition = (parentNode, posArray) => {
-    // console.log(posArray, parentNode)
     const foundNode = parentNode[posArray[0]]
     if (posArray.length === 1) {
       return foundNode
@@ -115,6 +114,7 @@ class FileManager extends React.Component {
       // Delete the file or folder
       parentNode.splice(foundNodeIndex,1)
     } else {
+      // console.log(locationArray, parentNode)
       this.deleteNodeAtLocation(parentNode[foundNodeIndex].children, locationArray.slice(1))
     }
   }
@@ -134,6 +134,32 @@ class FileManager extends React.Component {
       parentNode.splice(posArray[0], 0, nodeItem)
     } else {
       this.addNodeAtPosition(parentNode[posArray[0]].children, posArray.slice(1), nodeItem)
+    }
+  }
+
+  addNodeAtLocation = (parentNode, locationArray, nodeItem) => {
+    const foundNodeIndex = parentNode.findIndex(item => item.title === locationArray[0])
+    if (locationArray.length === 1) {
+      parentNode[foundNodeIndex].children.push(nodeItem)
+    } else {
+      this.addNodeAtLocation(parentNode[foundNodeIndex].children, locationArray.slice(1), nodeItem)
+    }
+  }
+
+  addFileReferenceAtLocation = (parentNode, locationArray, fileLocation, refKey, refTitle) => {
+    const foundNodeIndex = parentNode.findIndex(item => item.title === locationArray[0])
+    if (locationArray.length === 1) {
+      parentNode[foundNodeIndex].children.push({
+        key: refKey,
+        title: refTitle,
+        isLeaf: true,
+        extraInfo: {
+          type: 'fileRef',
+          path: '/' + fileLocation
+        }
+      })
+    } else {
+      this.addFileReferenceAtLocation(parentNode[foundNodeIndex].children, locationArray.slice(1), fileLocation, refKey, refTitle)
     }
   }
 
@@ -259,6 +285,26 @@ class FileManager extends React.Component {
     this.deleteNodeAtPosition(this.props.folderData, dragPos)
     // Add the node at the drop position
     this.addNodeAtPosition(this.props.folderData, dropPos, nodeItemCopy)
+    const newFolderData = [...this.props.folderData]
+    this.props.onChange(newFolderData, [])
+  }
+
+  handlePaste = async (fileLocation, levelPrefix) => {
+    // Find the node item from the drag position
+    const nodeItem = this.getNodeFromLocation(this.props.folderData, fileLocation.split('/'))
+    // Deep copy the node data into a variable
+    const nodeItemCopy = JSON.parse(JSON.stringify(nodeItem))
+    // Reset the keys for the moved node
+    this.resetKeysRecursively(nodeItemCopy, levelPrefix)
+    // Copy the node at the paste location
+    this.addNodeAtLocation(this.props.folderData, levelPrefix.split('/'), nodeItemCopy)
+    const newFolderData = [...this.props.folderData]
+    this.props.onChange(newFolderData, [])
+  }
+
+  handlePasteRef = async (fileLocation, refTitle, levelPrefix) => {
+    // Copy the node reference at the paste location
+    this.addFileReferenceAtLocation(this.props.folderData, levelPrefix.split('/'), fileLocation, levelPrefix + '/' + refTitle, refTitle)
     const newFolderData = [...this.props.folderData]
     this.props.onChange(newFolderData, [])
   }
@@ -399,6 +445,8 @@ class FileManager extends React.Component {
               onDuplicateFileOrFolder={this.handleDuplicateFileOrFolder}
               onRenameFileOrFolder={this.handleRenameFileOrFolder}
               onMoveFileOrFolder={this.handleMoveFileOrFolder}
+              onPaste={this.handlePaste}
+              onPasteReference={this.handlePasteRef}
             />
           </Col>
         </Row>
