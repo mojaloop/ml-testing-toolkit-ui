@@ -1,30 +1,32 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
-import { Link } from "react-router-dom";
-// reactstrap components
-import {
-  Navbar,
-  Container,
-  Button
-} from "reactstrap";
+import { Layout, Button, Typography } from 'antd'
 import getConfig from '../../utils/getConfig'
 
+const { Header } = Layout;
+const { Title } = Typography;
 
 class AdminNavbar extends React.Component {
   render() {
@@ -32,14 +34,18 @@ class AdminNavbar extends React.Component {
     const { isAuthEnabled } = getConfig()
     return (
       <>
-        <Navbar className="navbar-top navbar-dark" expand="md" id="navbar-main">
-          <Container fluid>
-            <Link
-              className="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block"
-              to="/"
+        <Header
+          style={{
+            height: '10vh',
+            background: '#293e5d'
+          }}
+        >
+            <Title
+              level={4}
+              className="text-white text-uppercase d-none d-lg-inline-block"
             >
               {this.props.brandText}
-            </Link>
+            </Title>
             {
               dfspId
               ?
@@ -63,23 +69,8 @@ class AdminNavbar extends React.Component {
                 Logout
               </Button>
               : null
-            }
-            
-            {/* <Form className="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
-              <FormGroup className="mb-0">
-                <InputGroup className="input-group-alternative">
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <i className="fas fa-search" />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input placeholder="Search" type="text" />
-                </InputGroup>
-              </FormGroup>
-            </Form> */}
-            
-          </Container>
-        </Navbar>
+            }            
+        </Header>
       </>
     );
   }

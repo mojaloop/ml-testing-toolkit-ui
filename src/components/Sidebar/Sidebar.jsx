@@ -1,57 +1,35 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-/*eslint-disable*/
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 import { NavLink as NavLinkRRD, Link } from "react-router-dom";
-// nodejs library to set properties for components
-import { PropTypes } from "prop-types";
 
-// reactstrap components
-import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
-  Collapse,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  DropdownToggle,
-  FormGroup,
-  Form,
-  Input,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroup,
-  Media,
-  NavbarBrand,
-  Navbar,
-  NavItem,
-  NavLink,
-  Nav,
-  Progress,
-  Table,
-  Container,
-  Row,
-  Col,
-  NavbarToggler
-} from "reactstrap";
+import { Layout, Row, Col, Menu, Typography } from 'antd'
+import logo from '../../assets/img/mojaloop.png';
+
+const { Text, Title } = Typography;
+const { Sider } = Layout;
+
 
 var ps;
 
@@ -83,156 +61,52 @@ class Sidebar extends React.Component {
   createLinks = routes => {
     return routes.map((prop, key) => {
       return (
-        <NavItem key={key}>
-          <NavLink
+        <Menu.Item key={key} icon={prop.icon}>
+          <Link
+            className="text-uppercase d-none d-lg-inline-block"
             to={prop.layout + prop.path}
-            tag={NavLinkRRD}
-            onClick={this.closeCollapse}
-            activeClassName="active"
           >
-            <i className={prop.icon} />
-            {prop.name}
-            <br /> {prop.subTitle}
-          </NavLink>
-        </NavItem>
+            {prop.name}<br /> {prop.subTitle}
+          </Link>
+        </Menu.Item>
       );
     });
   };
   render() {
-    const { bgColor, routes, logo } = this.props;
-    let navbarBrandProps;
-    if (logo && logo.innerLink) {
-      navbarBrandProps = {
-        to: logo.innerLink,
-        tag: Link
-      };
-    } else if (logo && logo.outterLink) {
-      navbarBrandProps = {
-        href: logo.outterLink,
-        target: "_blank"
-      };
-    }
+    const { routes } = this.props;
+
     return (
-      <Navbar
-        className="navbar-vertical fixed-left navbar-light bg-white"
-        expand="md"
-        id="sidenav-main"
+      <Sider
+        width={250}
+        style={{
+          height: '100vh',
+          background: '#fff'
+        }}
       >
-        <Container fluid>
-          {/* Toggler */}
-          <button
-            className="navbar-toggler"
-            type="button"
-            onClick={this.toggleCollapse}
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
-          {/* Brand */}
-          {logo ? (
-            <NavbarBrand className="pt-0" {...navbarBrandProps}>
-              <img
-                alt={logo.imgAlt}
-                className="navbar-brand-img"
-                src={logo.imgSrc}
-              />
-              <br />
-              <h4 className="mb-0">Testing Toolkit</h4>
-            </NavbarBrand>
-          ) : null}
-          {/* User */}
-          <Nav className="align-items-center d-md-none">
-            <UncontrolledDropdown nav>
-              <DropdownToggle nav className="nav-link-icon">
-                <i className="ni ni-bell-55" />
-              </DropdownToggle>
-              <DropdownMenu
-                aria-labelledby="navbar-default_dropdown_1"
-                className="dropdown-menu-arrow"
-                right
-              >
-                <DropdownItem>Action</DropdownItem>
-                <DropdownItem>Another action</DropdownItem>
-                <DropdownItem divider />
-                <DropdownItem>Something else here</DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-          </Nav>
-          {/* Collapse */}
-          <Collapse navbar isOpen={this.state.collapseOpen}>
-            {/* Collapse header */}
-            <div className="navbar-collapse-header d-md-none">
-              <Row>
-                {logo ? (
-                  <Col className="collapse-brand" xs="6">
-                    {logo.innerLink ? (
-                      <Link to={logo.innerLink}>
-                        <img alt={logo.imgAlt} src={logo.imgSrc} />
-                      </Link>
-                    ) : (
-                      <a href={logo.outterLink}>
-                        <img alt={logo.imgAlt} src={logo.imgSrc} />
-                      </a>
-                    )}
-                  </Col>
-                ) : null}
-                <Col className="collapse-close" xs="6">
-                  <button
-                    className="navbar-toggler"
-                    type="button"
-                    onClick={this.toggleCollapse}
-                  >
-                    <span />
-                    <span />
-                  </button>
-                </Col>
-              </Row>
-            </div>
-            {/* Form */}
-            <Form className="mt-4 mb-3 d-md-none">
-              <InputGroup className="input-group-rounded input-group-merge">
-                <Input
-                  aria-label="Search"
-                  className="form-control-rounded form-control-prepended"
-                  placeholder="Search"
-                  type="search"
-                />
-                <InputGroupAddon addonType="prepend">
-                  <InputGroupText>
-                    <span className="fa fa-search" />
-                  </InputGroupText>
-                </InputGroupAddon>
-              </InputGroup>
-            </Form>
-            {/* Navigation */}
-            <Nav navbar>{this.createLinks(routes)}</Nav>
-            {/* Divider */}
-            <hr className="my-3" />
-          </Collapse>
-        </Container>
-      </Navbar>
+        <Row className="pt-0">
+          <Col span={4}></Col>
+          <Col span={16} className="text-center">
+          <img
+            alt="Mojaloop"
+            className="img-fluid"
+            src={logo}
+          />
+          </Col>
+          <Col span={4}></Col>
+        </Row>
+        <Row>
+          <Col span={24} className="text-center">
+            <Title level={4} className="font-weight-light">Testing Toolkit</Title>
+          </Col>
+        </Row>
+        <Menu className="mt-4" mode="inline"
+          selectedKeys={[this.state.current]}
+        >
+          {this.createLinks(routes)}
+        </Menu>
+      </Sider>
     );
   }
 }
-
-Sidebar.defaultProps = {
-  routes: [{}]
-};
-
-Sidebar.propTypes = {
-  // links that will be displayed inside the component
-  routes: PropTypes.arrayOf(PropTypes.object),
-  logo: PropTypes.shape({
-    // innerLink is for links that will direct the user within the app
-    // it will be rendered as <Link to="...">...</Link> tag
-    innerLink: PropTypes.string,
-    // outterLink is for links that will direct the user outside the app
-    // it will be rendered as simple <a href="...">...</a> tag
-    outterLink: PropTypes.string,
-    // the image src of the logo
-    imgSrc: PropTypes.string.isRequired,
-    // the alt for the img
-    imgAlt: PropTypes.string.isRequired
-  })
-};
 
 export default Sidebar;

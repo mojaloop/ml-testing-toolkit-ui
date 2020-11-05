@@ -1,35 +1,35 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Georgi Logodazhki <georgi.logodazhki@modusbox.com>
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 import _ from 'lodash';
 
-// reactstrap components
-import {
-  FormGroup,
-  Button,
-  CardBody,
-  CardHeader
-} from "reactstrap";
-// core components
 import axios from 'axios';
-// import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch } from 'antd';
+import { Select, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch, Button, Typography } from 'antd';
 import 'antd/dist/antd.css';
+import { DeleteTwoTone } from '@ant-design/icons';
+
 // import './index.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -46,6 +46,7 @@ const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { Text } = Typography;
 
 class ConfigurableParameter extends React.Component {
 
@@ -372,31 +373,26 @@ class PathBuilder extends React.Component {
     }
     return (
       <Row className="mb-2">
-        <Col>
+        <Col span={24}>
           <Card size="small" title="Path Parameters">
             <Row>
               <Col span={24}>
-                <FormGroup>
-                  {(
-                    pathItems.map(item => {
-                      return (
-                        <Row className="mb-2" key={item.name}>
-                          <Col span={8}>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-city"
-                            >
-                              {item.name}
-                            </label>
-                          </Col>
-                          <Col span={16}>
-                            { this.getValueInput(item) }
-                          </Col>
-                        </Row>
-                      )
-                    })
-                  )}
-                </FormGroup>
+                {(
+                  pathItems.map(item => {
+                    return (
+                      <Row className="mb-2" key={item.name}>
+                        <Col span={8}>
+                          <Text strong>
+                            {item.name}
+                          </Text>
+                        </Col>
+                        <Col span={16}>
+                          { this.getValueInput(item) }
+                        </Col>
+                      </Row>
+                    )
+                  })
+                )}
               </Col>
             </Row>
           </Card>
@@ -433,6 +429,7 @@ class PathBuilder extends React.Component {
         <Select
           onChange={(value) => this.handleValueChange(pathParam.name, value)}
           value={this.props.request.params[pathParam.name]}
+          style={{width:"100%"}}
         >
         { pathParam.schema.enum.map(item => {
           return (
@@ -503,7 +500,7 @@ class OptionsBuilder extends React.Component {
     return (
       <>
       <Row className="mb-2">
-        <Col>
+        <Col span={24}>
           <Card size="small" title="Options">
             <Row className="mt-2">
               <Col span={24}>
@@ -514,12 +511,9 @@ class OptionsBuilder extends React.Component {
                     this.setState({overrideCheckboxSelected: e.target.checked})
                   }}
                 />
-                <label
-                  className="form-control-label ml-2"
-                  htmlFor="input-city"
-                >
+                <Text strong className="ml-2">
                   Override with Custom URL
-                </label>
+                </Text>
               </Col>
             </Row>
             {
@@ -527,12 +521,9 @@ class OptionsBuilder extends React.Component {
               ? (
                 <Row className="mt-2">
                   <Col span={8}>
-                    <label
-                      className="form-control-label"
-                      htmlFor="input-city"
-                    >
+                    <Text strong>
                       Enter Base URL
-                    </label>
+                    </Text>
                   </Col>
                   <Col span={16}>
                     <Input
@@ -554,12 +545,9 @@ class OptionsBuilder extends React.Component {
                     this.props.onChange()
                   }}
                 />
-                <label
-                  className="form-control-label ml-2"
-                  htmlFor="input-city"
-                >
+                <Text strong className="ml-2">
                   Ignore Callbacks
-                </label>
+                </Text>
               </Col>
             </Row>
             <Row className="mt-2">
@@ -576,24 +564,18 @@ class OptionsBuilder extends React.Component {
                     this.setState({delayCheckboxSelected: e.target.checked})
                   }}
                 />
-                <label
-                  className="form-control-label ml-2"
-                  htmlFor="input-city"
-                >
+                <Text strong className="ml-2">
                   Use delay
-                </label>
+                </Text>
               </Col>
               {
                   this.state.delayCheckboxSelected || this.props.request.delay
                   ? (
                     <Row className="mt-2">
                       <Col span={8}>
-                        <label
-                          className="form-control-label"
-                          htmlFor="input-city"
-                        >
+                        <Text strong>
                           Enter Delay in milliseconds
-                        </label>
+                        </Text>
                       </Col>
                       <Col span={16}>
                         <Input
@@ -709,19 +691,40 @@ class QueryParamsBuilder extends React.Component {
     return (
       <>
         <Row className="mb-2">
-          <Col>
+          <Col span={24}>
             <Card size="small" title="Query Parameters">
               <Row>
-                <Col className="float-right">
+                <Col span={12}>
+                  {
+                    !this.state.queryParamRawEditorEnable
+                    ? <Popover
+                        content={addQueryParamDialogContent}
+                        title="Enter name for the parameter"
+                        trigger="click"
+                        visible={this.state.addQueryParamDialogVisible}
+                        onVisibleChange={ (visible) => this.setState({addQueryParamDialogVisible: true})}
+                      >
+                        <Button
+                          type="primary"
+                        >
+                          Add Param
+                        </Button>
+                      </Popover>
+                    : null
+                  }
+                </Col>
+                <Col span={12} className="text-right">
                   <strong>Raw Editor</strong> <Switch checked={this.state.queryParamRawEditorEnable} onChange={(checked) => { this.setState({queryParamRawEditorEnable: checked}) }} />
                 </Col>
+              </Row>
+              <Row className="mt-2">
                 <Col span={24}>
                   {
                     this.state.queryParamRawEditorEnable
                     ? (
                       <div>
                         <Row>
-                          <Col className="text-left mt-4">
+                          <Col span={24} className="text-left mt-4">
                             <Editor
                               ref="queryParamsEditor"
                               value={ this.props.request.queryParams || {} }
@@ -740,45 +743,19 @@ class QueryParamsBuilder extends React.Component {
                     )
                     : (
                       <>
-                      <FormGroup>
-                        <Row>
-                          <Col span={8}>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-city"
-                            >
-                              Name
-                            </label>
-                          </Col>
-                          <Col span={8}>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-city"
-                            >
-                              Value
-                            </label>
-                          </Col>
-                        </Row>
-                        {this.getQueryParamItems()}
-                      </FormGroup>
                       <Row>
-                        <Col>
-                          <Popover
-                            content={addQueryParamDialogContent}
-                            title="Enter name for the parameter"
-                            trigger="click"
-                            visible={this.state.addQueryParamDialogVisible}
-                            onVisibleChange={ (visible) => this.setState({addQueryParamDialogVisible: true})}
-                          >
-                            <Button
-                                color="warning"
-                                size="sm"
-                              >
-                                Add Param
-                            </Button>
-                          </Popover>
+                        <Col span={8}>
+                          <Text strong>
+                            Name
+                          </Text>
+                        </Col>
+                        <Col span={8}>
+                          <Text strong>
+                            Value
+                          </Text>
                         </Col>
                       </Row>
+                      {this.getQueryParamItems()}
                       </>
                     )
                   }                  
@@ -877,7 +854,7 @@ class QueryParamsInputComponent extends React.Component {
           {this.getDynamicValue()}
         </Col>
         <Col span={2}>
-          <Icon type="delete" theme="twoTone" twoToneColor="#eb2f96"
+          <DeleteTwoTone twoToneColor="#eb2f96"
             key={this.props.name}
             onClick={this.handleDelete}
           />
@@ -1059,7 +1036,7 @@ class HeaderBodyBuilder extends React.Component {
     const content = (
       <>
       <Row>
-        <Col>
+        <Col span={24}>
           <ConfigurableParameter
             onChange={this.handleAddConfigParam}
             rootParameters={this.props.rootParameters}
@@ -1075,7 +1052,7 @@ class HeaderBodyBuilder extends React.Component {
         this.state.configurableParameterSelected ?
         (
           <Row className="mt-4 text-center">
-            <Col>
+            <Col span={24}>
               Click below to copy <br/>
               <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
             </Col>
@@ -1088,43 +1065,65 @@ class HeaderBodyBuilder extends React.Component {
 
     const addCustomHeaderDialogContent = (
       <>
-      <Input 
-        placeholder="Enter name"
-        type="text"
-        value={this.state.newCustomHeaderName}
-        onChange={(e) => { this.setState({newCustomHeaderName: e.target.value })}}
-      />
-      <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
-          onClick={ () => {
-            this.addHeaderItem(this.state.newCustomHeaderName)
-            this.setState({addCustomHeaderDialogVisible: false})
-          }}
-          size="sm"
-        >
-          Add
-      </Button>
+      <Row>
+        <Col span={24}>
+          <Input 
+            placeholder="Enter name"
+            type="text"
+            value={this.state.newCustomHeaderName}
+            onChange={(e) => { this.setState({newCustomHeaderName: e.target.value })}}
+          />
+        </Col>
+      </Row>
+      <Row className="mt-2">
+        <Col span={24}>
+          <Button
+              type="primary"
+              onClick={ () => {
+                this.addHeaderItem(this.state.newCustomHeaderName)
+                this.setState({addCustomHeaderDialogVisible: false})
+              }}
+            >
+              Add
+          </Button>
+          <Button
+              className="ml-2"
+              type="default"
+              danger
+              onClick={ () => {
+                this.setState({addCustomHeaderDialogVisible: false})
+              }}
+            >
+              Cancel
+          </Button>
+        </Col>
+      </Row>
       </>
     )
 
     return (
       <>
         <Row>
-          <Col>
+          <Col span={24}>
             <Card size="small" title="Headers">
               <Row>
-                <Col className="float-right">
+                <Col span={12}>
+                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                    <Button type="dashed">Add Configurable Params</Button>
+                  </Popover>
+                </Col>
+                <Col span={12} className="text-right">
                   <strong>Raw Editor</strong> <Switch checked={this.state.headersRawEditorEnable} onChange={(checked) => { this.setState({headersRawEditorEnable: checked}) }} />
                 </Col>
+              </Row>
+              <Row className="mt-2">
                 <Col span={24}>
                   {
                     this.state.headersRawEditorEnable
                     ? (
                       <div>
                         <Row>
-                          <Col className="text-left mt-4">
+                          <Col span={24} className="text-left mt-4">
                             <Editor
                               ref="headersEditor"
                               value={ this.props.request.headers || {}}
@@ -1143,49 +1142,45 @@ class HeaderBodyBuilder extends React.Component {
                     )
                     : (
                       <>
-                      <FormGroup>
-                        <Row>
-                          <Col span={8}>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-city"
-                            >
-                              Name
-                            </label>
-                          </Col>
-                          <Col span={8}>
-                            <label
-                              className="form-control-label"
-                              htmlFor="input-city"
-                            >
-                              Value
-                            </label>
-                          </Col>
-                        </Row>
-                        {this.getHeaderItems()}
-                      </FormGroup>
+                      <Row className="mb-2">
+                        <Col span={8}>
+                          <Text strong>
+                            Name
+                          </Text>
+                        </Col>
+                        <Col span={8}>
+                          <Text strong>
+                            Value
+                          </Text>
+                        </Col>
+                      </Row>
+                      {this.getHeaderItems()}
                       <Row>
-                        <Col>
+                        <Col span={24}>
                           <Dropdown overlay={this.headerItemsMenu()}>
                           <Button
-                            color="primary"
-                            size="sm"
+                            type="primary"
                             onClick={e => e.preventDefault()}
                           >
                             Add Header
                           </Button>
                           </Dropdown>
                           <Button
-                            color="danger"
+                            className="ml-2 float-right"
+                            type="default"
+                            danger
                             onClick={() => this.addHeaderItemsFromDefinition(true)}
-                            size="sm"
                           >
                             Add Required Headers
                           </Button>
+                        </Col>
+                      </Row>
+                      <Row className="mt-2">
+                        <Col span={24}>
                           <Button
-                            color="info"
+                            className="float-right"
+                            type="default"
                             onClick={() => this.addHeaderItemsFromDefinition(false)}
-                            size="sm"
                           >
                             Add All Headers
                           </Button>
@@ -1204,11 +1199,6 @@ class HeaderBodyBuilder extends React.Component {
                             </Button>
                           </Popover>
                         </Col>
-                        <Col className="mt-2">
-                          <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                            <Button color="secondary" size="sm">Add Configurable Params</Button>
-                          </Popover>
-                        </Col>
                       </Row>
                       </>
                     )
@@ -1222,16 +1212,16 @@ class HeaderBodyBuilder extends React.Component {
           this.props.resourceDefinition && this.props.resourceDefinition.requestBody
           ? (
             <Row className='mt-2'>
-              <Col>
+              <Col span={24}>
                 <Card size="small" title="Body">
                   <Row className='mb-2'>
                     <Col span={12}>
                       <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                        <Button color="secondary" size="sm">Add Configurable Params</Button>
+                        <Button type="dashed">Add Configurable Params</Button>
                       </Popover>
                     </Col>
                     <Col span={12} style={{textAlign: 'right'}}>
-                      <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
+                      <Button type="default" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
                     </Col>
                   </Row>
                   <Row >
@@ -1348,7 +1338,7 @@ class HeaderInputComponent extends React.Component {
           {this.getDynamicValue()}
         </Col>
         <Col span={2}>
-          <Icon type="delete" theme="twoTone" twoToneColor="#eb2f96"
+          <DeleteTwoTone twoToneColor="#eb2f96"
             key={this.props.name}
             onClick={this.handleDelete}
           />
@@ -1483,7 +1473,7 @@ class RequestBuilder extends React.Component {
       <>
       <div>
         <Row className='mt-2'>
-          <Col>
+          <Col span={24}>
           {
             this.props.resource
             ? (

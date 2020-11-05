@@ -1,38 +1,31 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 import socketIOClient from "socket.io-client";
-import { Grid, GridColumn as Column, GridDetailRow } from '@progress/kendo-react-grid';
 import getConfig from '../../utils/getConfig'
-import '@progress/kendo-theme-default/dist/all.css'
 
-// reactstrap components
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Container,
-  Button
-} from "reactstrap";
-// core components
-import Header from "../../components/Headers/Header.jsx";
-
-import { Row, Col } from 'antd';
+import { Row, Col, Card, Button } from 'antd';
 import mermaid from 'mermaid'
 
 class IncomingMonitor extends React.Component {
@@ -68,6 +61,9 @@ class IncomingMonitor extends React.Component {
   }
 
   componentDidMount = async () => {
+
+    this.resetWelcomeMessage()
+
     const { apiBaseUrl } = getConfig()
 
     for (const logType of Object.keys(this.state.timeline)) {
@@ -202,77 +198,47 @@ class IncomingMonitor extends React.Component {
   handleClearLogs = () => {
     this.state.sequenceItems = []
     this.refreshSequenceDiagram()
+    this.resetWelcomeMessage()
     this.forceUpdate()
+  }
+
+  resetWelcomeMessage = () => {
+    this.seqDiagContainer.innerHTML = '<h4><br /><br /><br />Welcome to Testing Toolkit</h4>'
   }
 
   render () {
     return (
       <>
-      <Row className="mb-4">
-      <div className="col">
-        <Card className="shadow">
-          <CardHeader className="border-0">
-            <Row>
-              <Col>
-              {
-                this.state.sequenceItems.length > 0
-                ? (
-                  <Button
-                    className="float-right"
-                    color="danger"
-                    size="sm"
-                    onClick={this.handleClearLogs}
-                  >
-                    Clear
-                  </Button>
-                )
-                : null
-              }
-              </Col>
-            </Row>
-          </CardHeader>
-          <CardBody>
-            <>
-            <Row style={{'min-height': '200px'}}>
-              <Col className='text-center'>
-                <div
-                ref={div => {
-                  this.seqDiagContainer = div
-                }}
-                ><span className='h2'><br /><br /> Welcome to Testing Toolkit</span> </div>
-              </Col>
-            </Row>
-            </>
-          </CardBody>
-        </Card>
-        </div>
-      </Row>
+        <Row>
+          <Col span={24}>
+          {
+            this.state.sequenceItems.length > 0
+            ? (
+              <Button
+                className="float-right"
+                type="primary"
+                danger
+                onClick={this.handleClearLogs}
+              >
+                Clear
+              </Button>
+            )
+            : null
+          }
+          </Col>
+        </Row>
+        <Row style={{'min-height': '200px'}}>
+          <Col className='text-center' span={24}>
+            <div
+            ref={div => {
+              this.seqDiagContainer = div
+            }}
+            ></div>
+          </Col>
+        </Row>
       </>
     )
   }
 }
 
-class Tables extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-    };
-  }
-
-
-  render() {
-  
-    return (
-      <>
-        <Header />
-        {/* Page content */}
-        <Container className="mt--7" fluid>
-          <IncomingMonitor />
-          {/* <Logs /> */}
-        </Container>
-      </>
-    );
-  }
-}
-
-export default Tables;
+export default IncomingMonitor;

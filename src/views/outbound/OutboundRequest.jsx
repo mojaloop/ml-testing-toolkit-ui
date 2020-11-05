@@ -1,43 +1,34 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Georgi Logodazhki <georgi.logodazhki@modusbox.com>
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
- 
-// reactstrap components
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Form,
-  Container,
-  Button,
-} from "reactstrap";
-// core components
-
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
-
-import Header from "../../components/Headers/Header.jsx";
 import TraceHeaderUtils from "../../utils/traceHeaderUtils"
-
 import { getServerConfig } from '../../utils/getConfig'
-
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, Icon, message, Popover, Progress, Menu, Dropdown, Radio, Tabs, Table, Collapse, Drawer } from 'antd';
-import { WarningTwoTone } from '@ant-design/icons';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography } from 'antd';
+import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
@@ -53,6 +44,7 @@ import arrayMove from 'array-move'
 
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
+const { Title } = Typography;
 
 const traceHeaderUtilsObj = new TraceHeaderUtils()
 
@@ -108,7 +100,7 @@ class InputValues extends React.Component {
               />
             </Col>
             <Col span={1}>
-              <Icon key={inputValueName} type="delete" theme="filled"
+              <DeleteTwoTone key={inputValueName} type="delete" theme="filled"
                 onClick={ () => this.handleDeleteClick(inputValueName) }
               />
             </Col>
@@ -123,7 +115,7 @@ class InputValues extends React.Component {
 
   handleAddInputValue = (inputValueName) => {
     // Check if the input value name already exists
-    if (this.props.values.hasOwnProperty(inputValueName)) {
+    if (this.props.values && this.props.values.hasOwnProperty(inputValueName)) {
       message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 });
     } else {
       // Save the input value
@@ -171,29 +163,25 @@ class InputValues extends React.Component {
       <Row gutter={16}>
         <Col span={24}>
           <Card className="bg-white shadow">
-            <CardBody>
-              <Popover
-                content={addInputValueDialogContent}
-                title="Enter a new name"
-                trigger="click"
-                visible={this.state.addInputValueDialogVisible}
-                onVisibleChange={ (visible) => this.setState({addInputValueDialogVisible: visible})}
-              >
-                <Button
-                    className="text-right float-right"
-                    color="primary"
-                    size="sm"
-                  >
-                    Add Input Value
-                </Button>
-              </Popover>
+            <Popover
+              content={addInputValueDialogContent}
+              title="Enter a new name"
+              trigger="click"
+              visible={this.state.addInputValueDialogVisible}
+              onVisibleChange={ (visible) => this.setState({addInputValueDialogVisible: visible})}
+            >
+              <Button
+                  className="text-right float-right"
+                  color="primary"
+                  size="sm"
+                >
+                  Add Input Value
+              </Button>
+            </Popover>
 
-              <Form>
-                <Descriptions title="Input Values" bordered column={1} size='small'>
-                  {this.getInputItems()}
-                </Descriptions>
-              </Form>
-            </CardBody>
+            <Descriptions title="Input Values" bordered column={1} size='small'>
+              {this.getInputItems()}
+            </Descriptions>
           </Card>
         </Col>
       </Row>
@@ -211,7 +199,9 @@ class OutboundRequest extends React.Component {
     const sessionId = traceHeaderUtilsObj.generateSessionId()
     this.state = {
       request: {},
-      template: {},
+      template: {
+        inputValues: {}
+      },
       additionalData: {
         selectedFiles: []
       },
@@ -667,8 +657,8 @@ class OutboundRequest extends React.Component {
     if (this.state.template.test_cases) {
       return this.state.template.test_cases.map((testCase, testCaseIndex) => {
         return (
-          <Row>
-            <Col>
+          <Row className="mb-2">
+            <Col span={24}>
               <TestCaseViewer
                 testCase={testCase}
                 onChange={this.handleTestCaseChange}
@@ -1108,337 +1098,298 @@ class OutboundRequest extends React.Component {
             : null
           }
         </Modal>
-        <Header />
-        {/* Page content */}
-        <Container className="mt--7" fluid>
-          <Row>
-            <Col span={24}>
-              <Card className="card-profile shadow">
-                <CardBody>
-                  <Affix offsetTop={2}>
-                  <Row>
-                    <Col span={24}>
-                      <Card className="bg-white shadow mb-4">
-                        <CardBody>
-                          <Row className="mb-2">
-                            <Button
-                              className="text-right float-left mb-2"
-                              color="success"
-                              size="sm"
-                              onClick={ () => {
-                                this.setState({fileBrowserVisible: true})
-                              }}
-                            >
-                              Collections Manager
-                            </Button>
-                            <span>
-                              {
-                                this.state.template.name
-                                ? (
-                                  <>
-                                  <b>Template Name:</b> { this.state.template.name }
-                                  </>
-                                )
-                                : ''
-                              }
-                              </span>
-                              <span className='ml-4'>
-                              { 
-                                this.state.additionalData.importedFilename
-                                ?  (
-                                  <>
-                                  <b>Imported File Name:</b> { this.state.additionalData.importedFilename }
-                                  </>
-                                )
-                                : ''
-                              }
-                            </span>
-                          </Row>
-                          <Row>
-                            <Col span={8}>
-                              <Button color="primary" size="sm" onClick={async (e) => {
 
-                                await this.loadSampleContent()
-                                this.setState({loadSampleDialogVisible: true})
+        <Row>
+          <Col span={24}>
+            <Affix offsetTop={2}>
+            <Row>
+              <Col span={24}>
+                <Card className="mb-4">
+                    <Row>
+                      <Col span={10}>
+                        <Button
+                          className="mr-2"
+                          type="primary"
+                          onClick={ () => {
+                            this.setState({fileBrowserVisible: true})
+                          }}
+                        >
+                          Collections Manager
+                        </Button>
+                        <Button type="dashed" onClick={async (e) => {
+                          await this.loadSampleContent()
+                          this.setState({loadSampleDialogVisible: true})
+                        }}>
+                          Load Sample
+                        </Button>
+                        <Modal
+                          title="Loaded Samples"
+                          visible={this.state.loadSampleDialogVisible}
+                          width='50%'
+                          onOk={async () => {
+                            await this.handleLoadSample()
+                            this.clearSampleSelectionState()
+                            this.setState({loadSampleDialogVisible: false})
+                          }}
+                          onCancel={() => {
+                            this.clearSampleSelectionState()
+                            this.setState({loadSampleDialogVisible: false})
+                          }}
+                        >
+                          <Collapse defaultActiveKey={['1']}>
+                            <Collapse.Panel header="Collections" key="1">
+                              <Tabs defaultActiveKey={this.state.loadSampleCollectionTypes[0]} onChange={() => {
+                                this.setState({selectedCollections: []})
                               }}>
-                                Load Sample
-                              </Button>
+                                {this.loadSampleCollectionsTabContent()}
+                              </Tabs>
+                            </Collapse.Panel>
+                            <Collapse.Panel header="Environments" key="2">
+                              <Table
+                                rowSelection={{type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
+                                  this.setState({selectedEnvironments: selectedRowKeys})
+                                  this.state.loadSampleChecked.environment = selectedRows[0].environment
+                                }}}
+                                columns={[{dataIndex: 'environment', render: text => <a>{text}</a>}]}
+                                dataSource={this.loadSampleEnvironments()}
+                              />
+                            </Collapse.Panel>
+                          </Collapse>
+                        </Modal>
+                      </Col>
+                      <Col span={4} className="text-center">
+                      {
+                        this.state.totalAssertionsCount > 0
+                        ? (
+                          <>
+                          <Progress percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
+                          <Title level={4}>{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</Title>
+                          </>
+                        )
+                        : null
+                      }
+                      </Col>
+                      <Col span={10}>
+                        <Button
+                          className="float-right"
+                          type="primary"
+                          danger
+                          onClick={this.handleSendStopClick}
+                        >
+                          { this.state.sendingOutboundRequestID ? 'Stop' : 'Send' }
+                        </Button>
+                        <Button
+                          className="float-right mr-2"
+                          type="default"
+                          onClick={() => { this.setState({showTemplate: true})}}
+                        >
+                          Show Current Template
+                        </Button>
+                        {
+                          getConfig().isAuthEnabled ?
+                          <>
+                            <Button className="float-right" type="primary" danger onClick={ async (e) => {
+                              this.setState({historyReportsLocal: await this.historyReportsLocal()})
+                              this.setState({historyReportsVisible: true})
+                            }}>
+                              Reports History
+                            </Button>
+                            {
+                              this.state.historyReportsVisible
+                              ?
                               <Modal
-                                title="Loaded Samples"
-                                visible={this.state.loadSampleDialogVisible}
-                                width='50%'
-                                onOk={async () => {
-                                  await this.handleLoadSample()
-                                  this.clearSampleSelectionState()
-                                  this.setState({loadSampleDialogVisible: false})
+                                title="Reports History"
+                                visible={this.state.historyReportsVisible}
+                                width='70%'
+                                onOk={() => {
+                                  this.setState({historyReportsVisible: false})
                                 }}
                                 onCancel={() => {
-                                  this.clearSampleSelectionState()
-                                  this.setState({loadSampleDialogVisible: false})
+                                  this.setState({historyReportsVisible: false})
                                 }}
                               >
-                                <Collapse defaultActiveKey={['1']}>
-                                  <Collapse.Panel header="Collections" key="1">
-                                    <Tabs defaultActiveKey={this.state.loadSampleCollectionTypes[0]} onChange={() => {
-                                      this.setState({selectedCollections: []})
-                                    }}>
-                                      {this.loadSampleCollectionsTabContent()}
-                                    </Tabs>
-                                  </Collapse.Panel>
-                                  <Collapse.Panel header="Environments" key="2">
+                                <Row>
+                                  <Col>
                                     <Table
-                                      rowSelection={{type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
-                                        this.setState({selectedEnvironments: selectedRowKeys})
-                                        this.state.loadSampleChecked.environment = selectedRows[0].environment
-                                      }}}
-                                      columns={[{dataIndex: 'environment', render: text => <a>{text}</a>}]}
-                                      dataSource={this.loadSampleEnvironments()}
+                                      columns={this.state.historyReportsColumns}
+                                      dataSource={this.historyReportsDataSource()}
                                     />
-                                  </Collapse.Panel>
-                                </Collapse>
+                                  </Col>
+                                </Row>
                               </Modal>
-                            </Col>
-                            <Col span={8} className="text-center">
-                            {
-                              this.state.totalAssertionsCount > 0
-                              ? (
-                                <>
-                                <Progress type="circle" percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
-
-                                <h3 color="primary">{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</h3>
-                                </>
-                              )
-                              : null
+                              :
+                              null
                             }
-                            </Col>
-                            <Col span={8}>
-                              <Button
-                                className="float-right"
-                                color="danger"
-                                size="sm"
-                                onClick={this.handleSendStopClick}
-                              >
-                                { this.state.sendingOutboundRequestID ? 'Stop' : 'Send' }
-                              </Button>
-                              <Button
-                                className="float-right mr-2"
-                                color="info"
-                                size="sm"
-                                onClick={() => { this.setState({showTemplate: true})}}
-                              >
-                                Show Current Template
-                              </Button>
-                              {
-                                getConfig().isAuthEnabled ?
-                                <>
-                                  <Button className="float-right" color="success" size="sm" onClick={ async (e) => {
-                                    this.setState({historyReportsLocal: await this.historyReportsLocal()})
-                                    this.setState({historyReportsVisible: true})
-                                  }}>
-                                    Reports History
-                                  </Button>
-                                  {
-                                    this.state.historyReportsVisible
-                                    ?
-                                    <Modal
-                                      title="Reports History"
-                                      visible={this.state.historyReportsVisible}
-                                      width='70%'
-                                      onOk={() => {
-                                        this.setState({historyReportsVisible: false})
-                                      }}
-                                      onCancel={() => {
-                                        this.setState({historyReportsVisible: false})
-                                      }}
-                                    >
-                                      <Row>
-                                        <Col>
-                                          <Table
-                                            columns={this.state.historyReportsColumns}
-                                            dataSource={this.historyReportsDataSource()}
-                                          />
-                                        </Col>
-                                      </Row>
-                                    </Modal>
-                                    :
-                                    null
-                                  }
-                                </>
-                                :
-                                null
-                              }
-                              {
-                                this.state.testReport
-                                ?
-                                <Dropdown overlay={this.downloadReportMenu()}>
-                                  <Button
-                                    className="float-right"
-                                    color="danger"
-                                    size="sm"
-                                    onClick={e => e.preventDefault()}
-                                  >
-                                    Download Report
-                                  </Button>
-                                </Dropdown>
-                                : null
-                              }
-                            </Col>
-                          </Row>
-                        </CardBody>
-                        </Card>
-                    </Col>
-                  </Row>
-                  </Affix>
-                  <Row>
-                    <Col>
-                      <Tabs defaultActiveKey='1'>
-                        <TabPane tab="Test Cases" key="1">
-                          <Row className="mb-2">
-                            <Popover
-                              className="float-right"
-                              content={getSaveTemplateDialogContent(1)}
-                              title="Enter filename to save"
-                              trigger="click"
-                              visible={this.state.saveTemplateTestcasesDialogVisible}
-                              onVisibleChange={ (visible) => this.setState({saveTemplateTestcasesDialogVisible: visible})}
-                            >
-                              <Button
-                                  className="text-right float-right"
-                                  color="success"
-                                  size="sm"
-                                >
-                                  Export Loaded Testcases
-                              </Button>
-                            </Popover>
-                            <Popover
-                              content={createNewTestCaseDialogContent}
-                              title="Enter a name for the template"
-                              trigger="click"
-                              visible={this.state.createNewTestCaseDialogVisible}
-                              onVisibleChange={ (visible) => this.setState({createNewTestCaseDialogVisible: visible})}
-                            >
-                              <Button
-                                  color="primary"
-                                  size="sm"
-                                >
-                                  Add Test Case
-                              </Button>
-                            </Popover>
-                            {
-                                this.state.testCaseReorderingEnabled
-                                ? (
-                                  <>
-                                  <Button
-                                    className="text-right"
-                                    color="success"
-                                    href="#pablo"
-                                    onClick={async () => {
-                                      if (this.state.curTestCasesUpdated) {
-                                        const fileSelected = this.getSingleFileSelected()
-                                        fileSelected.content.test_cases = this.state.tempReorderedTestCases
-                                        this.regenerateTemplate(this.state.additionalData.selectedFiles)
-                                        this.setState({curTestCasesUpdated: false, tempReorderedTestCases: []})
-                                        this.autoSaveFolderData(this.state.folderData)
-                                      } else {
-                                        message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 });
-                                      }
-                                      this.setState({testCaseReorderingEnabled: false})
-                                    }}
-                                    size="sm"
-                                  >
-                                    Apply Reordering
-                                  </Button>
-                                  <Button
-                                    className="text-right"
-                                    color="danger"
-                                    href="#pablo"
-                                    onClick={async () => {
-                                      this.setState({curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: []})
-                                    }}
-                                    size="sm"
-                                  >
-                                    Cancel Reordering
-                                  </Button>
-                                  </>
-                                )
-                                : (
-                                  this.state.additionalData && this.state.additionalData.selectedFiles
-                                  ?
-                                  <Button
-                                    className="text-right"
-                                    color="info"
-                                    href="#pablo"
-                                    onClick={ () => {
-                                      const fileSelected = this.getSingleFileSelected()
-                                      if(fileSelected) {
-                                        this.setState({tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true})
-                                      } else {
-                                        message.error('ERROR: Only one file should be selected to reorder the testcases')
-                                      }
-                                    }}
-                                    size="sm"
-                                  >
-                                    Reorder Test Cases
-                                  </Button>
-                                  :
-                                  null
-                                )
-                              }
-                          </Row>
-                          {
-                            this.state.testCaseReorderingEnabled
-                            ? (
-                              <SortableRuleList items={this.state.tempReorderedTestCases} onSortEnd={this.onTestCaseSortEnd} />
-                            )
-                            : (
-                              <Row>
-                                { this.getTestCaseItems() }
-                              </Row>
-                            )
-                          }
-                        </TabPane>
-                        <TabPane key="2" tab={this.state.template.inputValues && Object.keys(this.state.template.inputValues).length ? 'Input Values' : (<Badge offset={[20,0]} count={<WarningTwoTone twoToneColor="#f5222d" />}>Input Values</Badge>)}>
-                          <Row>
-                            <Popover
-                              className="float-right"
-                              content={getSaveTemplateDialogContent(2)}
-                              title="Enter filename to save"
-                              trigger="click"
-                              visible={this.state.saveTemplateEnvironementDialogVisible}
-                              onVisibleChange={ (visible) => this.setState({saveTemplateEnvironementDialogVisible: visible})}
-                            >
-                              <Button
-                                  className="text-right float-right"
-                                  color="success"
-                                  size="sm"
-                                >
-                                  Export Current Environment
-                              </Button>
-                            </Popover>
+                          </>
+                          :
+                          null
+                        }
+                        {
+                          this.state.testReport
+                          ?
+                          <Dropdown overlay={this.downloadReportMenu()}>
                             <Button
-                              color="info"
-                              size="sm"
-                              className='float-right mr-2' 
-                              onClick={ e => {
-                                e.preventDefault();
-                                this.environmentFileSelector.click();
+                              className="float-right mr-2"
+                              type="primary"
+                              danger
+                              onClick={e => e.preventDefault()}
+                            >
+                              Download Report
+                            </Button>
+                          </Dropdown>
+                          : null
+                        }
+                      </Col>
+                    </Row>
+                  </Card>
+              </Col>
+            </Row>
+            </Affix>
+            <Row>
+              <Col span={24}>
+                <Tabs defaultActiveKey='1'>
+                  <TabPane tab="Test Cases" key="1">
+                    <Row className="mb-2">
+                      <Col span={24}>
+                      <Popover
+                        className="float-right"
+                        content={getSaveTemplateDialogContent(1)}
+                        title="Enter filename to save"
+                        trigger="click"
+                        visible={this.state.saveTemplateTestcasesDialogVisible}
+                        onVisibleChange={ (visible) => this.setState({saveTemplateTestcasesDialogVisible: visible})}
+                      >
+                        <Button
+                            className="float-right"
+                            type="default"
+                          >
+                            Export Loaded Testcases
+                        </Button>
+                      </Popover>
+                      <Popover
+                        content={createNewTestCaseDialogContent}
+                        className="mr-2"
+                        title="Enter a name for the template"
+                        trigger="click"
+                        visible={this.state.createNewTestCaseDialogVisible}
+                        onVisibleChange={ (visible) => this.setState({createNewTestCaseDialogVisible: visible})}
+                      >
+                        <Button
+                            type="primary"
+                          >
+                            Add Test Case
+                        </Button>
+                      </Popover>
+                      {
+                          this.state.testCaseReorderingEnabled
+                          ? (
+                            <>
+                            <Button
+                              className="text-right"
+                              type="dashed"
+                              danger
+                              onClick={async () => {
+                                if (this.state.curTestCasesUpdated) {
+                                  const fileSelected = this.getSingleFileSelected()
+                                  fileSelected.content.test_cases = this.state.tempReorderedTestCases
+                                  this.regenerateTemplate(this.state.additionalData.selectedFiles)
+                                  this.setState({curTestCasesUpdated: false, tempReorderedTestCases: []})
+                                  this.autoSaveFolderData(this.state.folderData)
+                                } else {
+                                  message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 });
+                                }
+                                this.setState({testCaseReorderingEnabled: false})
                               }}
                             >
-                              Import Environment
+                              Apply Reordering
                             </Button>
-                          </Row>
-                          <Row className='mt-2'>
-                            <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
-                          </Row>
-                        </TabPane>
-                      </Tabs>
-                    </Col>
-                  </Row>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
+                            <Button
+                              className="text-right ml-2"
+                              type="dashed"
+                              onClick={async () => {
+                                this.setState({curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: []})
+                              }}
+                            >
+                              Cancel Reordering
+                            </Button>
+                            </>
+                          )
+                          : (
+                            this.state.additionalData && this.state.additionalData.selectedFiles
+                            ?
+                            <Button
+                              className="text-right"
+                              type="default"
+                              onClick={ () => {
+                                const fileSelected = this.getSingleFileSelected()
+                                if(fileSelected) {
+                                  this.setState({tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true})
+                                } else {
+                                  message.error('ERROR: Only one file should be selected to reorder the testcases')
+                                }
+                              }}
+                            >
+                              Reorder Test Cases
+                            </Button>
+                            :
+                            null
+                          )
+                        }
+                      </Col>
+                    </Row>
+                    {
+                      this.state.testCaseReorderingEnabled
+                      ? (
+                        <SortableRuleList items={this.state.tempReorderedTestCases} onSortEnd={this.onTestCaseSortEnd} />
+                      )
+                      : (
+                        <>
+                        { this.getTestCaseItems() }
+                        </>
+                      )
+                    }
+                  </TabPane>
+                  <TabPane key="2" tab={this.state.template.inputValues && Object.keys(this.state.template.inputValues).length ? 'Input Values' : (<Badge offset={[20,0]} count={<WarningTwoTone twoToneColor="#f5222d" />}>Input Values</Badge>)}>
+                    <Row>
+                      <Col span={24}>
+                        <Popover
+                          className="float-right"
+                          content={getSaveTemplateDialogContent(2)}
+                          title="Enter filename to save"
+                          trigger="click"
+                          visible={this.state.saveTemplateEnvironementDialogVisible}
+                          onVisibleChange={ (visible) => this.setState({saveTemplateEnvironementDialogVisible: visible})}
+                        >
+                          <Button
+                              className="text-right float-right"
+                              type="default"
+                            >
+                              Export Current Environment
+                          </Button>
+                        </Popover>
+                        <Button
+                          type="primary"
+                          className='float-right mr-2' 
+                          onClick={ e => {
+                            e.preventDefault();
+                            this.environmentFileSelector.click();
+                          }}
+                        >
+                          Import Environment
+                        </Button>
+                      </Col>
+                    </Row>
+                    <Row className='mt-2'>
+                      <Col span={24}>
+                        <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
+                      </Col>
+                    </Row>
+                  </TabPane>
+                </Tabs>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       </>
     );
   }

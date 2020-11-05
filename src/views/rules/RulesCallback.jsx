@@ -1,37 +1,32 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 
-// reactstrap components
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Container,
-  Row,
-  Button,
-  Col,
-} from "reactstrap";
-
-import { Input, Select, Menu, Collapse, Modal, Icon, message } from 'antd';
+import { Input, Select, Menu, Collapse, Modal, message, Card, Row, Col, Button, Typography } from 'antd'; 
 import 'antd/dist/antd.css';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
-import Header from "../../components/Headers/Header.jsx";
 import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
@@ -42,6 +37,7 @@ import arrayMove from 'array-move'
 const { Option } = Select;
 const { SubMenu } = Menu;
 const { Panel } = Collapse;
+const { Title } = Typography;
 
 class RulesCallback extends React.Component {
 
@@ -90,7 +86,7 @@ class RulesCallback extends React.Component {
     return this.state.callbackRulesFiles.map(ruleFile => {
       const isActive = (ruleFile === this.state.activeRulesFile)
       return (
-      <Menu.Item key={ruleFile}>{isActive?(<Icon type="check" />):''} {ruleFile}</Menu.Item>
+      <Menu.Item key={ruleFile}>{isActive?(<CheckOutlined />):''} {ruleFile}</Menu.Item>
       )
     })
   }
@@ -110,25 +106,24 @@ class RulesCallback extends React.Component {
       return (
         <Panel header={rule.description} key={key}>
           <Row>
-            <Col xs="12" style={{textAlign: 'right'}}>
+            <Col span={24} style={{textAlign: 'right'}}>
               <Button
-                color="info"
                 onClick={this.handleRuleClick(rule)}
-                size="sm"
               >
                 Edit
               </Button>
               <Button
-                color="danger"
+                className="ml-2"
+                type="primary"
+                danger
                 onClick={this.handleRuleDelete(rule.ruleId)}
-                size="sm"
               >
                 Delete
               </Button>
             </Col>
           </Row>
           <Row>
-            <Col>
+            <Col span={24}>
               <RuleViewer rule={rule} />
             </Col>
           </Row>
@@ -286,7 +281,7 @@ class RulesCallback extends React.Component {
           <Modal
             centered
             destroyOnClose
-            forceRender
+            forceRender={false}
             title="Rule Builder"
             className="w-50 p-3"
             visible={this.state.editRule? true : false}
@@ -299,19 +294,90 @@ class RulesCallback extends React.Component {
               mode='callback'
             />
           </Modal>
-        <Header />
-        {/* Page content */}
-        <Container className="mt--7" fluid>
+
           <Row>
-            <Col className="order-xl-2 mb-5 mb-xl-0" xl="4">
-              <Card className="card-profile shadow">
-                <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
+            <Col span={16}> 
+            {
+              this.state.selectedRuleFile
+              ? (
+                <Card>
+                  <Row className="align-items-center">
+                    <Col span={12}>
+                      <h3 >{this.state.selectedRuleFile}</h3>
+                    </Col>
+                    <Col span={12}>
+                      <Button
+                        className="float-right"
+                        type="primary"
+                        onClick={this.handleAddNewRuleClick}
+                      >
+                        Add a new Rule
+                      </Button>
+                      {
+                        this.state.reOrderingEnabled
+                        ? (
+                          <Button
+                            className="float-right mr-2"
+                            type="dashed"
+                            danger
+                            onClick={async () => {
+                              if (this.state.curRulesUpdated) {
+                                await this.updateRules({curRules: this.state.curRules})
+                              } else {
+                                message.error({ content: 'No changes found', key: 'ruleSaveProgress', duration: 2 });
+                              }
+                              this.setState({curRulesUpdated: false})
+                              this.setState({reOrderingEnabled: false})
+                            }}
+                          >
+                            Apply Order
+                          </Button>
+                        )
+                        : (
+                          <Button
+                            className="float-right mr-2"
+                            type="default"
+                            onClick={ () => {
+                              this.setState({reOrderingEnabled: true})
+                            }}
+                          >
+                            Change Order
+                          </Button>
+                        )
+                      }
+                    </Col>
+                  </Row>
+                  {
+                    this.state.reOrderingEnabled
+                    ? (
+                      <SortableRuleList items={this.state.curRules} onSortEnd={this.onRulesSortEnd} />
+                    )
+                    : (
+                      <Collapse onChange={this.handleRuleItemActivePanelChange}>
+                        {this.getRulesFileContentItems()}
+                      </Collapse>
+                    )
+                  }
+                </Card>
+              )
+              : (
+                <Card style={{minHeight: '300px'}}>
+                  <Row className="mt-4">
+                    <Col span={24} style={{textAlign: 'center'}}>
+                      <Title level={4}>Please select a file</Title>
+                    </Col>
+                  </Row>
+                </Card>
+              )
+            }
+            </Col>
+            <Col span={8} className="pl-2"> 
+              <Card>
                   <div className="d-flex justify-content-between">
                     <Button
                       className="mr-4"
-                      color="info"
+                      type="primary"
                       onClick={() => {this.setState({ mode: 'newFile'})}}
-                      size="sm"
                     >
                       New Rules File
                     </Button>
@@ -319,9 +385,7 @@ class RulesCallback extends React.Component {
                       this.state.selectedRuleFile
                       ? (
                         <Button
-                          color="success"
                           onClick={this.handleRuleFileSetActive}
-                          size="sm"
                         >
                           Set as active
                         </Button>
@@ -332,10 +396,10 @@ class RulesCallback extends React.Component {
                       this.state.selectedRuleFile
                       ? (
                         <Button
-                          className="float-right"
-                          color="danger"
+                          className="float-right" 
+                          type="primary"
+                          danger
                           onClick={this.handleRuleFileDelete}
-                          size="sm"
                         >
                           Delete
                         </Button>
@@ -364,21 +428,17 @@ class RulesCallback extends React.Component {
                       <td>
                         <Button
                           className="float-right"
-                          color="secondary"
                           onClick={newFileCreateConfirm}
-                          size="sm"
                         >
-                          <Icon type="check" />
+                          <CheckOutlined />
                         </Button>
                       </td>
                       <td>
                         <Button
                           className="float-right"
-                          color="secondary"
                           onClick={() => {this.setState({ mode: null})}}
-                          size="sm"
                         >
-                          <Icon type="close" />
+                          <CloseOutlined />
                         </Button>
                       </td>
                       </tr>
@@ -387,9 +447,7 @@ class RulesCallback extends React.Component {
                     )
                     : null
                   }
-
-                </CardHeader>
-                <CardBody className="pt-0 pt-md-4">
+                <Row className="pt-0 pt-md-4">
                   <Menu
                     mode="inline"
                     theme="light"
@@ -398,97 +456,10 @@ class RulesCallback extends React.Component {
                   >
                     {this.getRulesFilesItems()}
                   </Menu>
-                </CardBody>
+                </Row>
               </Card>
             </Col>
-            <Col className="order-xl-1" xl="8">
-            {
-              this.state.selectedRuleFile
-              ? (
-                <Card className="bg-secondary shadow">
-                  <CardHeader className="bg-white border-0">
-                  <Row className="align-items-center">
-                      <Col md="9">
-                        <h3 >{this.state.selectedRuleFile}</h3>
-                      </Col>
-                      <Col md="3">
-                      {
-                          this.state.reOrderingEnabled
-                          ? (
-                            <Button
-                              className="text-right"
-                              color="danger"
-                              href="#pablo"
-                              onClick={async () => {
-                                if (this.state.curRulesUpdated) {
-                                  await this.updateRules({curRules: this.state.curRules})
-                                } else {
-                                  message.error({ content: 'No changes found', key: 'ruleSaveProgress', duration: 2 });
-                                }
-                                this.setState({curRulesUpdated: false})
-                                this.setState({reOrderingEnabled: false})
-                              }}
-                              size="sm"
-                            >
-                              Apply Order
-                            </Button>
-                          )
-                          : (
-                            <Button
-                              className="text-right"
-                              color="success"
-                              href="#pablo"
-                              onClick={ () => {
-                                this.setState({reOrderingEnabled: true})
-                              }}
-                              size="sm"
-                            >
-                              Change Order
-                            </Button>
-                          )
-                        }
-                        <Button
-                          color="info"
-                          href="#pablo"
-                          onClick={this.handleAddNewRuleClick}
-                          size="sm"
-                        >
-                          Add a new Rule
-                        </Button>
-                      </Col>
-                    </Row>
-                  </CardHeader>
-                  <CardBody>
-                    {
-                      this.state.reOrderingEnabled
-                      ? (
-                        <SortableRuleList items={this.state.curRules} onSortEnd={this.onRulesSortEnd} />
-                      )
-                      : (
-                        <Collapse onChange={this.handleRuleItemActivePanelChange}>
-                          {this.getRulesFileContentItems()}
-                        </Collapse>
-                      )
-                    }
-                  </CardBody>
-                </Card>
-              )
-              : (
-                <Card className="bg-secondary shadow" style={{minHeight: '300px'}}>
-                  <CardHeader className="bg-white border-0"></CardHeader>
-                  <CardBody>
-                  <Row>
-                    <Col xs="12" style={{textAlign: 'center'}}>
-                      <p>Please select a file</p>
-                    </Col>
-                  </Row>
-                  </CardBody>
-                </Card>
-              )
-            }
-            </Col>
           </Row>
-        </Container>
       </>
     );
   }

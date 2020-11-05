@@ -1,45 +1,39 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Georgi Logodazhki <georgi.logodazhki@modusbox.com>
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 
-// reactstrap components
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Container,
-  Row,
-  Button,
-  Col,
-  FormGroup,
-} from "reactstrap";
-
-import { Input, Checkbox, Divider, Tooltip, message, Tag, Icon, notification, Modal, Table, Select, Tabs } from 'antd';
-import { BulbTwoTone } from '@ant-design/icons';
+import { Input, Checkbox, Divider, Tooltip, message, Row, Col, Typography, Button, Modal, Table, Select, Tabs } from 'antd';
 import 'antd/dist/antd.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Header from "../../components/Headers/Header.jsx";
 import axios from 'axios';
-import RulesEditor from '../rules/RuleEditor'
-import RuleViewer from '../rules/RuleViewer'
 import getConfig from '../../utils/getConfig'
 import { getServerConfig } from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
+
+const { Text } = Typography;
 
 function buildFileSelector( multi = false ){
   const fileSelector = document.createElement('input');
@@ -102,10 +96,10 @@ class ParamInput extends React.Component {
 
     return (
       <Row className="mb-4">
-        <Col lg="4">
-          <h4>{this.props.name}</h4>
+        <Col span={8}>
+          <Text strong>{this.props.name}</Text>
         </Col>
-        <Col lg="8">
+        <Col span={16}>
           {
             this.props.tooltip
             ? (
@@ -166,10 +160,10 @@ class CallbackResourceEndpointsInput extends React.Component {
 
     return (
       <Row className="mb-4">
-        <Col lg="4">
-          <h4>{this.props.name}</h4>
+        <Col span={8}>
+          <Text strong>{this.props.name}</Text>
         </Col>
-        <Col lg="1">
+        <Col span={2}>
           {
             this.props.tooltip
             ? (
@@ -178,7 +172,7 @@ class CallbackResourceEndpointsInput extends React.Component {
             : inputElement
           }
         </Col>
-        <Col lg="1">
+        <Col span={2}>
           <CallBackResourceEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
         </Col>
       </Row>
@@ -194,10 +188,10 @@ class DFSPWiseEndpointsInput extends React.Component {
 
     return (
       <Row className="mb-4">
-        <Col lg="4">
-          <h4>{this.props.name}</h4>
+        <Col span={8}>
+          <Text strong>{this.props.name}</Text>
         </Col>
-        <Col lg="1">
+        <Col span={2}>
           <DFSPWiseEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
         </Col>
       </Row>
@@ -295,124 +289,125 @@ class ConfigurationEditor extends React.Component {
     return (
       <>
       <Row>
-        <Col className="mb-5 mb-xl-0" xl="12">
-          <Card className="card-profile shadow">
-            <CardHeader>
-              <div className="d-flex float-right">                
-                <Button color="success" size="sm" onClick={(e) => {
-                  this.setState({exportDialogVisible: true})
-                }}>
-                  Export
-                </Button>
-                {
-                  this.state.exportDialogVisible
-                  ?
-                  <Modal
-                    title="Export"
-                    visible={this.state.exportDialogVisible}
-                    width='50%'
-                    onOk={async () => {
-                      if (this.state.exportSelectedRowKeys.length !== 0) {
-                        await this.handleExport()
-                        this.setState({exportDialogVisible: false})
-                        this.setState({exportSelectedRowKeys: []})
-                      } else {
-                        message.error({ content: 'please select at least one option', key: 'importEmptySelection', duration: 6 })
-                      }
-                    }}
-                    onCancel={() => {
+        <Col className="mb-5" span={24}>
+          <Row className="mb-2">
+            <Col span={24}>
+            <div className="d-flex float-right">                
+              <Button className="mr-2" onClick={(e) => {
+                this.setState({exportDialogVisible: true})
+              }}>
+                Export
+              </Button>
+              {
+                this.state.exportDialogVisible
+                ?
+                <Modal
+                  title="Export"
+                  visible={this.state.exportDialogVisible}
+                  width='50%'
+                  onOk={async () => {
+                    if (this.state.exportSelectedRowKeys.length !== 0) {
+                      await this.handleExport()
                       this.setState({exportDialogVisible: false})
                       this.setState({exportSelectedRowKeys: []})
-                    }}
-                  >
+                    } else {
+                      message.error({ content: 'please select at least one option', key: 'importEmptySelection', duration: 6 })
+                    }
+                  }}
+                  onCancel={() => {
+                    this.setState({exportDialogVisible: false})
+                    this.setState({exportSelectedRowKeys: []})
+                  }}
+                >
+                <Table
+                  rowSelection={{type: 'checkbox', selectedRowKeys: this.state.exportSelectedRowKeys, onChange: (selectedRowKeys) => {
+                    this.setState({exportSelectedRowKeys: selectedRowKeys})
+                  }}}
+                  columns={[{title: 'Select all', dataIndex: 'option'}]}
+                  dataSource={this.generageTableRowData(this.state.importExportOptions)}
+                />
+                </Modal>
+                :
+                null
+              }
+              <Button color="info" className="mr-2" size="sm" onClick={(e) => {
+                this.setState({importDialogVisible: true})
+              }}>
+                Import
+              </Button>
+              {
+                this.state.importDialogVisible
+                ?
+                <Modal
+                  title="Import"
+                  visible={this.state.importDialogVisible}
+                  width='50%'
+                  onOk={() => {
+                    if (this.state.importSelectedRowKeys.length !== 0) {
+                      this.specFilesSelector.click();
+                      this.setState({importDialogVisible: false})
+                    } else {
+                      message.error({ content: 'please select at least one option', key: 'importEmptySelection', duration: 6 })
+                    }
+                  }}
+                  onCancel={() => {
+                    this.setState({importSelectedRowKeys: []})
+                    this.setState({importDialogVisible: false})
+                  }}
+                >
                   <Table
-                    rowSelection={{type: 'checkbox', selectedRowKeys: this.state.exportSelectedRowKeys, onChange: (selectedRowKeys) => {
-                      this.setState({exportSelectedRowKeys: selectedRowKeys})
+                    rowSelection={{type: 'checkbox', selectedRowKeys: this.state.importSelectedRowKeys, onChange: (selectedRowKeys) => {
+                      this.setState({importSelectedRowKeys: selectedRowKeys})
                     }}}
                     columns={[{title: 'Select all', dataIndex: 'option'}]}
                     dataSource={this.generageTableRowData(this.state.importExportOptions)}
                   />
-                  </Modal>
-                  :
-                  null
-                }
-                <Button color="info" size="sm" onClick={(e) => {
-                  this.setState({importDialogVisible: true})
-                }}>
-                  Import
-                </Button>
-                {
-                  this.state.importDialogVisible
-                  ?
-                  <Modal
-                    title="Import"
-                    visible={this.state.importDialogVisible}
-                    width='50%'
-                    onOk={() => {
-                      if (this.state.importSelectedRowKeys.length !== 0) {
-                        this.specFilesSelector.click();
-                        this.setState({importDialogVisible: false})
-                      } else {
-                        message.error({ content: 'please select at least one option', key: 'importEmptySelection', duration: 6 })
-                      }
-                    }}
-                    onCancel={() => {
-                      this.setState({importSelectedRowKeys: []})
-                      this.setState({importDialogVisible: false})
-                    }}
-                  >
-                    <Table
-                      rowSelection={{type: 'checkbox', selectedRowKeys: this.state.importSelectedRowKeys, onChange: (selectedRowKeys) => {
-                        this.setState({importSelectedRowKeys: selectedRowKeys})
-                      }}}
-                      columns={[{title: 'Select all', dataIndex: 'option'}]}
-                      dataSource={this.generageTableRowData(this.state.importExportOptions)}
-                    />
-                  </Modal>
-                  :
-                  null
-                }
-                <Button
-                  className="float-right"
-                  color="primary"
-                  href="#pablo"
-                  onClick={this.handleSave}
-                  size="sm"
-                >
-                  Save
-                </Button>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <ParamInput name="Callback URL" itemRef={this.props.config} itemKey="CALLBACK_ENDPOINT" value={this.props.config.CALLBACK_ENDPOINT} onChange={this.handleParamValueChange} />
-              <ParamInput name="FSP ID" itemRef={this.props.config} itemKey="FSPID" value={this.props.config.FSPID} onChange={this.handleParamValueChange} />
-              <ParamInput name="Send Callback" itemRef={this.props.config} itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
-              <ParamInput name="Enable Version Negotiation Support" itemRef={this.props.config}  itemKey="VERSIONING_SUPPORT_ENABLE" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange}  />
-              <Divider />
-              <ParamInput name="Enable Hub Only Mode" itemRef={this.props.config} itemKey="HUB_ONLY_MODE" value={this.props.config.HUB_ONLY_MODE} onChange={this.handleParamValueChange} />
-              <Divider />
-              <CallbackResourceEndpointsInput name="Enable Callback resource endpoints" itemRef={this.props.config.CALLBACK_RESOURCE_ENDPOINTS}  itemKey="enabled" value={this.props.config.CALLBACK_RESOURCE_ENDPOINTS.enabled} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
-              <Divider />
-              <DFSPWiseEndpointsInput name="DFSP Wise endpoints" itemRef={this.props.config.ENDPOINTS_DFSP_WISE} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
-              <Divider />
-              <ParamInput name="Validate Transfers with previous quote" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
-              <ParamInput name="Validate IlpPacket in transfers" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_ILP_PACKET" value={this.props.config.TRANSFERS_VALIDATION_ILP_PACKET} onChange={this.handleParamValueChange} />
-              <ParamInput name="Validate Condition in transfers" itemRef={this.props.config} itemKey="TRANSFERS_VALIDATION_CONDITION" value={this.props.config.TRANSFERS_VALIDATION_CONDITION} onChange={this.handleParamValueChange} />
-              <ParamInput name="ILP Secret" itemKey="ILP_SECRET" itemRef={this.props.config}  value={this.props.config.ILP_SECRET} onChange={this.handleParamValueChange} />
-              <Divider />
-              <ParamInput name="Enable Inbound JWS Validation" itemRef={this.props.config} itemKey="VALIDATE_INBOUND_JWS" value={this.props.config.VALIDATE_INBOUND_JWS} onChange={this.handleParamValueChange} />
-              <ParamInput name="Enable Inbound JWS Validation for PUT /parties" itemRef={this.props.config}  itemKey="VALIDATE_INBOUND_PUT_PARTIES_JWS" value={this.props.config.VALIDATE_INBOUND_PUT_PARTIES_JWS} onChange={this.handleParamValueChange} />
-              <ParamInput name="Enable Outbound JWS Signing" itemRef={this.props.config}  itemKey="JWS_SIGN" value={this.props.config.JWS_SIGN} onChange={this.handleParamValueChange} />
-              <ParamInput name="Enable Outbound JWS Signing for PUT /parties" itemRef={this.props.config}  itemKey="JWS_SIGN_PUT_PARTIES" value={this.props.config.JWS_SIGN_PUT_PARTIES} onChange={this.handleParamValueChange} />
-              <Divider />
-              <ParamInput name="Connection Manager API URL" itemRef={this.props.config}  itemKey="CONNECTION_MANAGER_API_URL" value={this.props.config.CONNECTION_MANAGER_API_URL} onChange={this.handleParamValueChange} />
-              <Divider />
-              <ParamInput name="Inbound Mutual TLS" itemRef={this.props.config} itemKey="INBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
-              <ParamInput name="Outbound Mutual TLS" itemRef={this.props.config} itemKey="OUTBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
-              <Divider />
-              <ParamInput name="Advanced Features" itemRef={this.props.config} itemKey="ADVANCED_FEATURES_ENABLED" value={this.props.config.ADVANCED_FEATURES_ENABLED} onChange={this.handleParamValueChange} />
-            </CardBody>
-          </Card>
+                </Modal>
+                :
+                null
+              }
+              <Button
+                type="primary"
+                danger
+                href="#pablo"
+                onClick={this.handleSave}
+              >
+                Save
+              </Button>
+            </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+            <ParamInput name="Callback URL" itemRef={this.props.config} itemKey="CALLBACK_ENDPOINT" value={this.props.config.CALLBACK_ENDPOINT} onChange={this.handleParamValueChange} />
+            <ParamInput name="FSP ID" itemRef={this.props.config} itemKey="FSPID" value={this.props.config.FSPID} onChange={this.handleParamValueChange} />
+            <ParamInput name="Send Callback" itemRef={this.props.config} itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
+            <ParamInput name="Enable Version Negotiation Support" itemRef={this.props.config}  itemKey="VERSIONING_SUPPORT_ENABLE" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange}  />
+            <Divider />
+            <ParamInput name="Enable Hub Only Mode" itemRef={this.props.config} itemKey="HUB_ONLY_MODE" value={this.props.config.HUB_ONLY_MODE} onChange={this.handleParamValueChange} />
+            <Divider />
+            <CallbackResourceEndpointsInput name="Enable Callback resource endpoints" itemRef={this.props.config.CALLBACK_RESOURCE_ENDPOINTS}  itemKey="enabled" value={this.props.config.CALLBACK_RESOURCE_ENDPOINTS.enabled} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
+            <Divider />
+            <DFSPWiseEndpointsInput name="DFSP Wise endpoints" itemRef={this.props.config.ENDPOINTS_DFSP_WISE} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
+            <Divider />
+            <ParamInput name="Validate Transfers with previous quote" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
+            <ParamInput name="Validate IlpPacket in transfers" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_ILP_PACKET" value={this.props.config.TRANSFERS_VALIDATION_ILP_PACKET} onChange={this.handleParamValueChange} />
+            <ParamInput name="Validate Condition in transfers" itemRef={this.props.config} itemKey="TRANSFERS_VALIDATION_CONDITION" value={this.props.config.TRANSFERS_VALIDATION_CONDITION} onChange={this.handleParamValueChange} />
+            <ParamInput name="ILP Secret" itemKey="ILP_SECRET" itemRef={this.props.config}  value={this.props.config.ILP_SECRET} onChange={this.handleParamValueChange} />
+            <Divider />
+            <ParamInput name="Enable Inbound JWS Validation" itemRef={this.props.config} itemKey="VALIDATE_INBOUND_JWS" value={this.props.config.VALIDATE_INBOUND_JWS} onChange={this.handleParamValueChange} />
+            <ParamInput name="Enable Inbound JWS Validation for PUT /parties" itemRef={this.props.config}  itemKey="VALIDATE_INBOUND_PUT_PARTIES_JWS" value={this.props.config.VALIDATE_INBOUND_PUT_PARTIES_JWS} onChange={this.handleParamValueChange} />
+            <ParamInput name="Enable Outbound JWS Signing" itemRef={this.props.config}  itemKey="JWS_SIGN" value={this.props.config.JWS_SIGN} onChange={this.handleParamValueChange} />
+            <ParamInput name="Enable Outbound JWS Signing for PUT /parties" itemRef={this.props.config}  itemKey="JWS_SIGN_PUT_PARTIES" value={this.props.config.JWS_SIGN_PUT_PARTIES} onChange={this.handleParamValueChange} />
+            <Divider />
+            <ParamInput name="Connection Manager API URL" itemRef={this.props.config}  itemKey="CONNECTION_MANAGER_API_URL" value={this.props.config.CONNECTION_MANAGER_API_URL} onChange={this.handleParamValueChange} />
+            <Divider />
+            <ParamInput name="Inbound Mutual TLS" itemRef={this.props.config} itemKey="INBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
+            <ParamInput name="Outbound Mutual TLS" itemRef={this.props.config} itemKey="OUTBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
+            <Divider />
+            <ParamInput name="Advanced Features" itemRef={this.props.config} itemKey="ADVANCED_FEATURES_ENABLED" value={this.props.config.ADVANCED_FEATURES_ENABLED} onChange={this.handleParamValueChange} />
+            </Col>
+          </Row>
         </Col>
       </Row>
       </>
@@ -433,7 +428,7 @@ class CallBackResourceEndpoints extends React.Component {
         { title: 'path', dataIndex: 'path', key: 'path', width: '40%'},
         { title: 'endpoint', dataIndex: 'endpoint', key: 'endpoint', width: '40%'},
         { dataIndex: '', key: 'delete', width: '10%', render: (text, record) => (
-          <Button color="danger" size="sm" onClick={(e) => {
+          <Button type="primary" danger onClick={(e) => {
             this.setState({endpointsLocal: this.state.endpointsLocal.filter((local, index) => {
               return (+record.key !== index)
             })})
@@ -512,7 +507,7 @@ class CallBackResourceEndpoints extends React.Component {
             >
               <Row>
                 <Col>
-                  <Button color="info" size="sm" onClick={(e) => {
+                  <Button type="primary" onClick={(e) => {
                   const newEndpoint = {method: 'put', path: null, endpoint: null}
                   this.setState({endpointsLocal: [...this.state.endpointsLocal, newEndpoint]})
                 }}>Add Callback Resource Endpoint</Button>
@@ -651,7 +646,7 @@ class DFSPWiseEndpoints extends React.Component {
       { title: 'path', dataIndex: 'path', key: 'path', width: '40%'},
       { title: 'endpoint', dataIndex: 'endpoint', key: 'endpoint', width: '40%'},
       { dataIndex: '', key: 'delete', width: '10%', render: (text, record, key) => (
-        <Button color="danger" size="sm" onClick={(e) => {
+        <Button type="primary" danger size="sm" onClick={(e) => {
           this.state.endpointsLocal[dfspType][dfspId].endpoints = this.state.endpointsLocal[dfspType][dfspId].endpoints.filter((local, index) => {
             return (key !== index)
           })
@@ -667,42 +662,42 @@ class DFSPWiseEndpoints extends React.Component {
       tabs.push(
         <Tabs.TabPane tab={dfspType} key={dfspType}>
           <Row>
-            <Col>
-              <FormGroup>
-                <label
-                  className="form-control-label"
-                  htmlFor="input-country"
-                >
-                  dfspId
-                </label>
-                <Input value={this.state.dfsps[dfspType]} onChange={(e) => {
-                    this.state.dfsps[dfspType] = e.target.value
-                    this.setState({dfsps: this.state.dfsps})
-                  }}
-                />
-              </FormGroup>
+            <Col span={12}>
+              <label
+                className="form-control-label"
+                htmlFor="input-country"
+              >
+                dfspId
+              </label>
+            </Col>
+            <Col span={12}>
+              <Input value={this.state.dfsps[dfspType]} onChange={(e) => {
+                  this.state.dfsps[dfspType] = e.target.value
+                  this.setState({dfsps: this.state.dfsps})
+                }}
+              />
             </Col>
           </Row>
           <Row>
-            <Col>
-              <FormGroup>
-                <label
-                  className="form-control-label"
-                  htmlFor="input-country"
-                >
-                  default endpoint
-                </label>
-                <Input value={this.state.endpointsLocal[dfspType][dfspId].defaultEndpoint} onChange={(e) => {
-                    this.state.endpointsLocal[dfspType][dfspId].defaultEndpoint = e.target.value
-                    this.forceUpdate()
-                  }}
-                />
-              </FormGroup>
+            <Col span={12}>
+              <label
+                className="form-control-label"
+                htmlFor="input-country"
+              >
+                default endpoint
+              </label>
+            </Col>
+            <Col span={12}>
+              <Input value={this.state.endpointsLocal[dfspType][dfspId].defaultEndpoint} onChange={(e) => {
+                  this.state.endpointsLocal[dfspType][dfspId].defaultEndpoint = e.target.value
+                  this.forceUpdate()
+                }}
+              />
             </Col>
           </Row>
-          <Row>
-            <Col>
-              <Button color="info" size="sm" onClick={(e) => {
+          <Row className="mt-2">
+            <Col span={24}>
+              <Button type="dashed" onClick={(e) => {
                 if (!this.state.endpointsLocal[dfspType][dfspId].endpoints) {
                   this.state.endpointsLocal[dfspType][dfspId].endpoints = []
                 }
@@ -745,8 +740,8 @@ class DFSPWiseEndpoints extends React.Component {
           ?
           <Modal
           title="Edit DFSP wise endpoints"
+          width="50%"
           visible={this.state.endpointsVisible}
-          width='70%'
           onOk={async () => {
             const payerKey = Object.keys(this.state.endpointsLocal['payer'])[0]
             const payeeKey = Object.keys(this.state.endpointsLocal['payee'])[0]
@@ -773,7 +768,7 @@ class DFSPWiseEndpoints extends React.Component {
           }}
           >
             <Row>
-              <Col>
+              <Col span={24}>
                 {this.getTabs()}
               </Col>
             </Row>
@@ -837,24 +832,7 @@ class Settings extends React.Component {
   
   render() {
     return (
-      <>
-        <Header />
-        {/* Page content */}
-        <Container className="mt--7" fluid>
-          <Row>
-            <Col>
-              <Card className="bg-secondary shadow">
-                <CardHeader className="bg-white border-0">
-                  <h3 className="mb-0">Edit Global Configuration</h3>
-                </CardHeader>
-                <CardBody>
-                  <ConfigurationEditor config={this.state.userConfigStored} configRuntime={this.state.userConfigRuntime} onSave={this.handleSaveUserConfig} doRefresh={this.getUserConfiguration} />
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
-      </>
+      <ConfigurationEditor config={this.state.userConfigStored} configRuntime={this.state.userConfigRuntime} onSave={this.handleSaveUserConfig} doRefresh={this.getUserConfiguration} />
     );
   }
 }
