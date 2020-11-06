@@ -1,7 +1,7 @@
 {
   "name": "ml-testing-toolkit-ui",
   "version": "11.3.0",
-  "description": "Mojaloop Testing Toolkit Web UI",
+  "description": "Mojaloop Testing Toolkit Web Interface",
   "main": "index.js",
   "repository": {
     "type": "git",
