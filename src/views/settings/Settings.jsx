@@ -23,6 +23,7 @@
  --------------
  ******/
 import React from "react";
+import _ from 'lodash';
 
 import { Input, Checkbox, Divider, Tooltip, message, Row, Col, Typography, Button, Modal, Table, Select, Tabs } from 'antd';
 import 'antd/dist/antd.css';
@@ -94,22 +95,29 @@ class ParamInput extends React.Component {
       )
     )
 
-    return (
-      <Row className="mb-4">
-        <Col span={8}>
-          <Text strong>{this.props.name}</Text>
-        </Col>
-        <Col span={16}>
-          {
-            this.props.tooltip
-            ? (
-            <Tooltip placement="topLeft" title={this.props.tooltip}>{inputElement}</Tooltip>
-            )
-            : inputElement
-          }
-        </Col>
-      </Row>
-    )
+    if (this.props.value || _.isBoolean(this.props.value )) {
+      return (
+        <>
+          <Divider />
+          <Row className="mb-4">
+            <Col span={8}>
+              <Text strong>{this.props.name}</Text>
+            </Col>
+            <Col span={16}>
+              {
+                this.props.tooltip
+                ? (
+                <Tooltip placement="topLeft" title={this.props.tooltip}>{inputElement}</Tooltip>
+                )
+                : inputElement
+              }
+            </Col>
+          </Row>
+        </>
+      )
+    } else {
+      return null
+    }
   }
 }
 
@@ -153,49 +161,58 @@ class CallbackResourceEndpointsInput extends React.Component {
   }
 
   render() {
-
-    const inputElement = (
-      <Checkbox checked={this.props.value} onChange={this.handleValueChange}></Checkbox>
-    )
-
-    return (
-      <Row className="mb-4">
-        <Col span={8}>
-          <Text strong>{this.props.name}</Text>
-        </Col>
-        <Col span={2}>
-          {
-            this.props.tooltip
-            ? (
-            <Tooltip placement="topLeft" title={this.props.tooltip}>{inputElement}</Tooltip>
-            )
-            : inputElement
-          }
-        </Col>
-        <Col span={2}>
-          <CallBackResourceEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
-        </Col>
-      </Row>
-    )
+    if (this.props.config.CALLBACK_RESOURCE_ENDPOINTS) {
+      const inputElement = (
+        <Checkbox checked={this.props.value} onChange={this.handleValueChange}></Checkbox>
+      )
+      return (
+        <>
+          <Divider />
+          <Row className="mb-4">
+            <Col span={8}>
+              <Text strong>{this.props.name}</Text>
+            </Col>
+            <Col span={2}>
+              {
+                this.props.tooltip
+                ? (
+                <Tooltip placement="topLeft" title={this.props.tooltip}>{inputElement}</Tooltip>
+                )
+                : inputElement
+              }
+            </Col>
+            <Col span={2}>
+              <CallBackResourceEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
+            </Col>
+          </Row>
+        </>
+      )
+    } else {
+      return null
+    }
   }
 }
 
 class DFSPWiseEndpointsInput extends React.Component {
 
-  handleValueChange = (event) => {}
-
   render() {
-
-    return (
-      <Row className="mb-4">
-        <Col span={8}>
-          <Text strong>{this.props.name}</Text>
-        </Col>
-        <Col span={2}>
-          <DFSPWiseEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
-        </Col>
-      </Row>
-    )
+    if (this.props.config.ENDPOINTS_DFSP_WISE) {
+      return (
+        <>
+          <Divider />
+          <Row className="mb-4">
+            <Col span={8}>
+              <Text strong>{this.props.name}</Text>
+            </Col>
+            <Col span={2}>
+              <DFSPWiseEndpoints config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.props.handleParamValueChange} handleSave={this.props.handleSave} />
+            </Col>
+          </Row>
+        </>
+      )
+    } else {
+      return null
+    }
   }
 }
 

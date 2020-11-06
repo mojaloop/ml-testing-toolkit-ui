@@ -731,13 +731,17 @@ class OutboundRequest extends React.Component {
       this.state.loadSampleCollections = {}
       for (const index in this.state.loadSampleCollectionTypes) {
         const resp = await axios.get(apiBaseUrl + `/api/samples/list/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
-        this.state.loadSampleCollections[this.state.loadSampleCollectionTypes[index]] = resp.data.body
+        if (resp.data.body.length > 0) {
+          this.state.loadSampleCollections[this.state.loadSampleCollectionTypes[index]] = resp.data.body
+        }
       }
     }
     if (!this.state.loadSampleEnvironments) {
       const resp = await axios.get(apiBaseUrl + `/api/samples/list/environments`)
       resp.data.body.push({name: 'none'})
-      this.state.loadSampleEnvironments = resp.data.body.map(file => file.name)
+      if (resp.data.body.length > 0) {
+        this.state.loadSampleEnvironments = resp.data.body.map(file => file.name)
+      }
     }
   }
 
@@ -776,14 +780,19 @@ class OutboundRequest extends React.Component {
 
   loadSampleCollectionsTabContent = () => {
     return this.state.loadSampleCollectionTypes.map(type => {
-      return (
-        <Tabs.TabPane tab={type} key={type}>
-          <SampleFilesViewer files={this.loadSampleCollectionsAsFilesArray(type)} prefix={'examples/collections/' + type + '/'} onChange={ (selectedCollections) => {
-            // this.setState({selectedCollections: selectedRowKeys})
-            this.state.loadSampleChecked.collections = selectedCollections
-          }} />
-        </Tabs.TabPane>
-      )
+      const files = this.loadSampleCollectionsAsFilesArray(type)
+      if (files && files.length > 0) {
+        return (
+          <Tabs.TabPane tab={type} key={type}>
+            <SampleFilesViewer files={files} prefix={'examples/collections/' + type + '/'} onChange={ (selectedCollections) => {
+              // this.setState({selectedCollections: selectedRowKeys})
+              this.state.loadSampleChecked.collections = selectedCollections
+            }} />
+          </Tabs.TabPane>
+        )
+      } else {
+        return null
+      }
     })
   }
 
