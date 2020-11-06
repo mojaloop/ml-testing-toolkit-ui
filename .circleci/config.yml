@@ -87,6 +87,9 @@ jobs:
           name: Update NPM install
           command: npm install
       - run:
+          name: Remove unncessary dependencies
+          command: rm -rf node_modules/language-subtag-registry node_modules/axe-core
+      - run:
           name: Delete build dependencies
           command: apk del build-dependencies
       # - run:
@@ -299,17 +302,17 @@ workflows:
               ignore:
                 - /feature*/
                 - /bugfix*/
-      - test-unit:
-          context: org-global
-          requires:
-            - setup
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore:
-                - /feature*/
-                - /bugfix*/
+      # - test-unit:
+      #     context: org-global
+      #     requires:
+      #       - setup
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      #       branches:
+      #         ignore:
+      #           - /feature*/
+      #           - /bugfix*/
       # - test-coverage:
       #     context: org-global
       #     requires:
