@@ -1,67 +1,36 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 import socketIOClient from "socket.io-client";
-import { Grid, GridColumn as Column, GridDetailRow } from '@progress/kendo-react-grid';
 import getConfig from '../../utils/getConfig'
-import '@progress/kendo-theme-default/dist/all.css'
 
-// reactstrap components
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Container,
-  Row,
-  Col,
-  Button
-} from "reactstrap";
-// core components
-import Header from "../../components/Headers/Header.jsx";
-
-import { Icon, Tag, Timeline, Card as CardAnt } from 'antd';
+import { Tag, Timeline, Card, Table, Row, Col, Button, Typography } from 'antd';
+import { ClockCircleOutlined } from '@ant-design/icons';
 
 import axios from 'axios';
 
-class DetailComponent extends GridDetailRow {
-  render() {
-      const log = this.props.dataItem;
-      return (
-        <>
-        {log.additionalData
-          ? (
-              <div>
-                <br />
-                <div style={{ backgroundColor: '#1f4662', width: '100%', color: '#fff', fontSize: '12px' }}>
-                  <div style={{ backgroundColor: '#193549', width: '100%', fontFamily: 'monospace', color: '#ffc600' }} >
-                  </div>
-                  <pre style={{ display: 'block', width: '100%', margin: '0', overflow: 'scroll', color: '#ffffff' }}>
-                    {JSON.stringify(log.additionalData,null,2)}
-                  </pre>
-                </div>
-              </div>
-            )
-          : log.message
-        }
-        </>
-      );
-  }
-}
+const { Text } = Typography
 
 class IncomingTimelineItem extends React.Component {
 
@@ -71,10 +40,6 @@ class IncomingTimelineItem extends React.Component {
       logsVisible: false
     }
   }
-  expandChange = (event) => {
-    event.dataItem.expanded = !event.dataItem.expanded;
-    this.forceUpdate();
-  }
 
   toggleLogsVisibility = () => {
       this.setState({logsVisible: !this.state.logsVisible})
@@ -83,6 +48,10 @@ class IncomingTimelineItem extends React.Component {
   render () {
     const log = this.props.logs[0]
     const info = this.props.info
+    const columns = [
+      { title: 'Message', dataIndex: 'message', key: 'message' },
+      { title: 'Log Type', dataIndex: 'verbosity', key: 'verbosity' }
+    ]
     return (
       <>
         <b>{log.logTime}</b>
@@ -91,17 +60,36 @@ class IncomingTimelineItem extends React.Component {
         {
           this.state.logsVisible
           ? (
-            <Grid
-              className="align-items-center table-flush"
-              data={this.props.logs}
-              detail={DetailComponent}
-              expandField="expanded"
-              onExpandChange={this.expandChange}
-            >
-              <Column field="logTime" title="Time" />
-              <Column field="message" title="Message" />
-              <Column field="verbosity" title="Verbosity" />
-            </Grid>
+            <Table
+              columns={columns}
+              pagination={false}
+              expandable={{
+                expandedRowRender: log => (
+                  <>
+                  <Row>
+                    <Text strong>{log.logTime}</Text>
+                  </Row>
+                  <Row>
+                    
+                      <Text
+                        copyable = {
+                          {
+                            text: JSON.stringify(log.additionalData,null,2)
+                          }
+                        }
+                      >
+                        <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                          {JSON.stringify(log.additionalData,null,2)}
+                        </pre>
+                        
+                      </Text>
+                  </Row>
+                  </>
+                ),
+                rowExpandable: log => (log.additionalData && Object.keys(log.additionalData).length !== 0),
+              }}
+              dataSource={this.props.logs.map((logItem, index) => {return {...logItem, key: index}})}
+            />
           )
           : null
         }
@@ -134,7 +122,7 @@ class IncomingTimelineSet extends React.Component {
         )
       } else {
         return (
-          <Timeline.Item dot={<Icon type="clock-circle-o" style={{ fontSize: '16px' }} />} color="red"><br /><br /></Timeline.Item>
+          <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '16px' }} />} color="red"><br /><br /></Timeline.Item>
         )
       }
 
@@ -154,11 +142,11 @@ class IncomingTimelineSet extends React.Component {
           {
             this.state.logsVisible
             ? (
-                <CardAnt>
+                <Card>
                   <Timeline reverse={false}>
                     {this.getTimelineItems()}
                   </Timeline>
-                </CardAnt>
+                </Card>
             )
             : null
           }
@@ -208,6 +196,7 @@ class IncomingMonitor extends React.Component {
       this.state.timeline.outbound.socket.disconnect()
     }
   }
+
 
   componentDidMount = async () => {
     const { apiBaseUrl } = getConfig()
@@ -299,7 +288,7 @@ class IncomingMonitor extends React.Component {
         )
       } else {
         return (
-          <Timeline.Item dot={<Icon type="clock-circle-o" style={{ fontSize: '16px' }} />} color="red"><br /><br /></Timeline.Item>
+          <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '16px' }} />} color="red"><br /><br /></Timeline.Item>
         )
       }
     })
@@ -312,60 +301,30 @@ class IncomingMonitor extends React.Component {
   render () {
     return (
       <>
-      <Row className="mb-4">
-      <div className="col">
-        <Card className="shadow">
-          <CardHeader className="border-0">
-            <Row>
-              <Col className="text-right" ><span className="font-weight-bold">Inbound Requests</span></Col>
-              <Col className="text-center" ><span className="font-weight-bold">|</span></Col>
-              <Col className="text-left"><span className="font-weight-bold">Outbound Requests</span>
-              <Button
-                className="float-right"
-                color="danger"
-                size="sm"
-                onClick={this.handleClearLogs}
-              >
-                Clear
-              </Button>
-              </Col>
-
-            </Row>
-          </CardHeader>
-          <CardBody>
-            <Timeline mode="alternate" reverse={true} pending="Monitoring..." >
-              {this.getTimelineSets()}
-            </Timeline>
-          </CardBody>
-        </Card>
-        </div>
+      <Row>
+        <Col span={8} className="text-right" ><span className="font-weight-bold">Inbound Requests</span></Col>
+        <Col span={8} className="text-center" ><span className="font-weight-bold">|</span></Col>
+        <Col span={8} className="text-left"><span className="font-weight-bold">Outbound Requests</span>
+        <Button
+          className="float-right"
+          type="primary"
+          danger
+          onClick={this.handleClearLogs}
+        >
+          Clear
+        </Button>
+        </Col>
+      </Row>
+      <Row>
+        <Col span={24}>
+          <Timeline mode="alternate" reverse={true} pending="Monitoring..." >
+            {this.getTimelineSets()}
+          </Timeline>
+        </Col>
       </Row>
       </>
     )
   }
 }
 
-class Tables extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-    };
-  }
-
-
-  render() {
-  
-    return (
-      <>
-        <Header />
-        {/* Page content */}
-        <Container className="mt--7" fluid>
-          <IncomingMonitor />
-          {/* <Logs /> */}
-        </Container>
-      </>
-    );
-  }
-}
-
-export default Tables;
+export default IncomingMonitor;

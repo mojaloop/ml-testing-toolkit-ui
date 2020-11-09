@@ -235,6 +235,9 @@ jobs:
           name: Prune non-production packages before running license-scanner
           command: npm prune --production
       - run:
+          name: Remove unncessary dependencies
+          command: rm -rf node_modules/language-subtag-registry node_modules/axe-core
+      - run:
           name: Run the license-scanner
           command: cd /tmp/license-scanner && pathToRepo=$CIRCLE_WORKING_DIRECTORY make run
       - store_artifacts:
@@ -299,17 +302,17 @@ workflows:
               ignore:
                 - /feature*/
                 - /bugfix*/
-      - test-unit:
-          context: org-global
-          requires:
-            - setup
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore:
-                - /feature*/
-                - /bugfix*/
+      # - test-unit:
+      #     context: org-global
+      #     requires:
+      #       - setup
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      #       branches:
+      #         ignore:
+      #           - /feature*/
+      #           - /bugfix*/
       # - test-coverage:
       #     context: org-global
       #     requires:
@@ -354,22 +357,22 @@ workflows:
               ignore:
                 - /feature*/
                 - /bugfix*/
-      # - audit-licenses:
-      #     context: org-global
-      #     requires:
-      #       - setup
-      #     filters:
-      #       tags:
-      #         only: /.*/
-      #       branches:
-      #         ignore:
-      #           - /feature*/
-      #           - /bugfix*/
+      - audit-licenses:
+          context: org-global
+          requires:
+            - setup
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore:
+                - /feature*/
+                - /bugfix*/
       - build-snapshot:
           context: org-global
           requires:
             - setup
-            - test-unit
+            # - test-unit
             # - test-coverage
             # - test-integration
             # - test-functional
@@ -385,12 +388,12 @@ workflows:
           context: org-global
           requires:
             - setup
-            - test-unit
+            # - test-unit
             # - test-coverage
             # - test-integration
             # - test-functional
             - vulnerability-check
-            # - audit-licenses
+            - audit-licenses
           filters:
             tags:
               only: /v[0-9]+(\.[0-9]+)*/

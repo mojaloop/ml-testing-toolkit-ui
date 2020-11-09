@@ -1,34 +1,34 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Georgi Logodazhki <georgi.logodazhki@modusbox.com>
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 import _ from 'lodash';
 
-// reactstrap components
-import {
-  FormGroup,
-  CardBody,
-  Table,
-  Button
-} from "reactstrap";
 // core components
 import axios from 'axios';
 // import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Collapse, Modal, Switch } from 'antd';
+import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Collapse, Modal, Switch, Button } from 'antd';
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 import arrayMove from 'array-move';
@@ -150,7 +150,7 @@ export class ConfigurableParameter extends React.Component {
 
     return (
       <Row>
-        <Col>
+        <Col span={12}>
           <Select
             placeholder="Please Select"
             style={{ width: 200 }}
@@ -160,7 +160,7 @@ export class ConfigurableParameter extends React.Component {
             {this.getParamTypeMenu()}
           </Select>
         </Col>
-        <Col>
+        <Col span={12}>
           {this.getValueComponent()}
         </Col>
       </Row>
@@ -397,11 +397,12 @@ export class AssertionEditorSimple extends React.Component {
 
   render () {
     return (
+      <>
       <Row>
         {/* <td>
           <p>{this.state.fact} {this.state.operator} {this.state.value}</p>
         </td> */}
-        <Col span={6}>
+        <Col span={8}>
           <FactSelector
             value={this.state.selectedFact}
             resourceDefinition={this.props.resourceDefinition}
@@ -412,12 +413,12 @@ export class AssertionEditorSimple extends React.Component {
             onChange={this.handleFactChange}
           />
         </Col>
-        <Col span={6}>
+        <Col span={8}>
           <OperatorSelector
             onChange={this.handleOperatorChange}
           />
         </Col>
-        <Col span={6}>
+        <Col span={8}>
           <Input
             placeholder="Enter value"
             type="text"
@@ -425,16 +426,19 @@ export class AssertionEditorSimple extends React.Component {
             onChange={e => {this.handleValueChange(e.target.value)}}
           />
         </Col>
-        <Col span={6}>
+      </Row>
+      <Row className="mt-4">
+        <Col span={24} className="text-center">
           <Button
-            color="success"
-            size="sm"
+            type="primary"
+            danger
             onClick={() => { this.handleOnSave() }}
           >
             Save
           </Button>
         </Col>
       </Row>
+      </>
     )
   }
 }
@@ -591,13 +595,12 @@ class AssertionEditor extends React.Component {
       />
       <Button
           className="text-right mt-2"
-          color="success"
-          href="#pablo"
+          type="primary"
+          danger
           onClick={ () => {
             this.setState({renameAssertionDialogVisible: false})
             this.props.onRename(this.props.itemKey, this.state.assertionDescription)
           }}
-          size="sm"
         >
           Save
       </Button>
@@ -636,7 +639,7 @@ class AssertionEditor extends React.Component {
         destroyOnClose
         forceRender
         title="Configurable Parameter"
-        className="w-50 p-3"
+        className="w-30 p-3"
         visible={this.state.showConfigurableParameterDialog? true : false}
         footer={null}
         onCancel={() => { this.setState({showConfigurableParameterDialog: false})}}
@@ -646,7 +649,7 @@ class AssertionEditor extends React.Component {
           ? (
             <>
             <Row>
-              <Col>
+              <Col span={24}>
                 <ConfigurableParameter
                   onChange={this.handleAddConfigParam}
                   rootParameters={this.getCallbackRootParameters(false)}
@@ -658,27 +661,32 @@ class AssertionEditor extends React.Component {
             {
               this.state.configurableParameterSelected ?
               (
+                <> 
                 <Row className="mt-4 text-center">
-                  <Col>
+                  <Col span={24}>
                     <Tag color="geekblue">{this.state.configurableParameterSelected}</Tag>
+                  </Col>
+                </Row>
+                <Row className="mt-2 text-center">
+                  <Col span={24}>
                     <Button
                       className="ml-2"
-                      color="info"
-                      size="sm"
+                      type="default"
                       onClick={this.handleConfigParamCopyToClipboard}
                     >
                       Copy to clipboard
                     </Button>
                     <Button
                       className="ml-2"
-                      color="danger"
-                      size="sm"
+                      type="dashed"
+                      danger
                       onClick={this.handleConfigParamInsertIntoEditor}
                     >
                       Insert into editor
                     </Button>
                   </Col>
                 </Row>
+                </>
               )
               : null
             }
@@ -698,28 +706,27 @@ class AssertionEditor extends React.Component {
         >
           <Button
               className="float-left"
-              color="primary"
-              size="sm"
+              type="default"
             >
               Rename
           </Button>
       </Popover>
       <Button
         className="float-right mb-2"
-        color="info"
-        size="sm"
-        onClick={() => { this.props.onDuplicate(this.props.itemKey) }}
-      >
-        Duplicate
-      </Button>
-      <Button
-        className="float-right mb-2"
-        color="danger"
-        size="sm"
+        type="primary"
+        danger
         onClick={() => { this.props.onDelete(this.props.itemKey) }}
       >
         Delete
       </Button>
+      <Button
+        className="float-right mb-2 mr-2"
+        type="dashed"
+        onClick={() => { this.props.onDuplicate(this.props.itemKey) }}
+      >
+        Duplicate
+      </Button>
+
 
       <AceEditor
         ref="assertionAceEditor"
@@ -739,16 +746,14 @@ class AssertionEditor extends React.Component {
       />
       <Button
         className="float-left mt-2"
-        color="info"
-        size="sm"
+        type="primary"
         onClick={() => { this.setState({showAddExpectationDialog: true})}}
       >
         Add Expectation
       </Button>
       <Button
         className="float-right mt-2"
-        color="secondary"
-        size="sm"
+        type="dashed"
         onClick={() => { this.setState({showConfigurableParameterDialog: true})}}
       >
         Configurable Parameter
@@ -806,7 +811,7 @@ export class TestAssertions extends React.Component {
       return (
         <Panel header={assertion.description} key={assertion.id} extra={status} >
           <Row>
-            <Col>
+            <Col span={24}>
               <AssertionEditor itemKey={key} assertion={assertion} request={this.props.request} inputValues={this.props.inputValues}
                 onChange={this.handleAssertionChange}
                 onRename={this.handleRenameAssertion}
@@ -918,113 +923,117 @@ export class TestAssertions extends React.Component {
     )
     return (
       <>
-      <strong>Raw Editor</strong> <Switch checked={this.state.assertionRawEditorEnable} onChange={(checked) => { this.setState({assertionRawEditorEnable: checked}) }} />
-      &nbsp;
-      {
-        this.state.reOrderingEnabled
-        ? (
-          <Button
-            className="text-right"
-            color="danger"
-            href="#pablo"
-            onClick={ () => {
-              this.setState({reOrderingEnabled: false})
-            }}
-            size="sm"
-          >
-            Done
-          </Button>
-        )
-        : (
-          <Button
-            className="text-right"
-            color="success"
-            href="#pablo"
-            onClick={ () => {
-              this.setState({reOrderingEnabled: true})
-            }}
-            size="sm"
-          >
-            Change Order
-          </Button>
-        )
-      }
-      {
-        this.state.reOrderingEnabled
-        ? (
-          <div>
-          <Row>
-            <Col className="text-left mt-4"> 
-              <SortableAssertionList items={this.props.request.tests.assertions} onSortEnd={this.onAssertionSortEnd} />
-            </Col>
-          </Row>
-          </div>
-        )
-        : !this.state.assertionRawEditorEnable
+      <Row>
+        <Col span={12}>
+        {
+          this.state.reOrderingEnabled
           ? (
+            <Button
+              type="dashed"
+              danger
+              onClick={ () => {
+                this.setState({reOrderingEnabled: false})
+              }}
+            >
+              Done
+            </Button>
+          )
+          : (
+            <Button
+              className="text-right"
+              color="success"
+              href="#pablo"
+              onClick={ () => {
+                this.setState({reOrderingEnabled: true})
+              }}
+              size="sm"
+            >
+              Change Order
+            </Button>
+          )
+        }
+        </Col>
+        <Col span={12} className="text-right">
+          <strong>Raw Editor</strong> <Switch checked={this.state.assertionRawEditorEnable} onChange={(checked) => { this.setState({assertionRawEditorEnable: checked}) }} />
+        </Col>
+      </Row>
+      <Row>
+        <Col span={24}>
+        {
+          this.state.reOrderingEnabled
+          ? (
+            <div>
+            <Row>
+              <Col className="text-left mt-4"> 
+                <SortableAssertionList items={this.props.request.tests.assertions} onSortEnd={this.onAssertionSortEnd} />
+              </Col>
+            </Row>
+            </div>
+          )
+          : !this.state.assertionRawEditorEnable
+            ? (
+                <div>
+                  <Row>
+                    <Col span={24} className="text-right">
+                      <Popover
+                        content={addNewTestDialogContent}
+                        title="Enter a description for the assertion"
+                        trigger="click"
+                        visible={this.state.addNewAssertionDialogVisible}
+                        onVisibleChange={ (visible) => this.setState({addNewAssertionDialogVisible: visible})}
+                      >
+                        <Button
+                            className="text-right float-right"
+                            type="primary"
+                          >
+                            Add New Assertion
+                        </Button>
+                      </Popover>
+                    </Col>
+                  </Row>
+                  <Row className='mt-2'>
+                    <Col span={24}>
+                    {
+                      this.props.request.tests
+                      ? (
+                        <>
+                        <Collapse
+                          onChange={this.handleRuleItemActivePanelChange}
+                        >
+                          {this.getAssertionItems()}
+                        </Collapse>              
+                        </>
+                      )
+                      : null
+                    }
+          
+                    </Col>
+                  </Row>
+                </div>
+              )
+            : (
               <div>
                 <Row>
-                  <Col className="text-left">
-                    <Popover
-                      content={addNewTestDialogContent}
-                      title="Enter a description for the assertion"
-                      trigger="click"
-                      visible={this.state.addNewAssertionDialogVisible}
-                      onVisibleChange={ (visible) => this.setState({addNewAssertionDialogVisible: visible})}
-                    >
-                      <Button
-                          className="text-right float-right"
-                          color="primary"
-                          size="sm"
-                        >
-                          Add New Assertion
-                      </Button>
-                    </Popover>
-                  </Col>
-                  
-                </Row>
-                <Row className='mt-2'>
-                  <Col>
-                  {
-                    this.props.request.tests
-                    ? (
-                      <>
-                      <Collapse
-                        onChange={this.handleRuleItemActivePanelChange}
-                      >
-                        {this.getAssertionItems()}
-                      </Collapse>              
-                      {/* <p><pre>{JSON.stringify(this.props.request.tests, null, 2)}</pre></p> */}
-                      </>
-                    )
-                    : null
-                  }
-        
+                  <Col span={24} className="text-left mt-4">
+                    <Editor
+                      ref="bodyEditor"
+                      value={ this.props.request.tests ? this.props.request.tests.assertions : [] }
+                      ace={ace}
+                      ajv={ajv}
+                      theme="ace/theme/tomorrow_night_blue"
+                      mode="code"
+                      search={false}
+                      statusBar={false}
+                      navigationBar={false}
+                      onChange={this.handleRawAssertionsChange}
+                    />
                   </Col>
                 </Row>
               </div>
             )
-          : (
-            <div>
-              <Row>
-                <Col className="text-left mt-4">
-                  <Editor
-                    ref="bodyEditor"
-                    value={ this.props.request.tests ? this.props.request.tests.assertions : [] }
-                    ace={ace}
-                    ajv={ajv}
-                    theme="ace/theme/tomorrow_night_blue"
-                    mode="code"
-                    search={false}
-                    statusBar={false}
-                    navigationBar={false}
-                    onChange={this.handleRawAssertionsChange}
-                  />
-                </Col>
-              </Row>
-            </div>
-          )
-      }
+        }
+        </Col>
+      </Row>
       </>
     )
 

@@ -1,34 +1,33 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Georgi Logodazhki <georgi.logodazhki@modusbox.com>
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 import _ from 'lodash';
  
-// reactstrap components
-import {
-  FormGroup,
-  Form,
-  Container,
-  Button,
-  Util,
-} from "reactstrap";
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, message, Popover, Badge, Descriptions, Collapse, Card } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -408,88 +407,70 @@ class RequestGenerator extends React.Component {
       <>
           <Row>
             <Col span={24}>
-                  <Row className="align-items-center">
-                    <Col span={16}>
-                      <table>
-                        <tbody>
-                        <tr>
-                          <td align='right'><b>API:</b></td>
-                          <td>
-                            <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td align='right'><b>Resource:</b></td>
-                          <td>
-                            <ResourceSelector value={this.state.selectedResource} selectedApiVersion={this.state.selectedApiVersion} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
-                          </td>
-                        </tr>
-                        </tbody>
-                      </table>
-                    </Col>
-                    <Col span={8}>
-                      <Row className="text-right float-right">
-                        <Col>
-                          <Button
-                            className="float-right"
-                            color="danger"
-                            size="sm"
-                            onClick={async () => {
-                              await this.props.onDelete(this.props.request.id)
-                              await this.fetchRequest()
-                            }}
-                          >
-                            Delete
-                          </Button>
-                          <Button
-                            className="float-right mr-2"
-                            color="info"
-                            size="sm"
-                            onClick={() => {this.props.onDuplicate(this.props.request.id)}}
-                          >
-                            Duplicate
-                          </Button>
-                        </Col>
-                      </Row>
-                      <Row className="text-right float-right mt-2 mr-2">
-                        <Col>
-                          <Popover
-                              className="float-right"
-                              content={renameRequestDialogContent}
-                              title="Enter new description"
-                              trigger="click"
-                              visible={this.state.renameRequestDialogVisible}
-                              onVisibleChange={ (visible) => this.setState({renameRequestDialogVisible: visible})}
-                            >
-                              <Button
-                                  className="float-left"
-                                  color="primary"
-                                  size="sm"
-                                >
-                                  Rename
-                              </Button>
-                        </Popover>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
-                      <Form>
-                        <RequestBuilder
-                          request={this.props.request}
-                          allRequests={this.props.allRequests}
-                          inputValues={this.props.inputValues}
-                          onChange={this.handleRequestChange}
-                          resource={this.state.selectedResource}
-                          resourceDefinition={this.getResourceDefinition()}
-                          rootParameters={this.getRootParameters()}
-                          openApiDefinition={this.state.openApiDefinition}
-                          callbackMap={this.state.callbackMap}
-                        />
-                      </Form>
-                    </Col>
-                  </Row>
+              <Button
+                className="float-right"
+                type="primary"
+                danger
+                onClick={async () => {
+                  await this.props.onDelete(this.props.request.id)
+                  await this.fetchRequest()
+                }}
+              >
+                Delete
+              </Button>
+              <Popover
+                className="float-right mr-2"
+                content={renameRequestDialogContent}
+                title="Enter new description"
+                trigger="click"
+                visible={this.state.renameRequestDialogVisible}
+                onVisibleChange={ (visible) => this.setState({renameRequestDialogVisible: visible})}
+              >
+                <Button>Rename</Button>
+              </Popover>
+              <Button
+                className="float-right mr-2"
+                type="dashed"
+                onClick={() => {this.props.onDuplicate(this.props.request.id)}}
+              >
+                Duplicate
+              </Button>
+
+            </Col>
+          </Row>
+          <Row className="mt-2">
+            <Col span={24}>
+              <table>
+                <tbody>
+                <tr>
+                  <td align='right'><b>API:</b></td>
+                  <td>
+                    <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
+                  </td>
+                </tr>
+                <tr>
+                  <td align='right'><b>Resource:</b></td>
+                  <td>
+                    <ResourceSelector value={this.state.selectedResource} selectedApiVersion={this.state.selectedApiVersion} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </Col>
+          </Row>
+          <Row className="mt-2">
+            <Col span={24}>
+              <RequestBuilder
+                request={this.props.request}
+                allRequests={this.props.allRequests}
+                inputValues={this.props.inputValues}
+                onChange={this.handleRequestChange}
+                resource={this.state.selectedResource}
+                resourceDefinition={this.getResourceDefinition()}
+                rootParameters={this.getRootParameters()}
+                openApiDefinition={this.state.openApiDefinition}
+                callbackMap={this.state.callbackMap}
+              />
             </Col>
           </Row>
       </>
@@ -967,52 +948,6 @@ class TestCaseEditor extends React.Component {
     this.forceUpdate()
   }
 
-  // handleIncomingProgress = (progress) => {
-  //   let request = this.props.testCase.requests.find(item => item.id === progress.id)
-  //   if (request.status) {
-  //     if (progress.status === 'SUCCESS') {
-  //       request.status.state = 'finish'
-  //       request.status.response = progress.response
-  //       request.status.callback = progress.callback
-  //       request.status.testResult = progress.testResult
-  //     } else if (progress.status === 'ERROR') {
-  //       request.status.state = 'error'
-  //       request.status.response = progress.response
-  //       request.status.callback = progress.callback
-  //       request.status.testResult = progress.testResult
-  //       // Clear the waiting status of the remaining requests
-  //       for (let i in this.props.testCase.requests) {
-  //         if (!this.props.testCase.requests[i].status) {
-  //           this.props.testCase.requests[i].status = {}
-  //         }
-  //         if (this.props.testCase.requests[i].status.state === 'process') {
-  //           this.props.testCase.requests[i].status.state = 'wait'
-  //           this.props.testCase.requests[i].status.response = null
-  //           this.props.testCase.requests[i].status.callback = null
-  //           this.props.testCase.requests[i].status.testResult = null
-  //         }
-          
-  //       }
-  //       message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
-  //     }
-  //     this.forceUpdate()
-  //   }
-  // }
-
-  // Take the status property out from requests
-  // convertTemplate = (template) => {
-  //   if (template.requests) {
-  //     let { requests, ...remainingProps } = template
-  //     const newRequests = requests.map(item => {
-  //       const { status, ...newRequest } = item
-  //       return newRequest
-  //     })
-  //     return { ...remainingProps, requests: newRequests }
-  //   } else {
-  //     return null
-  //   }
-  // }
-
   render() {
 
     const addNewRequestDialogContent = (
@@ -1051,7 +986,7 @@ class TestCaseEditor extends React.Component {
       return (
         <Row className="mt-4">
           <Col span={24}>
-          <Card className="card-profile shadow" title={this.getStepItems(startIndex, endIndex)}>
+          <Card title={this.getStepItems(startIndex, endIndex)}>
             <Row gutter={16} >
               {this.getRequestGeneratorItems(startIndex, endIndex)}
             </Row>
@@ -1076,32 +1011,38 @@ class TestCaseEditor extends React.Component {
 
     return (
       <>
-        <Button
-            className="text-right float-right mb-2"
-            color="danger"
-            size="sm"
-            onClick={() => {
-              this.props.onSend()
-            }}
-          >
-            Send
-        </Button>
-        <Popover
-          content={addNewRequestDialogContent}
-          title="Enter a description for the request"
-          trigger="click"
-          visible={this.state.addNewRequestDialogVisible}
-          onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
-        >
+      <Row>
+        <Col span={24}>
           <Button
-              className="text-right float-right mb-2"
-              color="primary"
-              size="sm"
+              className="float-right"
+              type="primary"
+              danger
+              onClick={() => {
+                this.props.onSend()
+              }}
             >
-              Add New Request
+              Send
           </Button>
-        </Popover>
+          <Popover
+            content={addNewRequestDialogContent}
+            title="Enter a description for the request"
+            trigger="click"
+            visible={this.state.addNewRequestDialogVisible}
+            onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
+          >
+            <Button
+                type="primary"
+              >
+                Add New Request
+            </Button>
+          </Popover>
+        </Col>
+      </Row>
+      <Row className="mt-2">
+        <Col span={24}>
         { getHorizontalGroups() }
+        </Col>
+      </Row>
       </>
     );
   }

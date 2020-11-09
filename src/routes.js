@@ -1,140 +1,110 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import Dashboard from "./views/dashboard/Dashboard.jsx";
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import RulesResponse from "./views/rules/RulesResponse.jsx";
 import RulesValidation from "./views/rules/RulesValidation.jsx";
 import RulesCallback from "./views/rules/RulesCallback.jsx";
-import RulesForward from "./views/rules/RulesForward.jsx";
+// import RulesForward from "./views/rules/RulesForward.jsx";
 import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
 import Monitor from "./views/monitor/Monitor.jsx";
 import MonitorDiagram from "./views/monitor/MonitorDiagram.jsx";
 import Settings from "./views/settings/Settings.jsx";
 import APIDocs from "./views/APIDocs.jsx";
 
+import {
+  DashboardOutlined,
+  MonitorOutlined,
+  FileDoneOutlined,
+  ReadOutlined,
+  SettingOutlined,
+  FileSyncOutlined,
+  FileSearchOutlined,
+  SendOutlined
+} from '@ant-design/icons';
+
 var routes = [
   {
     path: "/index",
     name: "Dashboard",
-    icon: "ni ni-tv-2 text-primary",
+    icon: <DashboardOutlined />,
     component: MonitorDiagram,
     layout: "/admin"
   },
   {
     path: "/monitoring",
     name: "Monitoring",
-    icon: "ni ni-glasses-2 text-primary",
+    icon: <MonitorOutlined />,
     component: Monitor,
     layout: "/admin"
   },
   {
     path: "/rules_response",
     name: "Sync Response Rules",
-    subTitle: "",
-    icon: "ni ni-curved-next text-primary",
+    icon: <FileSyncOutlined />,
     component: RulesResponse,
     layout: "/admin"
   },
   {
     path: "/rules_validation",
     name: "Validation Rules",
-    subTitle: "(Error Callbacks)",
-    icon: "ni ni-bullet-list-67 text-primary",
+    icon: <FileSearchOutlined />,
     component: RulesValidation,
     layout: "/admin"
   },
   // {
   //   path: "/rules_forward",
   //   name: "Forward Rules",
-  //   subTitle: "(Success Callbacks)",
-  //   icon: "ni ni-bullet-list-67 text-primary",
+  //   icon: <UnorderedListOutlined />,
   //   component: RulesForward,
   //   layout: "/admin"
   // },
   {
     path: "/rules_callback",
     name: "Callback Rules",
-    subTitle: "(Success Callbacks)",
-    icon: "ni ni-bullet-list-67 text-primary",
+    icon: <FileDoneOutlined />,
     component: RulesCallback,
     layout: "/admin"
   },
   {
     path: "/outbound_request",
     name: "Outbound Request",
-    icon: "ni ni-money-coins text-blue",
+    icon: <SendOutlined />,
     component: OutboundRequest,
     layout: "/admin"
   },
   {
     path: "/settings",
     name: "Settings",
-    icon: "ni ni-settings text-blue",
+    icon: <SettingOutlined />,
     component: Settings,
     layout: "/admin"
   },
   {
     path: "/apidocs",
     name: "API Documentation",
-    icon: "ni ni-books text-blue",
+    icon: <ReadOutlined />,
     component: APIDocs,
     layout: "/admin"
   },
-  // {
-  //   path: "/icons",
-  //   name: "Icons",
-  //   icon: "ni ni-planet text-blue",
-  //   component: Icons,
-  //   layout: "/admin"
-  // },
-  // {
-  //   path: "/maps",
-  //   name: "Maps",
-  //   icon: "ni ni-pin-3 text-orange",
-  //   component: Maps,
-  //   layout: "/admin"
-  // },
-  // {
-  //   path: "/user-profile",
-  //   name: "User Profile",
-  //   icon: "ni ni-single-02 text-yellow",
-  //   component: Profile,
-  //   layout: "/admin"
-  // },
-  // {
-  //   path: "/tables",
-  //   name: "Tables",
-  //   icon: "ni ni-bullet-list-67 text-red",
-  //   component: Tables,
-  //   layout: "/admin"
-  // },
-  // {
-  //   path: "/login",
-  //   name: "Login",
-  //   icon: "ni ni-key-25 text-info",
-  //   component: Login,
-  //   layout: "/auth"
-  // },
-  // {
-  //   path: "/register",
-  //   name: "Register",
-  //   icon: "ni ni-circle-08 text-pink",
-  //   component: Register,
-  //   layout: "/auth"
-  // }
 ];
 export default routes;

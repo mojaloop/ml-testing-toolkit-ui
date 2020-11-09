@@ -1,37 +1,31 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 import _ from 'lodash';
-
-// reactstrap components
-import {
-  FormGroup,
-  Row,
-  Button,
-  Col,
-  CardBody
-} from "reactstrap";
-// core components
 import axios from 'axios';
-// import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, TreeSelect, Input, Tooltip, Tag, Radio, Icon, Menu, Dropdown, Card, Popover, Checkbox, message } from 'antd';
+import { Select, Row, Col, Button, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Typography } from 'antd';
 import 'antd/dist/antd.css';
-// import './index.css';
 import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -44,6 +38,7 @@ import Ajv from 'ajv';
 const ajv = new Ajv({allErrors: true});
 
 const { Option } = Select;
+const { Text } = Typography;
 
 class ConfigurableParameter extends React.Component {
 
@@ -359,13 +354,12 @@ class FixedCallbackBuilder extends React.Component {
     return (
       <>
         <Row>
-          <Col>
+          <Col span={24}>
             <Card size="small" title="Headers">
               <Row>
-                <Col lg="12">
-                  <FormGroup>
+                <Col span={24}>
                     <Row>
-                      <Col lg="4">
+                      <Col span={8}>
                         <label
                           className="form-control-label"
                           htmlFor="input-city"
@@ -373,7 +367,7 @@ class FixedCallbackBuilder extends React.Component {
                           Name
                         </label>
                       </Col>
-                      <Col lg="4">
+                      <Col span={8}>
                         <label
                           className="form-control-label"
                           htmlFor="input-city"
@@ -383,51 +377,52 @@ class FixedCallbackBuilder extends React.Component {
                       </Col>
                     </Row>
                     { this.getHeaderItems() }
-                  </FormGroup>
-                  <Dropdown overlay={this.headerItemsMenu()}>
-                    <Button
-                      color="primary"
-                      size="sm"
-                      onClick={e => e.preventDefault()}
-                    >
-                      Add Header
-                    </Button>
+                    <Row className="mt-2">
+                      <Col span={24}>
+                        <Dropdown overlay={this.headerItemsMenu()}>
+                          <Button
+                            type="primary"
+                            onClick={e => e.preventDefault()}
+                          >
+                            Add Header
+                          </Button>
 
-                  </Dropdown>
-                  <Button
-                    color="danger"
-                    onClick={() => this.addHeaderItemsFromDefinition(true)}
-                    size="sm"
-                  >
-                    Add Required Headers
-                  </Button>
-                  <Button
-                    color="info"
-                    onClick={() => this.addHeaderItemsFromDefinition(false)}
-                    size="sm"
-                  >
-                    Add All Headers
-                  </Button>
+                        </Dropdown>
+                        <Button
+                          className="ml-2"
+                          type="default"
+                          danger
+                          onClick={() => this.addHeaderItemsFromDefinition(true)}
+                        >
+                          Add Required Headers
+                        </Button>
+                        <Button
+                          className="ml-2"
+                          type="default"
+                          onClick={() => this.addHeaderItemsFromDefinition(false)}
+                        >
+                          Add All Headers
+                        </Button>
+                      </Col>
+                    </Row>
                 </Col>
               </Row>
             </Card>
           </Col>
         </Row>
         <Row className='mt-2'>
-          <Col>
+          <Col span={24}>
             <Card size="small" title="Body">
               <Row className='mb-2'>
-                <Col lg="6">
+                <Col span={24}>
                   <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                    <Button color="secondary" size="sm">Add Configurable Params</Button>
+                    <Button type="dashed">Add Configurable Params</Button>
                   </Popover>
-                </Col>
-                <Col lg="6" style={{textAlign: 'right'}}>
-                  <Button color="success" size="sm" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
+                  <Button className="ml-2" type="default" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
                 </Col>
               </Row>
               <Row >
-                <Col lg="12">
+                <Col span={24}>
                   <Editor
                     ref="bodyEditor"
                     value={ this.props.eventParams.body? this.props.eventParams.body : {} }
@@ -509,10 +504,9 @@ class HeaderInputComponent extends React.Component {
     return (
       <>
       <Row>
-        <Col lg="4">
+        <Col span={8}>
           <Tooltip placement="topLeft" title={this.props.description}>
             <Input
-              className="form-control-alternative"
               placeholder="Name"
               type="text"
               defaultValue={this.props.name}
@@ -523,9 +517,8 @@ class HeaderInputComponent extends React.Component {
           </Tooltip>
         </Col>
         
-        <Col lg="6">
+        <Col span={12} className="pl-2">
           <Input
-            className="form-control-alternative"
             placeholder="Name"
             type="text"
             defaultValue={this.props.value}
@@ -533,17 +526,17 @@ class HeaderInputComponent extends React.Component {
             onChange={this.handleValueChange}
             disabled={false}
           />
-          <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-            <Button color="secondary" size="sm">Add Configurable Params</Button>
+          <Popover className="mt-1" content={content} title="Select a Configurable Parameter" trigger="click">
+            <Button type="dashed">Add Configurable Params</Button>
           </Popover>
 
         </Col>
-        <Col lg="2">
+        <Col span={4} className="pl-2">
           <Button
-            color="danger"
+            type="primary"
+            danger
             key={this.props.name}
             onClick={this.handleDelete}
-            size="sm"
           >
             Delete
           </Button>
@@ -591,13 +584,13 @@ class MockCallbackBuilder extends React.Component {
     return (
       <>
       <Row>
-        <Col>
+        <Col span={24}>
           <Checkbox checked={this.state.overrideChecked} onChange={this.handleOverrideChecked}>Override some parameters</Checkbox>
         </Col>
       </Row>
       { this.state.overrideChecked?
             <Row className='mt-3'>
-            <Col>
+            <Col span={24}>
               <FixedCallbackBuilder
                 eventParams={this.props.eventParams}
                 onChange={this.handleOverrideValuesChange}
@@ -729,56 +722,52 @@ class EventBuilder extends React.Component {
 
     return (
       <>
-        <div className="pl-lg-4">
-          <Row>
-            <Col md="12">
-              <FormGroup>
-                <label
-                  className="form-control-label"
-                  htmlFor="input-country"
-                >
-                  Delay in milliseconds
-                </label>
-                <br />
+        <Row>
+          <Col span={24}>
+            <Row>
+              <Col><Text>Delay in milliseconds</Text></Col>
+              <Col className="pl-2">
                 <Input placeholder="0" value={this.props.event.params.delay} onChange={(e) => {
                     const newValue = parseInt(e.target.value)
                     this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue
                     this.handleEventChange()
                   }}
                 />
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col md="12">
-              <FormGroup>
-                <label
-                  className="form-control-label"
-                  htmlFor="input-address"
-                >
-                  Event Type
-                </label>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row className="mt-2">
+          <Col span={24}>
+            <Row>
+              <Col><Text>Event Type</Text></Col>
+              <Col className="pl-2">
                 <Select
                   value={this.props.event.type}
                   onChange={this.handleEventTypeSelect}
                   disabled={(this.props.resource? false : true)}
+                  placeholder="Select Event Type"
                 >
                   {this.getEventTypes()}
                 </Select>
-              </FormGroup>
-            </Col>
-          </Row>
-          <ParamsBuilder
-            eventType={this.props.event.type}
-            eventParams={this.props.event.params}
-            onChange={this.handleParamsChange}
-            resourceDefinition={this.props.resourceDefinition}
-            rootParameters = {this.props.rootParameters}
-            callbackDefinition={this.props.callbackDefinition}
-            callbackRootParameters={this.props.callbackRootParameters}
-            callbackObject={this.props.callbackObject}
-          />
-        </div>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row className="mt-2">
+          <Col span={24}>
+            <ParamsBuilder
+              eventType={this.props.event.type}
+              eventParams={this.props.event.params}
+              onChange={this.handleParamsChange}
+              resourceDefinition={this.props.resourceDefinition}
+              rootParameters = {this.props.rootParameters}
+              callbackDefinition={this.props.callbackDefinition}
+              callbackRootParameters={this.props.callbackRootParameters}
+              callbackObject={this.props.callbackObject}
+            />
+          </Col>
+        </Row>
       </>
     );
   }

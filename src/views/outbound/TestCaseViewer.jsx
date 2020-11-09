@@ -1,41 +1,38 @@
-/*!
+/*****
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
 
-=========================================================
-* Argon Dashboard React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from "react";
 import _ from 'lodash';
 
-// reactstrap components
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Button,
-} from "reactstrap";
-// core components
-
-import { Row, Col, Steps, Tag, Dropdown, Menu, message, Icon, Input, Collapse } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { Row, Col, Steps, Tag, Dropdown, Menu, message, Input, Collapse, Card, Button , Typography } from 'antd';
+import { MoreOutlined, DoubleRightOutlined } from '@ant-design/icons';
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 
 const { Panel } = Collapse;
-
 const { Step } = Steps;
+const { Title, Text } = Typography;
 
 
 class TestCaseViewer extends React.Component {
@@ -67,10 +64,10 @@ class TestCaseViewer extends React.Component {
           return (
               <tr>
                 <td className="align-text-top" width='25px'>
-                    <Icon type="double-right" style={{ fontSize: '20px', color: '#08c' }}></Icon>
+                    <DoubleRightOutlined style={{ fontSize: '20px', color: '#08c' }} />
                 </td>
                 <td>
-                  <h3>{item.method.toUpperCase()+' '+item.operationPath}</h3> <p>{item.description}</p>
+                  <Title level={5}>{item.method.toUpperCase()+' '+item.operationPath}</Title> <Text>{item.description}</Text>
                 </td>
                 <td className='text-right align-top'>
                   {
@@ -183,110 +180,103 @@ class TestCaseViewer extends React.Component {
 
     return (
       <>
-        <Row className="mb-2">
+        <Row>
           <Col span={24}>
-          <Card className="card-profile shadow">
-            <CardHeader>
-              <Row>
-                <Col span={16}>
-                  {
-                    this.state.renameTestCase
-                    ? (
-                      <table width='100%'>
-                        <tbody>
-                        <tr>
-                          <td>
-                            <Input 
-                              value={this.state.testCaseName}
-                              onChange={(e) => { this.setState({testCaseName: e.target.value })}}
-                            />
-                          </td>
-                          <td>
-                            <Button
-                              className="ml-2"
-                              color="success"
-                              href="#pablo"
-                              onClick={ () => {
-                                this.setState({renameTestCase: false})
-                                this.handleTestCaseRename(this.state.testCaseName)
-                              }}
-                              size="sm"
-                            >
-                              Done
-                            </Button>
-                            <Button
-                              className="ml-2"
-                              color="info"
-                              href="#pablo"
-                              onClick={ () => {
-                                this.setState({renameTestCase: false})
-                                this.setState({testCaseName: this.props.testCase.name })
-                              }}
-                              size="sm"
-                            >
-                              Cancel
-                            </Button>
-                          </td>
-                        </tr>
-                        </tbody>
-                      </table>
-                    )
-                    : this.props.testCase.name
-                  }
-                </Col>
-                <Col span={8}>
-                  <Dropdown overlay={menu} trigger={['click']} className="ml-4 mt-2 float-right">
-                    <MoreOutlined />
-                  </Dropdown>
-                  <Button
-                    className="ml-2 float-right"
-                    color="info"
-                    href="#pablo"
-                    onClick={ () => {
-                      this.props.onEdit()
-                    }}
-                    size="sm"
-                  >
-                    Edit
-                  </Button>
-                  {
-                    this.state.testCaseRequestsReorderingEnabled && (this.props.testCase.requests && this.props.testCase.requests.length > 0)
-                    ? (
-                      <Button
-                        className="ml-2 float-right"
-                        color="danger"
-                        href="#pablo"
-                        onClick={async () => {
-                          if (this.state.curTestCasesRequestsUpdated) {
-                            this.setState({curTestCasesRequestsUpdated: false})
-                          } else {
-                            message.error({ content: 'no changes found', key: 'TestCaseRequestsReordering', duration: 3 });
-                          }
-                          this.setState({testCaseRequestsReorderingEnabled: false})
-                        }}
-                        size="sm"
-                      >
-                        Apply Reorder
-                      </Button>
-                    )
-                    : null
-                  }
-                </Col>
-              </Row>
-            </CardHeader>
-            <CardBody>
+          <Card>
+            <Row>
+              <Col span={16}>
+                {
+                  this.state.renameTestCase
+                  ? (
+                    <table width='100%'>
+                      <tbody>
+                      <tr>
+                        <td>
+                          <Input 
+                            value={this.state.testCaseName}
+                            onChange={(e) => { this.setState({testCaseName: e.target.value })}}
+                          />
+                        </td>
+                        <td>
+                          <Button
+                            className="ml-2"
+                            type="primary"
+                            danger
+                            onClick={ () => {
+                              this.setState({renameTestCase: false})
+                              this.handleTestCaseRename(this.state.testCaseName)
+                            }}
+                            size="sm"
+                          >
+                            Done
+                          </Button>
+                          <Button
+                            className="ml-2"
+                            type="default"
+                            onClick={ () => {
+                              this.setState({renameTestCase: false})
+                              this.setState({testCaseName: this.props.testCase.name })
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  )
+                  : <Title level={4}>{this.props.testCase.name}</Title>
+                }
+              </Col>
+              <Col span={8}>
+                <Dropdown overlay={menu} trigger={['click']} className="ml-4 mt-2 float-right">
+                  <MoreOutlined />
+                </Dropdown>
+                <Button
+                  className="ml-2 float-right"
+                  type="default"
+                  onClick={ () => {
+                    this.props.onEdit()
+                  }}
+                >
+                  Edit
+                </Button>
+                {
+                  this.state.testCaseRequestsReorderingEnabled && (this.props.testCase.requests && this.props.testCase.requests.length > 0)
+                  ? (
+                    <Button
+                      className="ml-2 float-right"
+                      type="dashed"
+                      danger
+                      onClick={async () => {
+                        if (this.state.curTestCasesRequestsUpdated) {
+                          this.setState({curTestCasesRequestsUpdated: false})
+                        } else {
+                          message.error({ content: 'no changes found', key: 'TestCaseRequestsReordering', duration: 3 });
+                        }
+                        this.setState({testCaseRequestsReorderingEnabled: false})
+                      }}
+                    >
+                      Apply Reorder
+                    </Button>
+                  )
+                  : null
+                }
+              </Col>
+            </Row>
+            <Row>
             {
               this.state.testCaseRequestsReorderingEnabled
               ? (
                 <SortableRuleList items={this.props.testCase.requests} onSortEnd={this.onTestCaseRequestsSortEnd} />
               )
               : (
-                <Row>
+                <>
                   { this.getTestCaseItems() }
-                </Row>
+                </>
               )
             }
-            </CardBody>
+            </Row>
           </Card>
           </Col>
         </Row>

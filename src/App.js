@@ -21,29 +21,28 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import axios from 'axios';
+import logo from './logo.svg';
+import './App.css';
 
-const getConfig = () => {
-  const { protocol, hostname } = window.location
-  // Using the same protocol as we've been loaded from to avoid Mixed Content error.
-  let apiBaseUrl = 'TTK_API_BASE_URL'
-  if (!apiBaseUrl.startsWith('http')) {
-    apiBaseUrl = `${protocol}//${hostname}:5050`
-  }
-  const AUTH_ENABLED = 'TTK_AUTH_ENABLED'
-  // const AUTH_ENABLED = 'TRUE'
-  const isAuthEnabled = AUTH_ENABLED ? AUTH_ENABLED.toUpperCase() === 'TRUE' : false
-
-  return { apiBaseUrl, isAuthEnabled }
+function App() {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
 }
 
-export const getServerConfig = async () => {
-  const { apiBaseUrl } = getConfig()
-  const response = await axios.get(apiBaseUrl + "/api/config/user")
-  const userConfigRuntime = response.data.runtime
-  const userConfigStored = response.data.stored
-
-  return { userConfigRuntime, userConfigStored }
-}
-
-export default getConfig
+export default App;
