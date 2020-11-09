@@ -1,6 +1,6 @@
 {
   "name": "ml-testing-toolkit-ui",
-  "version": "11.3.0",
+  "version": "11.3.1",
   "description": "Mojaloop Testing Toolkit Web User Interface",
   "main": "index.js",
   "repository": {
@@ -62,7 +62,7 @@
     "lodash": "^4.17.20",
     "mermaid": "^8.8.2",
     "ml-testing-toolkit-shared-lib": "11.0.2",
-    "mobx": "4.15.6",
+    "mobx": "^6.0.3",
     "react": "^17.0.1",
     "react-ace": "^9.2.0",
     "react-dom": "^17.0.1",
