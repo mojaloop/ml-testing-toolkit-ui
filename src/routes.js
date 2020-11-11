@@ -29,13 +29,15 @@ import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
 import Monitor from "./views/monitor/Monitor.jsx";
 import MonitorDiagram from "./views/monitor/MonitorDiagram.jsx";
 import Settings from "./views/settings/Settings.jsx";
-import APIDocs from "./views/APIDocs.jsx";
+import APIDocs from "./views/apis/APIDocs.jsx";
+import APIManagement from "./views/apis/APIManagement.jsx";
 
 import {
   DashboardOutlined,
   MonitorOutlined,
   FileDoneOutlined,
   ReadOutlined,
+  ApiOutlined,
   SettingOutlined,
   FileSyncOutlined,
   FileSearchOutlined,
@@ -99,11 +101,18 @@ var routes = [
     component: Settings,
     layout: "/admin"
   },
+  // {
+  //   path: "/apidocs",
+  //   name: "API Documentation",
+  //   icon: <ReadOutlined />,
+  //   component: APIDocs,
+  //   layout: "/admin"
+  // },
   {
-    path: "/apidocs",
-    name: "API Documentation",
-    icon: <ReadOutlined />,
-    component: APIDocs,
+    path: "/apimgmt",
+    name: "API Management",
+    icon: <ApiOutlined />,
+    component: APIManagement,
     layout: "/admin"
   },
 ];
