@@ -63,7 +63,7 @@ class Sidebar extends React.Component {
       return (
         <Menu.Item key={key} icon={prop.icon}>
           <Link
-            className="text-uppercase d-none d-lg-inline-block"
+            className="d-none d-lg-inline-block"
             to={prop.layout + prop.path}
           >
             {prop.name}<br /> {prop.subTitle}

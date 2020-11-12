@@ -22,8 +22,8 @@
  --------------
  ******/
 import React from "react";
-import { RedocStandalone } from 'redoc';
-import getConfig from '../utils/getConfig'
+import getConfig from '../../utils/getConfig'
+import APIDocViewer from './APIDocViewer'
 import axios from 'axios';
 import { Select, Row, Col, Card } from 'antd';
 
@@ -100,11 +100,8 @@ class APIDocs extends React.Component {
               {
                 this.state.selectedVersion
                 ? (
-                  <RedocStandalone specUrl={this.getSelectedVersionURL()}
-                    options={{
-                      nativeScrollbars: true,
-                      theme: { colors: { primary: { main: '#dd5522' } } },
-                    }}
+                  <APIDocViewer
+                    specUrl={this.getSelectedVersionURL()}
                   />
                 )
                 : null
