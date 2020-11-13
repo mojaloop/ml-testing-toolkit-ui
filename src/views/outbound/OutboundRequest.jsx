@@ -34,6 +34,7 @@ import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
 import SampleFilesViewer from './SampleFilesViewer'
+import IterationRunner from './IterationRunner'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
@@ -196,6 +197,7 @@ class OutboundRequest extends React.Component {
   constructor() {
     super();
     this.fileManagerRef = React.createRef();
+    this.iterationRunnerRef = React.createRef();
     const sessionId = traceHeaderUtilsObj.generateSessionId()
     this.state = {
       request: {},
@@ -332,6 +334,8 @@ class OutboundRequest extends React.Component {
     } else if (progress.status === 'TERMINATED') {
       message.success({ content: 'Test case terminated', key: 'outboundStopProgress', duration: 2 });
       this.setState({sendingOutboundRequestID: null, testReport: progress.totalResult})
+    } else if (progress.status.startsWith('ITERATION')) {
+      this.iterationRunnerRef.current.handleIncomingProgress(progress)
     } else {
       let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
       if (testCase) {
@@ -1066,6 +1070,22 @@ class OutboundRequest extends React.Component {
           <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
         </Modal>
         <Modal
+          style={{ top: 20 }}
+          destroyOnClose
+          forceRender
+          width='90%'
+          title="Iteration Runner"
+          visible={this.state.showIterationRunner? true : false}
+          footer={null}
+          onCancel={() => { this.setState({showIterationRunner: false})}}
+        >
+          <IterationRunner
+            template={this.convertTemplate(this.state.template)}
+            sessionId={this.state.sessionId}
+            ref={this.iterationRunnerRef}
+          />
+        </Modal>
+        <Modal
           centered
           destroyOnClose
           forceRender
@@ -1186,6 +1206,14 @@ class OutboundRequest extends React.Component {
                           onClick={this.handleSendStopClick}
                         >
                           { this.state.sendingOutboundRequestID ? 'Stop' : 'Send' }
+                        </Button>
+                        <Button
+                          className="float-right mr-2"
+                          type="dashed"
+                          danger
+                          onClick={() => { this.setState({showIterationRunner: true})}}
+                        >
+                          Iteration Runner
                         </Button>
                         <Button
                           className="float-right mr-2"
