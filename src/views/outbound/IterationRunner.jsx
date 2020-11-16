@@ -25,6 +25,7 @@
 import React from "react";
 
 import { Row, Col, Typography, Button, message, Table, Progress, InputNumber, Tag } from 'antd';
+import FileDownload from 'js-file-download'
 
 // import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -64,7 +65,8 @@ class IterationRunner extends React.Component {
       iterationsResult: [],
       iterationsDone: 0,
       runtimeDurationDone: 0,
-      isTableLoading: false
+      isTableLoading: false,
+      totalReport: null
     };
   }
 
@@ -87,7 +89,7 @@ class IterationRunner extends React.Component {
       this.forceUpdate()
       // console.log(progress.iterationStatus)
     } else if (progress.status === 'ITERATIONS_FINISHED') {
-      this.setState({isTableLoading: false})
+      this.setState({isTableLoading: false, totalReport: progress.totalReport})
       message.success({ content: 'Finished', key: 'iterationsProgress'});
     } else if (progress.status === 'ITERATIONS_TERMINATED') {
       this.setState({isTableLoading: false})
@@ -120,6 +122,30 @@ class IterationRunner extends React.Component {
     this.forceUpdate()
   }
 
+  handleDownloadReport = async (iterationNumber) => {
+    const testReport = this.state.totalReport && this.state.totalReport.iterations[iterationNumber]
+
+    message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
+    const { apiBaseUrl } = getConfig()
+    const reportFormat = 'html'
+    const response = await axios.post(apiBaseUrl + "/api/reports/testcase/" + reportFormat, testReport, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
+    let downloadFilename = "test." + reportFormat
+    if (response.headers['content-disposition']) {
+      const disposition = response.headers['content-disposition']
+      if (disposition && disposition.indexOf('attachment') !== -1) {
+        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        var matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) { 
+          downloadFilename = matches[1].replace(/['"]/g, '');
+        }
+      }
+    }
+    FileDownload(response.data, downloadFilename)
+    message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 });
+
+
+  }
+
   render() {
     const columns = [
       {
@@ -134,6 +160,10 @@ class IterationRunner extends React.Component {
         title: 'Runtime Duration (ms)',
         dataIndex: 'runtimeDuration',
       },
+      {
+        title: 'Report',
+        dataIndex: 'downloadReport',
+      },
     ];
 
     const data = this.state.iterationsResult.map((item,index) => {
@@ -145,7 +175,12 @@ class IterationRunner extends React.Component {
           <Text>{item.totalPassedAssertions + '/' + item.totalAssertions + ' (' + Math.round(item.totalPassedAssertions*100/item.totalAssertions) + '%)'}</Text>
           { item.totalPassedAssertions===item.totalAssertions? (<Tag className='ml-2' color="success">PASSED</Tag>) : (<Tag className='ml-2' color="error">FAILED</Tag>) }
           </>),
-        runtimeDuration: item.runDurationMs
+        runtimeDuration: item.runDurationMs,
+        downloadReport: this.state.totalReport ? (
+          <Button
+            onClick={(e) => {this.handleDownloadReport(item.iterationNumber)}}
+          >Report</Button>
+        ) : null
       }
     })
 
