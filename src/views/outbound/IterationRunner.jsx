@@ -24,7 +24,7 @@
  ******/
 import React from "react";
 
-import { Row, Col, Typography, Button, message, Table, Progress } from 'antd';
+import { Row, Col, Typography, Button, message, Table, Progress, InputNumber, Tag } from 'antd';
 
 // import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -33,6 +33,27 @@ import TraceHeaderUtils from "../../utils/traceHeaderUtils"
 
 const {Text} = Typography
 const traceHeaderUtilsObj = new TraceHeaderUtils()
+
+class IterationNumberInput extends React.Component {
+
+  render() {
+    return (
+      <Row>
+        <Col span={24}>
+          Iteration Count
+          <InputNumber
+            min={10}
+            max={200}
+            step={10}
+            style={{ margin: '0 16px' }}
+            value={this.props.count}
+            onChange={this.props.onChange}
+          />
+        </Col>
+      </Row>
+    );
+  }
+}
 
 class IterationRunner extends React.Component {
 
@@ -52,6 +73,10 @@ class IterationRunner extends React.Component {
   
   componentDidMount = () => {
 
+  }
+
+  handleIterationCountChange = (count) => {
+    this.setState({iterationsDone: 0, totalIterations: count})
   }
 
   handleIncomingProgress(progress) {
@@ -84,7 +109,10 @@ class IterationRunner extends React.Component {
     // const outboundRequestID = Math.random().toString(36).substring(7);
     message.loading({ content: 'Starting iterations...', key: 'iterationsProgress' });
     const { apiBaseUrl } = getConfig()
-    await axios.post(apiBaseUrl + "/api/outbound/template_iterations/" + traceId, this.props.template, { headers: { 'Content-Type': 'application/json' } })
+    const params = {
+      iterationCount: this.state.totalIterations
+    }
+    await axios.post(apiBaseUrl + "/api/outbound/template_iterations/" + traceId, this.props.template, { params, headers: { 'Content-Type': 'application/json' } })
 
     this.state.sendingOutboundRequestID = traceId
     message.loading({ content: 'Executing the test cases...', key: 'iterationsProgress', duration: 10 });
@@ -112,7 +140,11 @@ class IterationRunner extends React.Component {
       return {
         key: index,
         iterationNumber: item.iterationNumber,
-        passPercentage: Math.round(item.totalPassedAssertions*100/item.totalAssertions),
+        passPercentage: (
+          <>
+          <Text>{item.totalPassedAssertions + '/' + item.totalAssertions + ' (' + Math.round(item.totalPassedAssertions*100/item.totalAssertions) + '%)'}</Text>
+          { item.totalPassedAssertions===item.totalAssertions? (<Tag className='ml-2' color="success">PASSED</Tag>) : (<Tag className='ml-2' color="error">FAILED</Tag>) }
+          </>),
         runtimeDuration: item.runDurationMs
       }
     })
@@ -120,7 +152,12 @@ class IterationRunner extends React.Component {
     return (
       <>
       <Row>
-        <Col span={8}></Col>
+        <Col span={8}>
+          <IterationNumberInput
+            count={this.state.totalIterations}
+            onChange={this.handleIterationCountChange}
+          />
+        </Col>
         <Col span={8}>
         {
           this.state.iterationsDone > 0
