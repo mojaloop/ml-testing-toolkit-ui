@@ -66,7 +66,8 @@ class IterationRunner extends React.Component {
       iterationsDone: 0,
       runtimeDurationDone: 0,
       isTableLoading: false,
-      totalReport: null
+      totalReport: null,
+      totalRuntimeDuration: null
     };
   }
 
@@ -89,7 +90,7 @@ class IterationRunner extends React.Component {
       this.forceUpdate()
       // console.log(progress.iterationStatus)
     } else if (progress.status === 'ITERATIONS_FINISHED') {
-      this.setState({isTableLoading: false, totalReport: progress.totalReport})
+      this.setState({isTableLoading: false, totalReport: progress.totalReport, totalRuntimeDuration: progress.totalRunDurationMs})
       message.success({ content: 'Finished', key: 'iterationsProgress'});
     } else if (progress.status === 'ITERATIONS_TERMINATED') {
       this.setState({isTableLoading: false})
@@ -102,6 +103,7 @@ class IterationRunner extends React.Component {
     this.state.iterationsDone = 0
     this.state.runtimeDurationDone = 0
     this.state.iterationsResult = []
+    this.state.totalRuntimeDuration = null
 
     this.state.isTableLoading = true
     const traceIdPrefix = traceHeaderUtilsObj.getTraceIdPrefix()
@@ -228,8 +230,13 @@ class IterationRunner extends React.Component {
               return (
                 <>
                   <Row>
-                    <Col span={12}><Text strong>Iterations Done: {this.state.iterationsDone}</Text></Col>
-                    <Col span={12}><Text strong>Average Runtime Duration: {Math.round(this.state.runtimeDurationDone / this.state.iterationsDone)}</Text></Col>
+                    <Col span={8}><Text strong>Iterations Done: {this.state.iterationsDone}</Text></Col>
+                    <Col span={8}><Text strong>Average Runtime Duration: {Math.round(this.state.runtimeDurationDone / this.state.iterationsDone)}</Text></Col>
+                    {
+                      this.state.totalRuntimeDuration
+                      ? <Col span={8}><Text strong>Total Runtime Duration: {this.state.totalRuntimeDuration}</Text></Col>
+                      : null
+                    }
                   </Row>
                 </>
               );
