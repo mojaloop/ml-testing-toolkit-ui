@@ -27,7 +27,7 @@ import _ from 'lodash';
  
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -570,7 +570,7 @@ class TestCaseEditor extends React.Component {
               consoleLogText += JSON.stringify(outObject, null, 2) + '\n'
             })
           } else if (logItem[1] == 'executionError') {
-            consoleLogText += '\n/**** Send Request Error ****/\n'
+            consoleLogText += '\n/**** error ****/\n'
             consoleLogText += JSON.stringify(logItem[2], null, 2) + '\n'
           }
         }
@@ -593,10 +593,10 @@ class TestCaseEditor extends React.Component {
   }
 
   getEnvironmentStateDescriptions = (environmentArr) => {
-    return environmentArr.map((item, index) => {
+    return Object.entries(environmentArr || {}).map((item, index) => {
       return (
-        <Descriptions.Item key={index} label={item.key}>
-        <pre>{JSON.stringify(item.value, null, 2)}</pre>
+        <Descriptions.Item key={index} label={item[0]}>
+        <pre>{JSON.stringify(item[1], null, 2)}</pre>
         </Descriptions.Item>
       )
     })
@@ -693,7 +693,23 @@ class TestCaseEditor extends React.Component {
                 this.props.userConfig && this.props.userConfig.ADVANCED_FEATURES_ENABLED
                 ? (
                   <TabPane tab="Scripts" key="3">
-                    <Tabs type="card" defaultActiveKey='1'>
+                    <Row>
+                      <Col span={24}>
+                        <Radio.Group
+                          onChange={(e) => {
+                            item.scriptingEngine = e.target.value
+                            this.props.onChange(item)
+                          }}
+                          value={item.scriptingEngine || 'postman'}
+                        >
+                          <Radio value={'javascript'}>Javascript</Radio>
+                          <Radio value={'postman'}>Postman-script</Radio>
+                        </Radio.Group>
+                      </Col>
+                    </Row>
+                    <Row className="mt-2">
+                      <Col span={24}>
+                      <Tabs type="card" defaultActiveKey='1'>
                       <TabPane tab="Pre-request" key="1">
                         <AceEditor
                           ref="preReqScriptAceEditor"
@@ -839,6 +855,8 @@ class TestCaseEditor extends React.Component {
                         : null
                       }
                     </Tabs>
+                      </Col>
+                    </Row>
                   </TabPane>
                 )
                 : null
