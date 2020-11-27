@@ -30,7 +30,7 @@ class PayerMobile extends React.Component {
   state = {
     gettingPartyInfo: false,
     stage: null,
-    amount: 1000,
+    amount: 100,
   }
 
   componentDidMount = async () => {
@@ -151,7 +151,7 @@ class PayerMobile extends React.Component {
             <Col span={24} className='text-center'>
               <Result
                 status="success"
-                title="Sent $100"
+                title="Sent $95"
                 subTitle="to Harry"
               />
             </Col>

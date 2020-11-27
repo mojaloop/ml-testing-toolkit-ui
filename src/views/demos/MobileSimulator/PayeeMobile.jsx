@@ -62,7 +62,7 @@ class PayeeMobile extends React.Component {
             <Col span={24} className='text-center'>
               <Result
                 status="success"
-                title="Received $100"
+                title="Received $95"
                 subTitle="from James."
               />
             </Col>
