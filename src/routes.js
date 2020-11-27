@@ -119,7 +119,7 @@ var routes = [
   },
   {
     path: "/demo",
-    name: "Demo",
+    name: "Demos",
     icon: <ExperimentOutlined />,
     component: Demos,
     layout: "/admin"

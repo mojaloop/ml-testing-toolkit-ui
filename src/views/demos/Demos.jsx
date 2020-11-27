@@ -24,6 +24,7 @@
 import React from "react";
 import { Button, Row, Col, Modal } from 'antd';
 import MobileSimulator from "./MobileSimulator/MobileSimulator.jsx";
+import OnboardingScenario from "./Scenarios/OnboardingScenario.jsx";
 
 
 class Demos extends React.Component {
@@ -38,8 +39,8 @@ class Demos extends React.Component {
     switch(this.state.demoSelected) {
       case 'mobileSimulator':
         return <MobileSimulator />
-      case 'onboardingScenarios':
-        return null
+      case 'onboardingScenario':
+        return <OnboardingScenario />
       default:
         return null
     }
@@ -65,10 +66,10 @@ class Demos extends React.Component {
         <Col span={24} className='text-center'>
           <Button className='mx-auto' type='primary'
             onClick={() => {
-              this.setState({demoSelected: 'onboardingScenarios'})
+              this.setState({demoSelected: 'onboardingScenario'})
             }}
           >
-            Onboarding Scenarios
+            Onboarding Scenario
           </Button>
           <Button className='ml-4' type='primary'
             onClick={() => {
