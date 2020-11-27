@@ -31,6 +31,7 @@ import MonitorDiagram from "./views/monitor/MonitorDiagram.jsx";
 import Settings from "./views/settings/Settings.jsx";
 import APIDocs from "./views/apis/APIDocs.jsx";
 import APIManagement from "./views/apis/APIManagement.jsx";
+import Demos from "./views/demos/Demos.jsx";
 
 import {
   DashboardOutlined,
@@ -41,7 +42,8 @@ import {
   SettingOutlined,
   FileSyncOutlined,
   FileSearchOutlined,
-  SendOutlined
+  SendOutlined,
+  ExperimentOutlined
 } from '@ant-design/icons';
 
 var routes = [
@@ -113,6 +115,13 @@ var routes = [
     name: "API Management",
     icon: <ApiOutlined />,
     component: APIManagement,
+    layout: "/admin"
+  },
+  {
+    path: "/demo",
+    name: "Demo",
+    icon: <ExperimentOutlined />,
+    component: Demos,
     layout: "/admin"
   },
 ];
