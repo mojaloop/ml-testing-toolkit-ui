@@ -1,0 +1,642 @@
+[
+  {
+    "uniqueId": "1606497312324yuryl4",
+    "traceID": null,
+    "resource": {
+      "method": "get",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "JWS signed",
+    "logTime": "2020-11-27T17:15:12.325Z"
+  },
+  {
+    "uniqueId": "1606497312324yuryl4",
+    "traceID": null,
+    "resource": {
+      "method": "get",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "Sending request get http://localhost:4000/parties/MSISDN/27713803912",
+    "additionalData": {
+      "request": {
+        "url": "http://localhost:4000/parties/MSISDN/27713803912",
+        "uniqueId": "1606497312324yuryl4",
+        "headers": {
+          "Accept": "application/vnd.interoperability.parties+json;version=1.0",
+          "Content-Type": "application/vnd.interoperability.parties+json;version=1.0",
+          "Date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "FSPIOP-Source": "testingtoolkitdfsp",
+          "traceparent": "00-aabb794eba23edc06d841f52ac272212-0123456789abcdef0-00"
+        }
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.325Z"
+  },
+  {
+    "uniqueId": "1606497312324yuryl4",
+    "traceID": null,
+    "resource": {
+      "method": "get",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "Received response 202 Accepted",
+    "additionalData": {
+      "response": {
+        "status": 202,
+        "statusText": "Accepted",
+        "uniqueId": "1606497312324yuryl4",
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "0",
+          "date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "connection": "close"
+        },
+        "body": ""
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.329Z"
+  },
+  {
+    "uniqueId": "1606497312337zxvb7s",
+    "traceID": "ccdd43db4ef82d2165654b29d72be1",
+    "resource": {
+      "method": "put",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Traceparent header not found. Generated a random traceID.",
+    "additionalData": {
+      "traceID": "ccdd43db4ef82d2165654b29d72be1"
+    },
+    "logTime": "2020-11-27T17:15:12.338Z"
+  },
+  {
+    "uniqueId": "1606497312337zxvb7s",
+    "traceID": "ccdd43db4ef82d2165654b29d72be1",
+    "resource": {
+      "method": "put",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "request",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Request: put /parties/MSISDN/27713803912",
+    "additionalData": {
+      "request": {
+        "uniqueId": "1606497312337zxvb7s",
+        "headers": {
+          "content-type": "application/vnd.interoperability.parties+json;version=1.0",
+          "date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "fspiop-source": "userdfsp",
+          "fspiop-destination": "testingtoolkitdfsp",
+          "authorization": "Bearer 7718fa9b-be13-3fe7-87f0-a12cf1628168",
+          "host": "docker.for.mac.localhost:5000",
+          "content-length": "232",
+          "connection": "close"
+        },
+        "queryParams": {},
+        "body": {
+          "party": {
+            "partyIdInfo": {
+              "partyIdType": "MSISDN",
+              "partyIdentifier": "27713803912",
+              "fspId": "userdfsp"
+            },
+            "personalInfo": {
+              "complexName": {
+                "firstName": "Test",
+                "middleName": "Test",
+                "lastName": "Test"
+              },
+              "dateOfBirth": "1970-01-01"
+            },
+            "name": "Test"
+          }
+        }
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.338Z"
+  },
+  {
+    "uniqueId": "1606497312337zxvb7s",
+    "traceID": "ccdd43db4ef82d2165654b29d72be1",
+    "resource": {
+      "method": "put",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "debug",
+    "message": "Version negotiation succeeded, picked up the version 1.0",
+    "logTime": "2020-11-27T17:15:12.340Z"
+  },
+  {
+    "uniqueId": "1606497312337zxvb7s",
+    "traceID": "ccdd43db4ef82d2165654b29d72be1",
+    "resource": {
+      "method": "put",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "debug",
+    "message": "Schema Validation Passed",
+    "logTime": "2020-11-27T17:15:12.346Z"
+  },
+  {
+    "uniqueId": "1606497312337zxvb7s",
+    "traceID": "ccdd43db4ef82d2165654b29d72be1",
+    "resource": {
+      "method": "put",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "No response rules are matched",
+    "logTime": "2020-11-27T17:15:12.533Z"
+  },
+  {
+    "uniqueId": "1606497312337zxvb7s",
+    "traceID": "ccdd43db4ef82d2165654b29d72be1",
+    "resource": {
+      "method": "put",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Generated response",
+    "additionalData": {},
+    "logTime": "2020-11-27T17:15:12.534Z"
+  },
+  {
+    "uniqueId": "1606497312337zxvb7s",
+    "traceID": "ccdd43db4ef82d2165654b29d72be1",
+    "resource": {
+      "method": "put",
+      "path": "/parties/MSISDN/27713803912"
+    },
+    "messageType": "response",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Response: put /parties/MSISDN/27713803912 Status: 200",
+    "additionalData": {
+      "response": {
+        "uniqueId": "1606497312337zxvb7s",
+        "body": null,
+        "status": 200
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.534Z"
+  },
+  {
+    "uniqueId": "1606497312536lac70i",
+    "traceID": null,
+    "resource": {
+      "method": "post",
+      "path": "/quotes"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "JWS signed",
+    "logTime": "2020-11-27T17:15:12.536Z"
+  },
+  {
+    "uniqueId": "1606497312536lac70i",
+    "traceID": null,
+    "resource": {
+      "method": "post",
+      "path": "/quotes"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "Sending request post http://localhost:4000/quotes",
+    "additionalData": {
+      "request": {
+        "url": "http://localhost:4000/quotes",
+        "uniqueId": "1606497312536lac70i",
+        "headers": {
+          "Accept": "application/vnd.interoperability.quotes+json;version=1.0",
+          "Content-Type": "application/vnd.interoperability.quotes+json;version=1.0",
+          "Date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "FSPIOP-Source": "testingtoolkitdfsp",
+          "traceparent": "00-aabb794eba23edc06d841f52ac272212-0123456789abcdef0-00"
+        },
+        "body": {
+          "quoteId": "abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8",
+          "transactionId": "d52a3a3c-e381-447e-bbdf-719d8cc29cb1",
+          "payer": {
+            "partyIdInfo": {
+              "partyIdType": "MSISDN",
+              "partyIdentifier": "44123456789",
+              "fspId": "testingtoolkitdfsp"
+            },
+            "personalInfo": {
+              "complexName": {
+                "firstName": "Firstname-Test",
+                "lastName": "Lastname-Test"
+              },
+              "dateOfBirth": "1984-01-01"
+            }
+          },
+          "payee": {
+            "partyIdInfo": {
+              "partyIdType": "MSISDN",
+              "partyIdentifier": "27713803912",
+              "fspId": "userdfsp"
+            }
+          },
+          "amountType": "SEND",
+          "amount": {
+            "amount": "100",
+            "currency": "USD"
+          },
+          "transactionType": {
+            "scenario": "TRANSFER",
+            "initiator": "PAYER",
+            "initiatorType": "CONSUMER"
+          },
+          "note": "test"
+        }
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.536Z"
+  },
+  {
+    "uniqueId": "1606497312536lac70i",
+    "traceID": null,
+    "resource": {
+      "method": "post",
+      "path": "/quotes"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "Received response 202 Accepted",
+    "additionalData": {
+      "response": {
+        "status": 202,
+        "statusText": "Accepted",
+        "uniqueId": "1606497312536lac70i",
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "0",
+          "date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "connection": "close"
+        },
+        "body": ""
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.543Z"
+  },
+  {
+    "uniqueId": "1606497312559dyicj4",
+    "traceID": "ccdde0f83e12de30e059556f7114cf",
+    "resource": {
+      "method": "put",
+      "path": "/quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Traceparent header not found. Generated a random traceID.",
+    "additionalData": {
+      "traceID": "ccdde0f83e12de30e059556f7114cf"
+    },
+    "logTime": "2020-11-27T17:15:12.559Z"
+  },
+  {
+    "uniqueId": "1606497312559dyicj4",
+    "traceID": "ccdde0f83e12de30e059556f7114cf",
+    "resource": {
+      "method": "put",
+      "path": "/quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8"
+    },
+    "messageType": "request",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Request: put /quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8",
+    "additionalData": {
+      "request": {
+        "uniqueId": "1606497312559dyicj4",
+        "headers": {
+          "content-type": "application/vnd.interoperability.quotes+json;version=1.0",
+          "date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "fspiop-source": "userdfsp",
+          "fspiop-destination": "testingtoolkitdfsp",
+          "authorization": "Bearer 7718fa9b-be13-3fe7-87f0-a12cf1628168",
+          "host": "docker.for.mac.localhost:5000",
+          "content-length": "1327",
+          "connection": "close"
+        },
+        "queryParams": {},
+        "body": {
+          "transferAmount": {
+            "amount": "100",
+            "currency": "USD"
+          },
+          "expiration": "2020-11-27T17:16:12.564Z",
+          "ilpPacket": "AYIDGQAAAAAAACcQHWcudXNlcmRmc3AubXNpc2RuLjI3NzEzODAzOTEyggLvZXlKMGNtRnVjMkZqZEdsdmJrbGtJam9pWkRVeVlUTmhNMk10WlRNNE1TMDBORGRsTFdKaVpHWXROekU1WkRoall6STVZMkl4SWl3aWNYVnZkR1ZKWkNJNkltRmlaVEpqWW1NMExXSTJPR010TkdKaU1TMWhaVGMyTFRObFkyVXpZVFE1TnpKak9DSXNJbkJoZVdWbElqcDdJbkJoY25SNVNXUkpibVp2SWpwN0luQmhjblI1U1dSVWVYQmxJam9pVFZOSlUwUk9JaXdpY0dGeWRIbEpaR1Z1ZEdsbWFXVnlJam9pTWpjM01UTTRNRE01TVRJaUxDSm1jM0JKWkNJNkluVnpaWEprWm5Od0luMTlMQ0p3WVhsbGNpSTZleUp3WVhKMGVVbGtTVzVtYnlJNmV5SndZWEowZVVsa1ZIbHdaU0k2SWsxVFNWTkVUaUlzSW5CaGNuUjVTV1JsYm5ScFptbGxjaUk2SWpRME1USXpORFUyTnpnNUlpd2labk53U1dRaU9pSjBaWE4wYVc1bmRHOXZiR3RwZEdSbWMzQWlmU3dpY0dWeWMyOXVZV3hKYm1adklqcDdJbU52YlhCc1pYaE9ZVzFsSWpwN0ltWnBjbk4wVG1GdFpTSTZJa1pwY25OMGJtRnRaUzFVWlhOMElpd2liR0Z6ZEU1aGJXVWlPaUpNWVhOMGJtRnRaUzFVWlhOMEluMHNJbVJoZEdWUFprSnBjblJvSWpvaU1UazROQzB3TVMwd01TSjlmU3dpWVcxdmRXNTBJanA3SW1GdGIzVnVkQ0k2SWpFd01DSXNJbU4xY25KbGJtTjVJam9pVlZORUluMHNJblJ5WVc1ellXTjBhVzl1Vkhsd1pTSTZleUp6WTJWdVlYSnBieUk2SWxSU1FVNVRSa1ZTSWl3aWFXNXBkR2xoZEc5eUlqb2lVRUZaUlZJaUxDSnBibWwwYVdGMGIzSlVlWEJsSWpvaVEwOU9VMVZOUlZJaWZYMAA",
+          "condition": "uxYP7z0gNB-V2blUtWBvZzh6y1vic9zHQnGiLhkYAjg",
+          "payeeFspFee": {
+            "amount": "5",
+            "currency": "USD"
+          },
+          "payeeFspCommission": {
+            "amount": "5",
+            "currency": "USD"
+          }
+        }
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.559Z"
+  },
+  {
+    "uniqueId": "1606497312559dyicj4",
+    "traceID": "ccdde0f83e12de30e059556f7114cf",
+    "resource": {
+      "method": "put",
+      "path": "/quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "debug",
+    "message": "Version negotiation succeeded, picked up the version 1.0",
+    "logTime": "2020-11-27T17:15:12.562Z"
+  },
+  {
+    "uniqueId": "1606497312559dyicj4",
+    "traceID": "ccdde0f83e12de30e059556f7114cf",
+    "resource": {
+      "method": "put",
+      "path": "/quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "debug",
+    "message": "Schema Validation Passed",
+    "logTime": "2020-11-27T17:15:12.564Z"
+  },
+  {
+    "uniqueId": "1606497312559dyicj4",
+    "traceID": "ccdde0f83e12de30e059556f7114cf",
+    "resource": {
+      "method": "put",
+      "path": "/quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "No response rules are matched",
+    "logTime": "2020-11-27T17:15:12.630Z"
+  },
+  {
+    "uniqueId": "1606497312559dyicj4",
+    "traceID": "ccdde0f83e12de30e059556f7114cf",
+    "resource": {
+      "method": "put",
+      "path": "/quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Generated response",
+    "additionalData": {},
+    "logTime": "2020-11-27T17:15:12.630Z"
+  },
+  {
+    "uniqueId": "1606497312559dyicj4",
+    "traceID": "ccdde0f83e12de30e059556f7114cf",
+    "resource": {
+      "method": "put",
+      "path": "/quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8"
+    },
+    "messageType": "response",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Response: put /quotes/abe2cbc4-b68c-4bb1-ae76-3ece3a4972c8 Status: 200",
+    "additionalData": {
+      "response": {
+        "uniqueId": "1606497312559dyicj4",
+        "body": null,
+        "status": 200
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.630Z"
+  },
+  {
+    "uniqueId": "1606497312634fe1ife",
+    "traceID": null,
+    "resource": {
+      "method": "post",
+      "path": "/transfers"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "JWS signed",
+    "logTime": "2020-11-27T17:15:12.634Z"
+  },
+  {
+    "uniqueId": "1606497312634fe1ife",
+    "traceID": null,
+    "resource": {
+      "method": "post",
+      "path": "/transfers"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "Sending request post http://localhost:4000/transfers",
+    "additionalData": {
+      "request": {
+        "url": "http://localhost:4000/transfers",
+        "uniqueId": "1606497312634fe1ife",
+        "headers": {
+          "Accept": "application/vnd.interoperability.transfers+json;version=1.0",
+          "Content-Type": "application/vnd.interoperability.transfers+json;version=1.0",
+          "Date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "FSPIOP-Source": "testingtoolkitdfsp",
+          "traceparent": "00-aabb794eba23edc06d841f52ac272212-0123456789abcdef0-00"
+        },
+        "body": {
+          "transferId": "d52a3a3c-e381-447e-bbdf-719d8cc29cb1",
+          "payerFsp": "testingtoolkitdfsp",
+          "payeeFsp": "userdfsp",
+          "amount": {
+            "amount": "100",
+            "currency": "USD"
+          },
+          "expiration": "2020-11-27T17:16:12.564Z",
+          "ilpPacket": "AYIDGQAAAAAAACcQHWcudXNlcmRmc3AubXNpc2RuLjI3NzEzODAzOTEyggLvZXlKMGNtRnVjMkZqZEdsdmJrbGtJam9pWkRVeVlUTmhNMk10WlRNNE1TMDBORGRsTFdKaVpHWXROekU1WkRoall6STVZMkl4SWl3aWNYVnZkR1ZKWkNJNkltRmlaVEpqWW1NMExXSTJPR010TkdKaU1TMWhaVGMyTFRObFkyVXpZVFE1TnpKak9DSXNJbkJoZVdWbElqcDdJbkJoY25SNVNXUkpibVp2SWpwN0luQmhjblI1U1dSVWVYQmxJam9pVFZOSlUwUk9JaXdpY0dGeWRIbEpaR1Z1ZEdsbWFXVnlJam9pTWpjM01UTTRNRE01TVRJaUxDSm1jM0JKWkNJNkluVnpaWEprWm5Od0luMTlMQ0p3WVhsbGNpSTZleUp3WVhKMGVVbGtTVzVtYnlJNmV5SndZWEowZVVsa1ZIbHdaU0k2SWsxVFNWTkVUaUlzSW5CaGNuUjVTV1JsYm5ScFptbGxjaUk2SWpRME1USXpORFUyTnpnNUlpd2labk53U1dRaU9pSjBaWE4wYVc1bmRHOXZiR3RwZEdSbWMzQWlmU3dpY0dWeWMyOXVZV3hKYm1adklqcDdJbU52YlhCc1pYaE9ZVzFsSWpwN0ltWnBjbk4wVG1GdFpTSTZJa1pwY25OMGJtRnRaUzFVWlhOMElpd2liR0Z6ZEU1aGJXVWlPaUpNWVhOMGJtRnRaUzFVWlhOMEluMHNJbVJoZEdWUFprSnBjblJvSWpvaU1UazROQzB3TVMwd01TSjlmU3dpWVcxdmRXNTBJanA3SW1GdGIzVnVkQ0k2SWpFd01DSXNJbU4xY25KbGJtTjVJam9pVlZORUluMHNJblJ5WVc1ellXTjBhVzl1Vkhsd1pTSTZleUp6WTJWdVlYSnBieUk2SWxSU1FVNVRSa1ZTSWl3aWFXNXBkR2xoZEc5eUlqb2lVRUZaUlZJaUxDSnBibWwwYVdGMGIzSlVlWEJsSWpvaVEwOU9VMVZOUlZJaWZYMAA",
+          "condition": "uxYP7z0gNB-V2blUtWBvZzh6y1vic9zHQnGiLhkYAjg"
+        }
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.634Z"
+  },
+  {
+    "uniqueId": "160649731265920afkf",
+    "traceID": "ccddd98d7d6bd828e96cbb6e0cd430",
+    "resource": {
+      "method": "put",
+      "path": "/transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Traceparent header not found. Generated a random traceID.",
+    "additionalData": {
+      "traceID": "ccddd98d7d6bd828e96cbb6e0cd430"
+    },
+    "logTime": "2020-11-27T17:15:12.659Z"
+  },
+  {
+    "uniqueId": "1606497312634fe1ife",
+    "traceID": null,
+    "resource": {
+      "method": "post",
+      "path": "/transfers"
+    },
+    "messageType": "generic",
+    "notificationType": "newOutboundLog",
+    "verbosity": "info",
+    "message": "Received response 202 Accepted",
+    "additionalData": {
+      "response": {
+        "status": 202,
+        "statusText": "Accepted",
+        "uniqueId": "1606497312634fe1ife",
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "0",
+          "date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "connection": "close"
+        },
+        "body": ""
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.639Z"
+  },
+  {
+    "uniqueId": "160649731265920afkf",
+    "traceID": "ccddd98d7d6bd828e96cbb6e0cd430",
+    "resource": {
+      "method": "put",
+      "path": "/transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1"
+    },
+    "messageType": "request",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Request: put /transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1",
+    "additionalData": {
+      "request": {
+        "uniqueId": "160649731265920afkf",
+        "headers": {
+          "content-type": "application/vnd.interoperability.transfers+json;version=1.0",
+          "date": "Fri, 27 Nov 2020 17:15:12 GMT",
+          "fspiop-source": "userdfsp",
+          "fspiop-destination": "testingtoolkitdfsp",
+          "authorization": "Bearer 7718fa9b-be13-3fe7-87f0-a12cf1628168",
+          "host": "docker.for.mac.localhost:5000",
+          "content-length": "136",
+          "connection": "close"
+        },
+        "queryParams": {},
+        "body": {
+          "completedTimestamp": "2020-11-27T17:15:12.664Z",
+          "transferState": "COMMITTED",
+          "fulfilment": "X8HiZ7PyiJ4Qn9jXG9_A3VBWd_MoRHL7jULBmplhGgI"
+        }
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.659Z"
+  },
+  {
+    "uniqueId": "160649731265920afkf",
+    "traceID": "ccddd98d7d6bd828e96cbb6e0cd430",
+    "resource": {
+      "method": "put",
+      "path": "/transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "debug",
+    "message": "Version negotiation succeeded, picked up the version 1.0",
+    "logTime": "2020-11-27T17:15:12.660Z"
+  },
+  {
+    "uniqueId": "160649731265920afkf",
+    "traceID": "ccddd98d7d6bd828e96cbb6e0cd430",
+    "resource": {
+      "method": "put",
+      "path": "/transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "debug",
+    "message": "Schema Validation Passed",
+    "logTime": "2020-11-27T17:15:12.662Z"
+  },
+  {
+    "uniqueId": "160649731265920afkf",
+    "traceID": "ccddd98d7d6bd828e96cbb6e0cd430",
+    "resource": {
+      "method": "put",
+      "path": "/transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "No response rules are matched",
+    "logTime": "2020-11-27T17:15:12.666Z"
+  },
+  {
+    "uniqueId": "160649731265920afkf",
+    "traceID": "ccddd98d7d6bd828e96cbb6e0cd430",
+    "resource": {
+      "method": "put",
+      "path": "/transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1"
+    },
+    "messageType": "generic",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Generated response",
+    "additionalData": {},
+    "logTime": "2020-11-27T17:15:12.666Z"
+  },
+  {
+    "uniqueId": "160649731265920afkf",
+    "traceID": "ccddd98d7d6bd828e96cbb6e0cd430",
+    "resource": {
+      "method": "put",
+      "path": "/transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1"
+    },
+    "messageType": "response",
+    "notificationType": "newLog",
+    "verbosity": "info",
+    "message": "Response: put /transfers/d52a3a3c-e381-447e-bbdf-719d8cc29cb1 Status: 200",
+    "additionalData": {
+      "response": {
+        "uniqueId": "160649731265920afkf",
+        "body": null,
+        "status": 200
+      }
+    },
+    "logTime": "2020-11-27T17:15:12.667Z"
+  }
+]

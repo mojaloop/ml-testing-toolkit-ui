@@ -28,10 +28,21 @@ import MobileSimulator from "./MobileSimulator/MobileSimulator.jsx";
 
 class Demos extends React.Component {
   state = {
-    demoSelected: 'mobileSimulator'
+    demoSelected: null
   }
 
   componentDidMount = async () => {
+  }
+
+  getDemo = () => {
+    switch(this.state.demoSelected) {
+      case 'mobileSimulator':
+        return <MobileSimulator />
+      case 'onboardingScenarios':
+        return null
+      default:
+        return null
+    }
   }
 
   render() {
@@ -46,13 +57,20 @@ class Demos extends React.Component {
         title="Demo"
         visible={this.state.demoSelected? true : false}
         footer={null}
-        onCancel={() => { this.setState({showIterationRunner: false})}}
+        onCancel={() => { this.setState({demoSelected: null})}}
       >
-        <MobileSimulator />
+        {this.getDemo()}
       </Modal>
       <Row className='my-4'>
         <Col span={24} className='text-center'>
           <Button className='mx-auto' type='primary'
+            onClick={() => {
+              this.setState({demoSelected: 'onboardingScenarios'})
+            }}
+          >
+            Onboarding Scenarios
+          </Button>
+          <Button className='ml-4' type='primary'
             onClick={() => {
               this.setState({demoSelected: 'mobileSimulator'})
             }}

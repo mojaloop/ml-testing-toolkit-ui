@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col } from 'antd';
+import { Row, Col, Drawer, Button } from 'antd';
 
 import mobile_left from '../../../assets/img/mobile_left.png';
 import mobile_right from '../../../assets/img/mobile_right.png';
@@ -30,11 +30,13 @@ import mobile_right from '../../../assets/img/mobile_right.png';
 import PayerMobile from "./PayerMobile.jsx";
 import PayeeMobile from "./PayeeMobile.jsx";
 import TestDiagram from "./TestDiagram.jsx";
+import TestMonitor from "./TestMonitor.jsx";
 
 
 class MobileSimulator extends React.Component {
   state = {
-
+    drawerPlacement: 'left',
+    drawerVisible: false
   }
 
   constructor () {
@@ -68,12 +70,22 @@ class MobileSimulator extends React.Component {
 
   render() {
     return (
+      <>
+      <Drawer
+        title="Logs"
+        width="50%"
+        placement={this.state.drawerPlacement}
+        closable={false}
+        visible={this.state.drawerVisible}
+        onClose={() => {
+          this.setState({drawerVisible: false})
+        }}
+      >
+        <TestMonitor />
+      </Drawer>
       <Row className="h-100">
         <Col span={24}>
           <Row className='h-100'>
-            {/* <Col span={8}>
-              <img width="500vh" src={mobile_left} />
-            </Col> */}
             <Col span={8}
               className="text-left align-bottom"
               style={{
@@ -87,7 +99,12 @@ class MobileSimulator extends React.Component {
               }}>
               <Row align="bottom" className='h-100'>
                 <Col span={24}>
-                  <Row style={{ marginLeft: '25vh', marginBottom: '15vh', width: '24vh', height: '45vh' }}>
+                  <Button type='dashed' className='ml-2' onClick={() => {
+                    this.setState({drawerPlacement: 'left', drawerVisible: true})
+                  }}>
+                    Payer Logs
+                  </Button>
+                  <Row style={{ marginLeft: '25vh', marginBottom: '17vh', width: '24vh', height: '45vh' }}>
                     <Col span={24}>
                       <PayerMobile
                         onGetParties={this.handleGetParties}
@@ -118,7 +135,12 @@ class MobileSimulator extends React.Component {
               }}>
               <Row align="bottom" className='h-100'>
                 <Col span={24}>
-                  <Row className="float-right" style={{ marginRight: '26vh', marginBottom: '15vh', width: '24vh', height: '45vh' }}>
+                  <Button type='dashed' className='mr-2 float-right' onClick={() => {
+                    this.setState({drawerPlacement: 'right', drawerVisible: true})
+                  }}>
+                    Payee Logs
+                  </Button>
+                  <Row className="float-right" style={{ marginRight: '14vh', marginBottom: '15vh', width: '24vh', height: '45vh' }}>
                     <Col span={24} >
                       <PayeeMobile ref={this.payeeMobileRef} />
                     </Col>
@@ -129,6 +151,7 @@ class MobileSimulator extends React.Component {
           </Row>
         </Col>
       </Row>
+      </>
     );
   }
 }

@@ -63,7 +63,7 @@ class PayeeMobile extends React.Component {
               <Result
                 status="success"
                 title="Received $100"
-                subTitle="from Vijay."
+                subTitle="from James."
               />
             </Col>
           </Row>

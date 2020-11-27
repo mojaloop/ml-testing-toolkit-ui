@@ -50,7 +50,7 @@ class PayerMobile extends React.Component {
                 <Text>F.Name:</Text>
               </Col>
               <Col span={12}>
-                <Text strong>Vijay</Text>
+                <Text strong>Harry</Text>
               </Col>
             </Row>
             <Row>
@@ -58,7 +58,7 @@ class PayerMobile extends React.Component {
                 <Text>M.Name:</Text>
               </Col>
               <Col span={12}>
-                <Text strong>Kumar</Text>
+                <Text strong>M</Text>
               </Col>
             </Row>
             <Row>
@@ -66,7 +66,7 @@ class PayerMobile extends React.Component {
                 <Text>L.Name:</Text>
               </Col>
               <Col span={12}>
-                <Text strong>Guthi</Text>
+                <Text strong>Williams</Text>
               </Col>
             </Row>
             <Row>
@@ -74,7 +74,7 @@ class PayerMobile extends React.Component {
                 <Text>Bank:</Text>
               </Col>
               <Col span={12}>
-                <Text strong>HDFC</Text>
+                <Text strong>Jio Money</Text>
               </Col>
             </Row>
             <Row className='mt-4'>
@@ -152,7 +152,7 @@ class PayerMobile extends React.Component {
               <Result
                 status="success"
                 title="Sent $100"
-                subTitle="to Vijay."
+                subTitle="to Harry"
               />
             </Col>
           </Row>
