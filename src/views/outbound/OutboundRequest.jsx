@@ -25,7 +25,6 @@
 import React from "react";
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
-import TraceHeaderUtils from "../../utils/traceHeaderUtils"
 import { getServerConfig } from '../../utils/getConfig'
 import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography } from 'antd';
 import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
@@ -38,7 +37,7 @@ import IterationRunner from './IterationRunner'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
-import { FolderParser } from 'ml-testing-toolkit-shared-lib'
+import { FolderParser, TraceHeaderUtils } from 'ml-testing-toolkit-shared-lib'
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
@@ -46,8 +45,6 @@ import arrayMove from 'array-move'
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
 const { Title } = Typography;
-
-const traceHeaderUtilsObj = new TraceHeaderUtils()
 
 function buildFileSelector( multi = false, directory = false ){
   const fileSelector = document.createElement('input');
@@ -198,7 +195,7 @@ class OutboundRequest extends React.Component {
     super();
     this.fileManagerRef = React.createRef();
     this.iterationRunnerRef = React.createRef();
-    const sessionId = traceHeaderUtilsObj.generateSessionId()
+    const sessionId = TraceHeaderUtils.generateSessionId()
     this.state = {
       request: {},
       template: {
@@ -388,8 +385,8 @@ class OutboundRequest extends React.Component {
     this.state.totalAssertionsCount = 0
     this.state.testReport = null
 
-    const traceIdPrefix = traceHeaderUtilsObj.getTraceIdPrefix()
-    this.state.currentEndToEndId = traceHeaderUtilsObj.generateEndToEndId()
+    const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix()
+    this.state.currentEndToEndId = TraceHeaderUtils.generateEndToEndId()
     const traceId = traceIdPrefix + this.state.sessionId + this.state.currentEndToEndId
 
     // const outboundRequestID = Math.random().toString(36).substring(7);
