@@ -248,7 +248,7 @@ export class FactSelector extends React.Component {
     switch(factType) {
       case 0:
         const errorResponseFactData = (new FactDataGenerator()).getErrorResponseFactData(this.props.resourceDefinition)
-        const factData = (new FactDataGenerator()).getCustomFactData(['status', 'statusText'])
+        factData = (new FactDataGenerator()).getCustomFactData(['status', 'statusText'])
         _.merge(factData, errorResponseFactData)
         break
       case 1:

@@ -30,10 +30,9 @@ import FileDownload from 'js-file-download'
 // import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import getConfig from '../../utils/getConfig'
-import TraceHeaderUtils from "../../utils/traceHeaderUtils"
+import { TraceHeaderUtils } from 'ml-testing-toolkit-shared-lib'
 
 const {Text} = Typography
-const traceHeaderUtilsObj = new TraceHeaderUtils()
 
 class IterationNumberInput extends React.Component {
 
@@ -106,8 +105,8 @@ class IterationRunner extends React.Component {
     this.state.totalRuntimeDuration = null
 
     this.state.isTableLoading = true
-    const traceIdPrefix = traceHeaderUtilsObj.getTraceIdPrefix()
-    this.state.currentEndToEndId = traceHeaderUtilsObj.generateEndToEndId()
+    const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix()
+    this.state.currentEndToEndId = TraceHeaderUtils.generateEndToEndId()
     const traceId = traceIdPrefix + this.props.sessionId + this.state.currentEndToEndId
 
     // const outboundRequestID = Math.random().toString(36).substring(7);
