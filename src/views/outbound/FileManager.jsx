@@ -354,6 +354,20 @@ class FileManager extends React.Component {
       }
     }
 
+    const removeStatusInfo = (templateContent) => {
+      if (templateContent.test_cases) {
+        for(let i = 0; i < templateContent.test_cases.length; i++) {
+          if (templateContent.test_cases[i].requests) {
+            for(let j = 0; j < templateContent.test_cases[i].requests.length; j++) {
+              if (templateContent.test_cases[i].requests[j].status) {
+                delete templateContent.test_cases[i].requests[j].status
+              }
+            }
+          }
+        }
+      }
+    }
+
     const addFilesToZipHandler = (nodeChildren, zipHandler) => {
       // Add master file
       if (nodeChildren.length > 1) {
@@ -364,6 +378,7 @@ class FileManager extends React.Component {
       for (let i=0; i<nodeChildren.length; i++) {
         if (nodeChildren[i].isLeaf && nodeChildren[i].extraInfo.type === 'file') {
           const templateContent = nodeChildren[i].content;
+          removeStatusInfo(templateContent)
           zipHandler.file(nodeChildren[i].title, JSON.stringify(templateContent,null,2));
         } else {
           if (nodeChildren[i].children) {
