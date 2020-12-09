@@ -26,7 +26,7 @@ import React from "react";
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio } from 'antd';
 import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
@@ -76,7 +76,8 @@ class InputValues extends React.Component {
 
   state = {
     addInputValueDialogVisible: false,
-    newInputValueName: ''
+    newInputValueName: '',
+    newInputValueType: 'string'
   };
 
   handleDeleteClick = (inputValueName) => {
@@ -138,7 +139,13 @@ class InputValues extends React.Component {
       message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 });
     } else {
       // Save the input value
-      this.props.onChange(inputValueName, '')
+      let newValue = ''
+      if (this.state.newInputValueType === 'number') {
+        newValue = 0
+      } else if (this.state.newInputValueType === 'boolean') {
+        newValue = false
+      }
+      this.props.onChange(inputValueName, newValue)
       this.state.newInputValueName = ''
     }
   }
@@ -162,6 +169,15 @@ class InputValues extends React.Component {
           this.setState({addInputValueDialogVisible: false})
         }}
       />
+      <Radio.Group onChange={(e) => {
+          this.setState({newInputValueType: e.target.value})
+        }}
+        value={this.state.newInputValueType}
+      >
+        <Radio value='string'>String</Radio>
+        <Radio value='number'>Number</Radio>
+        <Radio value='boolean'>Boolean</Radio>
+      </Radio.Group>
       <Button
           className="text-right mt-2"
           color="success"
