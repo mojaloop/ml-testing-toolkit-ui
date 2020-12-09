@@ -26,7 +26,7 @@ import React from "react";
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox } from 'antd';
 import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
@@ -82,6 +82,30 @@ class InputValues extends React.Component {
   handleDeleteClick = (inputValueName) => {
     this.props.onDelete(inputValueName)
   }
+  getInputItemType = (inputValueName) => {
+    if (typeof this.props.values[inputValueName] === 'boolean') {
+      return (
+        <Checkbox
+          checked={this.props.values[inputValueName]}
+          onChange={(e) => this.props.onChange(inputValueName, e.target.checked)}
+        />
+      )
+    } else if (typeof this.props.values[inputValueName] === 'number') {
+      return (
+        <Input
+          value={this.props.values[inputValueName]}
+          onChange={(e) => this.props.onChange(inputValueName, +e.target.value)}
+        />
+      )
+    } else {
+      return (
+        <Input
+          value={this.props.values[inputValueName]}
+          onChange={(e) => this.props.onChange(inputValueName, e.target.value)}
+        />
+      )
+    }
+  }
 
   getInputItems = () => {
     let inputItems = []
@@ -92,10 +116,7 @@ class InputValues extends React.Component {
         <Descriptions.Item label={inputValueName}>
           <Row gutter={8}>
             <Col span={23}>
-              <Input
-                value={this.props.values[inputValueName]}
-                onChange={(e) => this.props.onChange(inputValueName, e.target.value)}
-              />
+              { this.getInputItemType(inputValueName)}
             </Col>
             <Col span={1}>
               <DeleteTwoTone key={inputValueName} type="delete" theme="filled"
