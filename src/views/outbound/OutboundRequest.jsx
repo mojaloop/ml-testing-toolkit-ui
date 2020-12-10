@@ -42,6 +42,17 @@ import { FolderParser, TraceHeaderUtils } from 'ml-testing-toolkit-shared-lib'
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 
+let ipcRenderer = null
+
+if(window && window.require) {
+  ipcRenderer = window.require('electron').ipcRenderer
+  // ipcRenderer.on('asynchronous-reply', (event, arg) => {
+  //   console.log(arg) // prints "pong"
+  // })
+  ipcRenderer.send('asynchronous-message', 'ping')
+}
+
+
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
 const { Title } = Typography;
@@ -1089,6 +1100,7 @@ class OutboundRequest extends React.Component {
             selectedFiles={this.state.additionalData.selectedFiles}
             onChange={this.handleFileManagerContentChange}
             ref={this.fileManagerRef}
+            ipcRenderer={ipcRenderer}
           />
         </Drawer>
 

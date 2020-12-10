@@ -60,6 +60,14 @@ function buildFileSelector( multi = false, directory = false ){
 class FileManager extends React.Component {
 
   componentDidMount = () => {
+    if (this.props.ipcRenderer) {
+      this.props.ipcRenderer.on('outgoingFolderData', (event, arg) => {
+        const newFolderRawData = JSON.parse(arg)
+        console.log(newFolderRawData)
+        this.updateFoldersAndFiles(newFolderRawData)
+      })
+    }
+
     this.collectionFolderSelector = buildFileSelector(false, true);
     this.collectionFolderSelector.addEventListener ('input', async (e) => {
       if (e.target.files && e.target.files.length > 0) {
@@ -418,7 +426,7 @@ class FileManager extends React.Component {
     return (
       <>
         <Row>
-          <Col span={24}>
+          <Col span={12}>
             <Popconfirm
               title="All the changes you did for the existing test cases will be deleted. Are you sure?"
               onConfirm={this.handleStartNewFolder}
@@ -433,6 +441,26 @@ class FileManager extends React.Component {
                 Create a new folder
               </Button>
             </Popconfirm>
+          </Col>
+          <Col span={12}>
+            {
+              this.props.ipcRenderer
+              ? (
+                <>
+                <Button
+                  onClick={() => {
+                    this.props.ipcRenderer.send('incomingActions', JSON.stringify({ action: 'openFolder' }))
+                  }}
+                >Open Folder IPC</Button>
+                <Button
+                  onClick={() => {
+                    this.props.ipcRenderer.send('incomingFolderData', JSON.stringify(this.props.folderData))
+                  }}
+                >Save IPC</Button>
+                </>
+              )
+              : null
+            }
           </Col>
         </Row>
         <Row className="mt-2">
