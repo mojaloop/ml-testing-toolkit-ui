@@ -4,7 +4,6 @@ const path = require('path')
 const fs = require('fs')
 const { files } = require('node-dir')
 const { promisify } = require('util')
-const { FolderParser } = require('ml-testing-toolkit-shared-lib')
 const readRecursiveAsync = promisify(files)
 const readFileAsync = promisify(fs.readFile)
 const fileStatAsync = promisify(fs.stat)
@@ -14,28 +13,31 @@ const MASTERFILE_NAME = 'master.json'
 var globalFilePath = null
 var mainWindow
 
-ipcMain.on('asynchronous-message', (event, arg) => {
-  console.log(arg) // prints "ping"
-  event.reply('asynchronous-reply', 'pong')
-})
+var actionEventSender = null
 
-ipcMain.on('incomingFolderData', (event, arg) => {  
-  if (globalFilePath) {
-    const pathArray = globalFilePath.split('/')
-    const parentFolder = pathArray.slice(0, -1).join('/')
-    saveFolder(parentFolder, JSON.parse(arg))
-  } else {
-    console.log('ERROR: No folder selected')
-  }
-})
-
-var folderOpenActionEventSender = null
-
-ipcMain.on('incomingActions', (event, actionDataJSON) => {
+ipcMain.on('mainAction', (event, actionDataJSON) => {
+  actionEventSender = event.sender
   const actionData = JSON.parse(actionDataJSON)
-  if (actionData.action === 'openFolder') {
-    folderOpenActionEventSender = event.sender
+  if (actionData.action === 'ping') {
+    event.reply('rendererAction', 'pong')
+  } else if (actionData.action === 'openFolder') {
     openFileDialog()
+  } else if (actionData.action === 'saveFolderData') {
+    let saveFilePath = null
+    if (globalFilePath) {
+      saveFilePath = globalFilePath
+    } else if (actionData.nativeFilePath) {
+      saveFilePath = actionData.nativeFilePath
+    }
+    if (saveFilePath) {
+      actionEventSender.send('rendererAction', { action: 'savingStatusStart' })
+      const pathArray = saveFilePath.split('/')
+      const parentFolder = pathArray.slice(0, -1).join('/')
+      saveFolder(parentFolder, actionData.data)
+    } else {
+      actionEventSender.send('rendererAction', { action: 'savingStatusError', message: 'Can not save files' })
+      console.log('ERROR: No folder selected')
+    }
   }
   // fileOpenActionEventSender.send('outgoingFolderData', 'asdf')
 })
@@ -50,7 +52,6 @@ function openFileDialog () {
   const fileNames = dialog.showOpenDialog(mainWindow, { properties: dialogProperties}).then(
     result => {
       if (!result.canceled) {
-        console.log(result)
         globalFilePath = result.filePaths[0].toString()
         handleLocalFileOrFolderOpen(globalFilePath)
       }
@@ -107,15 +108,12 @@ app.on('window-all-closed', function () {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
-
-
 // File Reading Functions
 handleLocalFileOrFolderOpen = async (filePath) => {
   const folderRawData = await getFolderRawData(filePath)
-  // const folderData = FolderParser.getFolderData(folderRawData)
-  // console.log(folderData)
-  folderOpenActionEventSender.send('outgoingFolderData', JSON.stringify(folderRawData))
+  actionEventSender.send('rendererAction', { action: 'importFolderData' , data: folderRawData, nativeFilePath: globalFilePath })
 }
+
 const getFileData = async (fileToRead, fileStat, rootFolder) => {
   try {
     const pathArray = rootFolder.split('/')
@@ -203,7 +201,9 @@ const saveFolder = async (rootFolder, folderData) => {
     // const rootFolder = 'some_folder';
     // const rootFolder = folderData.map(item => item.title).join('-') + '-' + (new Date().toISOString())
     addFilesToFolder(folderData, rootFolder)
+    actionEventSender.send('rendererAction', { action: 'savingStatusSuccess' })
   } catch(err){
     console.log(err.message)
+    actionEventSender.send('rendererAction', { action: 'savingStatusError', message: err.message })
   }
 }

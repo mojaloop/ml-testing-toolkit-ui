@@ -46,10 +46,7 @@ let ipcRenderer = null
 
 if(window && window.require) {
   ipcRenderer = window.require('electron').ipcRenderer
-  // ipcRenderer.on('asynchronous-reply', (event, arg) => {
-  //   console.log(arg) // prints "pong"
-  // })
-  ipcRenderer.send('asynchronous-message', 'ping')
+  ipcRenderer.send('mainAction', JSON.stringify({ action: 'ping' }))
 }
 
 

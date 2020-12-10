@@ -61,10 +61,19 @@ class FileManager extends React.Component {
 
   componentDidMount = () => {
     if (this.props.ipcRenderer) {
-      this.props.ipcRenderer.on('outgoingFolderData', (event, arg) => {
-        const newFolderRawData = JSON.parse(arg)
-        console.log(newFolderRawData)
-        this.updateFoldersAndFiles(newFolderRawData)
+      this.props.ipcRenderer.on('rendererAction', (event, actionData) => {
+        if (actionData.action === 'importFolderData') {
+          if (actionData.nativeFilePath) {
+            localStorage.setItem('nativeFilePath', actionData.nativeFilePath)
+          }
+          this.updateFoldersAndFiles(actionData.data)
+        } else if (actionData.action === 'savingStatusStart') {
+          message.loading({ content: 'Saving files...', key: 'saveFolderDataProgress' });
+        } else if (actionData.action === 'savingStatusError') {
+          message.error({ content: actionData.message, key: 'saveFolderDataProgress' });
+        } else if (actionData.action === 'savingStatusSuccess') {
+          message.success({ content: 'Saved', key: 'saveFolderDataProgress' });
+        }
       })
     }
 
@@ -426,7 +435,7 @@ class FileManager extends React.Component {
     return (
       <>
         <Row>
-          <Col span={12}>
+          <Col span={24}>
             <Popconfirm
               title="All the changes you did for the existing test cases will be deleted. Are you sure?"
               onConfirm={this.handleStartNewFolder}
@@ -442,63 +451,69 @@ class FileManager extends React.Component {
               </Button>
             </Popconfirm>
           </Col>
-          <Col span={12}>
-            {
-              this.props.ipcRenderer
-              ? (
-                <>
-                <Button
-                  onClick={() => {
-                    this.props.ipcRenderer.send('incomingActions', JSON.stringify({ action: 'openFolder' }))
-                  }}
-                >Open Folder IPC</Button>
-                <Button
-                  onClick={() => {
-                    this.props.ipcRenderer.send('incomingFolderData', JSON.stringify(this.props.folderData))
-                  }}
-                >Save IPC</Button>
-                </>
-              )
-              : null
-            }
-          </Col>
         </Row>
-        <Row className="mt-2">
-          <Col span={24}>
-            <Button
-              type="default"
-              onClick={ e => {
-                e.preventDefault();
-                this.collectionFileSelector.click();
-              }}
-            >
-              Import File
-            </Button>
-            <Button
-              type="primary"
-              className="float-right ml-2"
-              size="default"
-              onClick={ e => {
-                e.preventDefault();
-                this.handleExportFolder()
-              }}
-            >
-              Export as Zip file
-            </Button>
-            <Button
-              type="primary"
-              className="float-right"
-              size="default"
-              onClick={ e => {
-                e.preventDefault();
-                this.collectionFolderSelector.click();
-              }}
-            >
-              Import Folder
-            </Button>
-          </Col>
-        </Row>
-        <Row>
+        {
+          this.props.ipcRenderer
+          ? (
+            <Row className="mt-2">
+              <Col span={24}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  this.props.ipcRenderer.send('mainAction', JSON.stringify({ action: 'openFolder' }))
+                }}
+              >Open Folder</Button>
+              <Button
+                type="primary"
+                className="float-right"
+                danger
+                onClick={() => {
+                  const nativeFilePath = localStorage.getItem('nativeFilePath')
+                  this.props.ipcRenderer.send('mainAction', JSON.stringify({ action: 'saveFolderData', data: this.props.folderData, nativeFilePath }))
+                }}
+              >Save</Button>
+              </Col>
+            </Row>
+          )
+          : (
+            <Row className="mt-2">
+              <Col span={24}>
+                <Button
+                  type="default"
+                  onClick={ e => {
+                    e.preventDefault();
+                    this.collectionFileSelector.click();
+                  }}
+                >
+                  Import File
+                </Button>
+                <Button
+                  type="primary"
+                  className="float-right ml-2"
+                  size="default"
+                  onClick={ e => {
+                    e.preventDefault();
+                    this.handleExportFolder()
+                  }}
+                >
+                  Export as Zip file
+                </Button>
+                <Button
+                  type="primary"
+                  className="float-right"
+                  size="default"
+                  onClick={ e => {
+                    e.preventDefault();
+                    this.collectionFolderSelector.click();
+                  }}
+                >
+                  Import Folder
+                </Button>
+              </Col>
+            </Row>
+          )
+        }
+        <Row className='mt-2'>
           <Col>
             <FolderBrowser
               folderData={this.props.folderData}
