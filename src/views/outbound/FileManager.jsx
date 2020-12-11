@@ -60,6 +60,23 @@ function buildFileSelector( multi = false, directory = false ){
 class FileManager extends React.Component {
 
   componentDidMount = () => {
+    if (this.props.ipcRenderer) {
+      this.props.ipcRenderer.on('rendererAction', (event, actionData) => {
+        if (actionData.action === 'importFolderData') {
+          if (actionData.nativeFilePath) {
+            localStorage.setItem('nativeFilePath', actionData.nativeFilePath)
+          }
+          this.updateFoldersAndFiles(actionData.data)
+        } else if (actionData.action === 'savingStatusStart') {
+          message.loading({ content: 'Saving files...', key: 'saveFolderDataProgress' });
+        } else if (actionData.action === 'savingStatusError') {
+          message.error({ content: actionData.message, key: 'saveFolderDataProgress' });
+        } else if (actionData.action === 'savingStatusSuccess') {
+          message.success({ content: 'Saved', key: 'saveFolderDataProgress' });
+        }
+      })
+    }
+
     this.collectionFolderSelector = buildFileSelector(false, true);
     this.collectionFolderSelector.addEventListener ('input', async (e) => {
       if (e.target.files && e.target.files.length > 0) {
@@ -435,42 +452,68 @@ class FileManager extends React.Component {
             </Popconfirm>
           </Col>
         </Row>
-        <Row className="mt-2">
-          <Col span={24}>
-            <Button
-              type="default"
-              onClick={ e => {
-                e.preventDefault();
-                this.collectionFileSelector.click();
-              }}
-            >
-              Import File
-            </Button>
-            <Button
-              type="primary"
-              className="float-right ml-2"
-              size="default"
-              onClick={ e => {
-                e.preventDefault();
-                this.handleExportFolder()
-              }}
-            >
-              Export as Zip file
-            </Button>
-            <Button
-              type="primary"
-              className="float-right"
-              size="default"
-              onClick={ e => {
-                e.preventDefault();
-                this.collectionFolderSelector.click();
-              }}
-            >
-              Import Folder
-            </Button>
-          </Col>
-        </Row>
-        <Row>
+        {
+          this.props.ipcRenderer
+          ? (
+            <Row className="mt-2">
+              <Col span={24}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  this.props.ipcRenderer.send('mainAction', JSON.stringify({ action: 'openFolder' }))
+                }}
+              >Open Folder</Button>
+              <Button
+                type="primary"
+                className="float-right"
+                danger
+                onClick={() => {
+                  const nativeFilePath = localStorage.getItem('nativeFilePath')
+                  this.props.ipcRenderer.send('mainAction', JSON.stringify({ action: 'saveFolderData', data: this.props.folderData, nativeFilePath }))
+                }}
+              >Save</Button>
+              </Col>
+            </Row>
+          )
+          : (
+            <Row className="mt-2">
+              <Col span={24}>
+                <Button
+                  type="default"
+                  onClick={ e => {
+                    e.preventDefault();
+                    this.collectionFileSelector.click();
+                  }}
+                >
+                  Import File
+                </Button>
+                <Button
+                  type="primary"
+                  className="float-right ml-2"
+                  size="default"
+                  onClick={ e => {
+                    e.preventDefault();
+                    this.handleExportFolder()
+                  }}
+                >
+                  Export as Zip file
+                </Button>
+                <Button
+                  type="primary"
+                  className="float-right"
+                  size="default"
+                  onClick={ e => {
+                    e.preventDefault();
+                    this.collectionFolderSelector.click();
+                  }}
+                >
+                  Import Folder
+                </Button>
+              </Col>
+            </Row>
+          )
+        }
+        <Row className='mt-2'>
           <Col>
             <FolderBrowser
               folderData={this.props.folderData}

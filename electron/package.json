@@ -1,0 +1,6 @@
+{
+  "name": "Mojaloop Testing Toolkit Electron Wrapper",
+  "version": "1.0.0",
+  "description": "An Electron wrapper for TTK UI",
+  "main": "main.js"
+}

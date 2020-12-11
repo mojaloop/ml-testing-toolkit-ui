@@ -201,12 +201,16 @@ class FolderBrowser extends React.Component {
       case "newFolder":
         {
           let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          let keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.children.map(item => item.key)
-          if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf()) {
+          let keysInSameLevel = []
+          if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf) {
             if(this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo  && this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo.type !== 'folder') {
               levelPrefix = levelInfo.levelPrefix
               keysInSameLevel = levelInfo.nodesInSameLevel.map(item => item.key)
+            } else {
+              keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
             }
+          } else {
+            keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
           }
           await this.setState({inputDialogEnabled: true, inputDialogData: { title: 'Enter a file / folder name to create', key:e.key, extraData: { levelPrefix, keysInSameLevel }}})
           this.inputDialogRef.focus()
