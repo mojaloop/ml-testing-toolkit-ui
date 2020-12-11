@@ -7,8 +7,10 @@ const { promisify } = require('util')
 const readRecursiveAsync = promisify(files)
 const readFileAsync = promisify(fs.readFile)
 const fileStatAsync = promisify(fs.stat)
+const writeFileAsync = promisify(fs.writeFile)
+const renameFileAsync = promisify(fs.rename)
+const mkdirAsync = promisify(fs.mkdir)
 
-// const writeFileAsync = promisify(fs.writeFile)
 const MASTERFILE_NAME = 'master.json'
 var globalFilePath = null
 var mainWindow
@@ -31,15 +33,12 @@ ipcMain.on('mainAction', (event, actionDataJSON) => {
     }
     if (saveFilePath) {
       actionEventSender.send('rendererAction', { action: 'savingStatusStart' })
-      const pathArray = saveFilePath.split('/')
-      const parentFolder = pathArray.slice(0, -1).join('/')
-      saveFolder(parentFolder, actionData.data)
+      saveFolder(saveFilePath, actionData.data)
     } else {
       actionEventSender.send('rendererAction', { action: 'savingStatusError', message: 'Can not save files' })
       console.log('ERROR: No folder selected')
     }
   }
-  // fileOpenActionEventSender.send('outgoingFolderData', 'asdf')
 })
 
 function openFileDialog () {
@@ -79,7 +78,7 @@ function createWindow () {
   // console.log(contents)
   // contents.executeJavaScript('localStorage.getItem("folderData")', true)
   // .then((result) => {
-  //   saveFolder(JSON.parse(result))
+  //   console.og(result)
   // })
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
@@ -157,8 +156,11 @@ const getFolderRawData = async (folderItem) => {
 }
 
 // File Writing Functions
-const saveFolder = async (rootFolder, folderData) => {
+const saveFolder = async (saveFilePath, folderData) => {
   
+  const pathArray = saveFilePath.split('/')
+  const parentFolder = pathArray.slice(0, -1).join('/')
+
   const generateMasterFile = (nodesArray) => {
     const nodesOrder = nodesArray.map(item => {
       return {
@@ -171,36 +173,40 @@ const saveFolder = async (rootFolder, folderData) => {
     }
   }
 
-  const writeFileToFolder = (folderName, fileName, fileContent) => {
-    fs.writeFileSync(folderName + '/' + fileName, fileContent);
+  const writeFileToFolder = async (folderName, fileName, fileContent) => {
+    await writeFileAsync(folderName + '/' + fileName, fileContent);
   }
 
-  const addFilesToFolder = (nodeChildren, currentFolder) => {
+  const addFilesToFolder = async (nodeChildren, currentFolder) => {
     // Create the folder
-    fs.mkdirSync(currentFolder, { recursive: true });
+    await mkdirAsync(currentFolder, { recursive: true });
     // Add master file
     if (nodeChildren.length > 1) {
       const masterFileContent = generateMasterFile(nodeChildren)
-      writeFileToFolder(currentFolder, MASTERFILE_NAME, JSON.stringify(masterFileContent,null,2));
+      await writeFileToFolder(currentFolder, MASTERFILE_NAME, JSON.stringify(masterFileContent,null,2));
     }
 
     for (let i=0; i<nodeChildren.length; i++) {
       if (nodeChildren[i].isLeaf && nodeChildren[i].extraInfo.type === 'file') {
         const templateContent = nodeChildren[i].content;
-        writeFileToFolder(currentFolder, nodeChildren[i].title, JSON.stringify(templateContent,null,2));
+        await writeFileToFolder(currentFolder, nodeChildren[i].title, JSON.stringify(templateContent,null,2));
       } else {
         if (nodeChildren[i].children) {
           const folderHandler = currentFolder + '/' + nodeChildren[i].title
-          addFilesToFolder(nodeChildren[i].children, folderHandler)
+          await addFilesToFolder(nodeChildren[i].children, folderHandler)
         }
       }
     }
   }
 
   try {
-    // const rootFolder = 'some_folder';
-    // const rootFolder = folderData.map(item => item.title).join('-') + '-' + (new Date().toISOString())
-    addFilesToFolder(folderData, rootFolder)
+
+    // Backup the folder just incase
+    const backupFolderName = saveFilePath + '_electron-backup-' + (new Date().toISOString())
+    await renameFileAsync(saveFilePath, backupFolderName);
+    await mkdirAsync(saveFilePath, { recursive: true });
+    // Replace the files
+    await addFilesToFolder(folderData, parentFolder)
     actionEventSender.send('rendererAction', { action: 'savingStatusSuccess' })
   } catch(err){
     console.log(err.message)
