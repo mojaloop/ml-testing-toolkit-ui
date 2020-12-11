@@ -63,7 +63,7 @@
     "jszip": "^3.5.0",
     "lodash": "^4.17.20",
     "mermaid": "^8.8.2",
-    "ml-testing-toolkit-shared-lib": "11.1.0",
+    "ml-testing-toolkit-shared-lib": "11.2.1",
     "mobx": "^6.0.3",
     "react": "^17.0.1",
     "react-ace": "^9.2.0",
