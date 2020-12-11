@@ -74,14 +74,14 @@ function createWindow () {
   // mainWindow.loadFile('index.html')
   mainWindow.loadURL('http://localhost:3000/admin/outbound_request')
 
-  let contents = mainWindow.webContents
-  // console.log(contents)
+  // Script execution on renderer
+  // let contents = mainWindow.webContents
   // contents.executeJavaScript('localStorage.getItem("folderData")', true)
   // .then((result) => {
   //   console.og(result)
   // })
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished
