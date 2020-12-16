@@ -979,6 +979,10 @@ class HeaderBodyBuilder extends React.Component {
     this.props.onChange(this.props.request)
   }
 
+  updateBodyChanges = () => {
+    this.refs.bodyEditor.jsonEditor.update(this.props.request.body)
+  }
+
   getHeaderItems = () => {
     // console.log(this.props.resourceDefinition)
     let headerItems = []
@@ -1022,7 +1026,7 @@ class HeaderBodyBuilder extends React.Component {
       //   _.merge(newBody, this.props.callbackObject.bodyOverride)
       // }
       this.props.request.body = newBody
-      this.refs.bodyEditor.jsonEditor.update(this.props.request.body)
+      this.updateBodyChanges()
       this.updateChanges()
     }
   }
@@ -1445,6 +1449,7 @@ class RequestBuilder extends React.Component {
 
   constructor() {
     super()
+    this.headerBodyBuilderRef = React.createRef()
     this.state = {
     }
   }
@@ -1464,7 +1469,7 @@ class RequestBuilder extends React.Component {
     // } else {
     //   delete this.props.request.params
     // }
-
+    this.headerBodyBuilderRef.current.updateBodyChanges()
     this.props.onChange(this.props.request)
   }
 
@@ -1506,6 +1511,7 @@ class RequestBuilder extends React.Component {
                 callbackMap={this.props.callbackMap}
               />
               <HeaderBodyBuilder
+                ref={this.headerBodyBuilderRef}
                 request={this.props.request}
                 inputValues={this.props.inputValues}
                 allRequests={this.props.allRequests}
