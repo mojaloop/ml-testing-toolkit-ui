@@ -1151,6 +1151,7 @@ class OutboundRequest extends React.Component {
         </Modal>
         <Modal
           style={{ top: 20 }}
+          bodyStyle={{ height: '85vh', 'overflow-y': 'auto' }}
           destroyOnClose
           forceRender
           title="Test Case Editor"

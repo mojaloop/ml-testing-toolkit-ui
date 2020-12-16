@@ -27,7 +27,7 @@ import _ from 'lodash';
  
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -483,6 +483,7 @@ class TestCaseEditor extends React.Component {
 
   constructor() {
     super();
+    this.containerRef = React.createRef()
     this.state = {
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
@@ -1028,9 +1029,15 @@ class TestCaseEditor extends React.Component {
     }
 
     return (
-      <>
+      <div
+        style={{ height: '100%', 'overflow-y': 'auto' }}
+        ref={div => {
+          this.containerRef = div
+        }}
+      >
       <Row>
         <Col span={24}>
+        <Affix target={() => this.containerRef}>
           <Button
               className="float-right"
               type="primary"
@@ -1054,6 +1061,7 @@ class TestCaseEditor extends React.Component {
                 Add New Request
             </Button>
           </Popover>
+          </Affix>
         </Col>
       </Row>
       <Row className="mt-2">
@@ -1061,7 +1069,7 @@ class TestCaseEditor extends React.Component {
         { getHorizontalGroups() }
         </Col>
       </Row>
-      </>
+      </div>
     );
   }
 }
