@@ -250,12 +250,16 @@ class FolderBrowser extends React.Component {
       case "pasteRef":
         {
           let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          let keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.children.map(item => item.key)
-          if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf()) {
+          let keysInSameLevel = []
+          if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf) {
             if(this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo  && this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo.type !== 'folder') {
               levelPrefix = levelInfo.levelPrefix
               keysInSameLevel = levelInfo.nodesInSameLevel.map(item => item.key)
+            } else {
+              keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
             }
+          } else {
+            keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
           }
           if(keysInSameLevel.includes(levelPrefix + '/' + this.state.copiedFile.title)) {
             message.error('ERROR: An item with same name exists in this folder');
