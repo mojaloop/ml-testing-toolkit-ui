@@ -510,6 +510,9 @@ class OutboundRequest extends React.Component {
     const fileSelected = this.getSingleFileSelected()
     if(fileSelected) {
       const fileTemplate = fileSelected.content
+      if (!fileTemplate.test_cases) {
+        fileTemplate.test_cases = []
+      }
       // Find highest request id to determine the new ID
       let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
       fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName })
@@ -1148,6 +1151,7 @@ class OutboundRequest extends React.Component {
         </Modal>
         <Modal
           style={{ top: 20 }}
+          bodyStyle={{ height: '85vh', 'overflow-y': 'auto' }}
           destroyOnClose
           forceRender
           title="Test Case Editor"
