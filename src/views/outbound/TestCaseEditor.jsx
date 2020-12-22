@@ -27,7 +27,7 @@ import _ from 'lodash';
  
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix, Typography } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -52,6 +52,7 @@ const { Option } = Select;
 const { Step } = Steps;
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
+const { Text } = Typography;
 
 class ResourceSelector extends React.Component {
 
@@ -774,39 +775,37 @@ class TestCaseEditor extends React.Component {
                             } key="3">
                             <strong>Pre Request Log:</strong>
                             <br />
-                            <AceEditor
-                              ref="scriptsConsoleAceEditor"
-                              mode="javascript"
-                              theme="terminal"
-                              width='100%'
-                              height='100px'
-                              value= { this.printConsoleLog(this.getPreRequestScriptConsoleLog(item)) }
-                              name="UNIQUE_ID_OF_DIV"
-                              wrapEnabled={true}
-                              showPrintMargin={true}
-                              showGutter={false}
-                              readOnly={true}
-                              highlightActiveLine={false}
-                              tabSize={2}
-                            />
+                            <Text>
+                              <pre
+                                style={
+                                  {
+                                    overflow: 'scroll',
+                                    'white-space': 'pre-wrap',
+                                    'backgroundColor': '#111111',
+                                    color: 'yellow',
+                                    minHeight: '50px'
+                                  }
+                                }>
+                                  { this.printConsoleLog(this.getPreRequestScriptConsoleLog(item)) }
+                              </pre>
+                            </Text>
                             <br /><br />
                             <strong>Post Request Log:</strong>
                             <br />
-                            <AceEditor
-                              ref="scriptsConsoleAceEditor"
-                              mode="javascript"
-                              theme="terminal"
-                              width='100%'
-                              height='100px'
-                              value= { this.printConsoleLog(this.getPostRequestScriptConsoleLog(item)) }
-                              name="UNIQUE_ID_OF_DIV"
-                              wrapEnabled={true}
-                              showPrintMargin={true}
-                              showGutter={false}
-                              readOnly={true}
-                              highlightActiveLine={false}
-                              tabSize={2}
-                            />
+                            <Text>
+                              <pre
+                                style={
+                                  {
+                                    overflow: 'scroll',
+                                    'white-space': 'pre-wrap',
+                                    'backgroundColor': '#111111',
+                                    color: 'yellow',
+                                    minHeight: '50px'
+                                  }
+                                }>
+                                  { this.printConsoleLog(this.getPostRequestScriptConsoleLog(item)) }
+                              </pre>
+                            </Text>
                           </TabPane>
                         )
                         : null
