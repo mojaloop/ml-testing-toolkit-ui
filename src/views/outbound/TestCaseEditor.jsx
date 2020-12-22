@@ -52,7 +52,7 @@ const { Option } = Select;
 const { Step } = Steps;
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 class ResourceSelector extends React.Component {
 
@@ -581,6 +581,12 @@ class TestCaseEditor extends React.Component {
     return consoleLogText
   }
 
+  prettyPrintCURL = (curlCommand) => {
+    let outCURL = curlCommand
+    outCURL = outCURL.replace(/\s-/g, '\r\n  -')
+    return outCURL
+  }
+
   getPreRequestScriptEnvironmentState = (item) => {
     if(item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution && item.status.additionalInfo.scriptsExecution.preRequest && item.status.additionalInfo.scriptsExecution.preRequest.environment) {
       return item.status.additionalInfo.scriptsExecution.preRequest.environment
@@ -659,21 +665,27 @@ class TestCaseEditor extends React.Component {
                   ? (
                     <>
                     <Card size="small" className="mb-2" title="CURL command">
-                      <AceEditor
-                        ref="assertionAceEditor"
-                        mode="javascript"
-                        theme="terminal"
-                        width='100%'
-                        height='100px'
-                        value= {item.status.additionalInfo.curlRequest}
-                        name="UNIQUE_ID_OF_DIV"
-                        wrapEnabled={true}
-                        showPrintMargin={true}
-                        showGutter={false}
-                        readOnly={true}
-                        highlightActiveLine={false}
-                        tabSize={2}
-                      />
+                      <Paragraph
+                        copyable = {
+                          {
+                            text: item.status.additionalInfo.curlRequest
+                          }
+                        }
+                      >
+                        <pre
+                          style={
+                            {
+                              overflow: 'scroll',
+                              'white-space': 'pre-wrap',
+                              'backgroundColor': '#111111',
+                              color: 'white',
+                              minHeight: '50px',
+                              maxHeight: '300px'
+                            }
+                          }>
+                            { this.prettyPrintCURL(item.status.additionalInfo.curlRequest) }
+                          </pre>
+                      </Paragraph>
                     </Card>
                     </>
                   )
