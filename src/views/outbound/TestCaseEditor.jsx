@@ -27,7 +27,7 @@ import _ from 'lodash';
  
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix, Typography } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -52,6 +52,7 @@ const { Option } = Select;
 const { Step } = Steps;
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
+const { Text, Paragraph } = Typography;
 
 class ResourceSelector extends React.Component {
 
@@ -580,6 +581,12 @@ class TestCaseEditor extends React.Component {
     return consoleLogText
   }
 
+  prettyPrintCURL = (curlCommand) => {
+    let outCURL = curlCommand
+    outCURL = outCURL.replace(/\s-/g, '\r\n  -')
+    return outCURL
+  }
+
   getPreRequestScriptEnvironmentState = (item) => {
     if(item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution && item.status.additionalInfo.scriptsExecution.preRequest && item.status.additionalInfo.scriptsExecution.preRequest.environment) {
       return item.status.additionalInfo.scriptsExecution.preRequest.environment
@@ -658,21 +665,27 @@ class TestCaseEditor extends React.Component {
                   ? (
                     <>
                     <Card size="small" className="mb-2" title="CURL command">
-                      <AceEditor
-                        ref="assertionAceEditor"
-                        mode="javascript"
-                        theme="terminal"
-                        width='100%'
-                        height='100px'
-                        value= {item.status.additionalInfo.curlRequest}
-                        name="UNIQUE_ID_OF_DIV"
-                        wrapEnabled={true}
-                        showPrintMargin={true}
-                        showGutter={false}
-                        readOnly={true}
-                        highlightActiveLine={false}
-                        tabSize={2}
-                      />
+                      <Paragraph
+                        copyable = {
+                          {
+                            text: item.status.additionalInfo.curlRequest
+                          }
+                        }
+                      >
+                        <pre
+                          style={
+                            {
+                              overflow: 'scroll',
+                              'white-space': 'pre-wrap',
+                              'backgroundColor': '#111111',
+                              color: 'white',
+                              minHeight: '50px',
+                              maxHeight: '300px'
+                            }
+                          }>
+                            { this.prettyPrintCURL(item.status.additionalInfo.curlRequest) }
+                          </pre>
+                      </Paragraph>
                     </Card>
                     </>
                   )
@@ -774,39 +787,39 @@ class TestCaseEditor extends React.Component {
                             } key="3">
                             <strong>Pre Request Log:</strong>
                             <br />
-                            <AceEditor
-                              ref="scriptsConsoleAceEditor"
-                              mode="javascript"
-                              theme="terminal"
-                              width='100%'
-                              height='100px'
-                              value= { this.printConsoleLog(this.getPreRequestScriptConsoleLog(item)) }
-                              name="UNIQUE_ID_OF_DIV"
-                              wrapEnabled={true}
-                              showPrintMargin={true}
-                              showGutter={false}
-                              readOnly={true}
-                              highlightActiveLine={false}
-                              tabSize={2}
-                            />
+                            <Text>
+                              <pre
+                                style={
+                                  {
+                                    overflow: 'scroll',
+                                    'white-space': 'pre-wrap',
+                                    'backgroundColor': '#111111',
+                                    color: 'yellow',
+                                    minHeight: '50px',
+                                    maxHeight: '300px'
+                                  }
+                                }>
+                                  { this.printConsoleLog(this.getPreRequestScriptConsoleLog(item)) }
+                              </pre>
+                            </Text>
                             <br /><br />
                             <strong>Post Request Log:</strong>
                             <br />
-                            <AceEditor
-                              ref="scriptsConsoleAceEditor"
-                              mode="javascript"
-                              theme="terminal"
-                              width='100%'
-                              height='100px'
-                              value= { this.printConsoleLog(this.getPostRequestScriptConsoleLog(item)) }
-                              name="UNIQUE_ID_OF_DIV"
-                              wrapEnabled={true}
-                              showPrintMargin={true}
-                              showGutter={false}
-                              readOnly={true}
-                              highlightActiveLine={false}
-                              tabSize={2}
-                            />
+                            <Text>
+                              <pre
+                                style={
+                                  {
+                                    overflow: 'scroll',
+                                    'white-space': 'pre-wrap',
+                                    'backgroundColor': '#111111',
+                                    color: 'yellow',
+                                    minHeight: '50px',
+                                    maxHeight: '300px'
+                                  }
+                                }>
+                                  { this.printConsoleLog(this.getPostRequestScriptConsoleLog(item)) }
+                              </pre>
+                            </Text>
                           </TabPane>
                         )
                         : null
@@ -1038,29 +1051,31 @@ class TestCaseEditor extends React.Component {
       <Row>
         <Col span={24}>
         <Affix target={() => this.containerRef}>
-          <Button
-              className="float-right"
-              type="primary"
-              danger
-              onClick={() => {
-                this.props.onSend()
-              }}
-            >
-              Send
-          </Button>
-          <Popover
-            content={addNewRequestDialogContent}
-            title="Enter a description for the request"
-            trigger="click"
-            visible={this.state.addNewRequestDialogVisible}
-            onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
-          >
+          <Card size="small">
             <Button
+                className="float-right"
                 type="primary"
+                danger
+                onClick={() => {
+                  this.props.onSend()
+                }}
               >
-                Add New Request
+                Send
             </Button>
-          </Popover>
+            <Popover
+              content={addNewRequestDialogContent}
+              title="Enter a description for the request"
+              trigger="click"
+              visible={this.state.addNewRequestDialogVisible}
+              onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
+            >
+              <Button
+                  type="primary"
+                >
+                  Add New Request
+              </Button>
+            </Popover>
+          </Card>
           </Affix>
         </Col>
       </Row>

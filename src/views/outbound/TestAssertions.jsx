@@ -860,6 +860,9 @@ export class TestAssertions extends React.Component {
   }
 
   handleRawAssertionsChange = (newAssertions) => {
+    if (!this.props.request.tests) {
+      this.props.request.tests = {}
+    }
     this.props.request.tests.assertions = newAssertions
     this.props.onChange(this.props.request)
   }
