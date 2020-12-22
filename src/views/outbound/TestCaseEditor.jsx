@@ -783,7 +783,8 @@ class TestCaseEditor extends React.Component {
                                     'white-space': 'pre-wrap',
                                     'backgroundColor': '#111111',
                                     color: 'yellow',
-                                    minHeight: '50px'
+                                    minHeight: '50px',
+                                    maxHeight: '300px'
                                   }
                                 }>
                                   { this.printConsoleLog(this.getPreRequestScriptConsoleLog(item)) }
@@ -800,7 +801,8 @@ class TestCaseEditor extends React.Component {
                                     'white-space': 'pre-wrap',
                                     'backgroundColor': '#111111',
                                     color: 'yellow',
-                                    minHeight: '50px'
+                                    minHeight: '50px',
+                                    maxHeight: '300px'
                                   }
                                 }>
                                   { this.printConsoleLog(this.getPostRequestScriptConsoleLog(item)) }
@@ -1037,29 +1039,31 @@ class TestCaseEditor extends React.Component {
       <Row>
         <Col span={24}>
         <Affix target={() => this.containerRef}>
-          <Button
-              className="float-right"
-              type="primary"
-              danger
-              onClick={() => {
-                this.props.onSend()
-              }}
-            >
-              Send
-          </Button>
-          <Popover
-            content={addNewRequestDialogContent}
-            title="Enter a description for the request"
-            trigger="click"
-            visible={this.state.addNewRequestDialogVisible}
-            onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
-          >
+          <Card size="small">
             <Button
+                className="float-right"
                 type="primary"
+                danger
+                onClick={() => {
+                  this.props.onSend()
+                }}
               >
-                Add New Request
+                Send
             </Button>
-          </Popover>
+            <Popover
+              content={addNewRequestDialogContent}
+              title="Enter a description for the request"
+              trigger="click"
+              visible={this.state.addNewRequestDialogVisible}
+              onVisibleChange={ (visible) => this.setState({addNewRequestDialogVisible: visible})}
+            >
+              <Button
+                  type="primary"
+                >
+                  Add New Request
+              </Button>
+            </Popover>
+          </Card>
           </Affix>
         </Col>
       </Row>
