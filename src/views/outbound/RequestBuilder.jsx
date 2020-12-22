@@ -868,6 +868,7 @@ class QueryParamsInputComponent extends React.Component {
 class HeaderBodyBuilder extends React.Component {
   constructor() {
     super()
+    this.bodyEditorRef = React.createRef()
     this.state = {
       configurableParameterSelected: '',
       allParamsFromDefinition: [],
@@ -980,7 +981,9 @@ class HeaderBodyBuilder extends React.Component {
   }
 
   updateBodyChanges = () => {
-    this.refs.bodyEditor.jsonEditor.update(this.props.request.body)
+    if (this.bodyEditorRef.jsonEditor) {
+      this.bodyEditorRef.jsonEditor.update(this.props.request.body)
+    }
   }
 
   getHeaderItems = () => {
@@ -1231,7 +1234,9 @@ class HeaderBodyBuilder extends React.Component {
                   <Row >
                     <Col span={24}>
                       <Editor
-                        ref="bodyEditor"
+                        ref={editor => {
+                          this.bodyEditorRef = editor
+                        }}
                         value={ this.props.request.body? this.props.request.body : {} }
                         ace={ace}
                         ajv={ajv}
