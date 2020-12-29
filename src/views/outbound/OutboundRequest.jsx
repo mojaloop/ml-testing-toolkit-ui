@@ -693,14 +693,26 @@ class OutboundRequest extends React.Component {
   }
 
   handleTestCaseDuplicate = (testCaseId) => {
-    const { id, name, ...otherProps } = this.state.template.test_cases.find(item => item.id == testCaseId)
-    // Find highest request id to determine the new ID
-    let maxId = +this.state.template.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
-    // Deep copy other properties
-    const clonedProps = JSON.parse(JSON.stringify(otherProps))
+    const fileSelected = this.getSingleFileSelected()
+    if(fileSelected) {
+      // const fileTemplate = this.state.template
+      const fileTemplate = fileSelected.content
 
-    this.state.template.test_cases.push({ id: maxId+1, name: name + ' Copy', ...clonedProps })
-    this.handleTestCaseChange()
+      // Find highest request id to determine the new ID
+      let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+
+      const { id, name, ...otherProps } = fileTemplate.test_cases.find(item => item.id == testCaseId)
+      // Deep copy other properties
+      const clonedProps = JSON.parse(JSON.stringify(otherProps))
+  
+      fileTemplate.test_cases.push({ id: maxId+1, name: name + ' Copy', ...clonedProps })
+
+      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+      this.forceUpdate()
+      this.autoSave = true
+    } else {
+      message.error('ERROR: no file selected or multiple files are selected');
+    }
   }
 
   getTestCaseItems = () => {
