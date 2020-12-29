@@ -613,8 +613,8 @@ class TestCaseEditor extends React.Component {
   getRequestGeneratorItems = (startIndex, endIndex) => {
     if (this.props.testCase.requests) {
       return this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
-        const testStatus = item.status && item.tests && item.status.testResult ? item.status.testResult.passedCount + '/' + item.tests.assertions.length : ''
-        const testStatusColor = item.status && item.tests && item.status.testResult && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
+        const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions? item.status.testResult.passedCount + '/' + item.tests.assertions.length : ''
+        const testStatusColor = item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
         let requestShow
         if (item.status && item.status.requestSent) {
           requestShow = item.status.requestSent

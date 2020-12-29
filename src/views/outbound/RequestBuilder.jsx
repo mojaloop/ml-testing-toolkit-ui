@@ -981,7 +981,7 @@ class HeaderBodyBuilder extends React.Component {
   }
 
   updateBodyChanges = () => {
-    if (this.bodyEditorRef.jsonEditor) {
+    if (this.bodyEditorRef.jsonEditor &&  this.props.request.body) {
       this.bodyEditorRef.jsonEditor.update(this.props.request.body)
     }
   }
