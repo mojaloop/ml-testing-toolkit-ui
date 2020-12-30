@@ -25,7 +25,7 @@ import React from "react";
 import _ from 'lodash';
 import { Button, Popconfirm, Row, Col, message } from 'antd';
 import FolderBrowser from "./FolderBrowser.jsx";
-import { FolderParser } from 'ml-testing-toolkit-shared-lib'
+import { FolderParser } from '@mojaloop/ml-testing-toolkit-shared-lib'
 import { DownloadOutlined } from '@ant-design/icons';
 
 import JSZip from "jszip"

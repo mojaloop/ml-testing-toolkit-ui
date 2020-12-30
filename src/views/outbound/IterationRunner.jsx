@@ -30,7 +30,7 @@ import FileDownload from 'js-file-download'
 // import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import getConfig from '../../utils/getConfig'
-import { TraceHeaderUtils } from 'ml-testing-toolkit-shared-lib'
+import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 const {Text} = Typography
 

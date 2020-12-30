@@ -37,7 +37,7 @@ import IterationRunner from './IterationRunner'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
-import { FolderParser, TraceHeaderUtils } from 'ml-testing-toolkit-shared-lib'
+import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
@@ -438,9 +438,9 @@ class OutboundRequest extends React.Component {
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     // this.state.template = this.convertTemplate(this.state.template)
-    const convertedTemplate = this.convertTemplate(this.state.template)
+    const convertedTemplate = template ? this.convertTemplate(template) : this.convertTemplate(this.state.template)
     // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, template ? template : convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
     this.state.sendingOutboundRequestID = traceId
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
@@ -605,10 +605,8 @@ class OutboundRequest extends React.Component {
   regenerateTemplate = async (selectedFiles = null) => {
     var testCases = []
     testCases = FolderParser.getTestCases(this.state.folderData, selectedFiles)
-    FolderParser.sequenceTestCases(testCases)
-    // console.log(testCases)
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
-    this.state.template.test_cases = testCases
+    this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
     this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files',
@@ -693,14 +691,26 @@ class OutboundRequest extends React.Component {
   }
 
   handleTestCaseDuplicate = (testCaseId) => {
-    const { id, name, ...otherProps } = this.state.template.test_cases.find(item => item.id == testCaseId)
-    // Find highest request id to determine the new ID
-    let maxId = +this.state.template.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
-    // Deep copy other properties
-    const clonedProps = JSON.parse(JSON.stringify(otherProps))
+    const fileSelected = this.getSingleFileSelected()
+    if(fileSelected) {
+      // const fileTemplate = this.state.template
+      const fileTemplate = fileSelected.content
 
-    this.state.template.test_cases.push({ id: maxId+1, name: name + ' Copy', ...clonedProps })
-    this.handleTestCaseChange()
+      // Find highest request id to determine the new ID
+      let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+
+      const { id, name, ...otherProps } = fileTemplate.test_cases.find(item => item.id == testCaseId)
+      // Deep copy other properties
+      const clonedProps = JSON.parse(JSON.stringify(otherProps))
+  
+      fileTemplate.test_cases.push({ id: maxId+1, name: name + ' Copy', ...clonedProps })
+
+      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+      this.forceUpdate()
+      this.autoSave = true
+    } else {
+      message.error('ERROR: no file selected or multiple files are selected');
+    }
   }
 
   getTestCaseItems = () => {
