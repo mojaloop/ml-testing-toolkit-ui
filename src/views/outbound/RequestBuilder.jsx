@@ -39,6 +39,7 @@ import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
 import Ajv from 'ajv';
+import JsonEditor from "./JsonEditor.jsx";
 
 const parseCurl = require('../../utils/curlParser').default
 
@@ -725,16 +726,8 @@ class QueryParamsBuilder extends React.Component {
                       <div>
                         <Row>
                           <Col span={24} className="text-left mt-4">
-                            <Editor
-                              ref="queryParamsEditor"
+                            <JsonEditor
                               value={ this.props.request.queryParams || {} }
-                              ace={ace}
-                              ajv={ajv}
-                              theme="ace/theme/tomorrow_night_blue"
-                              mode="code"
-                              search={false}
-                              statusBar={false}
-                              navigationBar={false}
                               onChange={this.handleRawQueryParamsChange}
                             />
                           </Col>
@@ -1131,16 +1124,8 @@ class HeaderBodyBuilder extends React.Component {
                       <div>
                         <Row>
                           <Col span={24} className="text-left mt-4">
-                            <Editor
-                              ref="headersEditor"
+                            <JsonEditor
                               value={ this.props.request.headers || {}}
-                              ace={ace}
-                              ajv={ajv}
-                              theme="ace/theme/tomorrow_night_blue"
-                              mode="code"
-                              search={false}
-                              statusBar={false}
-                              navigationBar={false}
                               onChange={this.handleRawHeadersChange}
                             />
                           </Col>
@@ -1233,21 +1218,13 @@ class HeaderBodyBuilder extends React.Component {
                   </Row>
                   <Row >
                     <Col span={24}>
-                      <Editor
+                      <JsonEditor
                         ref={editor => {
                           this.bodyEditorRef = editor
                         }}
                         value={ this.props.request.body? this.props.request.body : {} }
-                        ace={ace}
-                        ajv={ajv}
-                        theme="ace/theme/tomorrow_night_blue"
-                        mode="code"
-                        search={false}
-                        statusBar={false}
-                        navigationBar={false}
                         onChange={this.handleBodyChange}
                         schema={this.bodySchema}
-                        // onError={this.handleError}
                       />
                     </Col>
                   </Row>
