@@ -605,10 +605,8 @@ class OutboundRequest extends React.Component {
   regenerateTemplate = async (selectedFiles = null) => {
     var testCases = []
     testCases = FolderParser.getTestCases(this.state.folderData, selectedFiles)
-    FolderParser.sequenceTestCases(testCases)
-    // console.log(testCases)
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
-    this.state.template.test_cases = testCases
+    this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
     this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files',
