@@ -438,9 +438,9 @@ class OutboundRequest extends React.Component {
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     // this.state.template = this.convertTemplate(this.state.template)
-    const convertedTemplate = this.convertTemplate(this.state.template)
+    const convertedTemplate = template ? this.convertTemplate(template) : this.convertTemplate(this.state.template)
     // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, template ? template : convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
     this.state.sendingOutboundRequestID = traceId
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
