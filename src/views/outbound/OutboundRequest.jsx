@@ -37,7 +37,7 @@ import IterationRunner from './IterationRunner'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
-import { FolderParser, TraceHeaderUtils } from 'ml-testing-toolkit-shared-lib'
+import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
