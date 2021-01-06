@@ -59,8 +59,8 @@ class TestCaseViewer extends React.Component {
     if (this.props.testCase.requests) {
       const requestRows = this.props.testCase.requests.map(item => {
         if (item.method && item.operationPath) {
-          const testStatus = item.status && item.tests && item.status.testResult ? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : ''
-          const testStatusColor = item.status && item.tests && item.status.testResult && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
+          const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : ''
+          const testStatusColor = item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
           return (
               <tr>
                 <td className="align-text-top" width='25px'>
