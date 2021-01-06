@@ -945,7 +945,7 @@ class HeaderBodyBuilder extends React.Component {
   }
 
   handleAddHeaderClick = (event) => {
-    this.addHeaderItem(event.item.props.children);
+    this.addHeaderItem(event.item.props.eventKey);
   };
 
   handleRawHeadersChange = (newHeaders) => {
@@ -959,7 +959,7 @@ class HeaderBodyBuilder extends React.Component {
     })
     const menuItems = headerParams.map((item, key) => {
       return (
-        <Menu.Item key={key}>{item.name}</Menu.Item>
+        <Menu.Item key={item.name}>{item.name}</Menu.Item>
       )
     })
     return (
