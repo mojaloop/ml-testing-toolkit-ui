@@ -41,6 +41,7 @@ import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-sha
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
+import { trace } from "mobx";
 
 let ipcRenderer = null
 
@@ -240,6 +241,7 @@ class OutboundRequest extends React.Component {
     super();
     this.fileManagerRef = React.createRef();
     this.iterationRunnerRef = React.createRef();
+    this.testCaseEditorRef = React.createRef();
     const sessionId = TraceHeaderUtils.generateSessionId()
     this.state = {
       request: {},
@@ -258,6 +260,7 @@ class OutboundRequest extends React.Component {
       saveTemplateTestcasesDialogVisible: false,
       saveTemplateEnvironmentDialogVisible: false,
       showTestCaseIndex: null,
+      showServerLogs: false,
       renameTestCase: false,
       totalPassedCount: 0,
       totalAssertionsCount: 0,
@@ -265,6 +268,7 @@ class OutboundRequest extends React.Component {
       testReport: null,
       userConfig: null,
       sendingOutboundRequestID: null,
+      lastOutgoingRequestID: null,
       loadSampleDialogVisible: false,
       loadSampleFiles: {},
       loadSampleChecked: {},
@@ -292,6 +296,7 @@ class OutboundRequest extends React.Component {
       testCaseRequestsReorderingEnabled: false,
       curTestCasesRequestsUpdated: false,
       tempReorderedTestCases: [],
+      logs: []
     };
   }
 
@@ -443,6 +448,7 @@ class OutboundRequest extends React.Component {
     await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
     this.state.sendingOutboundRequestID = traceId
+    this.setState({ lastOutgoingRequestID: traceId })
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
     // Set the status to waiting for all the requests
@@ -479,6 +485,17 @@ class OutboundRequest extends React.Component {
     const { test_cases, ...remainingProps } = this.state.template
     const testCaseToSend = { test_cases: [ test_cases[testCaseIndex] ], ...remainingProps }
     this.handleSendTemplate(testCaseToSend)
+  }
+
+  handleShowServerLogs = async () => {
+    if (!this.state.lastOutgoingRequestID) return;
+    const res = await axios.get(`${getConfig().apiBaseUrl}/api/logs/search?traceId=${this.state.lastOutgoingRequestID}`)
+    let logs = []
+    if (res.statusCode == 200 && res.body.hits.total.value > 0) {
+      logs = res.body.hits.hits
+    }
+    this.setState({ logs })
+    this.testCaseEditorRef.current.setLogs(this.state.logs)
   }
 
   // Take the status property out from requests
@@ -785,7 +802,7 @@ class OutboundRequest extends React.Component {
     message.success({ content: 'Sample Loaded', key: 'loadSampleProgress', duration: 2 });
   }
 
-  loadSampleContent = async () => {
+  loadSampleContent = async () => {this.testCaseEditorRef = React.createRef()
     const { apiBaseUrl } = getConfig()
     if (!this.state.loadSampleCollections) {
       this.state.loadSampleCollections = {}
@@ -1178,8 +1195,11 @@ class OutboundRequest extends React.Component {
                 testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
                 inputValues={this.state.template.inputValues}
                 userConfig={this.state.userConfig}
+                logs={this.state.logs}
                 onChange={this.handleTestCaseChange}
                 onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) } }
+                onShowServerLogs={() => { this.handleShowServerLogs() } }
+                ref={this.testCaseEditorRef}
               />
             )
             : null

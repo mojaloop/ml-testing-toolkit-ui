@@ -41,6 +41,7 @@ import axios from 'axios';
 import './fixAce.css';
 import RequestBuilder from './RequestBuilder'
 import TestAssertions from './TestAssertions'
+import ServerLogsViewer from './ServerLogsViewer'
 import getConfig from '../../utils/getConfig'
 
 import AceEditor from "react-ace";
@@ -479,15 +480,16 @@ class RequestGenerator extends React.Component {
   }
 }
 
-
 class TestCaseEditor extends React.Component {
 
   constructor() {
     super();
     this.containerRef = React.createRef()
+    this.serverLogsViewerRef = React.createRef()
     this.state = {
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
+      logs: []
     };
   }
 
@@ -980,6 +982,10 @@ class TestCaseEditor extends React.Component {
     this.forceUpdate()
   }
 
+  setLogs = (logs) => {
+    this.serverLogsViewerRef.current.setLogs(logs)
+  }
+
   render() {
 
     const addNewRequestDialogContent = (
@@ -1052,16 +1058,26 @@ class TestCaseEditor extends React.Component {
         <Col span={24}>
         <Affix target={() => this.containerRef}>
           <Card size="small">
-            <Button
-                className="float-right"
-                type="primary"
-                danger
-                onClick={() => {
-                  this.props.onSend()
-                }}
-              >
-                Send
-            </Button>
+            <div className="float-right">
+              <Button
+                  type="default"
+                  className="mx-2"
+                  onClick={() => {
+                    this.props.onShowServerLogs()
+                  }}
+                >
+                  Server Logs
+              </Button>
+              <Button
+                  type="primary"
+                  danger
+                  onClick={() => {
+                    this.props.onSend()
+                  }}
+                >
+                  Send
+              </Button>
+            </div>
             <Popover
               content={addNewRequestDialogContent}
               title="Enter a description for the request"
@@ -1077,6 +1093,13 @@ class TestCaseEditor extends React.Component {
             </Popover>
           </Card>
           </Affix>
+        </Col>
+      </Row>
+      <Row className="mt-2">
+        <Col span={24}>
+          <Card>
+              <ServerLogsViewer logs={this.props.logs} ref={this.serverLogsViewerRef} />
+          </Card>
         </Col>
       </Row>
       <Row className="mt-2">

@@ -6,7 +6,7 @@
 
 This is the easiest way to run the self testing toolkit ui.
 
-The following softwares should be installed on your system to run the toolkit.
+The following software should be installed on your system to run the toolkit.
 
 * Git
 * Docker
@@ -29,7 +29,7 @@ docker-compose up
 
 ### 1.2 Running locally
 
-The following softwares should be installed on your system to run the toolkit ui locally.
+The following software should be installed on your system to run the toolkit ui locally.
 
 * Git
 * NodeJS
