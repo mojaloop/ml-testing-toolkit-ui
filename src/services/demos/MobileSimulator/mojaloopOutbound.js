@@ -40,8 +40,6 @@ class OutboundService {
     const resp = await axios.get(this.apiBaseUrl + environmentURL)
     if (resp.data && resp.data.body && resp.data.body.environment) {
       this.inputValues =  resp.data.body.environment
-      this.inputValues.payeefsp = 'ttkpayeefsp'
-      this.inputValues.toFspId = 'ttkpayeefsp'
     }
   }
 
