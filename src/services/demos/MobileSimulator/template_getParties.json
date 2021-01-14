@@ -7,6 +7,31 @@
       "requests": [
         {
           "id": 1,
+          "description": "Delete participant",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/participants/{Type}/{ID}",
+          "path": "/participants/{$inputs.toIdType}/{$inputs.toIdValue}",
+          "method": "delete",
+          "params": {
+            "Type": "{$inputs.toIdType}",
+            "ID": "{$inputs.toIdValue}"
+          },
+          "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
+          "ignoreCallbacks": true,
+          "headers": {
+            "Content-Type": "application/vnd.interoperability.participants+json;version=1.0",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "{$inputs.mobileSimPayeeFsp}",
+            "Accept": "application/vnd.interoperability.participants+json;version=1.0"
+          }
+        },
+        {
+          "id": 2,
           "description": "Add Participant to ALS",
           "apiVersion": {
             "minorVersion": 1,
@@ -35,7 +60,7 @@
           "ignoreCallbacks": true
         },
         {
-          "id": 2,
+          "id": 3,
           "description": "Get party information",
           "apiVersion": {
             "minorVersion": 0,
