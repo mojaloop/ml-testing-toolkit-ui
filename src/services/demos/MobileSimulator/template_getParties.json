@@ -7,6 +7,31 @@
       "requests": [
         {
           "id": 1,
+          "description": "Delete participant",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/participants/{Type}/{ID}",
+          "path": "/participants/{$inputs.toIdType}/{$inputs.toIdValue}",
+          "method": "delete",
+          "params": {
+            "Type": "{$inputs.toIdType}",
+            "ID": "{$inputs.toIdValue}"
+          },
+          "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
+          "ignoreCallbacks": true,
+          "headers": {
+            "Content-Type": "application/vnd.interoperability.participants+json;version=1.0",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "{$inputs.mobileSimPayeeFsp}",
+            "Accept": "application/vnd.interoperability.participants+json;version=1.0"
+          }
+        },
+        {
+          "id": 2,
           "description": "Add Participant to ALS",
           "apiVersion": {
             "minorVersion": 1,
@@ -22,20 +47,20 @@
             "ID": "{$inputs.toIdValue}"
           },
           "headers": {
-            "FSPIOP-Source": "{$inputs.toFspId}",
+            "FSPIOP-Source": "{$inputs.mobileSimPayeeFsp}",
             "Accept": "application/vnd.interoperability.participants+json;version=1.0",
             "Content-Type": "application/vnd.interoperability.participants+json;version=1.0",
             "Date": "{$function.generic.curDate}"
           },
           "body": {
-            "fspId": "{$inputs.toFspId}",
+            "fspId": "{$inputs.mobileSimPayeeFsp}",
             "currency": "USD"
           },
           "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
           "ignoreCallbacks": true
         },
         {
-          "id": 2,
+          "id": 3,
           "description": "Get party information",
           "apiVersion": {
             "minorVersion": 0,
@@ -49,7 +74,7 @@
             "Accept": "{$inputs.accept}",
             "Content-Type": "{$inputs.contentType}",
             "Date": "{$function.generic.curDate}",
-            "FSPIOP-Source": "{$inputs.fromFspId}"
+            "FSPIOP-Source": "{$inputs.mobileSimPayerFsp}"
           },
           "params": {
             "Type": "{$inputs.toIdType}",

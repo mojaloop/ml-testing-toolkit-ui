@@ -20,12 +20,12 @@
             "Accept": "application/vnd.interoperability.transfers+json;version=1.0",
             "Content-Type": "application/vnd.interoperability.transfers+json;version=1.0",
             "Date": "{$function.generic.curDate}",
-            "FSPIOP-Source": "{$inputs.fromFspId}"
+            "FSPIOP-Source": "{$inputs.mobileSimPayerFsp}"
           },
           "body": {
             "transferId": "{$inputs.quotesCallbackTransactionId}",
-            "payerFsp": "{$inputs.fromFspId}",
-            "payeeFsp": "{$inputs.toFspId}",
+            "payerFsp": "{$inputs.mobileSimPayerFsp}",
+            "payeeFsp": "{$inputs.mobileSimPayeeFsp}",
             "amount": {
               "amount": "{$inputs.amount}",
               "currency": "{$inputs.currency}"

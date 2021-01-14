@@ -95,7 +95,6 @@ class NotificationService {
           && log.resource.method === 'get'
           && log.resource.path.startsWith('/parties/')
     ) {
-      this.notifyPayerMonitorLog(log)
       this.notificationEventFunction({
         category: 'payer',
         type: 'getParties',
@@ -103,6 +102,7 @@ class NotificationService {
           resource: log.resource
         }
       })
+      this.notifyPayerMonitorLog(log)
     }
 
     // Catch get Parties response
