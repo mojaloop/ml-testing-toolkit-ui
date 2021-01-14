@@ -39,13 +39,13 @@ import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
-import {SortableContainer, SortableElement} from 'react-sortable-hoc'
+import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import { trace } from "mobx";
 
 let ipcRenderer = null
 
-if(window && window.require) {
+if (window && window.require) {
   ipcRenderer = window.require('electron').ipcRenderer
   ipcRenderer.send('mainAction', JSON.stringify({ action: 'ping' }))
 }
@@ -55,7 +55,7 @@ const { Panel } = Collapse;
 const { TabPane } = Tabs;
 const { Title } = Typography;
 
-function buildFileSelector( multi = false, directory = false ){
+function buildFileSelector(multi = false, directory = false) {
   const fileSelector = document.createElement('input');
   fileSelector.setAttribute('type', 'file');
   if (multi) {
@@ -123,19 +123,19 @@ class InputValues extends React.Component {
     for (let inputValueName in this.props.values) {
       inputItems.push(
         <>
-        <Descriptions.Item label={inputValueName}>
-          <Row gutter={8}>
-            <Col span={23}>
-              { this.getInputItemType(inputValueName)}
-            </Col>
-            <Col span={1}>
-              <DeleteTwoTone key={inputValueName} type="delete" theme="filled"
-                onClick={ () => this.handleDeleteClick(inputValueName) }
-              />
-            </Col>
-          </Row>
-          
-        </Descriptions.Item>
+          <Descriptions.Item label={inputValueName}>
+            <Row gutter={8}>
+              <Col span={23}>
+                {this.getInputItemType(inputValueName)}
+              </Col>
+              <Col span={1}>
+                <DeleteTwoTone key={inputValueName} type="delete" theme="filled"
+                  onClick={() => this.handleDeleteClick(inputValueName)}
+                />
+              </Col>
+            </Row>
+
+          </Descriptions.Item>
         </>
       )
     }
@@ -160,40 +160,40 @@ class InputValues extends React.Component {
   }
 
 
-  render () {
+  render() {
     const addInputValueDialogContent = (
       <>
-      <Input 
-        placeholder="Input Value Name"
-        type="text"
-        value={this.state.newInputValueName}
-        onChange={(e) => { this.setState({newInputValueName: e.target.value })}}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") {
-            this.setState({addInputValueDialogVisible: false})
-          }
+        <Input
+          placeholder="Input Value Name"
+          type="text"
+          value={this.state.newInputValueName}
+          onChange={(e) => { this.setState({ newInputValueName: e.target.value }) }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              this.setState({ addInputValueDialogVisible: false })
+            }
+          }}
+          onPressEnter={() => {
+            this.handleAddInputValue(this.state.newInputValueName)
+            this.setState({ addInputValueDialogVisible: false })
+          }}
+        />
+        <Radio.Group onChange={(e) => {
+          this.setState({ newInputValueType: e.target.value })
         }}
-        onPressEnter={ () => {
-          this.handleAddInputValue(this.state.newInputValueName)
-          this.setState({addInputValueDialogVisible: false})
-        }}
-      />
-      <Radio.Group onChange={(e) => {
-          this.setState({newInputValueType: e.target.value})
-        }}
-        value={this.state.newInputValueType}
-      >
-        <Radio value='string'>String</Radio>
-        <Radio value='number'>Number</Radio>
-        <Radio value='boolean'>Boolean</Radio>
-      </Radio.Group>
-      <Button
+          value={this.state.newInputValueType}
+        >
+          <Radio value='string'>String</Radio>
+          <Radio value='number'>Number</Radio>
+          <Radio value='boolean'>Boolean</Radio>
+        </Radio.Group>
+        <Button
           className="text-right mt-2"
           color="success"
           href="#pablo"
-          onClick={ () => {
+          onClick={() => {
             this.handleAddInputValue(this.state.newInputValueName)
-            this.setState({addInputValueDialogVisible: false})
+            this.setState({ addInputValueDialogVisible: false })
           }}
           size="sm"
         >
@@ -204,31 +204,31 @@ class InputValues extends React.Component {
 
     return (
       <>
-      <Row gutter={16}>
-        <Col span={24}>
-          <Card className="bg-white shadow">
-            <Popover
-              content={addInputValueDialogContent}
-              title="Enter a new name"
-              trigger="click"
-              visible={this.state.addInputValueDialogVisible}
-              onVisibleChange={ (visible) => this.setState({addInputValueDialogVisible: visible})}
-            >
-              <Button
+        <Row gutter={16}>
+          <Col span={24}>
+            <Card className="bg-white shadow">
+              <Popover
+                content={addInputValueDialogContent}
+                title="Enter a new name"
+                trigger="click"
+                visible={this.state.addInputValueDialogVisible}
+                onVisibleChange={(visible) => this.setState({ addInputValueDialogVisible: visible })}
+              >
+                <Button
                   className="text-right float-right"
                   color="primary"
                   size="sm"
                 >
                   Add Input Value
               </Button>
-            </Popover>
+              </Popover>
 
-            <Descriptions title="Input Values" bordered column={1} size='small'>
-              {this.getInputItems()}
-            </Descriptions>
-          </Card>
-        </Col>
-      </Row>
+              <Descriptions title="Input Values" bordered column={1} size='small'>
+                {this.getInputItems()}
+              </Descriptions>
+            </Card>
+          </Col>
+        </Row>
       </>
     )
   }
@@ -272,24 +272,26 @@ class OutboundRequest extends React.Component {
       loadSampleDialogVisible: false,
       loadSampleFiles: {},
       loadSampleChecked: {},
-      loadSampleCollectionTypes: ['hub','dfsp','provisioning'],
+      loadSampleCollectionTypes: ['hub', 'dfsp', 'provisioning'],
       sequenceDiagramVisible: false,
       folderData: [],
       fileBrowserVisible: false,
       historyReportsVisible: false,
       historyReportsColumns: [
-        { title: 'Name', dataIndex: 'name', key: 'name', width: '50%'},
-        { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp', width: '20%'},
-        { title: 'Run duration in ms', dataIndex: 'duration', key: 'duration', width: '10%'},
-        { title: 'Passed / Total', dataIndex: 'successRate', key: 'successRate', width: '10%'},
-        { title: 'Status', dataIndex: 'status', key: 'status', width: '10%'},
-        { dataIndex: '', key: 'download', width: '10%', render: (text, record) => (
-          <Dropdown overlay={this.downloadReportMenu(record)}>
-            <Button className="float-right" color="info" size="sm" onClick={e => e.preventDefault()}>
-              Download
+        { title: 'Name', dataIndex: 'name', key: 'name', width: '50%' },
+        { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp', width: '20%' },
+        { title: 'Run duration in ms', dataIndex: 'duration', key: 'duration', width: '10%' },
+        { title: 'Passed / Total', dataIndex: 'successRate', key: 'successRate', width: '10%' },
+        { title: 'Status', dataIndex: 'status', key: 'status', width: '10%' },
+        {
+          dataIndex: '', key: 'download', width: '10%', render: (text, record) => (
+            <Dropdown overlay={this.downloadReportMenu(record)}>
+              <Button className="float-right" color="info" size="sm" onClick={e => e.preventDefault()}>
+                Download
             </Button>
-          </Dropdown>
-        )}
+            </Dropdown>
+          )
+        }
       ],
       testCaseReorderingEnabled: false,
       curTestCasesUpdated: false,
@@ -308,14 +310,14 @@ class OutboundRequest extends React.Component {
     if (this.socket) {
       this.socket.disconnect()
     }
-    if(this.autoSaveIntervalId) {
+    if (this.autoSaveIntervalId) {
       clearInterval(this.autoSaveIntervalId)
     }
   }
-  
+
   componentDidMount = async () => {
     this.environmentFileSelector = buildFileSelector();
-    this.environmentFileSelector.addEventListener ('input', (e) => {
+    this.environmentFileSelector.addEventListener('input', (e) => {
       if (e.target.files) {
         this.handleImportEnvironmentFile(e.target.files[0])
         this.environmentFileSelector.value = null
@@ -325,19 +327,19 @@ class OutboundRequest extends React.Component {
     // const sampleTemplate = require('./sample1.json')
     // this.setState({template: sampleTemplate})
     const { userConfigRuntime } = await getServerConfig()
-    
-    this.setState({userConfig: userConfigRuntime})
+
+    this.setState({ userConfig: userConfigRuntime })
     const { apiBaseUrl } = getConfig()
     this.socket = socketIOClient(apiBaseUrl);
     // this.socket.on("outboundProgress", this.handleIncomingProgress);
     if (getConfig().isAuthEnabled) {
       const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
       if (dfspId) {
-        this.state.sessionId  =  dfspId
+        this.state.sessionId = dfspId
       }
     }
     this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
-    
+
     const additionalData = this.restoreAdditionalData()
     const storedFolderData = this.restoreSavedFolderData()
     const storedEnvironmentData = this.restoreSavedEnvironmentData()
@@ -354,7 +356,7 @@ class OutboundRequest extends React.Component {
       this.state.additionalData = additionalData
     }
 
-    if(storedFolderData || storedEnvironmentData || additionalData) {
+    if (storedFolderData || storedEnvironmentData || additionalData) {
       this.forceUpdate()
     }
 
@@ -377,10 +379,10 @@ class OutboundRequest extends React.Component {
   handleIncomingProgress = (progress) => {
     if (progress.status === 'FINISHED') {
       message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
-      this.setState({sendingOutboundRequestID: null, testReport: progress.totalResult})
+      this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult })
     } else if (progress.status === 'TERMINATED') {
       message.success({ content: 'Test case terminated', key: 'outboundStopProgress', duration: 2 });
-      this.setState({sendingOutboundRequestID: null, testReport: progress.totalResult})
+      this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult })
     } else if (progress.status.startsWith('ITERATION')) {
       this.iterationRunnerRef.current.handleIncomingProgress(progress)
     } else {
@@ -418,7 +420,7 @@ class OutboundRequest extends React.Component {
                 testCase.requests[i].status.additionalInfo = {}
                 testCase.requests[i].status.testResult = null
               }
-              
+
             }
             // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
           }
@@ -483,7 +485,7 @@ class OutboundRequest extends React.Component {
 
   handleSendSingleTestCase = async (testCaseIndex) => {
     const { test_cases, ...remainingProps } = this.state.template
-    const testCaseToSend = { test_cases: [ test_cases[testCaseIndex] ], ...remainingProps }
+    const testCaseToSend = { test_cases: [test_cases[testCaseIndex]], ...remainingProps }
     this.handleSendTemplate(testCaseToSend)
   }
 
@@ -491,18 +493,20 @@ class OutboundRequest extends React.Component {
     if (!this.state.lastOutgoingRequestID) return;
     const res = await axios.get(`${getConfig().apiBaseUrl}/api/logs/search?traceId=${this.state.lastOutgoingRequestID}`)
     let logs = []
-    if (res.statusCode == 200 && res.body.hits.total.value > 0) {
-      logs = res.body.hits.hits
+    if (res.status == 200) {
+      if (Array.isArray(res.data)) {
+        logs = res.data
+      }
     }
     this.setState({ logs })
     this.testCaseEditorRef.current.setLogs(this.state.logs)
   }
 
   // Take the status property out from requests
-  convertTemplate = (template, showAdvancedFeaturesAnyway=false) => {
+  convertTemplate = (template, showAdvancedFeaturesAnyway = false) => {
     let { test_cases, ...remainingTestCaseProps } = template
     let newTestCases = test_cases
-    if(test_cases) {
+    if (test_cases) {
       newTestCases = test_cases.map(testCase => {
         if (testCase.requests) {
           let { requests, ...remainingProps } = testCase
@@ -525,14 +529,14 @@ class OutboundRequest extends React.Component {
 
   handleCreateNewTestCaseClick = (testCaseName) => {
     const fileSelected = this.getSingleFileSelected()
-    if(fileSelected) {
+    if (fileSelected) {
       const fileTemplate = fileSelected.content
       if (!fileTemplate.test_cases) {
         fileTemplate.test_cases = []
       }
       // Find highest request id to determine the new ID
-      let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
-      fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName })
+      let maxId = +fileTemplate.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
+      fileTemplate.test_cases.push({ id: maxId + 1, name: testCaseName })
       this.regenerateTemplate(this.state.additionalData.selectedFiles)
       this.forceUpdate()
       this.autoSave = true
@@ -543,7 +547,7 @@ class OutboundRequest extends React.Component {
 
   download = (content, fileName, contentType) => {
     var a = document.createElement("a");
-    var file = new Blob([content], {type: contentType});
+    var file = new Blob([content], { type: contentType });
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
@@ -551,45 +555,45 @@ class OutboundRequest extends React.Component {
 
   restoreSavedFolderData = () => {
     const storedFolderData = localStorage.getItem('folderData')
-    if(storedFolderData) {
+    if (storedFolderData) {
       try {
         return JSON.parse(storedFolderData)
-      } catch(err) {}
+      } catch (err) { }
     }
     return null
   }
 
   restoreSavedEnvironmentData = () => {
     const storedEnvironmentData = localStorage.getItem('environmentData')
-    if(storedEnvironmentData) {
+    if (storedEnvironmentData) {
       try {
         return JSON.parse(storedEnvironmentData)
-      } catch(err) {}
+      } catch (err) { }
     }
     return null
   }
 
   restoreAdditionalData = () => {
     const additionalData = localStorage.getItem('additionalData')
-    if(additionalData) {
+    if (additionalData) {
       try {
         return JSON.parse(additionalData)
-      } catch(err) {}
+      } catch (err) { }
     }
     return {}
   }
 
   startAutoSaveTimer = () => {
-    this.autoSaveIntervalId = setInterval ( () => {
+    this.autoSaveIntervalId = setInterval(() => {
       if (this.autoSave) {
         this.autoSave = false
         // this.autoSaveTemplate(this.convertTemplate(this.state.template, true))
         this.autoSaveFolderData(this.state.folderData)
-        this.autoSaveEnvironmentData( this.state.template.inputValues )
-        this.autoSaveAdditionalData( this.state.additionalData )
+        this.autoSaveEnvironmentData(this.state.template.inputValues)
+        this.autoSaveAdditionalData(this.state.additionalData)
       }
     },
-    2000)
+      2000)
   }
 
   autoSaveFolderData = (folderData) => {
@@ -623,7 +627,7 @@ class OutboundRequest extends React.Component {
     var testCases = []
     testCases = FolderParser.getTestCases(this.state.folderData, selectedFiles)
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
-    this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
+    this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1 } })
     this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files',
@@ -657,7 +661,7 @@ class OutboundRequest extends React.Component {
 
   handleDownloadReport = async (event, report) => {
     const testReport = report || this.state.testReport
-    switch(event.key) {
+    switch (event.key) {
       case 'json':
         const jsonReportFileName = testReport.name + (testReport.runtimeInformation ? '-' + testReport.runtimeInformation.completedTimeISO : '') + '.json'
         FileDownload(JSON.stringify(testReport, null, 2), jsonReportFileName)
@@ -675,7 +679,7 @@ class OutboundRequest extends React.Component {
           if (disposition && disposition.indexOf('attachment') !== -1) {
             var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
             var matches = filenameRegex.exec(disposition);
-            if (matches != null && matches[1]) { 
+            if (matches != null && matches[1]) {
               downloadFilename = matches[1].replace(/['"]/g, '');
             }
           }
@@ -693,11 +697,11 @@ class OutboundRequest extends React.Component {
 
   handleTestCaseDelete = (testCaseId) => {
     const fileSelected = this.getSingleFileSelected()
-    if(fileSelected) {
+    if (fileSelected) {
       // const fileTemplate = this.state.template
       const fileTemplate = fileSelected.content
       const deleteIndex = fileTemplate.test_cases.findIndex(item => item.id == testCaseId)
-      fileTemplate.test_cases.splice(deleteIndex,1)
+      fileTemplate.test_cases.splice(deleteIndex, 1)
       this.regenerateTemplate(this.state.additionalData.selectedFiles)
       this.forceUpdate()
       this.autoSave = true
@@ -709,18 +713,18 @@ class OutboundRequest extends React.Component {
 
   handleTestCaseDuplicate = (testCaseId) => {
     const fileSelected = this.getSingleFileSelected()
-    if(fileSelected) {
+    if (fileSelected) {
       // const fileTemplate = this.state.template
       const fileTemplate = fileSelected.content
 
       // Find highest request id to determine the new ID
-      let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
+      let maxId = +fileTemplate.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
 
       const { id, name, ...otherProps } = fileTemplate.test_cases.find(item => item.id == testCaseId)
       // Deep copy other properties
       const clonedProps = JSON.parse(JSON.stringify(otherProps))
-  
-      fileTemplate.test_cases.push({ id: maxId+1, name: name + ' Copy', ...clonedProps })
+
+      fileTemplate.test_cases.push({ id: maxId + 1, name: name + ' Copy', ...clonedProps })
 
       this.regenerateTemplate(this.state.additionalData.selectedFiles)
       this.forceUpdate()
@@ -740,12 +744,12 @@ class OutboundRequest extends React.Component {
                 testCase={testCase}
                 onChange={this.handleTestCaseChange}
                 inputValues={this.state.template.inputValues}
-                onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
+                onEdit={() => { this.setState({ showTestCaseIndex: testCaseIndex }) }}
                 onDelete={this.handleTestCaseDelete}
                 onDuplicate={this.handleTestCaseDuplicate}
                 onRename={this.handleTestCaseChange}
                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
-                onSend={() => { this.handleSendSingleTestCase(testCaseIndex) } }
+                onSend={() => { this.handleSendSingleTestCase(testCaseIndex) }}
               />
             </Col>
           </Row>
@@ -782,17 +786,17 @@ class OutboundRequest extends React.Component {
       if (resp.data.body.name) {
         this.state.template.name = resp.data.body.name
       }
-      if (Object.keys(resp.data.body.environment || {}).length !== 0) { 
+      if (Object.keys(resp.data.body.environment || {}).length !== 0) {
         this.state.template.inputValues = resp.data.body.environment
       }
       if (resp.data.body.test_cases) {
         this.state.template.test_cases = resp.data.body.test_cases
       }
       if (resp.data.body.collections && resp.data.body.collections.length > 0) {
-        await this.setState({fileBrowserVisible: true})
+        await this.setState({ fileBrowserVisible: true })
         this.fileManagerRef.current.updateFoldersAndFiles(resp.data.body.collections)
       }
-      
+
       this.forceUpdate()
       this.autoSave = true
     } catch (err) {
@@ -802,7 +806,8 @@ class OutboundRequest extends React.Component {
     message.success({ content: 'Sample Loaded', key: 'loadSampleProgress', duration: 2 });
   }
 
-  loadSampleContent = async () => {this.testCaseEditorRef = React.createRef()
+  loadSampleContent = async () => {
+    this.testCaseEditorRef = React.createRef()
     const { apiBaseUrl } = getConfig()
     if (!this.state.loadSampleCollections) {
       this.state.loadSampleCollections = {}
@@ -815,7 +820,7 @@ class OutboundRequest extends React.Component {
     }
     if (!this.state.loadSampleEnvironments) {
       const resp = await axios.get(apiBaseUrl + `/api/samples/list/environments`)
-      resp.data.body.push({name: 'none'})
+      resp.data.body.push({ name: 'none' })
       if (resp.data.body.length > 0) {
         this.state.loadSampleEnvironments = resp.data.body.map(file => file.name)
       }
@@ -826,7 +831,7 @@ class OutboundRequest extends React.Component {
     const collections = []
     if (this.state.loadSampleCollections && this.state.loadSampleCollections[type]) {
       for (const i in this.state.loadSampleCollections[type]) {
-        collections.push({key: i, collection: this.state.loadSampleCollections[type][i]})
+        collections.push({ key: i, collection: this.state.loadSampleCollections[type][i] })
       }
     }
     return collections
@@ -849,7 +854,7 @@ class OutboundRequest extends React.Component {
     const environments = []
     if (this.state.loadSampleEnvironments) {
       for (const i in this.state.loadSampleEnvironments) {
-        environments.push({key: i, environment: this.state.loadSampleEnvironments[i]})
+        environments.push({ key: i, environment: this.state.loadSampleEnvironments[i] })
       }
     }
     return environments
@@ -861,7 +866,7 @@ class OutboundRequest extends React.Component {
       if (files && files.length > 0) {
         return (
           <Tabs.TabPane tab={type} key={type}>
-            <SampleFilesViewer files={files} prefix={'examples/collections/' + type + '/'} onChange={ (selectedCollections) => {
+            <SampleFilesViewer files={files} prefix={'examples/collections/' + type + '/'} onChange={(selectedCollections) => {
               // this.setState({selectedCollections: selectedRowKeys})
               this.state.loadSampleChecked.collections = selectedCollections
             }} />
@@ -874,7 +879,7 @@ class OutboundRequest extends React.Component {
   }
 
   clearSampleSelectionState = () => {
-    this.setState({selectedCollections: [], selectedEnvironments: [], loadSampleChecked: {}})
+    this.setState({ selectedCollections: [], selectedEnvironments: [], loadSampleChecked: {} })
   }
 
   loadSampleTabContent = () => {
@@ -883,22 +888,26 @@ class OutboundRequest extends React.Component {
         <Tabs.TabPane tab={type} key={type}>
           <Col span={11}>
             <Table
-              rowSelection={{type: 'checkbox', selectedRowKeys: this.state.selectedCollections, onChange: (selectedRowKeys, selectedRows) => {
-                this.setState({selectedCollections: selectedRowKeys})
-                this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => {return selectedRow.collection})
-              }}}
-              columns={[{title: 'Collections', dataIndex: 'collection', render: text => <a>{text}</a>}]}
+              rowSelection={{
+                type: 'checkbox', selectedRowKeys: this.state.selectedCollections, onChange: (selectedRowKeys, selectedRows) => {
+                  this.setState({ selectedCollections: selectedRowKeys })
+                  this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => { return selectedRow.collection })
+                }
+              }}
+              columns={[{ title: 'Collections', dataIndex: 'collection', render: text => <a>{text}</a> }]}
               dataSource={this.loadSampleCollections(type)}
             />
           </Col>
-          <Col span={2}/>
+          <Col span={2} />
           <Col span={11}>
             <Table
-              rowSelection={{type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
-                this.setState({selectedEnvironments: selectedRowKeys})
-                this.state.loadSampleChecked.environment = selectedRows[0].environment
-              }}}
-              columns={[{title: 'Environments', dataIndex: 'environment', render: text => <a>{text}</a>}]}
+              rowSelection={{
+                type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
+                  this.setState({ selectedEnvironments: selectedRowKeys })
+                  this.state.loadSampleChecked.environment = selectedRows[0].environment
+                }
+              }}
+              columns={[{ title: 'Environments', dataIndex: 'environment', render: text => <a>{text}</a> }]}
               dataSource={this.loadSampleEnvironments(type)}
             />
           </Col>
@@ -908,28 +917,28 @@ class OutboundRequest extends React.Component {
   }
 
   handleShowSequenceDiagram = async (testCase) => {
-    await this.setState({sequenceDiagramVisible: true})  
+    await this.setState({ sequenceDiagramVisible: true })
     this.seqDiagContainer.removeAttribute('data-processed')
     let seqSteps = ''
     const rowCount = testCase.requests.length
-    for (let i=0; i<rowCount; i++) {
+    for (let i = 0; i < rowCount; i++) {
       let transactionBegan = false
-      if ( testCase.requests[i].status && testCase.requests[i].status.requestSent ) {
+      if (testCase.requests[i].status && testCase.requests[i].status.requestSent) {
         const stepStr = testCase.requests[i].status.requestSent.method + ' ' + testCase.requests[i].status.requestSent.path
         seqSteps += 'Note over TTK,PEER: ' + testCase.requests[i].status.requestSent.description + '\n'
         seqSteps += 'TTK->>PEER: [HTTP REQ] ' + stepStr + '\n'
-        transactionBegan  = true
+        transactionBegan = true
         seqSteps += 'activate PEER\n'
       }
-      if ( testCase.requests[i].status && testCase.requests[i].status.response ) {
-        const stepStr = testCase.requests[i].status.response.status + ' ' + testCase.requests[i].status.response.statusText + ' ' +testCase.requests[i].status.state
+      if (testCase.requests[i].status && testCase.requests[i].status.response) {
+        const stepStr = testCase.requests[i].status.response.status + ' ' + testCase.requests[i].status.response.statusText + ' ' + testCase.requests[i].status.state
         if (testCase.requests[i].status.state === 'error') {
           seqSteps += 'PEER--xTTK: [HTTP RESP] ' + stepStr + '\n'
         } else {
           seqSteps += 'PEER-->>TTK: [HTTP RESP] ' + stepStr + '\n'
         }
       }
-      if ( testCase.requests[i].status && testCase.requests[i].status.callback ) {
+      if (testCase.requests[i].status && testCase.requests[i].status.callback) {
         const stepStr = testCase.requests[i].status.callback.url
         seqSteps += 'PEER-->>TTK: [ASYNC CALLBACK] ' + stepStr + '\n'
       }
@@ -955,7 +964,7 @@ class OutboundRequest extends React.Component {
     }
   }
 
-  handleFileManagerContentChange = async (folderData, selectedFiles=null) => {
+  handleFileManagerContentChange = async (folderData, selectedFiles = null) => {
     this.state.folderData = folderData
     if (selectedFiles != null) {
       this.state.additionalData.selectedFiles = selectedFiles
@@ -987,19 +996,19 @@ class OutboundRequest extends React.Component {
     return dataSource
   }
 
-  onTestCaseSortEnd = ({oldIndex, newIndex}) => {
+  onTestCaseSortEnd = ({ oldIndex, newIndex }) => {
     // Change the position in array
-    this.state.tempReorderedTestCases = arrayMove(this.state.tempReorderedTestCases, oldIndex, newIndex) 
-    this.setState({curTestCasesUpdated: true})
+    this.state.tempReorderedTestCases = arrayMove(this.state.tempReorderedTestCases, oldIndex, newIndex)
+    this.setState({ curTestCasesUpdated: true })
   }
 
   getSingleFileSelected = () => {
     const selectedFiles = this.state.additionalData.selectedFiles
     let fileSelected = null
-    for(let i=0; i<selectedFiles.length; i++) {
+    for (let i = 0; i < selectedFiles.length; i++) {
       const fileNode = FolderParser.findNodeFromAbsolutePath(selectedFiles[i], this.state.folderData)
       if (fileNode.extraInfo.type === 'file') {
-        if(fileSelected) {
+        if (fileSelected) {
           return null
         } else {
           fileSelected = fileNode
@@ -1013,28 +1022,28 @@ class OutboundRequest extends React.Component {
 
     const createNewTestCaseDialogContent = (
       <>
-      <Input 
-        placeholder="Test case name"
-        type="text"
-        value={this.state.newTestCaseName}
-        onChange={(e) => { this.setState({newTestCaseName: e.target.value })}}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") {
-            this.setState({createNewTestCaseDialogVisible: false})
-          }
-        }}
-        onPressEnter={ () => {
-          this.handleCreateNewTestCaseClick(this.state.newTestCaseName)
-          this.setState({createNewTestCaseDialogVisible: false})
-        }}
-      />
-      <Button
+        <Input
+          placeholder="Test case name"
+          type="text"
+          value={this.state.newTestCaseName}
+          onChange={(e) => { this.setState({ newTestCaseName: e.target.value }) }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              this.setState({ createNewTestCaseDialogVisible: false })
+            }
+          }}
+          onPressEnter={() => {
+            this.handleCreateNewTestCaseClick(this.state.newTestCaseName)
+            this.setState({ createNewTestCaseDialogVisible: false })
+          }}
+        />
+        <Button
           className="text-right mt-2"
           color="success"
           href="#pablo"
-          onClick={ () => {
+          onClick={() => {
             this.handleCreateNewTestCaseClick(this.state.newTestCaseName)
-            this.setState({createNewTestCaseDialogVisible: false})
+            this.setState({ createNewTestCaseDialogVisible: false })
           }}
           size="sm"
         >
@@ -1046,66 +1055,66 @@ class OutboundRequest extends React.Component {
     const getSaveTemplateDialogContent = (templateOption) => {
       return (
         <>
-        <Row>
-          <Col>
-            <Input 
-              placeholder="File name"
-              type="text"
-              value={this.state.saveTemplateFileName}
-              onChange={(e) => { this.setState({saveTemplateFileName: e.target.value })}}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  if(templateOption==1) {
-                    this.setState({saveTemplateTestcasesDialogVisible: false})
-                  } else {
-                    this.setState({saveTemplateEnvironemntDialogVisible: false})
+          <Row>
+            <Col>
+              <Input
+                placeholder="File name"
+                type="text"
+                value={this.state.saveTemplateFileName}
+                onChange={(e) => { this.setState({ saveTemplateFileName: e.target.value }) }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    if (templateOption == 1) {
+                      this.setState({ saveTemplateTestcasesDialogVisible: false })
+                    } else {
+                      this.setState({ saveTemplateEnvironemntDialogVisible: false })
+                    }
                   }
-                }
-              }}
-              onPressEnter={ () => {
-                this.handleTemplateSaveClick(this.state.saveTemplateFileName, templateOption)
-                  if(templateOption==1) {
-                    this.setState({saveTemplateTestcasesDialogVisible: false})
+                }}
+                onPressEnter={() => {
+                  this.handleTemplateSaveClick(this.state.saveTemplateFileName, templateOption)
+                  if (templateOption == 1) {
+                    this.setState({ saveTemplateTestcasesDialogVisible: false })
                   } else {
-                    this.setState({saveTemplateEnvironemntDialogVisible: false})
+                    this.setState({ saveTemplateEnvironemntDialogVisible: false })
                   }
-              }}
-            />
-          </Col>
-        </Row>
+                }}
+              />
+            </Col>
+          </Row>
 
-        <Row>
-          <Col>
-            <Button
+          <Row>
+            <Col>
+              <Button
                 className="text-right mt-2"
                 color="success"
                 href="#pablo"
-                onClick={ () => {
+                onClick={() => {
                   this.handleTemplateSaveClick(this.state.saveTemplateFileName, templateOption)
-                    if(templateOption==1) {
-                    this.setState({saveTemplateTestcasesDialogVisible: false})
+                  if (templateOption == 1) {
+                    this.setState({ saveTemplateTestcasesDialogVisible: false })
                   } else {
-                    this.setState({saveTemplateEnvironemntDialogVisible: false})
+                    this.setState({ saveTemplateEnvironemntDialogVisible: false })
                   }
                 }}
                 size="sm"
               >
                 Create
             </Button>
-          </Col>
-        </Row>
+            </Col>
+          </Row>
         </>
       )
     }
 
-    const SortableRuleItem = SortableElement(({value}) => <Panel header={value.name}></Panel>)
+    const SortableRuleItem = SortableElement(({ value }) => <Panel header={value.name}></Panel>)
 
-    const SortableRuleList = SortableContainer(({items}) => {
+    const SortableRuleList = SortableContainer(({ items }) => {
       return (
         <Collapse>
-        {items.map((value, index) => (
-          <SortableRuleItem key={`item-${value.id}`} index={index} value={value} />
-        ))}
+          {items.map((value, index) => (
+            <SortableRuleItem key={`item-${value.id}`} index={index} value={value} />
+          ))}
         </Collapse>
       )
     })
@@ -1117,12 +1126,12 @@ class OutboundRequest extends React.Component {
           placement="left"
           width={500}
           closable={false}
-          onClose={ () => {
-            this.setState({fileBrowserVisible: false})
+          onClose={() => {
+            this.setState({ fileBrowserVisible: false })
           }}
           visible={this.state.fileBrowserVisible}
         >
-          <FileManager 
+          <FileManager
             folderData={this.state.folderData}
             selectedFiles={this.state.additionalData.selectedFiles}
             onChange={this.handleFileManagerContentChange}
@@ -1137,9 +1146,9 @@ class OutboundRequest extends React.Component {
           forceRender
           title="Template"
           className="w-50 p-3"
-          visible={this.state.showTemplate? true : false}
+          visible={this.state.showTemplate ? true : false}
           footer={null}
-          onCancel={() => { this.setState({showTemplate: false})}}
+          onCancel={() => { this.setState({ showTemplate: false }) }}
         >
           <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
         </Modal>
@@ -1149,9 +1158,9 @@ class OutboundRequest extends React.Component {
           forceRender
           width='90%'
           title="Iteration Runner"
-          visible={this.state.showIterationRunner? true : false}
+          visible={this.state.showIterationRunner ? true : false}
           footer={null}
-          onCancel={() => { this.setState({showIterationRunner: false})}}
+          onCancel={() => { this.setState({ showIterationRunner: false }) }}
         >
           <IterationRunner
             template={this.convertTemplate(this.state.template)}
@@ -1165,9 +1174,9 @@ class OutboundRequest extends React.Component {
           forceRender
           title="Sequence Diagram"
           className="w-50 p-3"
-          visible={this.state.sequenceDiagramVisible? true : false}
+          visible={this.state.sequenceDiagramVisible ? true : false}
           footer={null}
-          onCancel={() => { this.seqDiagContainer.innerHTML = ''; this.setState({sequenceDiagramVisible: false})}}
+          onCancel={() => { this.seqDiagContainer.innerHTML = ''; this.setState({ sequenceDiagramVisible: false }) }}
         >
           <div
             ref={div => {
@@ -1183,49 +1192,49 @@ class OutboundRequest extends React.Component {
           forceRender
           title="Test Case Editor"
           width='90%'
-          visible={this.state.showTestCaseIndex!=null? true : false}
+          visible={this.state.showTestCaseIndex != null ? true : false}
           footer={null}
           keyboard={false}
-          onCancel={() => { this.setState({showTestCaseIndex: null})}}
+          onCancel={() => { this.setState({ showTestCaseIndex: null }) }}
         >
           {
-            this.state.showTestCaseIndex!=null
-            ? (
-              <TestCaseEditor
-                testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
-                inputValues={this.state.template.inputValues}
-                userConfig={this.state.userConfig}
-                logs={this.state.logs}
-                onChange={this.handleTestCaseChange}
-                onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) } }
-                onShowServerLogs={() => { this.handleShowServerLogs() } }
-                ref={this.testCaseEditorRef}
-              />
-            )
-            : null
+            this.state.showTestCaseIndex != null
+              ? (
+                <TestCaseEditor
+                  testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
+                  inputValues={this.state.template.inputValues}
+                  userConfig={this.state.userConfig}
+                  logs={this.state.logs}
+                  onChange={this.handleTestCaseChange}
+                  onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
+                  onShowServerLogs={() => { this.handleShowServerLogs() }}
+                  ref={this.testCaseEditorRef}
+                />
+              )
+              : null
           }
         </Modal>
 
         <Row>
           <Col span={24}>
             <Affix offsetTop={2}>
-            <Row>
-              <Col span={24}>
-                <Card className="mb-4">
+              <Row>
+                <Col span={24}>
+                  <Card className="mb-4">
                     <Row>
                       <Col span={10}>
                         <Button
                           className="mr-2"
                           type="primary"
-                          onClick={ () => {
-                            this.setState({fileBrowserVisible: true})
+                          onClick={() => {
+                            this.setState({ fileBrowserVisible: true })
                           }}
                         >
                           Collections Manager
                         </Button>
                         <Button type="dashed" onClick={async (e) => {
                           await this.loadSampleContent()
-                          this.setState({loadSampleDialogVisible: true})
+                          this.setState({ loadSampleDialogVisible: true })
                         }}>
                           Load Sample
                         </Button>
@@ -1236,28 +1245,30 @@ class OutboundRequest extends React.Component {
                           onOk={async () => {
                             await this.handleLoadSample()
                             this.clearSampleSelectionState()
-                            this.setState({loadSampleDialogVisible: false})
+                            this.setState({ loadSampleDialogVisible: false })
                           }}
                           onCancel={() => {
                             this.clearSampleSelectionState()
-                            this.setState({loadSampleDialogVisible: false})
+                            this.setState({ loadSampleDialogVisible: false })
                           }}
                         >
                           <Collapse defaultActiveKey={['1']}>
                             <Collapse.Panel header="Collections" key="1">
                               <Tabs defaultActiveKey={this.state.loadSampleCollectionTypes[0]} onChange={() => {
-                                this.setState({selectedCollections: []})
+                                this.setState({ selectedCollections: [] })
                               }}>
                                 {this.loadSampleCollectionsTabContent()}
                               </Tabs>
                             </Collapse.Panel>
                             <Collapse.Panel header="Environments" key="2">
                               <Table
-                                rowSelection={{type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
-                                  this.setState({selectedEnvironments: selectedRowKeys})
-                                  this.state.loadSampleChecked.environment = selectedRows[0].environment
-                                }}}
-                                columns={[{dataIndex: 'environment', render: text => <a>{text}</a>}]}
+                                rowSelection={{
+                                  type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
+                                    this.setState({ selectedEnvironments: selectedRowKeys })
+                                    this.state.loadSampleChecked.environment = selectedRows[0].environment
+                                  }
+                                }}
+                                columns={[{ dataIndex: 'environment', render: text => <a>{text}</a> }]}
                                 dataSource={this.loadSampleEnvironments()}
                               />
                             </Collapse.Panel>
@@ -1265,16 +1276,16 @@ class OutboundRequest extends React.Component {
                         </Modal>
                       </Col>
                       <Col span={4} className="text-center">
-                      {
-                        this.state.totalAssertionsCount > 0
-                        ? (
-                          <>
-                          <Progress percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
-                          <Title level={4}>{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</Title>
-                          </>
-                        )
-                        : null
-                      }
+                        {
+                          this.state.totalAssertionsCount > 0
+                            ? (
+                              <>
+                                <Progress percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
+                                <Title level={4}>{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</Title>
+                              </>
+                            )
+                            : null
+                        }
                       </Col>
                       <Col span={10}>
                         <Button
@@ -1283,82 +1294,82 @@ class OutboundRequest extends React.Component {
                           danger
                           onClick={this.handleSendStopClick}
                         >
-                          { this.state.sendingOutboundRequestID ? 'Stop' : 'Send' }
+                          {this.state.sendingOutboundRequestID ? 'Stop' : 'Send'}
                         </Button>
                         <Button
                           className="float-right mr-2"
                           type="dashed"
                           danger
-                          onClick={() => { this.setState({showIterationRunner: true})}}
+                          onClick={() => { this.setState({ showIterationRunner: true }) }}
                         >
                           Iteration Runner
                         </Button>
                         <Button
                           className="float-right mr-2"
                           type="default"
-                          onClick={() => { this.setState({showTemplate: true})}}
+                          onClick={() => { this.setState({ showTemplate: true }) }}
                         >
                           Show Current Template
                         </Button>
                         {
                           getConfig().isAuthEnabled ?
-                          <>
-                            <Button className="float-right" type="primary" danger onClick={ async (e) => {
-                              this.setState({historyReportsLocal: await this.historyReportsLocal()})
-                              this.setState({historyReportsVisible: true})
-                            }}>
-                              Reports History
+                            <>
+                              <Button className="float-right" type="primary" danger onClick={async (e) => {
+                                this.setState({ historyReportsLocal: await this.historyReportsLocal() })
+                                this.setState({ historyReportsVisible: true })
+                              }}>
+                                Reports History
                             </Button>
-                            {
-                              this.state.historyReportsVisible
-                              ?
-                              <Modal
-                                title="Reports History"
-                                visible={this.state.historyReportsVisible}
-                                width='70%'
-                                onOk={() => {
-                                  this.setState({historyReportsVisible: false})
-                                }}
-                                onCancel={() => {
-                                  this.setState({historyReportsVisible: false})
-                                }}
-                              >
-                                <Row>
-                                  <Col>
-                                    <Table
-                                      columns={this.state.historyReportsColumns}
-                                      dataSource={this.historyReportsDataSource()}
-                                    />
-                                  </Col>
-                                </Row>
-                              </Modal>
-                              :
-                              null
-                            }
-                          </>
-                          :
-                          null
+                              {
+                                this.state.historyReportsVisible
+                                  ?
+                                  <Modal
+                                    title="Reports History"
+                                    visible={this.state.historyReportsVisible}
+                                    width='70%'
+                                    onOk={() => {
+                                      this.setState({ historyReportsVisible: false })
+                                    }}
+                                    onCancel={() => {
+                                      this.setState({ historyReportsVisible: false })
+                                    }}
+                                  >
+                                    <Row>
+                                      <Col>
+                                        <Table
+                                          columns={this.state.historyReportsColumns}
+                                          dataSource={this.historyReportsDataSource()}
+                                        />
+                                      </Col>
+                                    </Row>
+                                  </Modal>
+                                  :
+                                  null
+                              }
+                            </>
+                            :
+                            null
                         }
                         {
                           this.state.testReport
-                          ?
-                          <Dropdown overlay={this.downloadReportMenu()}>
-                            <Button
-                              className="float-right mr-2"
-                              type="primary"
-                              danger
-                              onClick={e => e.preventDefault()}
-                            >
-                              Download Report
+                            ?
+                            <Dropdown overlay={this.downloadReportMenu()}>
+                              <Button
+                                className="float-right mr-2"
+                                type="primary"
+                                danger
+                                onClick={e => e.preventDefault()}
+                              >
+                                Download Report
                             </Button>
-                          </Dropdown>
-                          : null
+                            </Dropdown>
+                            : null
                         }
                       </Col>
                     </Row>
                   </Card>
-              </Col>
-            </Row>
+                </Col>
+              </Row>
             </Affix>
             <Row>
               <Col span={24}>
@@ -1366,105 +1377,105 @@ class OutboundRequest extends React.Component {
                   <TabPane tab="Test Cases" key="1">
                     <Row className="mb-2">
                       <Col span={24}>
-                      <Popover
-                        className="float-right"
-                        content={getSaveTemplateDialogContent(1)}
-                        title="Enter filename to save"
-                        trigger="click"
-                        visible={this.state.saveTemplateTestcasesDialogVisible}
-                        onVisibleChange={ (visible) => this.setState({saveTemplateTestcasesDialogVisible: visible})}
-                      >
-                        <Button
+                        <Popover
+                          className="float-right"
+                          content={getSaveTemplateDialogContent(1)}
+                          title="Enter filename to save"
+                          trigger="click"
+                          visible={this.state.saveTemplateTestcasesDialogVisible}
+                          onVisibleChange={(visible) => this.setState({ saveTemplateTestcasesDialogVisible: visible })}
+                        >
+                          <Button
                             className="float-right"
                             type="default"
                           >
                             Export Loaded Testcases
                         </Button>
-                      </Popover>
-                      <Popover
-                        content={createNewTestCaseDialogContent}
-                        className="mr-2"
-                        title="Enter a name for the template"
-                        trigger="click"
-                        visible={this.state.createNewTestCaseDialogVisible}
-                        onVisibleChange={ (visible) => this.setState({createNewTestCaseDialogVisible: visible})}
-                      >
-                        <Button
+                        </Popover>
+                        <Popover
+                          content={createNewTestCaseDialogContent}
+                          className="mr-2"
+                          title="Enter a name for the template"
+                          trigger="click"
+                          visible={this.state.createNewTestCaseDialogVisible}
+                          onVisibleChange={(visible) => this.setState({ createNewTestCaseDialogVisible: visible })}
+                        >
+                          <Button
                             type="primary"
                           >
                             Add Test Case
                         </Button>
-                      </Popover>
-                      {
+                        </Popover>
+                        {
                           this.state.testCaseReorderingEnabled
-                          ? (
-                            <>
-                            <Button
-                              className="text-right"
-                              type="dashed"
-                              danger
-                              onClick={async () => {
-                                if (this.state.curTestCasesUpdated) {
-                                  const fileSelected = this.getSingleFileSelected()
-                                  fileSelected.content.test_cases = this.state.tempReorderedTestCases
-                                  this.regenerateTemplate(this.state.additionalData.selectedFiles)
-                                  this.setState({curTestCasesUpdated: false, tempReorderedTestCases: []})
-                                  this.autoSaveFolderData(this.state.folderData)
-                                } else {
-                                  message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 });
-                                }
-                                this.setState({testCaseReorderingEnabled: false})
-                              }}
-                            >
-                              Apply Reordering
+                            ? (
+                              <>
+                                <Button
+                                  className="text-right"
+                                  type="dashed"
+                                  danger
+                                  onClick={async () => {
+                                    if (this.state.curTestCasesUpdated) {
+                                      const fileSelected = this.getSingleFileSelected()
+                                      fileSelected.content.test_cases = this.state.tempReorderedTestCases
+                                      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+                                      this.setState({ curTestCasesUpdated: false, tempReorderedTestCases: [] })
+                                      this.autoSaveFolderData(this.state.folderData)
+                                    } else {
+                                      message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 });
+                                    }
+                                    this.setState({ testCaseReorderingEnabled: false })
+                                  }}
+                                >
+                                  Apply Reordering
                             </Button>
-                            <Button
-                              className="text-right ml-2"
-                              type="dashed"
-                              onClick={async () => {
-                                this.setState({curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: []})
-                              }}
-                            >
-                              Cancel Reordering
+                                <Button
+                                  className="text-right ml-2"
+                                  type="dashed"
+                                  onClick={async () => {
+                                    this.setState({ curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: [] })
+                                  }}
+                                >
+                                  Cancel Reordering
                             </Button>
-                            </>
-                          )
-                          : (
-                            this.state.additionalData && this.state.additionalData.selectedFiles
-                            ?
-                            <Button
-                              className="text-right"
-                              type="default"
-                              onClick={ () => {
-                                const fileSelected = this.getSingleFileSelected()
-                                if(fileSelected) {
-                                  this.setState({tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true})
-                                } else {
-                                  message.error('ERROR: Only one file should be selected to reorder the testcases')
-                                }
-                              }}
-                            >
-                              Reorder Test Cases
+                              </>
+                            )
+                            : (
+                              this.state.additionalData && this.state.additionalData.selectedFiles
+                                ?
+                                <Button
+                                  className="text-right"
+                                  type="default"
+                                  onClick={() => {
+                                    const fileSelected = this.getSingleFileSelected()
+                                    if (fileSelected) {
+                                      this.setState({ tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true })
+                                    } else {
+                                      message.error('ERROR: Only one file should be selected to reorder the testcases')
+                                    }
+                                  }}
+                                >
+                                  Reorder Test Cases
                             </Button>
-                            :
-                            null
-                          )
+                                :
+                                null
+                            )
                         }
                       </Col>
                     </Row>
                     {
                       this.state.testCaseReorderingEnabled
-                      ? (
-                        <SortableRuleList items={this.state.tempReorderedTestCases} onSortEnd={this.onTestCaseSortEnd} />
-                      )
-                      : (
-                        <>
-                        { this.getTestCaseItems() }
-                        </>
-                      )
+                        ? (
+                          <SortableRuleList items={this.state.tempReorderedTestCases} onSortEnd={this.onTestCaseSortEnd} />
+                        )
+                        : (
+                          <>
+                            {this.getTestCaseItems()}
+                          </>
+                        )
                     }
                   </TabPane>
-                  <TabPane key="2" tab={this.state.template.inputValues && Object.keys(this.state.template.inputValues).length ? 'Input Values' : (<Badge offset={[20,0]} count={<WarningTwoTone twoToneColor="#f5222d" />}>Input Values</Badge>)}>
+                  <TabPane key="2" tab={this.state.template.inputValues && Object.keys(this.state.template.inputValues).length ? 'Input Values' : (<Badge offset={[20, 0]} count={<WarningTwoTone twoToneColor="#f5222d" />}>Input Values</Badge>)}>
                     <Row>
                       <Col span={24}>
                         <Popover
@@ -1473,19 +1484,19 @@ class OutboundRequest extends React.Component {
                           title="Enter filename to save"
                           trigger="click"
                           visible={this.state.saveTemplateEnvironementDialogVisible}
-                          onVisibleChange={ (visible) => this.setState({saveTemplateEnvironementDialogVisible: visible})}
+                          onVisibleChange={(visible) => this.setState({ saveTemplateEnvironementDialogVisible: visible })}
                         >
                           <Button
-                              className="text-right float-right"
-                              type="default"
-                            >
-                              Export Current Environment
+                            className="text-right float-right"
+                            type="default"
+                          >
+                            Export Current Environment
                           </Button>
                         </Popover>
                         <Button
                           type="primary"
-                          className='float-right mr-2' 
-                          onClick={ e => {
+                          className='float-right mr-2'
+                          onClick={e => {
                             e.preventDefault();
                             this.environmentFileSelector.click();
                           }}

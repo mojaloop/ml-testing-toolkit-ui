@@ -55,6 +55,8 @@ class ServerLogsViewer extends React.Component {
     ]
     const dataSource = this.state.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
 
+    console.log(dataSource)
+
     return <Table dataSource={dataSource} columns={columns} />
   }
 }
