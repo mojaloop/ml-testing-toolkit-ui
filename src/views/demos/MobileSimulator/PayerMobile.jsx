@@ -24,7 +24,6 @@
 import React from "react";
 import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound'
 const { Text } = Typography
 
 class PayerMobile extends React.Component {
@@ -41,7 +40,6 @@ class PayerMobile extends React.Component {
 
   constructor () {
     super()
-    this.outboundServiceObj = new OutboundService()
   }
 
   componentDidMount = async () => {
@@ -235,18 +233,18 @@ class PayerMobile extends React.Component {
 
   handleSearch = async (idNumber) => {
     this.setState({gettingPartyInfo: true, stage: 'getParties'})
-    const resp = await this.outboundServiceObj.getParties(idNumber)
+    const resp = await this.props.outboundService.getParties(idNumber)
   }
 
   handleGetQuote = async (e) => {
     this.setState({stage: 'postQuotes'})
-    const resp = await this.outboundServiceObj.postQuotes(this.state.amount)
+    const resp = await this.props.outboundService.postQuotes(this.state.amount)
   }
 
   handleSend = async (e) => {
     this.setState({stage: 'postTransfers'})
     if (this.state.quotesRequest && this.state.quotesResponse) {
-      const resp = await this.outboundServiceObj.postTransfers(this.state.amount, this.state.quotesRequest.transactionId, this.state.quotesResponse.expiration, this.state.quotesResponse.ilpPacket, this.state.quotesResponse.condition)
+      const resp = await this.props.outboundService.postTransfers(this.state.amount, this.state.quotesRequest.transactionId, this.state.quotesResponse.expiration, this.state.quotesResponse.ilpPacket, this.state.quotesResponse.condition)
     } 
   }
   

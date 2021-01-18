@@ -33,6 +33,7 @@ import PayeeMobile from "./PayeeMobile.jsx";
 import TestDiagram from "./TestDiagram.jsx";
 import TestMonitor from "./TestMonitor.jsx";
 import NotificationService from '../../../services/demos/MobileSimulator/mojaloopNotifications'
+import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound'
 
 const {Text} = Typography
 
@@ -53,6 +54,8 @@ class MobileSimulator extends React.Component {
     this.payerMonitorRef = React.createRef();
     this.payeeMonitorRef = React.createRef();
     this.notificationServiceObj = new NotificationService()
+    const sessionId = this.notificationServiceObj.getSessionId()
+    this.outboundServiceObj = new OutboundService(sessionId)
   }
   
   componentDidMount = async () => {
@@ -326,6 +329,7 @@ class MobileSimulator extends React.Component {
                     <Col span={24}>
                       <PayerMobile
                         ref={this.payerMobileRef}
+                        outboundService={this.outboundServiceObj}
                       />
                     </Col>
                   </Row>
