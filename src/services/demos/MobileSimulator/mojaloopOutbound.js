@@ -23,16 +23,29 @@
  ******/
 import axios from 'axios'
 import getConfig from '../../../utils/getConfig'
+import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 class OutboundService {
 
   apiBaseUrl = ''
   inputValues = {}
+  sessionId = '123'
 
-  constructor () {
+  constructor (sessionId = '123') {
     const { apiBaseUrl } = getConfig()
     this.apiBaseUrl = apiBaseUrl
+    this.sessionId = sessionId
     this.reloadEnvironment()
+  }
+
+  getSessionId () {
+    return this.sessionId
+  }
+
+  getTraceId () {
+    const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix()
+    const currentEndToEndId = TraceHeaderUtils.generateEndToEndId()
+    return traceIdPrefix + this.sessionId + currentEndToEndId
   }
   
   async reloadEnvironment () {
@@ -44,7 +57,7 @@ class OutboundService {
   }
 
   async getParties (idNumber) {
-    const traceId = '123'
+    const traceId = this.getTraceId()
     const template = require('./template_getParties.json')
     template.inputValues = this.inputValues
     // Replace corresponding values in inputValues
@@ -57,7 +70,7 @@ class OutboundService {
     return resp
   }
   async postQuotes (amount) {
-    const traceId = '123'
+    const traceId = this.getTraceId()
     const template = require('./template_postQuotes.json')
     template.inputValues = this.inputValues
     // Replace corresponding values in inputValues
@@ -70,7 +83,7 @@ class OutboundService {
     return resp
   }
   async postTransfers (amount, transactionId, expiration, ilpPacket, condition) {
-    const traceId = '123'
+    const traceId = this.getTraceId()
     const template = require('./template_postTransfers.json')
     template.inputValues = this.inputValues
     // Replace corresponding values in inputValues

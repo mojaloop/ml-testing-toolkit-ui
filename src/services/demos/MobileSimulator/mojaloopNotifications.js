@@ -24,6 +24,7 @@
 
 import socketIOClient from "socket.io-client";
 import getConfig from '../../../utils/getConfig'
+import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 class NotificationService {
   logTypes = {
@@ -43,17 +44,23 @@ class NotificationService {
   }
 
   apiBaseUrl = ''
+  sessionId = '123'
 
   constructor () {
     const { apiBaseUrl } = getConfig()
     this.apiBaseUrl = apiBaseUrl
+    this.sessionId = TraceHeaderUtils.generateSessionId()
     for (const logType of Object.keys(this.logTypes)) {
       const item = this.logTypes[logType]
       item.socket = socketIOClient(this.apiBaseUrl)
-      item.socket.on(item.socketTopic, log => {
+      item.socket.on(item.socketTopic + '/' + this.sessionId, log => {
         this.handleNotificationLog(log)
       });
     }
+  }
+
+  getSessionId () {
+    return this.sessionId
   }
 
   disconnect () {
