@@ -2,15 +2,15 @@
   "decisions": {
     "1589|electron>@electron/get>global-tunnel-ng>npm-conf>config-chain>ini": {
       "decision": "postpone",
-      "madeAt": 1610614885068
+      "madeAt": 1610972576361
     },
     "1589|react-scripts>react-dev-utils>global-modules>global-prefix>ini": {
       "decision": "postpone",
-      "madeAt": 1610614885068
+      "madeAt": 1610972576361
     },
     "1594|axios": {
       "decision": "postpone",
-      "madeAt": 1610614885678
+      "madeAt": 1610972577232
     }
   },
   "rules": {},

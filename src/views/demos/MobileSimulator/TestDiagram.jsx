@@ -67,6 +67,10 @@ class TestDiagram extends React.Component {
     this.state.seqSteps += `Note over ${source},${destination}: ${message}\n`
     this.refreshSequenceDiagram()
   }
+  addCustomSequence = async (seqText) => {
+    this.state.seqSteps += seqText + '\n'
+    this.refreshSequenceDiagram()
+  }
 
   refreshSequenceDiagram = async () => {
     this.seqDiagContainer.removeAttribute('data-processed')
