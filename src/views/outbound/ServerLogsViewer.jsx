@@ -28,7 +28,8 @@ class ServerLogsViewer extends React.Component {
   constructor() {
     super()
     this.state = {
-      logs: []
+      logs: [],
+      visible: false,
     }
   }
 
@@ -36,16 +37,22 @@ class ServerLogsViewer extends React.Component {
 
   setLogs = (logs) => this.setState({ logs })
 
+  setVisibility = (visible) => {
+    this.setState({ visible })
+  }
+
   marshalLogItem = (log, index) => ({
     service: log.metadata.trace.service,
     timestamp: log.metadata.trace.startTimestamp,
     fspiop_source: log.content.headers['FSPIOP-Source'],
     fspiop_destination: log.content.headers['FSPIOP-Destination'],
     status: log.metadata.event.state.status,
+    fullLog: log,
     key: index
   })
 
   render() {
+    if ((!this.props.isVisible && !this.state.visible) || !this.state.logs) return null;
     const columns = [
       { title: "Service", dataIndex: 'service', key: 'servcie' },
       { title: "Timestamp", dataIndex: 'timestamp', key: 'timestamp' },
@@ -55,9 +62,15 @@ class ServerLogsViewer extends React.Component {
     ]
     const dataSource = this.state.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
 
-    console.log(dataSource)
-
-    return <Table dataSource={dataSource} columns={columns} />
+    return <Table
+      dataSource={dataSource}
+      columns={columns}
+      pagination={false}
+      scroll={{ y: 480 }}
+      expandable={{
+        expandedRowRender: log => <pre>{JSON.stringify(log.fullLog, null, 2)}</pre>
+      }}
+    />
   }
 }
 

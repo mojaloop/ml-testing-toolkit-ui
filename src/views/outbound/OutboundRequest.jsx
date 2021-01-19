@@ -298,7 +298,7 @@ class OutboundRequest extends React.Component {
       testCaseRequestsReorderingEnabled: false,
       curTestCasesRequestsUpdated: false,
       tempReorderedTestCases: [],
-      logs: []
+      serverLogsVisible: false
     };
   }
 
@@ -489,7 +489,12 @@ class OutboundRequest extends React.Component {
     this.handleSendTemplate(testCaseToSend)
   }
 
-  handleShowServerLogs = async () => {
+  toggleServerLogs = async () => {
+    this.setState({ serverLogsVisible: !this.state.serverLogsVisible })
+    if (!this.state.serverLogsVisible) {
+      this.testCaseEditorRef.current.setServerLogsVisibility(false)
+      return;
+    }
     if (!this.state.lastOutgoingRequestID) return;
     const res = await axios.get(`${getConfig().apiBaseUrl}/api/logs/search?traceId=${this.state.lastOutgoingRequestID}`)
     let logs = []
@@ -498,8 +503,8 @@ class OutboundRequest extends React.Component {
         logs = res.data
       }
     }
-    this.setState({ logs })
-    this.testCaseEditorRef.current.setLogs(this.state.logs)
+    this.testCaseEditorRef.current.setLogs(logs)
+    this.testCaseEditorRef.current.setServerLogsVisibility(true)
   }
 
   // Take the status property out from requests
@@ -750,6 +755,7 @@ class OutboundRequest extends React.Component {
                 onRename={this.handleTestCaseChange}
                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex) }}
+                
               />
             </Col>
           </Row>
@@ -1207,7 +1213,7 @@ class OutboundRequest extends React.Component {
                   logs={this.state.logs}
                   onChange={this.handleTestCaseChange}
                   onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
-                  onShowServerLogs={() => { this.handleShowServerLogs() }}
+                  onShowServerLogs={() => { this.toggleServerLogs() }}
                   ref={this.testCaseEditorRef}
                 />
               )
