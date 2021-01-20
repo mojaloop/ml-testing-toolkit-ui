@@ -35,6 +35,10 @@ class NotificationService {
     inbound: {
       socket: null,
       socketTopic: "newLog"
+    },
+    outboundProgress: {
+      socket: null,
+      socketTopic: "outboundProgress"
     }
   }
   notificationEventFunction = () => {}
@@ -54,7 +58,7 @@ class NotificationService {
       const item = this.logTypes[logType]
       item.socket = socketIOClient(this.apiBaseUrl)
       item.socket.on(item.socketTopic + '/' + this.sessionId, log => {
-        this.handleNotificationLog(log)
+        this.handleNotificationLog( {...log, internalLogType: logType})
       });
     }
   }
@@ -91,8 +95,54 @@ class NotificationService {
     })
   }
 
+  notifySettingsTestCaseProgress = (progress) => {
+    const template = require('./template_provisioning.json')
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'settingsLog',
+        type: 'testCaseFinished',
+        data: {
+          progress: progress
+        }
+      })
+      // progress.totalResult
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'settingsLog',
+        type: 'testCaseTerminated',
+        data: {
+          progress: progress
+        }
+      })
+    } else {
+      let testCase = template.test_cases.find(item => item.id === progress.testCaseId)
+      if (testCase) {
+        // let request = testCase.requests.find(item => item.id === progress.requestId)
+        // Update total passed count
+        // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+        // this.state.totalPassedCount += passedCount
+        this.notificationEventFunction({
+          category: 'settingsLog',
+          type: 'testCaseProgress',
+          data: {
+            testCaseName: testCase.name,
+            testCaseRequestCount: testCase.requests.length,
+            progress: progress
+          }
+        })
+      }
+    }
+
+  }
+
   handleNotificationLog = (log) => {
     // console.log(log)
+
+    // Handle the outbound progress events
+    if ( log.internalLogType === 'outboundProgress' ) {
+      this.notifySettingsTestCaseProgress(log)
+      return null
+    }
 
     // Payer Logs
     // Catch get Parties request

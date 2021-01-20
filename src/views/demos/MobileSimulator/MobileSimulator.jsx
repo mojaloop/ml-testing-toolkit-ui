@@ -22,9 +22,9 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col, Drawer, Button, Typography } from 'antd';
-import { CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
-
+import { Row, Col, Drawer, Button, Typography, Modal } from 'antd';
+import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
+import 'antd/dist/antd.css'
 import mobile_left from '../../../assets/img/mobile_pink_iphone.png';
 import mobile_right from '../../../assets/img/mobile_green_iphone.png';
 
@@ -32,6 +32,7 @@ import PayerMobile from "./PayerMobile.jsx";
 import PayeeMobile from "./PayeeMobile.jsx";
 import TestDiagram from "./TestDiagram.jsx";
 import TestMonitor from "./TestMonitor.jsx";
+import Settings from "./Settings.jsx";
 import NotificationService from '../../../services/demos/MobileSimulator/mojaloopNotifications'
 import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound'
 
@@ -43,7 +44,8 @@ class MobileSimulator extends React.Component {
     hubName: 'Mojaloop Switch',
     payeeName: 'Green Bank',
     payerLogsDrawerVisible: false,
-    payeeLogsDrawerVisible: false
+    payeeLogsDrawerVisible: false,
+    showSettings: false
   }
 
   constructor () {
@@ -53,6 +55,7 @@ class MobileSimulator extends React.Component {
     this.testDiagramRef = React.createRef();
     this.payerMonitorRef = React.createRef();
     this.payeeMonitorRef = React.createRef();
+    this.settingsRef = React.createRef();
     this.notificationServiceObj = new NotificationService()
     const sessionId = this.notificationServiceObj.getSessionId()
     this.outboundServiceObj = new OutboundService(sessionId)
@@ -77,6 +80,8 @@ class MobileSimulator extends React.Component {
       this.payerMonitorRef.current && this.payerMonitorRef.current.appendLog(event.data.log)
     } else if (event.category === 'payeeMonitorLog') {
       this.payeeMonitorRef.current && this.payeeMonitorRef.current.appendLog(event.data.log)
+    } else if (event.category === 'settingsLog') {
+      this.settingsRef.current && this.settingsRef.current.handleNotificationEvents(event)
     }
   }
 
@@ -302,6 +307,21 @@ class MobileSimulator extends React.Component {
       >
         <TestMonitor ref={this.payeeMonitorRef} />
       </Drawer>
+      <Modal
+          style={{ top: 20 }}
+          destroyOnClose
+          forceRender
+          // width='50%'
+          title="Settings"
+          visible={this.state.showSettings? true : false}
+          footer={null}
+          onCancel={() => { this.setState({showSettings: false})}}
+        >
+          <Settings
+            ref={this.settingsRef}
+            outboundService={this.outboundServiceObj}
+          />
+      </Modal>
       <Row className="h-100">
         <Col span={24}>
           <Row className='h-100'>
@@ -338,7 +358,17 @@ class MobileSimulator extends React.Component {
                 </Col>
               </Row>
             </Col>
-            <Col span={16}>
+            <Col span={16} className='text-center'>
+              <Button
+                className='mt-2 mb-2'
+                type="primary"
+                danger
+                shape="circle"
+                size='large'
+                onClick={() => { this.setState({showSettings: true})}}
+              >
+                <SettingOutlined style={ {fontSize: '18px'} } />
+              </Button>
               <div
                 style={{
                   height: '90vh',
