@@ -310,8 +310,6 @@ class MobileSimulator extends React.Component {
       <Modal
           style={{ top: 20 }}
           destroyOnClose
-          forceRender
-          // width='50%'
           title="Settings"
           visible={this.state.showSettings? true : false}
           footer={null}
@@ -361,13 +359,13 @@ class MobileSimulator extends React.Component {
             <Col span={16} className='text-center'>
               <Button
                 className='mt-2 mb-2'
-                type="primary"
+                style={ {width: '50px', height: '50px'} }
                 danger
                 shape="circle"
                 size='large'
                 onClick={() => { this.setState({showSettings: true})}}
               >
-                <SettingOutlined style={ {fontSize: '18px'} } />
+                <SettingOutlined style={ {fontSize: '24px'} } />
               </Button>
               <div
                 style={{

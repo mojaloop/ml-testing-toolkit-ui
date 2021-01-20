@@ -22,8 +22,7 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col, Typography, Button, Table, Tag } from 'antd';
-// import { SearchOutlined } from '@ant-design/icons';
+import { Row, Col, Typography, Button, Table, Tag, Progress } from 'antd';
 const { Text } = Typography
 
 class Settings extends React.Component {
@@ -77,26 +76,9 @@ class Settings extends React.Component {
     }
   }
 
-  getProgressStepData = () => {
-    return Object.entries(this.state.progressSteps).map(step => {
-      return (
-        <Row>
-          <Col span={24}>
-            <Text>{step[0] + ' ' + step[1].passedCount + ' ' + step[1].totalCount}</Text>
-          </Col>
-        </Row>
-      )
-    })
-  }
-
   handleStartProvisioning = async (idNumber) => {
     this.setState({provisioningInProgress: true, provisioningStatus: '', progressSteps: {}})
     const resp = await this.props.outboundService.startProvisioning()
-  }
-  
-  handleCancel = (e) => {
-    this.setState({stage: null})
-    // this.props.resetEverything()  
   }
 
   render() {
@@ -117,7 +99,7 @@ class Settings extends React.Component {
         stepName: step[0],
         passCount: (
           <>
-          <Text>{step[1].passedCount + '/' + step[1].totalCount + ' (' + Math.round(step[1].passedCount*100/step[1].totalCount) + '%)'}</Text>
+          <Progress percent={Math.round(step[1].passedCount*100/step[1].totalCount)} width={50} />
           { step[1].passedCount===step[1].totalCount? (<Tag className='ml-2' color="success">DONE</Tag>) : null }
           </>)
       }
