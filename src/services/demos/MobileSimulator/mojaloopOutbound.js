@@ -99,6 +99,17 @@ class OutboundService {
     // return null
     return resp
   }
+  async startProvisioning () {
+    const traceId = this.getTraceId()
+    const template = require('./template_provisioning.json')
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
+    // if(typeof response.data === 'object') {
+    //   return response.data
+    // }
+    // return null
+    return resp
+  }
 
 }
 
