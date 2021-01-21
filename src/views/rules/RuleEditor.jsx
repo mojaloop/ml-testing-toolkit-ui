@@ -282,7 +282,8 @@ class RulesEditor extends React.Component {
       responseMap: {},
       showConfigurableParameterDialog: false,
       configurableParameterSelected: '',
-      environment: {}
+      environment: {},
+      reloadEnvironmentLoading: false
     };
   }
 
@@ -356,6 +357,14 @@ class RulesEditor extends React.Component {
     } catch (err) {}
 
     this.setState({description, conditions, pathMethodConditions, event, selectedResource, apiVersions, selectedApiVersion, scripts, environment })
+  }
+
+  handleReloadEnvironment = async () => {
+    try {
+      this.setState({ reloadEnvironmentLoading: true })
+      const environment = await this.getEnvironment()
+      this.setState({ environment, reloadEnvironmentLoading: false })
+    } catch (err) {}
   }
 
   fetchAllApiData = async (apiType, version) => {
@@ -753,7 +762,10 @@ class RulesEditor extends React.Component {
                       {this.getEnvironmentStateDescriptions()}
                     </Descriptions>
                     <br/>
-                    <Button color="danger" size="sm" onClick={() => {
+                    <Button type="default" loading={this.state.reloadEnvironmentLoading} className="mr-2" size="sm" onClick={this.handleReloadEnvironment}>
+                      Reload environment
+                    </Button>
+                    <Button type="primary" danger size="sm" onClick={() => {
                       this.clearEnvironment()
                       this.handleConditionsChange()
                     }}>Clear environment</Button>
