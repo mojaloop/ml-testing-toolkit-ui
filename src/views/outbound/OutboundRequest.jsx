@@ -674,32 +674,28 @@ class OutboundRequest extends React.Component {
     this.forceUpdate()
   }
 
-  handleTestCaseDelete = (testCaseId) => {
+  handleTestCaseDelete = (testCaseIndex) => {
     const fileSelected = this.getSingleFileSelected()
     if(fileSelected) {
-      // const fileTemplate = this.state.template
       const fileTemplate = fileSelected.content
-      const deleteIndex = fileTemplate.test_cases.findIndex(item => item.id == testCaseId)
-      fileTemplate.test_cases.splice(deleteIndex,1)
+      fileTemplate.test_cases.splice(testCaseIndex,1)
       this.regenerateTemplate(this.state.additionalData.selectedFiles)
       this.forceUpdate()
       this.autoSave = true
-      // this.handleTestCaseChange()
     } else {
       message.error('ERROR: no file selected or multiple files are selected');
     }
   }
 
-  handleTestCaseDuplicate = (testCaseId) => {
+  handleTestCaseDuplicate = (testCaseIndex) => {
     const fileSelected = this.getSingleFileSelected()
     if(fileSelected) {
-      // const fileTemplate = this.state.template
       const fileTemplate = fileSelected.content
 
       // Find highest request id to determine the new ID
       let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
 
-      const { id, name, ...otherProps } = fileTemplate.test_cases.find(item => item.id == testCaseId)
+      const { id, name, ...otherProps } = fileTemplate.test_cases[testCaseIndex]
       // Deep copy other properties
       const clonedProps = JSON.parse(JSON.stringify(otherProps))
   
@@ -724,8 +720,8 @@ class OutboundRequest extends React.Component {
                 onChange={this.handleTestCaseChange}
                 inputValues={this.state.template.inputValues}
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
-                onDelete={this.handleTestCaseDelete}
-                onDuplicate={this.handleTestCaseDuplicate}
+                onDelete={() => { this.handleTestCaseDelete(testCaseIndex) } }
+                onDuplicate={() => { this.handleTestCaseDuplicate(testCaseIndex) } }
                 onRename={this.handleTestCaseChange}
                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex) } }
