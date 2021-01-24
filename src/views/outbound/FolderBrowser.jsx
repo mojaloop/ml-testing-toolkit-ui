@@ -168,6 +168,21 @@ class FolderBrowser extends React.Component {
         newDropPos[newDropPos.length - 1] = dropIndex + ''
         this.setState({confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to move this file?', key: 'moveFile', extraData: { levelPrefix: levelInfo.levelPrefix, dragPos: dragPos.slice(1), dropPos: newDropPos.slice(1) }}})
       }
+    } else {
+      // If drop on a folder
+      if (!info.node.isLeaf) {
+        const dropKey = info.node.props.eventKey;
+        const dragKey = info.dragNode.props.eventKey;
+        const dropPos = info.node.props.pos.split('-');
+        dropPos.push(0)
+        const dragPos = info.dragNode.props.pos.split('-');
+        const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1]))/2);
+        const levelInfo = this.getLevelInfo(dropPos)
+        // Some tweak to set the dropPos correctly
+        const newDropPos = [...dropPos]
+        newDropPos[newDropPos.length - 1] = dropIndex + ''
+        this.setState({confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to move this file?', key: 'moveFile', extraData: { levelPrefix: levelInfo.levelPrefix, dragPos: dragPos.slice(1), dropPos: newDropPos.slice(1) }}})
+      }
     }
   }
 

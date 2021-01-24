@@ -323,6 +323,10 @@ class FileManager extends React.Component {
     this.resetKeysRecursively(nodeItemCopy, levelPrefix)
     // Delete the node
     this.deleteNodeAtPosition(this.props.folderData, dragPos)
+    // Modify drop position if deleted node is before the drag node
+    if (dragPos[dragPos.length - 1] < dropPos[dragPos.length - 1]) {
+      dropPos[dragPos.length - 1]--
+    }
     // Add the node at the drop position
     this.addNodeAtPosition(this.props.folderData, dropPos, nodeItemCopy)
     const newFolderData = [...this.props.folderData]
