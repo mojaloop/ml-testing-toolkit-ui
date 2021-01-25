@@ -299,7 +299,8 @@ class OutboundRequest extends React.Component {
       curTestCasesRequestsUpdated: false,
       tempReorderedTestCases: [],
       serverLogsVisible: true,
-      logs: []
+      logs: [],
+      testCaseEditorLogs: []
     };
   }
 
@@ -452,6 +453,8 @@ class OutboundRequest extends React.Component {
 
     this.state.sendingOutboundRequestID = traceId
     this.state.lastOutgoingRequestID = traceId
+    this.state.logs = []
+    this.state.testCaseEditorLogs = []
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
     // Set the status to waiting for all the requests
@@ -490,20 +493,21 @@ class OutboundRequest extends React.Component {
     this.handleSendTemplate(testCaseToSend)
   }
 
-  toggleServerLogs = async () => {
-    if (this.state.logs.length) {
-      this.setState({ logs: [] })
+  toggleServerLogs = async (componentName=null) => {
+    let logs = componentName === 'TestCaseEditor' ? this.state.testCaseEditorLogs : this.state.logs
+    if (logs.length) {
+      componentName === 'TestCaseEditor' ? this.setState({ testCaseEditorLogs: [] }) : this.setState({ logs: [] })
       return;
     }
     if (!this.state.lastOutgoingRequestID) return;
     const res = await axios.get(`${getConfig().apiBaseUrl}/api/logs/search?traceId=${this.state.lastOutgoingRequestID}`)
-    let logs = []
+    logs = []
     if (res.status == 200) {
       if (Array.isArray(res.data)) {
         logs = res.data
       }
     }
-    this.setState({ logs })
+    componentName === 'TestCaseEditor' ? this.setState({ testCaseEditorLogs: logs }) : this.setState({ logs })
   }
 
   // Take the status property out from requests
@@ -1208,10 +1212,10 @@ class OutboundRequest extends React.Component {
                   testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
                   inputValues={this.state.template.inputValues}
                   userConfig={this.state.userConfig}
-                  logs={this.state.logs}
+                  logs={this.state.testCaseEditorLogs}
                   onChange={this.handleTestCaseChange}
                   onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
-                  onShowServerLogs={() => { this.toggleServerLogs() }}
+                  onShowServerLogs={() => { this.toggleServerLogs("TestCaseEditor") }}
                   traceId={this.state.lastOutgoingRequestID}
                 />
               )
@@ -1323,7 +1327,7 @@ class OutboundRequest extends React.Component {
                         </Button>
                         <Button
                           className="float-right mr-2"
-                          type="default"
+                          type="dashed"
                           onClick={() => { this.setState({ showTemplate: true }) }}
                         >
                           Show Current Template
