@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from "react";
-import { Table } from "antd";
+import { Table, Tag } from "antd";
 
 class ServerLogsViewer extends React.Component {
   constructor() {
@@ -44,8 +44,8 @@ class ServerLogsViewer extends React.Component {
   marshalLogItem = (log, index) => ({
     service: log.metadata.trace.service,
     timestamp: log.metadata.trace.startTimestamp,
-    fspiop_source: log.content.headers['FSPIOP-Source'],
-    fspiop_destination: log.content.headers['FSPIOP-Destination'],
+    fspiop_source: log.metadata.trace.tags.source,
+    fspiop_destination: log.metadata.trace.tags.destination,
     status: log.metadata.event.state.status,
     fullLog: log,
     key: index
@@ -56,9 +56,14 @@ class ServerLogsViewer extends React.Component {
     const columns = [
       { title: "Service", dataIndex: 'service', key: 'servcie' },
       { title: "Timestamp", dataIndex: 'timestamp', key: 'timestamp' },
-      { title: "FSPIOP Source", dataIndex: 'fspiop_source', key: 'fspiop_source' },
-      { title: "FSPIOP Destination", dataIndex: 'fspiop_destination', key: 'fspiop_destination' },
-      { title: "Status", dataIndex: 'status', key: 'status' },
+      { title: "Source", dataIndex: 'fspiop_source', key: 'fspiop_source' },
+      { title: "Destination", dataIndex: 'fspiop_destination', key: 'fspiop_destination' },
+      { 
+        title: "Status", 
+        dataIndex: 'status', 
+        key: 'status', 
+        render: text => text === 'success' ? <Tag color="green">{text}</Tag> : <Tag color="red">{text}</Tag> 
+      }
     ]
     const dataSource = this.state.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
 
@@ -68,7 +73,7 @@ class ServerLogsViewer extends React.Component {
       pagination={false}
       scroll={{ y: 480 }}
       expandable={{
-        expandedRowRender: log => <pre>{JSON.stringify(log.fullLog, null, 2)}</pre>
+        expandedRowRender: log => <pre><code>{JSON.stringify(log.fullLog, null, 2)}</code></pre>
       }}
     />
   }
