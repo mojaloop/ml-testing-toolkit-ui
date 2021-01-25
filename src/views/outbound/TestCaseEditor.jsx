@@ -485,12 +485,9 @@ class TestCaseEditor extends React.Component {
   constructor() {
     super();
     this.containerRef = React.createRef()
-    this.serverLogsViewerRef = React.createRef()
     this.state = {
       addNewRequestDialogVisible: false,
-      newRequestDescription: '',
-      logs: [],
-      serverLogsVisible: false
+      newRequestDescription: ''
     };
   }
 
@@ -983,18 +980,6 @@ class TestCaseEditor extends React.Component {
     this.forceUpdate()
   }
 
-  setLogs = (logs) => {
-    if (logs && logs.length) {
-      this.serverLogsViewerRef.current.setLogs(logs)
-      this.serverLogsViewerRef.current.setVisibility(true)
-    }
-  }
-
-  setServerLogsVisibility = (visible) => {
-    this.serverLogsViewerRef.current.setVisibility(visible)
-    this.setState({ serverLogsVisible: visible })
-  }
-
   render() {
 
     const addNewRequestDialogContent = (
@@ -1068,15 +1053,19 @@ class TestCaseEditor extends React.Component {
             <Affix target={() => this.containerRef}>
               <Card size="small">
                 <div className="float-right">
-                  <Button
-                    type="default"
-                    className="mx-2"
-                    onClick={() => {
-                      this.props.onShowServerLogs()
-                    }}
-                  >
-                    Server Logs
-              </Button>
+                  {
+                    this.props.traceId
+                    ? <Button
+                        type="default"
+                        className="mx-2"
+                        onClick={() => {
+                          this.props.onShowServerLogs()
+                        }}
+                        >
+                        Server Logs
+                      </Button>  
+                    : null
+                  } 
                   <Button
                     type="primary"
                     danger
@@ -1104,13 +1093,17 @@ class TestCaseEditor extends React.Component {
             </Affix>
           </Col>
         </Row>
-        <Row className={`mt-4 ${this.state.serverLogsVisible ? '': 'hidden'}`}>
-          <Col span={24}>
-            <Card>
-            <ServerLogsViewer logs={this.props.logs} ref={this.serverLogsViewerRef} isVisible={this.state.serverLogsVisible} /> 
-            </Card>
-          </Col>
-        </Row>
+        {
+          this.props.logs.length
+          ? <Row className={`mt-4`}>
+              <Col span={24}>
+                <Card>
+                  <ServerLogsViewer logs={this.props.logs} /> 
+                </Card>
+              </Col>
+            </Row>
+          : null
+        }
         <Row>
           <Col span={24}>
             {getHorizontalGroups()}

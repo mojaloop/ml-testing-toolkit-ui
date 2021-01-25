@@ -37,6 +37,7 @@ import IterationRunner from './IterationRunner'
 import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
+import ServerLogsViewer from './ServerLogsViewer'
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
@@ -241,7 +242,6 @@ class OutboundRequest extends React.Component {
     super();
     this.fileManagerRef = React.createRef();
     this.iterationRunnerRef = React.createRef();
-    this.testCaseEditorRef = React.createRef();
     const sessionId = TraceHeaderUtils.generateSessionId()
     this.state = {
       request: {},
@@ -298,7 +298,8 @@ class OutboundRequest extends React.Component {
       testCaseRequestsReorderingEnabled: false,
       curTestCasesRequestsUpdated: false,
       tempReorderedTestCases: [],
-      serverLogsVisible: false
+      serverLogsVisible: true,
+      logs: []
     };
   }
 
@@ -450,7 +451,7 @@ class OutboundRequest extends React.Component {
     await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
     this.state.sendingOutboundRequestID = traceId
-    this.setState({ lastOutgoingRequestID: traceId })
+    this.state.lastOutgoingRequestID = traceId
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
     // Set the status to waiting for all the requests
@@ -490,9 +491,8 @@ class OutboundRequest extends React.Component {
   }
 
   toggleServerLogs = async () => {
-    this.setState({ serverLogsVisible: !this.state.serverLogsVisible })
-    if (!this.state.serverLogsVisible) {
-      this.testCaseEditorRef.current.setServerLogsVisibility(false)
+    if (this.state.logs.length) {
+      this.setState({ logs: [] })
       return;
     }
     if (!this.state.lastOutgoingRequestID) return;
@@ -503,8 +503,7 @@ class OutboundRequest extends React.Component {
         logs = res.data
       }
     }
-    this.testCaseEditorRef.current.setLogs(logs)
-    this.testCaseEditorRef.current.setServerLogsVisibility(true)
+    this.setState({ logs })
   }
 
   // Take the status property out from requests
@@ -813,7 +812,6 @@ class OutboundRequest extends React.Component {
   }
 
   loadSampleContent = async () => {
-    this.testCaseEditorRef = React.createRef()
     const { apiBaseUrl } = getConfig()
     if (!this.state.loadSampleCollections) {
       this.state.loadSampleCollections = {}
@@ -1125,7 +1123,7 @@ class OutboundRequest extends React.Component {
       )
     })
 
-    return (
+      return (
       <>
         <Drawer
           title="File Browser"
@@ -1214,7 +1212,7 @@ class OutboundRequest extends React.Component {
                   onChange={this.handleTestCaseChange}
                   onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
                   onShowServerLogs={() => { this.toggleServerLogs() }}
-                  ref={this.testCaseEditorRef}
+                  traceId={this.state.lastOutgoingRequestID}
                 />
               )
               : null
@@ -1302,6 +1300,19 @@ class OutboundRequest extends React.Component {
                         >
                           {this.state.sendingOutboundRequestID ? 'Stop' : 'Send'}
                         </Button>
+                        { 
+                          this.state.lastOutgoingRequestID 
+                          ? <Button
+                              type="default"
+                              className="float-right mr-2"
+                              onClick={() => {
+                                this.toggleServerLogs()
+                              }}
+                              >
+                              Server Logs
+                            </Button> 
+                          : null
+                        }
                         <Button
                           className="float-right mr-2"
                           type="dashed"
@@ -1377,6 +1388,17 @@ class OutboundRequest extends React.Component {
                 </Col>
               </Row>
             </Affix>
+            {
+              this.state.logs.length
+              ?  <Row>
+                  <Col span={24}>
+                    <Card>
+                      <ServerLogsViewer logs={this.state.logs}/> 
+                    </Card>
+                  </Col>
+                </Row> 
+              : null
+            }
             <Row>
               <Col span={24}>
                 <Tabs defaultActiveKey='1'>

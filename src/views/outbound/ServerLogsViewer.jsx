@@ -27,19 +27,10 @@ import { Table, Tag } from "antd";
 class ServerLogsViewer extends React.Component {
   constructor() {
     super()
-    this.state = {
-      logs: [],
-      visible: false,
-    }
+    this.state = {}
   }
 
   componentDidMount = () => this.setState({ logs: this.props.logs })
-
-  setLogs = (logs) => this.setState({ logs })
-
-  setVisibility = (visible) => {
-    this.setState({ visible })
-  }
 
   marshalLogItem = (log, index) => ({
     service: log.metadata.trace.service,
@@ -52,7 +43,7 @@ class ServerLogsViewer extends React.Component {
   })
 
   render() {
-    if ((!this.props.isVisible && !this.state.visible) || !this.state.logs) return null;
+    if (!this.props.logs.length) return null;
     const columns = [
       { title: "Service", dataIndex: 'service', key: 'servcie' },
       { title: "Timestamp", dataIndex: 'timestamp', key: 'timestamp' },
@@ -62,10 +53,10 @@ class ServerLogsViewer extends React.Component {
         title: "Status", 
         dataIndex: 'status', 
         key: 'status', 
-        render: text => text === 'success' ? <Tag color="green">{text}</Tag> : <Tag color="red">{text}</Tag> 
+        render: text => text === 'success' ? <Tag color="green">{text}</Tag> : <Tag color="volcano">{text}</Tag> 
       }
     ]
-    const dataSource = this.state.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
+    const dataSource = this.props.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
 
     return <Table
       dataSource={dataSource}
