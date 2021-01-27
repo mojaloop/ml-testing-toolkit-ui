@@ -42,13 +42,14 @@ import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-sha
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 
+import { LocalDB } from '../../services/localDB/LocalDB';
+
 let ipcRenderer = null
 
 if(window && window.require) {
   ipcRenderer = window.require('electron').ipcRenderer
   ipcRenderer.send('mainAction', JSON.stringify({ action: 'ping' }))
 }
-
 
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
@@ -335,7 +336,7 @@ class OutboundRequest extends React.Component {
     this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
     
     const additionalData = this.restoreAdditionalData()
-    const storedFolderData = this.restoreSavedFolderData()
+    const storedFolderData = await this.restoreSavedFolderData()
     const storedEnvironmentData = this.restoreSavedEnvironmentData()
 
     if (storedFolderData) {
@@ -536,8 +537,9 @@ class OutboundRequest extends React.Component {
     a.click();
   }
 
-  restoreSavedFolderData = () => {
-    const storedFolderData = localStorage.getItem('folderData')
+  restoreSavedFolderData = async () => {
+    // const storedFolderData = localStorage.getItem('folderData')
+    const storedFolderData = await LocalDB.getItem('folderData')
     if(storedFolderData) {
       try {
         return JSON.parse(storedFolderData)
@@ -580,7 +582,8 @@ class OutboundRequest extends React.Component {
   }
 
   autoSaveFolderData = (folderData) => {
-    localStorage.setItem('folderData', JSON.stringify(folderData));
+    // localStorage.setItem('folderData', JSON.stringify(folderData));
+    LocalDB.setItem('folderData', JSON.stringify(folderData))
   }
 
   autoSaveEnvironmentData = (environmentData) => {
