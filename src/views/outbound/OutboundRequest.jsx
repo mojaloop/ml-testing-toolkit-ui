@@ -26,7 +26,7 @@ import React from "react";
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio, Tag} from 'antd';
 import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
@@ -260,6 +260,7 @@ class OutboundRequest extends React.Component {
       showTestCaseIndex: null,
       renameTestCase: false,
       totalPassedCount: 0,
+      totalFailedCount: 0,
       totalAssertionsCount: 0,
       sessionId: sessionId,
       testReport: null,
@@ -385,7 +386,9 @@ class OutboundRequest extends React.Component {
         if (request.status) {
           // Update total passed count
           const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+          const failedCount = (progress.testResult && progress.testResult.results && progress.testResult.passedCount !== progress.testResult.results.length) ? Object.entries(progress.testResult.results).filter(item => item[1].status === 'FAILED').length : 0
           this.state.totalPassedCount += passedCount
+          this.state.totalFailedCount += failedCount
           if (progress.status === 'SUCCESS') {
             request.status.state = 'finish'
             request.status.response = progress.response
@@ -427,6 +430,7 @@ class OutboundRequest extends React.Component {
   handleSendTemplate = async (template = null) => {
     // Initialize counts to zero
     this.state.totalPassedCount = 0
+    this.state.totalFailedCount = 0
     this.state.totalAssertionsCount = 0
     this.state.testReport = null
 
@@ -1245,8 +1249,28 @@ class OutboundRequest extends React.Component {
                         this.state.totalAssertionsCount > 0
                         ? (
                           <>
-                          <Progress percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
-                          <Title level={4}>{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</Title>
+                          <Row>
+                            <Col span={24}>
+                              <Progress percent={Math.round((this.state.totalPassedCount + this.state.totalFailedCount) * 100 / this.state.totalAssertionsCount)} width={50} format={() => (this.state.totalPassedCount + this.state.totalFailedCount) + ' / ' + this.state.totalAssertionsCount} />
+                            </Col>
+                          </Row>
+                          <Row className='mt-4'>
+                            <Col span={8}>
+                              <Badge count="PASSED" style={{ backgroundColor: '#87d068' }}>
+                                <Progress type="circle" width={50} status="success" percent={100} format={() => this.state.totalPassedCount} />
+                              </Badge>
+                            </Col>
+                            <Col span={8}>
+                              <Badge count="FAILED" style={{ backgroundColor: '#f50' }}>
+                                <Progress type="circle" width={50} status="exception" percent={100} format={() => this.state.totalFailedCount} />
+                              </Badge>
+                            </Col>
+                            <Col span={8}>
+                              <Badge count="TOTAL" style={{ backgroundColor: '#108ee9' }}>
+                                <Progress type="circle" width={50} status="normal" percent={100} format={() => this.state.totalAssertionsCount} />
+                              </Badge>
+                            </Col>
+                          </Row>
                           </>
                         )
                         : null
