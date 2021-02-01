@@ -520,7 +520,7 @@ class OutboundRequest extends React.Component {
       }
       // Find highest request id to determine the new ID
       let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
-      fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName })
+      fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName, requests: [] })
       this.regenerateTemplate(this.state.additionalData.selectedFiles)
       this.forceUpdate()
       this.autoSave = true
@@ -613,7 +613,15 @@ class OutboundRequest extends React.Component {
     var testCases = []
     testCases = FolderParser.getTestCases(this.state.folderData, selectedFiles)
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
-    this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
+    this.state.template.test_cases = []
+    for (let i=0; i < testCases.length; i++) {
+      if (testCases[i].requests === undefined) {
+        testCases[i].requests = []
+      }
+      const testCaseRef = testCases[i]
+      this.state.template.test_cases.push({ ...testCaseRef, id: i + 1})
+    }
+    // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
     this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files',
