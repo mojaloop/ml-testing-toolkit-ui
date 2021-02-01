@@ -55,6 +55,7 @@ const { TabPane } = Tabs;
 const { Panel } = Collapse;
 const { Text, Paragraph } = Typography;
 
+
 class ResourceSelector extends React.Component {
 
   constructor() {
@@ -1055,7 +1056,9 @@ class TestCaseEditor extends React.Component {
                 <div className="float-right">
                   {
                     this.props.traceId
-                    ? <Button
+                    ? <>
+                      <Button href={this.props.logServerUIUrl} target="_blank" className="float-right mr-2" ghost type="primary">Go to Log Server</Button>
+                      <Button
                         type="default"
                         className="mx-2"
                         onClick={() => {
@@ -1064,6 +1067,7 @@ class TestCaseEditor extends React.Component {
                         >
                         Server Logs
                       </Button>  
+                      </>
                     : null
                   } 
                   <Button

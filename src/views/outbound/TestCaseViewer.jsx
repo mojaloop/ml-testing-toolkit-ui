@@ -143,12 +143,6 @@ class TestCaseViewer extends React.Component {
         case 'showseqdiag':
           this.props.onShowSequenceDiagram(this.props.testCase)
           break
-        case 'serverlogs':
-          this.props.onShowSequenceDiagram(this.props.testCase)
-          break
-        case 'efk':
-          this.props.onShowSequenceDiagram(this.props.testCase)
-          break
       }
     };
     
@@ -168,8 +162,6 @@ class TestCaseViewer extends React.Component {
           ? <Menu.Item key="showseqdiag">Show Sequence Diagram</Menu.Item>
           : null
         }
-        <Menu.Item key="serverlogs">Show Server Logs</Menu.Item>
-        <Menu.Item key="efk">Go to EFK</Menu.Item>
       </Menu>
     );
 

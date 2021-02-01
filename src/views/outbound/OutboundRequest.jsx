@@ -300,7 +300,8 @@ class OutboundRequest extends React.Component {
       tempReorderedTestCases: [],
       serverLogsVisible: true,
       logs: [],
-      testCaseEditorLogs: []
+      testCaseEditorLogs: [],
+      logServerUIUrl: ""
     };
   }
 
@@ -1026,7 +1027,14 @@ class OutboundRequest extends React.Component {
     return fileSelected
   }
 
+  loadServerUIUrl = async () => {
+    const serverConfig = await getServerConfig()
+    this.setState({ logServerUIUrl: serverConfig.userConfigStored.LOG_SERVER_UI_URL })
+  }
+
   render() {
+
+    if (!this.state.logServerUIUrl) this.loadServerUIUrl()
 
     const createNewTestCaseDialogContent = (
       <>
@@ -1216,6 +1224,7 @@ class OutboundRequest extends React.Component {
                   onChange={this.handleTestCaseChange}
                   onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
                   onShowServerLogs={() => { this.toggleServerLogs("TestCaseEditor") }}
+                  logServerUIUrl={this.state.logServerUIUrl}
                   traceId={this.state.lastOutgoingRequestID}
                 />
               )
@@ -1306,7 +1315,8 @@ class OutboundRequest extends React.Component {
                         </Button>
                         { 
                           this.state.lastOutgoingRequestID 
-                          ? <Button
+                          ? <>
+                            <Button
                               type="default"
                               className="float-right mr-2"
                               onClick={() => {
@@ -1315,6 +1325,8 @@ class OutboundRequest extends React.Component {
                               >
                               Server Logs
                             </Button> 
+                            <Button href={this.state.logServerUIUrl} target="_blank" className="float-right mr-2" ghost type="primary">Go to Log Server</Button>
+                            </>
                           : null
                         }
                         <Button
