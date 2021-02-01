@@ -1,6 +1,7 @@
 {
   "decisions": {
     "1589|electron>@electron/get>global-tunnel-ng>npm-conf>config-chain>ini": {
+<<<<<<< HEAD
       "decision": "fix",
       "madeAt": 1612172436602
     },
@@ -11,6 +12,18 @@
     "1594|axios": {
       "decision": "fix",
       "madeAt": 1612172469609
+=======
+      "decision": "postpone",
+      "madeAt": 1611249228339
+    },
+    "1589|react-scripts>react-dev-utils>global-modules>global-prefix>ini": {
+      "decision": "postpone",
+      "madeAt": 1611249228339
+    },
+    "1594|axios": {
+      "decision": "postpone",
+      "madeAt": 1611249228857
+>>>>>>> 976fb1a03207448ab45d9da2c9a1e97471fa8ce3
     }
   },
   "rules": {},
