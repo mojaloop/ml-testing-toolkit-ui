@@ -32,28 +32,41 @@ class ServerLogsViewer extends React.Component {
 
   componentDidMount = () => this.setState({ logs: this.props.logs })
 
-  marshalLogItem = (log, index) => ({
-    service: log.metadata.trace.service,
-    timestamp: log.metadata.trace.startTimestamp,
-    fspiop_source: log.metadata.trace.tags.source,
-    fspiop_destination: log.metadata.trace.tags.destination,
-    status: log.metadata.event.state.status,
-    fullLog: log,
-    key: index
-  })
+  // marshalLogItem = (log, index) => ({
+  //   service: log.metadata.trace.service,
+  //   timestamp: log.metadata.trace.startTimestamp,
+  //   fspiop_source: log.metadata.trace.tags.source,
+  //   fspiop_destination: log.metadata.trace.tags.destination,
+  //   status: log.metadata.event.state.status,
+  //   fullLog: log,
+  //   key: index
+  // })
+
+  marshalLogItem = (log, index) => {
+    console.log(log)
+    return {
+      service: log.metadata.service,
+      timestamp: log.metadata.timestamp,
+      source: log.metadata.source,
+      destination: log.metadata.destination,
+      status: log.metadata.status,
+      content: log.content,
+      key: index
+    }
+  }
 
   render() {
     if (!this.props.logs.length) return null;
     const columns = [
-      { title: "Service", dataIndex: 'service', key: 'servcie' },
+      { title: "Service Tag", dataIndex: 'service', key: 'servcie' },
       { title: "Timestamp", dataIndex: 'timestamp', key: 'timestamp' },
-      { title: "Source", dataIndex: 'fspiop_source', key: 'fspiop_source' },
-      { title: "Destination", dataIndex: 'fspiop_destination', key: 'fspiop_destination' },
-      { 
-        title: "Status", 
-        dataIndex: 'status', 
-        key: 'status', 
-        render: text => text === 'success' ? <Tag color="green">{text}</Tag> : <Tag color="volcano">{text}</Tag> 
+      { title: "Source", dataIndex: 'source', key: 'source' },
+      { title: "Destination", dataIndex: 'destination', key: 'destination' },
+      {
+        title: "Status",
+        dataIndex: 'status',
+        key: 'status',
+        render: text => text === 'success' ? <Tag color="green">{text}</Tag> : <Tag color="volcano">{text}</Tag>
       }
     ]
     const dataSource = this.props.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
@@ -64,7 +77,7 @@ class ServerLogsViewer extends React.Component {
       pagination={false}
       scroll={{ y: 480 }}
       expandable={{
-        expandedRowRender: log => <pre><code>{JSON.stringify(log.fullLog, null, 2)}</code></pre>
+        expandedRowRender: log => <pre><code>{JSON.stringify(log.content, null, 2)}</code></pre>
       }}
     />
   }

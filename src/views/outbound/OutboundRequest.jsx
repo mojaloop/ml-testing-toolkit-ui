@@ -501,7 +501,8 @@ class OutboundRequest extends React.Component {
       return;
     }
     if (!this.state.lastOutgoingRequestID) return;
-    const res = await axios.get(`${getConfig().apiBaseUrl}/api/logs/search?traceId=${this.state.lastOutgoingRequestID}`)
+    //const res = await axios.get(`${getConfig().apiBaseUrl}/api/logs/search?metadata.trace.traceId=${this.state.lastOutgoingRequestID}`)
+    const res = await axios.get(`${getConfig().apiBaseUrl}/api/logs/search?metadata.trace.traceId=bce36e3cf2a42d3996d59a35441ccc44`)
     logs = []
     if (res.status == 200) {
       if (Array.isArray(res.data)) {
