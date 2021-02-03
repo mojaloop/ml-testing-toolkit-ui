@@ -26,7 +26,7 @@ import React from "react";
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio } from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio, Tag} from 'antd';
 import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
@@ -42,13 +42,14 @@ import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-sha
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 
+import { LocalDB } from '../../services/localDB/LocalDB';
+
 let ipcRenderer = null
 
 if(window && window.require) {
   ipcRenderer = window.require('electron').ipcRenderer
   ipcRenderer.send('mainAction', JSON.stringify({ action: 'ping' }))
 }
-
 
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
@@ -260,6 +261,7 @@ class OutboundRequest extends React.Component {
       showTestCaseIndex: null,
       renameTestCase: false,
       totalPassedCount: 0,
+      totalFailedCount: 0,
       totalAssertionsCount: 0,
       sessionId: sessionId,
       testReport: null,
@@ -334,7 +336,7 @@ class OutboundRequest extends React.Component {
     this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
     
     const additionalData = this.restoreAdditionalData()
-    const storedFolderData = this.restoreSavedFolderData()
+    const storedFolderData = await this.restoreSavedFolderData()
     const storedEnvironmentData = this.restoreSavedEnvironmentData()
 
     if (storedFolderData) {
@@ -385,7 +387,9 @@ class OutboundRequest extends React.Component {
         if (request.status) {
           // Update total passed count
           const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+          const failedCount = (progress.testResult && progress.testResult.results && progress.testResult.passedCount !== progress.testResult.results.length) ? Object.entries(progress.testResult.results).filter(item => item[1].status === 'FAILED').length : 0
           this.state.totalPassedCount += passedCount
+          this.state.totalFailedCount += failedCount
           if (progress.status === 'SUCCESS') {
             request.status.state = 'finish'
             request.status.response = progress.response
@@ -427,6 +431,7 @@ class OutboundRequest extends React.Component {
   handleSendTemplate = async (template = null) => {
     // Initialize counts to zero
     this.state.totalPassedCount = 0
+    this.state.totalFailedCount = 0
     this.state.totalAssertionsCount = 0
     this.state.testReport = null
 
@@ -515,7 +520,7 @@ class OutboundRequest extends React.Component {
       }
       // Find highest request id to determine the new ID
       let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
-      fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName })
+      fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName, requests: [] })
       this.regenerateTemplate(this.state.additionalData.selectedFiles)
       this.forceUpdate()
       this.autoSave = true
@@ -532,8 +537,9 @@ class OutboundRequest extends React.Component {
     a.click();
   }
 
-  restoreSavedFolderData = () => {
-    const storedFolderData = localStorage.getItem('folderData')
+  restoreSavedFolderData = async () => {
+    // const storedFolderData = localStorage.getItem('folderData')
+    const storedFolderData = await LocalDB.getItem('folderData')
     if(storedFolderData) {
       try {
         return JSON.parse(storedFolderData)
@@ -576,7 +582,8 @@ class OutboundRequest extends React.Component {
   }
 
   autoSaveFolderData = (folderData) => {
-    localStorage.setItem('folderData', JSON.stringify(folderData));
+    // localStorage.setItem('folderData', JSON.stringify(folderData));
+    LocalDB.setItem('folderData', JSON.stringify(folderData))
   }
 
   autoSaveEnvironmentData = (environmentData) => {
@@ -606,7 +613,15 @@ class OutboundRequest extends React.Component {
     var testCases = []
     testCases = FolderParser.getTestCases(this.state.folderData, selectedFiles)
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
-    this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
+    this.state.template.test_cases = []
+    for (let i=0; i < testCases.length; i++) {
+      if (testCases[i].requests === undefined) {
+        testCases[i].requests = []
+      }
+      const testCaseRef = testCases[i]
+      this.state.template.test_cases.push({ ...testCaseRef, id: i + 1})
+    }
+    // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
     this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files',
@@ -674,32 +689,28 @@ class OutboundRequest extends React.Component {
     this.forceUpdate()
   }
 
-  handleTestCaseDelete = (testCaseId) => {
+  handleTestCaseDelete = (testCaseIndex) => {
     const fileSelected = this.getSingleFileSelected()
     if(fileSelected) {
-      // const fileTemplate = this.state.template
       const fileTemplate = fileSelected.content
-      const deleteIndex = fileTemplate.test_cases.findIndex(item => item.id == testCaseId)
-      fileTemplate.test_cases.splice(deleteIndex,1)
+      fileTemplate.test_cases.splice(testCaseIndex,1)
       this.regenerateTemplate(this.state.additionalData.selectedFiles)
       this.forceUpdate()
       this.autoSave = true
-      // this.handleTestCaseChange()
     } else {
       message.error('ERROR: no file selected or multiple files are selected');
     }
   }
 
-  handleTestCaseDuplicate = (testCaseId) => {
+  handleTestCaseDuplicate = (testCaseIndex) => {
     const fileSelected = this.getSingleFileSelected()
     if(fileSelected) {
-      // const fileTemplate = this.state.template
       const fileTemplate = fileSelected.content
 
       // Find highest request id to determine the new ID
       let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
 
-      const { id, name, ...otherProps } = fileTemplate.test_cases.find(item => item.id == testCaseId)
+      const { id, name, ...otherProps } = fileTemplate.test_cases[testCaseIndex]
       // Deep copy other properties
       const clonedProps = JSON.parse(JSON.stringify(otherProps))
   
@@ -724,8 +735,8 @@ class OutboundRequest extends React.Component {
                 onChange={this.handleTestCaseChange}
                 inputValues={this.state.template.inputValues}
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
-                onDelete={this.handleTestCaseDelete}
-                onDuplicate={this.handleTestCaseDuplicate}
+                onDelete={() => { this.handleTestCaseDelete(testCaseIndex) } }
+                onDuplicate={() => { this.handleTestCaseDuplicate(testCaseIndex) } }
                 onRename={this.handleTestCaseChange}
                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex) } }
@@ -1249,8 +1260,28 @@ class OutboundRequest extends React.Component {
                         this.state.totalAssertionsCount > 0
                         ? (
                           <>
-                          <Progress percent={Math.round(this.state.totalPassedCount * 100 / this.state.totalAssertionsCount)} width={50} />
-                          <Title level={4}>{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</Title>
+                          <Row>
+                            <Col span={24}>
+                              <Progress percent={Math.round((this.state.totalPassedCount + this.state.totalFailedCount) * 100 / this.state.totalAssertionsCount)} width={50} format={() => (this.state.totalPassedCount + this.state.totalFailedCount) + ' / ' + this.state.totalAssertionsCount} />
+                            </Col>
+                          </Row>
+                          <Row className='mt-4'>
+                            <Col span={8}>
+                              <Badge count="PASSED" style={{ backgroundColor: '#87d068' }}>
+                                <Progress type="circle" width={50} status="success" percent={100} format={() => this.state.totalPassedCount} />
+                              </Badge>
+                            </Col>
+                            <Col span={8}>
+                              <Badge count="FAILED" style={{ backgroundColor: '#f50' }}>
+                                <Progress type="circle" width={50} status="exception" percent={100} format={() => this.state.totalFailedCount} />
+                              </Badge>
+                            </Col>
+                            <Col span={8}>
+                              <Badge count="TOTAL" style={{ backgroundColor: '#108ee9' }}>
+                                <Progress type="circle" width={50} status="normal" percent={100} format={() => this.state.totalAssertionsCount} />
+                              </Badge>
+                            </Col>
+                          </Row>
                           </>
                         )
                         : null

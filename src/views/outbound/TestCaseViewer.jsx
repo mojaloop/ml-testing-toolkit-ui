@@ -121,13 +121,13 @@ class TestCaseViewer extends React.Component {
     const onClick = ({ key }) => {
       switch(key) {
         case 'delete':
-          this.props.onDelete(this.props.testCase.id)
+          this.props.onDelete()
           break
         case 'rename':
           this.setState({renameTestCase: true, testCaseName: this.props.testCase.name})
           break
         case 'duplicate':
-          this.props.onDuplicate(this.props.testCase.id)
+          this.props.onDuplicate()
           break
         case 'send':
           this.props.onSend()
