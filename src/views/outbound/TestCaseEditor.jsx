@@ -1057,7 +1057,7 @@ class TestCaseEditor extends React.Component {
                   {
                     this.props.traceId
                     ? <>
-                      <Button href={this.props.logServerUIUrl} target="_blank" className="float-right mr-2" ghost type="primary">Go to Log Server</Button>
+                      <Button href={this.props.logServerUIUrl} target="_blank" type="primary" ghost>Go to Log Server</Button>
                       <Button
                         type="default"
                         className="mx-2"
@@ -1077,8 +1077,8 @@ class TestCaseEditor extends React.Component {
                       this.props.onSend()
                     }}
                   >
-                    Send
-              </Button>
+                        Send
+                  </Button>
                 </div>
                 <Popover
                   content={addNewRequestDialogContent}
