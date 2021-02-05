@@ -31,6 +31,8 @@ import MonitorDiagram from "./views/monitor/MonitorDiagram.jsx";
 import Settings from "./views/settings/Settings.jsx";
 import APIManagement from "./views/apis/APIManagement.jsx";
 import Demos from "./views/demos/Demos.jsx";
+import DFSPAuthorize from "./views/thirdparty-simulator/DFSPAuthorize.jsx";
+import DFSPGrantConsent from "./views/thirdparty-simulator/DFSPGrantConsent.jsx";
 
 import {
   DashboardOutlined,
@@ -42,7 +44,9 @@ import {
   FileSyncOutlined,
   FileSearchOutlined,
   SendOutlined,
-  ExperimentOutlined
+  ExperimentOutlined,
+  LoginOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 
 var routes = [
@@ -123,5 +127,19 @@ var routes = [
     component: Demos,
     layout: "/admin"
   },
+  {
+    path: "/dfsp/authorize",
+    name: "DFSP Authorize",
+    icon: <LoginOutlined />,
+    component: DFSPAuthorize,
+    layout: "/admin"
+  },
+  {
+    path: "/dfsp/grant-user-consent",
+    name: "DFSP Grant Consent",
+    icon: <CheckCircleOutlined />,
+    component: DFSPGrantConsent,
+    layout: "/admin"
+  }
 ];
 export default routes;
