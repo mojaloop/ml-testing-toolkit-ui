@@ -26,7 +26,7 @@ import React from "react";
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio, Tag} from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio, Tag, notification} from 'antd';
 import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
@@ -509,9 +509,19 @@ class OutboundRequest extends React.Component {
     const res = await axios.get(`${getConfig().apiBaseUrl}/api/logs/search?metadata.trace.traceId=${this.state.lastOutgoingRequestID}`)
     logs = []
     if (res.status == 200) {
-      if (Array.isArray(res.data)) {
+      if (Array.isArray(res.data) && res.data.length) {
         logs = res.data
+      } else {
+        notification.open({
+          message: '',
+          description: 'No log was found for the current requests.'
+        })
       }
+    } else {
+      notification.open({
+        message: '',
+        description: 'Logs could not be retrieved at the moment. Please try again.'
+      })
     }
     componentName === 'TestCaseEditor' ? this.setState({ testCaseEditorLogs: logs }) : this.setState({ logs })
   }
