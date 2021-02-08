@@ -32,18 +32,7 @@ class ServerLogsViewer extends React.Component {
 
   componentDidMount = () => this.setState({ logs: this.props.logs })
 
-  // marshalLogItem = (log, index) => ({
-  //   service: log.metadata.trace.service,
-  //   timestamp: log.metadata.trace.startTimestamp,
-  //   fspiop_source: log.metadata.trace.tags.source,
-  //   fspiop_destination: log.metadata.trace.tags.destination,
-  //   status: log.metadata.event.state.status,
-  //   fullLog: log,
-  //   key: index
-  // })
-
   marshalLogItem = (log, index) => {
-    console.log(log)
     return {
       service: log.metadata.service,
       timestamp: log.metadata.timestamp,
