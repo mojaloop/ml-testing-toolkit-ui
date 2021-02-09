@@ -29,3 +29,7 @@ code {
   float: right;
   margin: 16px 0 16px 24px;
 }
+
+.hidden {
+  display: none !important;
+}
