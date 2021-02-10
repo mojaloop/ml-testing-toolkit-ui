@@ -33,7 +33,7 @@ import APIManagement from "./views/apis/APIManagement.jsx";
 import Demos from "./views/demos/Demos.jsx";
 import DFSPAuthorize from "./views/thirdparty-simulator/DFSPAuthorize.jsx";
 import DFSPGrantConsent from "./views/thirdparty-simulator/DFSPGrantConsent.jsx";
-
+import DFSPGetOTP from "./views/thirdparty-simulator/DFSPGetOTP.jsx";
 import {
   DashboardOutlined,
   MonitorOutlined,
@@ -46,7 +46,8 @@ import {
   SendOutlined,
   ExperimentOutlined,
   LoginOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  LockOutlined
 } from '@ant-design/icons';
 
 var routes = [
@@ -139,6 +140,13 @@ var routes = [
     name: "DFSP Grant Consent",
     icon: <CheckCircleOutlined />,
     component: DFSPGrantConsent,
+    layout: "/admin"
+  },
+  {
+    path: "/dfsp/get-otp",
+    name: "DFSP Get OTP",
+    icon: <LockOutlined />,
+    component: DFSPGetOTP,
     layout: "/admin"
   }
 ];
