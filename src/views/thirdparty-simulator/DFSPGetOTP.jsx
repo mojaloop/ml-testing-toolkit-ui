@@ -52,7 +52,7 @@ class GetOTP extends React.Component {
 
   getOTPFromDFSP = async () => {
     try {
-      const { thirdpartySimAPIBaseUrl } = await getThirdpartySimConfig();
+      const { thirdpartySimAPIBaseUrl } = getThirdpartySimConfig();
       const otpURL = thirdpartySimAPIBaseUrl + '/OTPorSecret/' + this.state.consentRequestId;
       return await axios.get(otpURL, { headers: { 'Content-Type': 'application/json' } });
     } catch (err) {

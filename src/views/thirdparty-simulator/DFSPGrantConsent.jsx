@@ -50,7 +50,7 @@ class GrantConsent extends React.Component {
     const consentRequestId = (queryString.parse(this.props.location.search)).consentRequestId;
     const callbackUri = (queryString.parse(this.props.location.search)).callbackUri;
     this.setState({ consentRequestId: consentRequestId, callbackUri: callbackUri });
-    const { thirdpartySimAPIBaseUrl } = await getThirdpartySimConfig();
+    const { thirdpartySimAPIBaseUrl } = getThirdpartySimConfig();
     const consentURL = thirdpartySimAPIBaseUrl + '/store/consentRequests/' + consentRequestId;
     const res = await axios.get(consentURL, { headers: { 'Content-Type': 'application/json' } })
     const dataStr = (res.data.value).replace(/\'/gi, '\"')
@@ -73,7 +73,7 @@ class GrantConsent extends React.Component {
     try {
       let forwardUri;
       if (this.state.consentStatus == 'true') {
-        const { thirdpartySimAPIBaseUrl } = await getThirdpartySimConfig();
+        const { thirdpartySimAPIBaseUrl } =  getThirdpartySimConfig();
         const authorizeUri = thirdpartySimAPIBaseUrl + '/authorize';
         const res = await axios.post(authorizeUri, {
           userId: this.state.value,

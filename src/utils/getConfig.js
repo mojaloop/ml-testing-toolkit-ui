@@ -46,8 +46,8 @@ export const getServerConfig = async () => {
   return { userConfigRuntime, userConfigStored }
 }
 
-export const getThirdpartySimConfig = async () => {
-  const thirdpartySimAPIBaseUrl = 'TTK_PISP_3P_SIM_API_BASE_URL'
+export const getThirdpartySimConfig = () => {
+  const thirdpartySimAPIBaseUrl = 'TTK_TP_SIM_URL'
   return { thirdpartySimAPIBaseUrl }
 }
 
