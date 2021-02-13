@@ -47,7 +47,11 @@ export const getServerConfig = async () => {
 }
 
 export const getThirdpartySimConfig = () => {
-  const thirdpartySimAPIBaseUrl = 'TTK_TP_SIM_URL'
+  const { protocol, hostname } = window.location
+  let thirdpartySimAPIBaseUrl = 'TTK_TP_SIM_URL'
+  if (!thirdpartySimAPIBaseUrl.startsWith('http')) {
+    thirdpartySimAPIBaseUrl = `${protocol}//${hostname}:15000`
+  }
   return { thirdpartySimAPIBaseUrl }
 }
 

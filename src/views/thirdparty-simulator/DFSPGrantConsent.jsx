@@ -53,7 +53,7 @@ class GrantConsent extends React.Component {
     const { thirdpartySimAPIBaseUrl } = getThirdpartySimConfig();
     const consentURL = thirdpartySimAPIBaseUrl + '/store/consentRequests/' + consentRequestId;
     const res = await axios.get(consentURL, { headers: { 'Content-Type': 'application/json' } })
-    const dataStr = (res.data.value).replace(/\'/gi, '\"')
+    const dataStr = (res.data.value)?.replace(/\'/gi, '\"')
     const options = (JSON.parse(dataStr)).scopes.map(d => ({
       "value": d.accountId,
       "text": d.accountId
@@ -73,12 +73,18 @@ class GrantConsent extends React.Component {
     try {
       let forwardUri;
       if (this.state.consentStatus == 'true') {
-        const { thirdpartySimAPIBaseUrl } =  getThirdpartySimConfig();
+        const { thirdpartySimAPIBaseUrl } = getThirdpartySimConfig();
         const authorizeUri = thirdpartySimAPIBaseUrl + '/authorize';
-        const res = await axios.post(authorizeUri, {
-          userId: this.state.value,
-          consentRequestId: this.state.consentRequestId
-        }, { headers: { 'Content-Type': 'application/json' } });
+        const res = await axios.post(
+          authorizeUri,
+          null,
+          {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            params: {
+              userId: JSON.stringify(this.state.value),
+              consentRequestId: this.state.consentRequestId
+            }
+          });
         if (res.status == 200) {
           message.success({ content: 'authorization successful', key: 'authorization', duration: 3 });
           forwardUri = (this.state.callbackUri) + '?status=approved&consentRequestId=' + this.state.consentRequestId + '&secret=' + res.data.secret;

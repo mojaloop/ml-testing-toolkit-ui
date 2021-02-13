@@ -66,7 +66,8 @@ class GetOTP extends React.Component {
       const res = await this.getOTPFromDFSP();
       if (res?.status == 200) {
         this.attempt = 0;
-        return ReactDOM.render(<label className="auth__form__otp_msg">OTP: {res.data.value} </label>, document.getElementById('displayOTP'));
+        const otpVal = (res.data.value == "undefined") ? 'Not generated' : res.data.value
+        return ReactDOM.render(<label className="auth__form__otp_msg">OTP : {otpVal} </label>, document.getElementById('displayOTP'));
       } else {
         return setTimeout(() => this.getOTP(), 6000);
       }
