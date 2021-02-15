@@ -10,7 +10,7 @@ services:
     environment:
       - API_BASE_URL=http://localhost:5050
       - AUTH_ENABLED=FALSE
-      - PISP_3P_SIM_API_BASE_URL=http://ml-testing-toolkit.local:15000
+      - TP_SIM_URL=http://localhost:15000
     command:
       - sh
       - /usr/share/nginx/start.sh

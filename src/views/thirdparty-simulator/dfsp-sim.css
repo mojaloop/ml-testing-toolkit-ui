@@ -22,7 +22,20 @@
 .auth__form__password {
   margin-bottom: 20px;
 }
-
+.auth__form__otp_err {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #e61111;
+  font-size: medium;
+}
+.auth__form__otp_msg {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #303460;
+  font-size: large;
+}
 .auth__form__submit__btn {
   background: #303460;
   width: 200px;

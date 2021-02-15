@@ -51,12 +51,18 @@ class DFSPAuthorize extends React.Component {
       const callbackUri = (queryString.parse(this.props.location.search)).callbackUri;
       this.setState({ consentRequestId: consentRequestId, callbackUri: callbackUri });
       const forwrdUri = "/admin/dfsp/grant-user-consent" + (this.props.location.search || '');
-      const { thirdpartySimAPIBaseUrl } = await getThirdpartySimConfig();
+      const { thirdpartySimAPIBaseUrl } = getThirdpartySimConfig();
       const loginURL = thirdpartySimAPIBaseUrl + '/login';
-      const res = await axios.post(loginURL, {
-        userName: this.state.userName,
-        password: this.state.password
-      }, { headers: { 'Content-Type': 'application/json' } });
+      const res = await axios.post(
+        loginURL,
+        null,
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          params: {
+            userName: this.state.userName,
+            password: this.state.password
+          }
+        });
       if (res.status == 200) {
         message.success({ content: 'login successful', key: 'login', duration: 3 });
         this.props.history.push(forwrdUri);
