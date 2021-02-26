@@ -26,7 +26,7 @@ import React from "react";
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio, Tag, notification} from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio} from 'antd';
 import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
@@ -261,7 +261,6 @@ class OutboundRequest extends React.Component {
       saveTemplateTestcasesDialogVisible: false,
       saveTemplateEnvironmentDialogVisible: false,
       showTestCaseIndex: null,
-      showServerLogs: false,
       renameTestCase: false,
       totalPassedCount: 0,
       totalFailedCount: 0,
@@ -301,9 +300,7 @@ class OutboundRequest extends React.Component {
       curTestCasesRequestsUpdated: false,
       tempReorderedTestCases: [],
       serverLogsVisible: true,
-      logs: [],
-      testCaseEditorLogs: [],
-      logServerUIUrl: ""
+      testCaseEditorLogs: []
     };
   }
 
@@ -459,7 +456,6 @@ class OutboundRequest extends React.Component {
 
     this.state.sendingOutboundRequestID = traceId
     this.state.lastOutgoingRequestID = traceId
-    this.state.logs = []
     this.state.testCaseEditorLogs = []
     message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
 
@@ -497,33 +493,6 @@ class OutboundRequest extends React.Component {
     const { test_cases, ...remainingProps } = this.state.template
     const testCaseToSend = { test_cases: [test_cases[testCaseIndex]], ...remainingProps }
     this.handleSendTemplate(testCaseToSend)
-  }
-
-  toggleServerLogs = async (componentName=null) => {
-    let logs = componentName === 'TestCaseEditor' ? this.state.testCaseEditorLogs : this.state.logs
-    if (logs.length) {
-      componentName === 'TestCaseEditor' ? this.setState({ testCaseEditorLogs: [] }) : this.setState({ logs: [] })
-      return;
-    }
-    if (!this.state.lastOutgoingRequestID) return;
-    const res = await axios.get(`${getConfig().apiBaseUrl}/api/serverlogs/search?metadata.trace.traceId=${this.state.lastOutgoingRequestID}`)
-    logs = []
-    if (res.status == 200) {
-      if (Array.isArray(res.data) && res.data.length) {
-        logs = res.data
-      } else {
-        notification.open({
-          message: '',
-          description: 'No log was found for the current requests.'
-        })
-      }
-    } else {
-      notification.open({
-        message: '',
-        description: 'Logs could not be retrieved at the moment. Please try again.'
-      })
-    }
-    componentName === 'TestCaseEditor' ? this.setState({ testCaseEditorLogs: logs }) : this.setState({ logs })
   }
 
   // Take the status property out from requests
@@ -1048,14 +1017,7 @@ class OutboundRequest extends React.Component {
     return fileSelected
   }
 
-  loadServerUIUrl = async () => {
-    const serverConfig = await getServerConfig()
-    this.setState({ logServerUIUrl: serverConfig.userConfigStored.LOG_SERVER_UI_URL })
-  }
-
   render() {
-
-    if (!this.state.logServerUIUrl) this.loadServerUIUrl()
 
     const createNewTestCaseDialogContent = (
       <>
@@ -1244,9 +1206,7 @@ class OutboundRequest extends React.Component {
                   logs={this.state.testCaseEditorLogs}
                   onChange={this.handleTestCaseChange}
                   onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
-                  onShowServerLogs={() => { this.toggleServerLogs("TestCaseEditor") }}
-                  logServerUIUrl={this.state.logServerUIUrl}
-                  traceId={this.state.lastOutgoingRequestID}
+                  traceID={this.state.lastOutgoingRequestID}
                 />
               )
               : null
@@ -1354,22 +1314,6 @@ class OutboundRequest extends React.Component {
                         >
                           {this.state.sendingOutboundRequestID ? 'Stop' : 'Send'}
                         </Button>
-                        { 
-                          this.state.lastOutgoingRequestID 
-                          ? <>
-                            <Button
-                              type="default"
-                              className="float-right mr-2"
-                              onClick={() => {
-                                this.toggleServerLogs()
-                              }}
-                              >
-                              Server Logs
-                            </Button> 
-                            <Button href={this.state.logServerUIUrl} target="_blank" className="float-right mr-2" ghost type="primary">Go to Log Server</Button>
-                            </>
-                          : null
-                        }
                         <Button
                           className="float-right mr-2"
                           type="dashed"
@@ -1446,12 +1390,10 @@ class OutboundRequest extends React.Component {
               </Row>
             </Affix>
             {
-              this.state.logs.length
+              this.state.lastOutgoingRequestID
               ?  <Row>
                   <Col span={24}>
-                    <Card>
-                      <ServerLogsViewer logs={this.state.logs}/> 
-                    </Card>
+                    <ServerLogsViewer traceID={this.state.lastOutgoingRequestID} userConfig={this.state.userConfig} /> 
                   </Col>
                 </Row> 
               : null

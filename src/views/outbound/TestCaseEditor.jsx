@@ -1054,22 +1054,6 @@ class TestCaseEditor extends React.Component {
             <Affix target={() => this.containerRef}>
               <Card size="small">
                 <div className="float-right">
-                  {
-                    this.props.traceId
-                    ? <>
-                      <Button href={this.props.logServerUIUrl} target="_blank" type="primary" ghost>Go to Log Server</Button>
-                      <Button
-                        type="default"
-                        className="mx-2"
-                        onClick={() => {
-                          this.props.onShowServerLogs()
-                        }}
-                        >
-                        Server Logs
-                      </Button>  
-                      </>
-                    : null
-                  } 
                   <Button
                     type="primary"
                     danger
@@ -1097,6 +1081,15 @@ class TestCaseEditor extends React.Component {
             </Affix>
           </Col>
         </Row>
+        {
+          this.props.traceID
+          ?  <Row>
+              <Col span={24}>
+                <ServerLogsViewer traceID={this.props.traceID} userConfig={this.props.userConfig} /> 
+              </Col>
+            </Row> 
+          : null
+        }
         {
           this.props.logs.length
           ? <Row className={`mt-4`}>

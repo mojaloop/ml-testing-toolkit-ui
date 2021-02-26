@@ -18,19 +18,27 @@
  * Gates Foundation
 
  * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com>
  * Steven Oderayi <steven.oderayi@modusbox.com> (Original Author)
  --------------
  ******/
 import React from "react";
-import { Table, Tag } from "antd";
+import { Table, Tag, Spin, message, Collapse, Button, Row, Col } from "antd";
+import axios from 'axios';
+import getConfig from '../../utils/getConfig'
+
+const { Panel } = Collapse
 
 class ServerLogsViewer extends React.Component {
   constructor() {
     super()
-    this.state = {}
+    this.state = {
+      serverLogsLoading: false,
+      logs: []
+    }
   }
 
-  componentDidMount = () => this.setState({ logs: this.props.logs })
+  componentDidMount = () => this.setState({ logs: this.state.logs })
 
   marshalLogItem = (log, index) => {
     return {
@@ -44,8 +52,53 @@ class ServerLogsViewer extends React.Component {
     }
   }
 
+  handleExpandServerLogs = (activePanels) => {
+    if (activePanels.length) {
+      this.fetchServerLogs()
+    }
+  }
+
+  fetchServerLogs = async (componentName=null) => {
+    if (!this.props.traceID) return;
+    this.setState({serverLogsLoading: true, serverLogsError: null})
+    let logs = []
+    try {
+      const res = await axios.get(`${getConfig().apiBaseUrl}/api/serverlogs/search?metadata.trace.traceId=${this.props.traceID}`)
+      if (res.status == 200) {
+        if (Array.isArray(res.data) && res.data.length) {
+          logs = res.data
+        } else {
+          message.error('No log was found for the current requests.')
+        }
+      } else {
+        message.error('Logs could not be retrieved at the moment. Please try again.')
+      }
+    } catch(err) {
+      message.error('Logs could not be retrieved at the moment. Please try again.')
+    }
+    this.setState({ logs, serverLogsLoading: false, serverLogsError: null })
+  }
+
   render() {
-    if (!this.props.logs.length) return null;
+    const genExtra = () => (
+      <>
+      {
+        this.props.userConfig.LOG_SERVER_UI_URL
+        ? <Button
+            onClick={event => {
+              event.stopPropagation()
+            }}
+            href={this.props.userConfig.LOG_SERVER_UI_URL}
+            target="_blank"
+            className="float-right mr-2"
+            ghost
+            type="primary"
+          >Go to Log Server</Button>
+        : null
+      }
+      </>
+    );
+    // if (!this.state.logs.length) return null;
     const columns = [
       { title: "Service Tag", dataIndex: 'service', key: 'servcie' },
       { title: "Timestamp", dataIndex: 'timestamp', key: 'timestamp' },
@@ -58,17 +111,40 @@ class ServerLogsViewer extends React.Component {
         render: text => text === 'success' ? <Tag color="green">{text}</Tag> : <Tag color="volcano">{text}</Tag>
       }
     ]
-    const dataSource = this.props.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
+    const dataSource = this.state.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
 
-    return <Table
-      dataSource={dataSource}
-      columns={columns}
-      pagination={false}
-      scroll={{ y: 480 }}
-      expandable={{
-        expandedRowRender: log => <pre><code>{JSON.stringify(log.content, null, 2)}</code></pre>
-      }}
-    />
+    return (
+      <Collapse onChange={this.handleExpandServerLogs}>
+        <Panel header="Server Logs" key="1" extra={genExtra()}>
+            {
+              this.state.serverLogsLoading
+              ? <center><Spin size="large" /></center>
+              : (
+                <>
+                <Row>
+                  <Col>
+                    <Button type='primary' onClick={this.fetchServerLogs}>Reload</Button>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col span={24}>
+                    <Table
+                      dataSource={dataSource}
+                      columns={columns}
+                      pagination={false}
+                      scroll={{ y: 480 }}
+                      expandable={{
+                        expandedRowRender: log => <pre><code>{JSON.stringify(log.content, null, 2)}</code></pre>
+                      }}
+                    />
+                  </Col>
+                </Row>
+                </>
+              )
+            }
+        </Panel>
+      </Collapse>
+    )
   }
 }
 
