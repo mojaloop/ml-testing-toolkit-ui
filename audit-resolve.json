@@ -11,6 +11,14 @@
     "1594|axios": {
       "decision": "postpone",
       "madeAt": 1612460139290
+    },
+    "1603|react-scripts>react-dev-utils>immer": {
+      "decision": "postpone",
+      "madeAt": 1614364479519
+    },
+    "1615|electron": {
+      "decision": "postpone",
+      "madeAt": 1614364480053
     }
   },
   "rules": {},
