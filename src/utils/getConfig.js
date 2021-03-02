@@ -26,7 +26,8 @@ import axios from 'axios';
 const getConfig = () => {
   const { protocol, hostname } = window.location
   // Using the same protocol as we've been loaded from to avoid Mixed Content error.
-  let apiBaseUrl = 'TTK_API_BASE_URL'
+  // let apiBaseUrl = 'TTK_API_BASE_URL'
+  let apiBaseUrl = 'http://dev1-testing-toolkit.mojaloop.live'
   if (!apiBaseUrl.startsWith('http')) {
     apiBaseUrl = `${protocol}//${hostname}:5050`
   }

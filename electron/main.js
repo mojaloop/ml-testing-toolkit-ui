@@ -35,7 +35,7 @@ const writeFileAsync = promisify(fs.writeFile)
 const renameFileAsync = promisify(fs.rename)
 const mkdirAsync = promisify(fs.mkdir)
 
-const WEB_URL = 'http://localhost:3000/admin/outbound_request'
+const WEB_URL = 'http://dev1-testing-toolkit.mojaloop.live/admin/outbound_request'
 const MASTERFILE_NAME = 'master.json'
 var globalFilePath = null
 var mainWindow

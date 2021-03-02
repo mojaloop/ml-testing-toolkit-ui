@@ -135,12 +135,82 @@ class NotificationService {
 
   }
 
+  notifyDFSPValues = (progress) => {
+    // const template = require('./template_provisioning.json')
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'dfspValues',
+        type: 'testCaseFinished',
+        data: {
+          result: progress
+        }
+      })
+      // progress.totalResult
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'dfspValues',
+        type: 'testCaseTerminated',
+        data: {
+          result: progress
+        }
+      })
+    } else {
+      if (progress.requestSent.method === 'get' && progress.requestSent.operationPath === '/participants/{name}/accounts') {
+        if (progress.response.status === 200) {
+          this.notificationEventFunction({
+            category: 'dfspValues',
+            type: 'dfspAccountsUpdate',
+            data: {
+              dfspId: progress.requestSent.params.name,
+              accountsData: progress.response.body
+            }
+          })
+        }
+      }
+      // let request = testCase.requests.find(item => item.id === progress.requestId)
+      // Update total passed count
+      // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+      // this.state.totalPassedCount += passedCount
+      // this.notificationEventFunction({
+      //   category: 'settingsLog',
+      //   type: 'testCaseProgress',
+      //   data: {
+      //     testCaseName: testCase.name,
+      //     testCaseRequestCount: testCase.requests.length,
+      //     progress: progress
+      //   }
+      // })
+    }
+
+  }
+
   handleNotificationLog = (log) => {
     // console.log(log)
 
     // Handle the outbound progress events
     if ( log.internalLogType === 'outboundProgress' ) {
-      this.notifySettingsTestCaseProgress(log)
+      console.log(log)
+
+      if (log.status === 'FINISHED') {
+        switch (log.totalResult.name) {
+          case 'PROVISIONING':
+            this.notifySettingsTestCaseProgress(log)
+            break
+          case 'GET_DFSP_VALUES':
+            this.notifyDFSPValues(log)
+            break
+        }
+      } else {
+        switch (log.testCaseName) {
+          case 'PAYER_FSP_PROVISIONING':
+          case 'PAYEE_FSP_PROVISIONING':
+            this.notifySettingsTestCaseProgress(log)
+            break
+          case 'GET_DFSP_ACCOUNTS':
+            this.notifyDFSPValues(log)
+            break
+        }      
+      }
       return null
     }
 
