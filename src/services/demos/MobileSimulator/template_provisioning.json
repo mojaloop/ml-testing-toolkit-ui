@@ -1,9 +1,9 @@
 {
-  "name": "multi",
+  "name": "PROVISIONING",
   "test_cases": [
     {
       "id": 1,
-      "name": "Payer FSP provisioning",
+      "name": "PAYER_FSP_PROVISIONING",
       "requests": [
         {
           "id": 1,
@@ -902,7 +902,7 @@
     },
     {
       "id": 2,
-      "name": "Payee FSP provisioning",
+      "name": "PAYEE_FSP_PROVISIONING",
       "requests": [
         {
           "id": 1,

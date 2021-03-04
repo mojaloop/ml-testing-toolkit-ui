@@ -33,6 +33,7 @@ import PayeeMobile from "./PayeeMobile.jsx";
 import TestDiagram from "./TestDiagram.jsx";
 import TestMonitor from "./TestMonitor.jsx";
 import Settings from "./Settings.jsx";
+import DFSPValues from "./DFSPValues.jsx";
 import NotificationService from '../../../services/demos/MobileSimulator/mojaloopNotifications'
 import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound'
 
@@ -56,6 +57,7 @@ class MobileSimulator extends React.Component {
     this.payerMonitorRef = React.createRef();
     this.payeeMonitorRef = React.createRef();
     this.settingsRef = React.createRef();
+    this.dfspValuesRef = React.createRef();
     this.notificationServiceObj = new NotificationService()
     const sessionId = this.notificationServiceObj.getSessionId()
     this.outboundServiceObj = new OutboundService(sessionId)
@@ -82,6 +84,8 @@ class MobileSimulator extends React.Component {
       this.payeeMonitorRef.current && this.payeeMonitorRef.current.appendLog(event.data.log)
     } else if (event.category === 'settingsLog') {
       this.settingsRef.current && this.settingsRef.current.handleNotificationEvents(event)
+    } else if (event.category === 'dfspValues') {
+      this.dfspValuesRef.current && this.dfspValuesRef.current.handleNotificationEvents(event)
     }
   }
 
@@ -367,6 +371,10 @@ class MobileSimulator extends React.Component {
               >
                 <SettingOutlined style={ {fontSize: '24px'} } />
               </Button>
+              <DFSPValues
+                ref={this.dfspValuesRef}
+                outboundService={this.outboundServiceObj}
+              />
               <div
                 style={{
                   height: '90vh',
