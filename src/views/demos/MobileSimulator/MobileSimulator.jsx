@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col, Drawer, Button, Typography, Modal } from 'antd';
+import { Row, Col, Drawer, Button, Typography, Modal, Tabs } from 'antd';
 import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css'
 import mobile_left from '../../../assets/img/mobile_pink_iphone.png';
@@ -33,11 +33,12 @@ import PayeeMobile from "./PayeeMobile.jsx";
 import TestDiagram from "./TestDiagram.jsx";
 import TestMonitor from "./TestMonitor.jsx";
 import Settings from "./Settings.jsx";
-import DFSPValues from "./DFSPValues.jsx";
+import HUBConsole from "./HUBConsole.jsx";
 import NotificationService from '../../../services/demos/MobileSimulator/mojaloopNotifications'
 import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound'
 
 const {Text} = Typography
+const { TabPane } = Tabs;
 
 class MobileSimulator extends React.Component {
   state = {
@@ -57,7 +58,7 @@ class MobileSimulator extends React.Component {
     this.payerMonitorRef = React.createRef();
     this.payeeMonitorRef = React.createRef();
     this.settingsRef = React.createRef();
-    this.dfspValuesRef = React.createRef();
+    this.hubConsoleRef = React.createRef();
     this.notificationServiceObj = new NotificationService()
     const sessionId = this.notificationServiceObj.getSessionId()
     this.outboundServiceObj = new OutboundService(sessionId)
@@ -84,8 +85,8 @@ class MobileSimulator extends React.Component {
       this.payeeMonitorRef.current && this.payeeMonitorRef.current.appendLog(event.data.log)
     } else if (event.category === 'settingsLog') {
       this.settingsRef.current && this.settingsRef.current.handleNotificationEvents(event)
-    } else if (event.category === 'dfspValues') {
-      this.dfspValuesRef.current && this.dfspValuesRef.current.handleNotificationEvents(event)
+    } else if (event.category === 'hubConsole') {
+      this.hubConsoleRef.current && this.hubConsoleRef.current.handleNotificationEvents(event)
     }
   }
 
@@ -371,17 +372,32 @@ class MobileSimulator extends React.Component {
               >
                 <SettingOutlined style={ {fontSize: '24px'} } />
               </Button>
-              <DFSPValues
-                ref={this.dfspValuesRef}
-                outboundService={this.outboundServiceObj}
-              />
               <div
                 style={{
-                  height: '90vh',
-                  overflow: 'scroll'
+                  height: '90vh'
                 }}
               >
-              <TestDiagram ref={this.testDiagramRef} />
+              <Tabs defaultActiveKey='1'>
+                <TabPane tab="Hub Console" key="1">
+                  <HUBConsole
+                    style={{
+                      width: '90%'
+                    }}
+                    ref={this.hubConsoleRef}
+                    outboundService={this.outboundServiceObj}
+                  />
+                </TabPane>
+                <TabPane tab="Sequence Diagram" key="2" forceRender>
+                  <div
+                    style={{
+                      height: '100%',
+                      overflow: 'scroll'
+                    }}
+                  >
+                  <TestDiagram ref={this.testDiagramRef} />
+                  </div>
+                </TabPane>
+              </Tabs>
               </div>
             </Col>
             <Col span={4}

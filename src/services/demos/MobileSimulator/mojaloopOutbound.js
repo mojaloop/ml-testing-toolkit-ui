@@ -104,10 +104,6 @@ class OutboundService {
     const template = require('./template_provisioning.json')
     template.inputValues = this.inputValues
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
-    // if(typeof response.data === 'object') {
-    //   return response.data
-    // }
-    // return null
     return resp
   }
   async getDFSPValues () {
@@ -115,10 +111,22 @@ class OutboundService {
     const template = require('./template_getDFSPValues')
     template.inputValues = this.inputValues
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
-    // if(typeof response.data === 'object') {
-    //   return response.data
-    // }
-    // return null
+    return resp
+  }
+
+  async getSettlements () {
+    const traceId = this.getTraceId()
+    const template = require('./template_getSettlements')
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
+
+  async executeSettlement () {
+    const traceId = this.getTraceId()
+    const template = require('./template_executeSettlement')
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     return resp
   }
 

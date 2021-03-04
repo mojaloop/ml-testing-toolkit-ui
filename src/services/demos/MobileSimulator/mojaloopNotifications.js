@@ -136,20 +136,18 @@ class NotificationService {
   }
 
   notifyDFSPValues = (progress) => {
-    // const template = require('./template_provisioning.json')
     if (progress.status === 'FINISHED') {
       this.notificationEventFunction({
-        category: 'dfspValues',
-        type: 'testCaseFinished',
+        category: 'hubConsole',
+        type: 'getDFSPValuesFinished',
         data: {
           result: progress
         }
       })
-      // progress.totalResult
     } else if (progress.status === 'TERMINATED') {
       this.notificationEventFunction({
-        category: 'dfspValues',
-        type: 'testCaseTerminated',
+        category: 'hubConsole',
+        type: 'getDFSPValuesTerminated',
         data: {
           result: progress
         }
@@ -158,7 +156,7 @@ class NotificationService {
       if (progress.requestSent.method === 'get' && progress.requestSent.operationPath === '/participants/{name}/accounts') {
         if (progress.response.status === 200) {
           this.notificationEventFunction({
-            category: 'dfspValues',
+            category: 'hubConsole',
             type: 'dfspAccountsUpdate',
             data: {
               dfspId: progress.requestSent.params.name,
@@ -167,21 +165,55 @@ class NotificationService {
           })
         }
       }
-      // let request = testCase.requests.find(item => item.id === progress.requestId)
-      // Update total passed count
-      // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
-      // this.state.totalPassedCount += passedCount
-      // this.notificationEventFunction({
-      //   category: 'settingsLog',
-      //   type: 'testCaseProgress',
-      //   data: {
-      //     testCaseName: testCase.name,
-      //     testCaseRequestCount: testCase.requests.length,
-      //     progress: progress
-      //   }
-      // })
     }
-
+  }
+  notifyGetSettlements = (progress) => {
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getSettlementsFinished',
+        data: {
+          result: progress
+        }
+      })
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getSettlementsTerminated',
+        data: {
+          result: progress
+        }
+      })
+    } else {
+      if (progress.response.status === 200) {
+        this.notificationEventFunction({
+          category: 'hubConsole',
+          type: 'settingsUpdate',
+          data: {
+            settlements: progress.response.body
+          }
+        })
+      }
+    }
+  }
+  notifyExecuteSettlement = (progress) => {
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'executeSettlementFinished',
+        data: {
+          result: progress
+        }
+      })
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'executeSettlementTerminated',
+        data: {
+          result: progress
+        }
+      })
+    }
   }
 
   handleNotificationLog = (log) => {
@@ -189,8 +221,6 @@ class NotificationService {
 
     // Handle the outbound progress events
     if ( log.internalLogType === 'outboundProgress' ) {
-      console.log(log)
-
       if (log.status === 'FINISHED') {
         switch (log.totalResult.name) {
           case 'PROVISIONING':
@@ -198,6 +228,12 @@ class NotificationService {
             break
           case 'GET_DFSP_VALUES':
             this.notifyDFSPValues(log)
+            break
+          case 'GET_SETTLEMENTS':
+            this.notifyGetSettlements(log)
+            break
+          case 'EXECUTE_SETTLEMENT':
+            this.notifyExecuteSettlement(log)
             break
         }
       } else {
@@ -208,6 +244,9 @@ class NotificationService {
             break
           case 'GET_DFSP_ACCOUNTS':
             this.notifyDFSPValues(log)
+            break
+          case 'GET_SETTLED_SETTLEMENTS':
+            this.notifyGetSettlements(log)
             break
         }      
       }

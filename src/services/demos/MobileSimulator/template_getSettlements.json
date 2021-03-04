@@ -1,0 +1,27 @@
+{
+  "name": "GET_SETTLEMENTS",
+  "test_cases": [
+    {
+      "id": 1,
+      "name": "GET_SETTLED_SETTLEMENTS",
+      "requests": [
+        {
+          "id": 1,
+          "description": "Get the settlements",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "settlements"
+          },
+          "operationPath": "/settlements",
+          "path": "/settlements",
+          "method": "get",
+          "url": "{$inputs.HOST_CENTRAL_SETTLEMENT}",
+          "queryParams": {
+            "state": "SETTLED"
+          }
+        }
+      ]
+    }
+  ]
+}

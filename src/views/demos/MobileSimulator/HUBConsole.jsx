@@ -23,13 +23,15 @@
  ******/
 import React from "react";
 import { Row, Col, Typography, Button, Table, Tag, Progress } from 'antd';
-const { Text } = Typography
+const { Text, Title } = Typography
 
-class DFSPValues extends React.Component {
+class HUBConsole extends React.Component {
   state = {
     getDFSPValuesInProgress: false,
+    getSettlementsInProgress: false,
     provisioningStatus: '',
-    dfsps: {}
+    dfsps: {},
+    settlements: []
   }
 
   constructor () {
@@ -46,18 +48,11 @@ class DFSPValues extends React.Component {
     this.state.dfsps[dfspId].accountsData = accountsData
 
     this.forceUpdate()
-    // const progress = data.progress
-    // if (progress.status === "SUCCESS" || progress.status === "ERROR") {
-    //   if (this.state.progressSteps[data.testCaseName]) {
-    //     this.state.progressSteps[data.testCaseName].passedCount++ 
-    //   } else {
-    //     this.state.progressSteps[data.testCaseName] = {
-    //       passedCount: 1,
-    //       totalCount: data.testCaseRequestCount
-    //     }
-    //   }
-    //   this.forceUpdate()
-    // }
+  }
+  handleSettlementsUpdate = (settlements) => {
+    this.state.settlements = settlements
+
+    this.forceUpdate()
   }
 
   handleNotificationEvents = (event) => {
@@ -70,14 +65,41 @@ class DFSPValues extends React.Component {
         }
         break
       }
-      case 'testCaseFinished':
+      case 'settingsUpdate':
+      {
+        if (event.data && event.data.settlements) {
+          this.handleSettlementsUpdate(event.data.settlements)
+        }
+        break
+      }
+      case 'getDFSPValuesFinished':
       {
         this.setState({getDFSPValuesInProgress: false})
         break
       }
-      case 'testCaseTerminated':
+      case 'getDFSPValuesTerminated':
       {
         this.setState({getDFSPValuesInProgress: false})
+        break
+      }
+      case 'getSettlementsFinished':
+      {
+        this.setState({getSettlementsInProgress: false})
+        break
+      }
+      case 'getSettlementsTerminated':
+      {
+        this.setState({getSettlementsInProgress: false})
+        break
+      }
+      case 'executeSettlementFinished':
+      {
+        this.setState({executeSettlementInProgress: false})
+        break
+      }
+      case 'executeSettlementTerminated':
+      {
+        this.setState({executeSettlementInProgress: false})
         break
       }
     }
@@ -87,9 +109,17 @@ class DFSPValues extends React.Component {
     this.setState({getDFSPValuesInProgress: true})
     const resp = await this.props.outboundService.getDFSPValues()
   }
+  handleGetSettlements = async (idNumber) => {
+    this.setState({getSettlementsInProgress: true})
+    const resp = await this.props.outboundService.getSettlements()
+  }
+  handleExecuteSettlement = async (idNumber) => {
+    this.setState({executeSettlementInProgress: true})
+    const resp = await this.props.outboundService.executeSettlement()
+  }
 
   render() {
-    const columns = [
+    const dfspValuesColumns = [
       {
         title: 'DFSP ID',
         dataIndex: 'dfspId',
@@ -98,9 +128,23 @@ class DFSPValues extends React.Component {
         title: 'Position',
         dataIndex: 'position',
       },
+      // {
+      //   title: 'Settlement',
+      //   dataIndex: 'settlement',
+      // },
+    ];
+    const settlementColumns = [
       {
-        title: 'Settlement',
-        dataIndex: 'settlement',
+        title: 'ID',
+        dataIndex: 'settlementId',
+      },
+      {
+        title: 'Created',
+        dataIndex: 'createdDate',
+      },
+      {
+        title: 'Info',
+        dataIndex: 'info',
       },
     ];
 
@@ -109,22 +153,38 @@ class DFSPValues extends React.Component {
         const detail = currVal.currency + ': ' + currVal.value
         return idx == 0 ? detail : prevVal + ', ' + detail
       }, '')
-      const settlementData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'SETTLEMENT').reduce((prevVal,currVal,idx) => {
-        const detail = currVal.currency + ': ' + currVal.value
-        return idx == 0 ? detail : prevVal + ', ' + detail
-      }, '')
+      // const settlementData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'SETTLEMENT').reduce((prevVal,currVal,idx) => {
+      //   const detail = currVal.currency + ': ' + currVal.value
+      //   return idx == 0 ? detail : prevVal + ', ' + detail
+      // }, '')
       return {
         key: index,
         dfspId: dfspItem[0],
         position: positionData,
-        settlement: settlementData
+        // settlement: settlementData
+      }
+    })
+
+    const settlementsData = this.state.settlements.map((settlementItem,index) => {
+      let participantsInfo = settlementItem.participants.filter(item => item.accounts.length > 0).map(item => {
+        return {
+          id: item.id,
+          amount: item.accounts[0].netSettlementAmount
+        }
+      })
+
+      return {
+        key: index,
+        settlementId: settlementItem.id,
+        createdDate: settlementItem.createdDate,
+        info: JSON.stringify(participantsInfo, null, 2)
       }
     })
 
     return (
       <>
       <Row className='mt-4 ml-2'>
-        <Col span={24}>
+        <Col span={8}>
           <Button
             onClick={this.handleDFSPValues}
             loading={this.state.getDFSPValuesInProgress}
@@ -132,15 +192,52 @@ class DFSPValues extends React.Component {
             Get DFSP Data
           </Button>
         </Col>
+        <Col span={8}>
+          <Button
+            onClick={this.handleGetSettlements}
+            loading={this.state.getSettlementsInProgress}
+          >
+            Get Settlements Data
+          </Button>
+        </Col>
+        <Col span={8}>
+          <Button
+            type='primary'
+            onClick={this.handleExecuteSettlement}
+            loading={this.state.executeSettlementInProgress}
+            danger
+          >
+            Execute Settlement
+          </Button>
+        </Col>
       </Row>
       <Row className='mt-4 ml-2'>
-        <Col span={24}>
+        <Col span={12}>
           <Table
-            columns={columns}
+            columns={dfspValuesColumns}
             dataSource={dfspValuesData}
+            bordered
+            title={() => <Text strong>Positions</Text>}
             pagination={false}
             scroll={{ y: 540 }}
             loading={this.state.getDFSPValuesInProgress}
+            footer={(pageData) => {
+              return (
+                <Text strong>{this.state.provisioningStatus}</Text>
+              );
+            }}
+          />
+        </Col>
+        <Col span={12}>
+          <Table
+            className='ml-2'
+            columns={settlementColumns}
+            dataSource={settlementsData}
+            bordered
+            title={() => <Text strong>Settlements</Text>}
+            pagination={false}
+            scroll={{ y: 540 }}
+            loading={this.state.getSettlementsInProgress}
             footer={(pageData) => {
               return (
                 <Text strong>{this.state.provisioningStatus}</Text>
@@ -155,4 +252,4 @@ class DFSPValues extends React.Component {
   }
 }
 
-export default DFSPValues;
+export default HUBConsole;
