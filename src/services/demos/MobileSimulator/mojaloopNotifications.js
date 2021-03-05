@@ -196,6 +196,17 @@ class NotificationService {
       }
     }
   }
+  notifyGetParticipants = (progress) => {
+    if (progress.response.status === 200) {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'participantsUpdate',
+        data: {
+          participants: progress.response.body
+        }
+      })
+    }
+  }
   notifyExecuteSettlement = (progress) => {
     if (progress.status === 'FINISHED') {
       this.notificationEventFunction({
@@ -247,6 +258,9 @@ class NotificationService {
             break
           case 'GET_SETTLED_SETTLEMENTS':
             this.notifyGetSettlements(log)
+            break
+          case 'GET_PARTICIPANTS':
+            this.notifyGetParticipants(log)
             break
         }      
       }

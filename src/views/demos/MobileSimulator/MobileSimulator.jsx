@@ -36,6 +36,8 @@ import Settings from "./Settings.jsx";
 import HUBConsole from "./HUBConsole.jsx";
 import NotificationService from '../../../services/demos/MobileSimulator/mojaloopNotifications'
 import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound'
+import { getServerConfig } from '../../../utils/getConfig'
+
 
 const {Text} = Typography
 const { TabPane } = Tabs;
@@ -47,7 +49,8 @@ class MobileSimulator extends React.Component {
     payeeName: 'Green Bank',
     payerLogsDrawerVisible: false,
     payeeLogsDrawerVisible: false,
-    showSettings: false
+    showSettings: false,
+    hubConsoleEnabled: false
   }
 
   constructor () {
@@ -66,10 +69,17 @@ class MobileSimulator extends React.Component {
   
   componentDidMount = async () => {
     this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents)
+    this.fetchConfiguration()
   }
 
   componentWillUnmount = () => {
     this.notificationServiceObj.disconnect()
+  }
+
+  fetchConfiguration = async () => {
+    const { userConfigRuntime } = await getServerConfig()
+    const hubConsoleEnabled = userConfigRuntime && userConfigRuntime.UI_CONFIGURATION && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR.HUB_CONSOLE_ENABLED
+    this.setState({hubConsoleEnabled})
   }
 
   handleNotificationEvents = (event) => {
@@ -378,16 +388,7 @@ class MobileSimulator extends React.Component {
                 }}
               >
               <Tabs defaultActiveKey='1'>
-                <TabPane tab="Hub Console" key="1">
-                  <HUBConsole
-                    style={{
-                      width: '90%'
-                    }}
-                    ref={this.hubConsoleRef}
-                    outboundService={this.outboundServiceObj}
-                  />
-                </TabPane>
-                <TabPane tab="Sequence Diagram" key="2" forceRender>
+                <TabPane tab="Sequence Diagram" key="1" forceRender>
                   <div
                     style={{
                       height: '100%',
@@ -397,6 +398,21 @@ class MobileSimulator extends React.Component {
                   <TestDiagram ref={this.testDiagramRef} />
                   </div>
                 </TabPane>
+                {
+                  this.state.hubConsoleEnabled
+                  ? (
+                    <TabPane tab="Hub Console" key="2">
+                      <HUBConsole
+                        style={{
+                          width: '90%'
+                        }}
+                        ref={this.hubConsoleRef}
+                        outboundService={this.outboundServiceObj}
+                      />
+                    </TabPane>
+                  )
+                  : null
+                }
               </Tabs>
               </div>
             </Col>
