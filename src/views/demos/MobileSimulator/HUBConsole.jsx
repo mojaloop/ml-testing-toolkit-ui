@@ -57,6 +57,19 @@ class HUBConsole extends React.Component {
 
     this.forceUpdate()
   }
+  handleLimitsUpdate = (limitsData) => {
+    console.log(limitsData)
+    for (let i = 0; i < limitsData.length; i++) {
+      if(limitsData[i].name && this.state.dfsps[limitsData[i].name]) {
+        if (limitsData[i].limit && limitsData[i].limit.type === 'NET_DEBIT_CAP') {
+          this.state.dfsps[limitsData[i].name].NET_DEBIT_CAP = {}
+          this.state.dfsps[limitsData[i].name].NET_DEBIT_CAP[limitsData[i].currency] = limitsData[i].limit.value
+        }
+      }
+    }
+
+    this.forceUpdate()
+  }
   handleSettlementsUpdate = (settlements) => {
     settlements.sort((a,b) => b.id - a.id )
     this.state.settlements = settlements
@@ -74,6 +87,13 @@ class HUBConsole extends React.Component {
       {
         if (event.data && event.data.dfspId && event.data.accountsData) {
           this.handleAccountsUpdate(event.data.dfspId, event.data.accountsData)
+        }
+        break
+      }
+      case 'dfspLimitsUpdate':
+      {
+        if (event.data && event.data.limitsData) {
+          this.handleLimitsUpdate(event.data.limitsData)
         }
         break
       }
@@ -165,6 +185,10 @@ class HUBConsole extends React.Component {
       //   title: 'Settlement',
       //   dataIndex: 'settlement',
       // },
+      {
+        title: 'NET_DEBIT_CAP',
+        dataIndex: 'NET_DEBIT_CAP',
+      },
     ];
     const settlementColumns = [
       {
@@ -182,6 +206,10 @@ class HUBConsole extends React.Component {
         const detail = currVal.currency + ': ' + currVal.value
         return idx == 0 ? detail : prevVal + ', ' + detail
       }, '')
+      const netDebitCapData = dfspItem[1].NET_DEBIT_CAP && Object.entries(dfspItem[1].NET_DEBIT_CAP).reduce((prevVal,currVal,idx) => {
+        const detail = currVal[0] + ': ' + currVal[1]
+        return idx == 0 ? detail : prevVal + ', ' + detail
+      }, '')
       // const settlementData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'SETTLEMENT').reduce((prevVal,currVal,idx) => {
       //   const detail = currVal.currency + ': ' + currVal.value
       //   return idx == 0 ? detail : prevVal + ', ' + detail
@@ -191,6 +219,7 @@ class HUBConsole extends React.Component {
         dfspId: dfspItem[0],
         position: positionData,
         // settlement: settlementData
+        NET_DEBIT_CAP: netDebitCapData
       }
     })
 

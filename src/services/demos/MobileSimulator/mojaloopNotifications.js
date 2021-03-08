@@ -152,21 +152,34 @@ class NotificationService {
           result: progress
         }
       })
-    } else {
-      if (progress.requestSent.method === 'get' && progress.requestSent.operationPath === '/participants/{name}/accounts') {
-        if (progress.response.status === 200) {
-          this.notificationEventFunction({
-            category: 'hubConsole',
-            type: 'dfspAccountsUpdate',
-            data: {
-              dfspId: progress.requestSent.params.name,
-              accountsData: progress.response.body
-            }
-          })
-        }
-      }
     }
   }
+
+  notifyDFSPAccounts = (progress) => {
+    if (progress.response.status === 200) {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'dfspAccountsUpdate',
+        data: {
+          dfspId: progress.requestSent.params.name,
+          accountsData: progress.response.body
+        }
+      })
+    }
+  }
+
+  notifyDFSPLimits = (progress) => {
+    if (progress.response.status === 200) {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'dfspLimitsUpdate',
+        data: {
+          limitsData: progress.response.body
+        }
+      })
+    }
+  }
+
   notifyGetSettlements = (progress) => {
     if (progress.status === 'FINISHED') {
       this.notificationEventFunction({
@@ -232,7 +245,7 @@ class NotificationService {
 
     // Handle the outbound progress events
     if ( log.internalLogType === 'outboundProgress' ) {
-      if (log.status === 'FINISHED') {
+      if (log.status === 'FINISHED' || log.status === 'TERMINATED') {
         switch (log.totalResult.name) {
           case 'PROVISIONING':
             this.notifySettingsTestCaseProgress(log)
@@ -254,7 +267,10 @@ class NotificationService {
             this.notifySettingsTestCaseProgress(log)
             break
           case 'GET_DFSP_ACCOUNTS':
-            this.notifyDFSPValues(log)
+            this.notifyDFSPAccounts(log)
+            break
+          case 'GET_DFSP_LIMITS':
+            this.notifyDFSPLimits(log)
             break
           case 'GET_SETTLED_SETTLEMENTS':
             this.notifyGetSettlements(log)

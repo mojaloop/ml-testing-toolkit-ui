@@ -102,6 +102,28 @@
           "url": "{$inputs.HOST_CENTRAL_LEDGER}"
         }
       ]
+    },
+    {
+      "id": 2,
+      "name": "GET_DFSP_LIMITS",
+      "requests": [
+        {
+          "id": 1,
+          "description": "Get all DFSP limits",
+          "apiVersion": {
+            "minorVersion": 3,
+            "majorVersion": 9,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/limits",
+          "path": "/participants/limits",
+          "method": "get",
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "params": {
+            "name": ""
+          }
+        }
+      ]
     }
   ]
 }
