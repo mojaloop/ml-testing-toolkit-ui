@@ -258,6 +258,7 @@ class PayerMobile extends React.Component {
       <>
       <Row className='mt-4 ml-2'>
         <Col span={24}>
+          <Text strong>Enter Phone Number</Text>
           <Input.Search
             placeholder='Phone Number'
             loading={this.state.gettingPartyInfo}
