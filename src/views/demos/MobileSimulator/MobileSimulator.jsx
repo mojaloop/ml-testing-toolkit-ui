@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col, Drawer, Button, Typography, Modal } from 'antd';
+import { Row, Col, Drawer, Button, Typography, Modal, Tabs } from 'antd';
 import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css'
 import mobile_left from '../../../assets/img/mobile_pink_iphone.png';
@@ -33,10 +33,14 @@ import PayeeMobile from "./PayeeMobile.jsx";
 import TestDiagram from "./TestDiagram.jsx";
 import TestMonitor from "./TestMonitor.jsx";
 import Settings from "./Settings.jsx";
+import HUBConsole from "./HUBConsole.jsx";
 import NotificationService from '../../../services/demos/MobileSimulator/mojaloopNotifications'
 import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound'
+import { getServerConfig } from '../../../utils/getConfig'
+
 
 const {Text} = Typography
+const { TabPane } = Tabs;
 
 class MobileSimulator extends React.Component {
   state = {
@@ -45,7 +49,8 @@ class MobileSimulator extends React.Component {
     payeeName: 'Green Bank',
     payerLogsDrawerVisible: false,
     payeeLogsDrawerVisible: false,
-    showSettings: false
+    showSettings: false,
+    hubConsoleEnabled: false
   }
 
   constructor () {
@@ -56,6 +61,7 @@ class MobileSimulator extends React.Component {
     this.payerMonitorRef = React.createRef();
     this.payeeMonitorRef = React.createRef();
     this.settingsRef = React.createRef();
+    this.hubConsoleRef = React.createRef();
     this.notificationServiceObj = new NotificationService()
     const sessionId = this.notificationServiceObj.getSessionId()
     this.outboundServiceObj = new OutboundService(sessionId)
@@ -63,10 +69,17 @@ class MobileSimulator extends React.Component {
   
   componentDidMount = async () => {
     this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents)
+    this.fetchConfiguration()
   }
 
   componentWillUnmount = () => {
     this.notificationServiceObj.disconnect()
+  }
+
+  fetchConfiguration = async () => {
+    const { userConfigRuntime } = await getServerConfig()
+    const hubConsoleEnabled = userConfigRuntime && userConfigRuntime.UI_CONFIGURATION && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR.HUB_CONSOLE_ENABLED
+    this.setState({hubConsoleEnabled})
   }
 
   handleNotificationEvents = (event) => {
@@ -82,6 +95,8 @@ class MobileSimulator extends React.Component {
       this.payeeMonitorRef.current && this.payeeMonitorRef.current.appendLog(event.data.log)
     } else if (event.category === 'settingsLog') {
       this.settingsRef.current && this.settingsRef.current.handleNotificationEvents(event)
+    } else if (event.category === 'hubConsole') {
+      this.hubConsoleRef.current && this.hubConsoleRef.current.handleNotificationEvents(event)
     }
   }
 
@@ -369,11 +384,36 @@ class MobileSimulator extends React.Component {
               </Button>
               <div
                 style={{
-                  height: '90vh',
-                  overflow: 'scroll'
+                  height: '90vh'
                 }}
               >
-              <TestDiagram ref={this.testDiagramRef} />
+              <Tabs defaultActiveKey='1'>
+                <TabPane tab="Sequence Diagram" key="1" forceRender>
+                  <div
+                    style={{
+                      height: '100%',
+                      overflow: 'scroll'
+                    }}
+                  >
+                  <TestDiagram ref={this.testDiagramRef} />
+                  </div>
+                </TabPane>
+                {
+                  this.state.hubConsoleEnabled
+                  ? (
+                    <TabPane tab="Hub Console" key="2">
+                      <HUBConsole
+                        style={{
+                          width: '90%'
+                        }}
+                        ref={this.hubConsoleRef}
+                        outboundService={this.outboundServiceObj}
+                      />
+                    </TabPane>
+                  )
+                  : null
+                }
+              </Tabs>
               </div>
             </Col>
             <Col span={4}

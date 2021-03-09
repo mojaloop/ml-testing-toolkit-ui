@@ -135,12 +135,151 @@ class NotificationService {
 
   }
 
+  notifyDFSPValues = (progress) => {
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getDFSPValuesFinished',
+        data: {
+          result: progress
+        }
+      })
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getDFSPValuesTerminated',
+        data: {
+          result: progress
+        }
+      })
+    }
+  }
+
+  notifyDFSPAccounts = (progress) => {
+    if (progress.response.status === 200) {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'dfspAccountsUpdate',
+        data: {
+          dfspId: progress.requestSent.params.name,
+          accountsData: progress.response.body
+        }
+      })
+    }
+  }
+
+  notifyDFSPLimits = (progress) => {
+    if (progress.response.status === 200) {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'dfspLimitsUpdate',
+        data: {
+          limitsData: progress.response.body
+        }
+      })
+    }
+  }
+
+  notifyGetSettlements = (progress) => {
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getSettlementsFinished',
+        data: {
+          result: progress
+        }
+      })
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getSettlementsTerminated',
+        data: {
+          result: progress
+        }
+      })
+    } else {
+      if (progress.response.status === 200) {
+        this.notificationEventFunction({
+          category: 'hubConsole',
+          type: 'settingsUpdate',
+          data: {
+            settlements: progress.response.body
+          }
+        })
+      }
+    }
+  }
+  notifyGetParticipants = (progress) => {
+    if (progress.response.status === 200) {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'participantsUpdate',
+        data: {
+          participants: progress.response.body
+        }
+      })
+    }
+  }
+  notifyExecuteSettlement = (progress) => {
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'executeSettlementFinished',
+        data: {
+          result: progress
+        }
+      })
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'executeSettlementTerminated',
+        data: {
+          result: progress
+        }
+      })
+    }
+  }
+
   handleNotificationLog = (log) => {
     // console.log(log)
 
     // Handle the outbound progress events
     if ( log.internalLogType === 'outboundProgress' ) {
-      this.notifySettingsTestCaseProgress(log)
+      if (log.status === 'FINISHED' || log.status === 'TERMINATED') {
+        switch (log.totalResult.name) {
+          case 'PROVISIONING':
+            this.notifySettingsTestCaseProgress(log)
+            break
+          case 'GET_DFSP_VALUES':
+            this.notifyDFSPValues(log)
+            break
+          case 'GET_SETTLEMENTS':
+            this.notifyGetSettlements(log)
+            break
+          case 'EXECUTE_SETTLEMENT':
+            this.notifyExecuteSettlement(log)
+            break
+        }
+      } else {
+        switch (log.testCaseName) {
+          case 'PAYER_FSP_PROVISIONING':
+          case 'PAYEE_FSP_PROVISIONING':
+            this.notifySettingsTestCaseProgress(log)
+            break
+          case 'GET_DFSP_ACCOUNTS':
+            this.notifyDFSPAccounts(log)
+            break
+          case 'GET_DFSP_LIMITS':
+            this.notifyDFSPLimits(log)
+            break
+          case 'GET_SETTLED_SETTLEMENTS':
+            this.notifyGetSettlements(log)
+            break
+          case 'GET_PARTICIPANTS':
+            this.notifyGetParticipants(log)
+            break
+        }      
+      }
       return null
     }
 

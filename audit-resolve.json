@@ -14,11 +14,15 @@
     },
     "1603|react-scripts>react-dev-utils>immer": {
       "decision": "postpone",
-      "madeAt": 1614364479519
+      "madeAt": 1615217321199
     },
     "1615|electron": {
       "decision": "postpone",
-      "madeAt": 1614364480053
+      "madeAt": 1615217321760
+    },
+    "1638|redoc>prismjs": {
+      "decision": "postpone",
+      "madeAt": 1615217322361
     }
   },
   "rules": {},
