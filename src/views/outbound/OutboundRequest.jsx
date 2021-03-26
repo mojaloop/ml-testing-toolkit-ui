@@ -38,6 +38,7 @@ import getConfig from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
 import ServerLogsViewer from './ServerLogsViewer'
+import EnvironmentManager from './EnvironmentManager'
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
@@ -1131,6 +1132,24 @@ class OutboundRequest extends React.Component {
           visible={this.state.fileBrowserVisible}
         >
           <FileManager
+            folderData={this.state.folderData}
+            selectedFiles={this.state.additionalData.selectedFiles}
+            onChange={this.handleFileManagerContentChange}
+            ref={this.fileManagerRef}
+            ipcRenderer={ipcRenderer}
+          />
+        </Drawer>
+        <Drawer
+          title="Environment Manager"
+          placement="right"
+          width={500}
+          closable={false}
+          onClose={() => {
+            this.setState({ fileBrowserVisible: false })
+          }}
+          visible={true}
+        >
+          <EnvironmentManager
             folderData={this.state.folderData}
             selectedFiles={this.state.additionalData.selectedFiles}
             onChange={this.handleFileManagerContentChange}
