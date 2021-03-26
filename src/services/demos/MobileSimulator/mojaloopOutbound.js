@@ -49,7 +49,7 @@ class OutboundService {
   }
   
   async reloadEnvironment () {
-    const environmentURL = '/api/samples/loadFolderWise?environment=examples/environments/hub-k8s-local-environment.json'
+    const environmentURL = '/api/samples/loadFolderWise?environment=examples/environments/hub-k8s-environment.json'
     const resp = await axios.get(this.apiBaseUrl + environmentURL)
     if (resp.data && resp.data.body && resp.data.body.environment) {
       this.inputValues =  resp.data.body.environment
