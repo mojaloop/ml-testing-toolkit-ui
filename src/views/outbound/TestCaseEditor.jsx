@@ -1056,6 +1056,15 @@ class TestCaseEditor extends React.Component {
                 <div className="float-right">
                   <Button
                     type="primary"
+                    onClick={() => {
+                      this.props.onOpenEnvironmentManager()
+                    }}
+                  >
+                        Environment Manager
+                  </Button>
+                  <Button
+                    className='ml-2'
+                    type="primary"
                     danger
                     onClick={() => {
                       this.props.onSend()

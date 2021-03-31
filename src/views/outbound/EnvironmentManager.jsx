@@ -24,25 +24,26 @@
 import React from "react";
 import getConfig from '../../utils/getConfig'
 import axios from 'axios';
-import APIDocViewer from '../apis/APIDocViewer'
+import { LocalDB } from '../../services/localDB/LocalDB';
+import InputValues from './InputValues'
 
-import { Select, Row, Col, Table, Button, Modal, Upload, message, Card, Typography, Input, Tag, Radio } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
+import { Select, Row, Col, Table, Button, Upload, message, Card, Typography, Input, Tag, Radio, Dropdown, Menu, Collapse, Popover } from 'antd';
+import { InboxOutlined, DownOutlined, FileOutlined } from '@ant-design/icons';
 
 const { Dragger } = Upload;
 const { Option } = Select;
 const { Text } = Typography;
+const { Panel } = Collapse;
 
-class AddNewAPI extends React.Component {
-  state = {
-    apiName: null,
-    validatedApiDefinition: {},
-    selectedFile: null,
-    validationError: null,
-    newApiName: null,
-    newApiVersion: null,
-    newApiAsynchronous: null
-  }
+function download(content, fileName, contentType) {
+  var a = document.createElement("a");
+  var file = new Blob([content], { type: contentType });
+  a.href = URL.createObjectURL(file);
+  a.download = fileName;
+  a.click();
+}
+
+class EnvironmentManager extends React.Component {
   apiBaseUrl = null
 
   constructor () {
@@ -51,281 +52,177 @@ class AddNewAPI extends React.Component {
     this.apiBaseUrl = apiBaseUrl
   }
 
-  validateApiFile = async () => {
-    const data = new FormData() 
-    data.append('file', this.state.selectedFile)
-    const url = this.apiBaseUrl + "/api/openapi/validate_definition";
-    const res = await axios.post(url, data, {
-      headers: {
-        'content-type': 'multipart/form-data'
-      }
-    })
-    return res.data
-  }
-
-  addApiFile = async () => {
-    const data = new FormData() 
-    data.append('file', this.state.selectedFile)
-    data.append('name', this.state.newApiName)
-    data.append('version', this.state.newApiVersion)
-    data.append('asynchronous', this.state.newApiAsynchronous)
-    const url = this.apiBaseUrl + "/api/openapi/definition";
-    const res = await axios.post(url, data, {
-      headers: {
-        'content-type': 'multipart/form-data'
-      }
-    })
-    this.props.onAdded()
-    return res.data
-  }
-
-  handleFileImport = async (infoObject) => {
-    this.state.selectedFile = infoObject.file
-    try {
-      const validationResult = await this.validateApiFile()
-      const newApiName = this.state.selectedFile && this.state.selectedFile.name && this.state.selectedFile.name.split('.')[0]
-      const newApiVersion = validationResult && validationResult.apiDefinition && validationResult.apiDefinition.info && validationResult.apiDefinition.info.version
-      const newApiAsynchronous = 'false'
-      this.setState({validatedApiDefinition: validationResult.apiDefinition, validationError: null, newApiName, newApiVersion, newApiAsynchronous })
-    } catch(err) {
-      infoObject.onError('Validation Error')
-      this.setState({validatedApiDefinition: null, selectedFile: null, validationError: err.response.data})
-    }
-  }
-
-  getApiMethodItems = (resourceItem) => {
-    return Object.keys(resourceItem).map(item => {
-      if(item !== 'parameters') {
-        const params = {}
-        switch(item) {
-          case 'get':
-            params.color = 'blue'
-            break
-          case 'post':
-            params.color = 'green'
-            break
-          case 'put':
-            params.color = 'orange'
-            break
-          case 'delete':
-            params.color = 'red'
-            break
-          case 'update':
-            params.color = 'gold'
-            break
-
-        }
-        return <Tag {...params} >{item}</Tag>
-      } else {
-        return null
-      }
-    })
-  }
-
-  getApiResourceItems = () => {
-    if(this.state.validatedApiDefinition && this.state.validatedApiDefinition.paths) {
-      const columns = [
-        {
-          title: 'Resource',
-          dataIndex: 'resource',
-        },
-        {
-          title: 'Methods',
-          dataIndex: 'methods',
-        }
-      ];
-  
-      const data = Object.keys(this.state.validatedApiDefinition.paths).map((item,index) => {
-        return {
-          key: index,
-          resource: item,
-          methods: (
-            <>
-            {this.getApiMethodItems(this.state.validatedApiDefinition.paths[item])}
-            </>
-          )
-        }
-      })
-      return (
-        <Table
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-          scroll={{ y: 240 }}
-        />
-      )
-    } else {
-      return null
-    }
-  }
-  
-
-  render() {
-    return (
-      <>
-      <Dragger
-        name='spec_file'
-        multiple={false}
-        accept=".yaml,.yml"
-        showUploadList={false}
-        action={this.apiBaseUrl + "/api/openapi/definition"}
-        customRequest={this.handleFileImport}
-        onChange={(info) => {
-          const { status } = info.file;
-          if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-          }
-          if (status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully.`);
-          } else if (status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-          }
-        }}
-      >
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">Click or drag file to this area to upload</p>
-        <p className="ant-upload-hint">
-          Swagger / OpenAPI files in YAML format are supported
-        </p>
-      </Dragger>
-      {
-        this.state.validatedApiDefinition && this.state.validatedApiDefinition.info
-        ? (
-          <Card className="p-2">
-            <Row>
-              <Col span={24}>
-                <Text strong>{this.state.validatedApiDefinition.info.title}</Text>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={12}>
-                <Text strong>Name:</Text>
-              </Col>
-              <Col span={12}>
-                <Input
-                  value={this.state.newApiName}
-                  onChange={e => this.setState({newApiName: e.target.value})}
-                />
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={12}>
-                <Text strong>Version:</Text>
-              </Col>
-              <Col span={12}>
-                <Input
-                  value={this.state.newApiVersion}
-                  onChange={e => this.setState({newApiVersion: e.target.value})}
-                />
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={12}>
-                <Text strong>Asynchronous:</Text>
-              </Col>
-              <Col span={12}>
-                <Radio.Group
-                  value={this.state.newApiAsynchronous}
-                  onChange={e => this.setState({newApiAsynchronous: e.target.value})}
-                >
-                  <Radio value={'true'}>Yes</Radio>
-                  <Radio value={'false'}>No</Radio>
-                </Radio.Group>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={24}>
-              { this.getApiResourceItems() }
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={24}>
-                <Button className="float-right" type="primary" danger
-                  onClick={this.addApiFile}
-                >
-                  Upload
-                </Button>
-              </Col>
-            </Row>
-          </Card>
-        )
-        : this.state.validationError && this.state.validationError.message
-          ? (
-            <Card>
-              <Row>
-                <Col span={24}>
-                  <Text><pre>{this.state.validationError.message}</pre></Text>
-                </Col>
-              </Row>
-            </Card>
-          )
-          : null
-      }
-      </>
-    )
-  }
-}
-
-class EnvironmentManager extends React.Component {
   state = {
-    apiVersions: [],
     serverEnvironments: [],
-    newAPIDialogEnabled: false,
-    selectedApiIndex: null,
-    apiDocViewerVisible: false
+    localEnvironments: [],
+    selectedEnvironmentIndex: null,
+    renameEnvironmentNewName: '',
+    renameEnvironementDialogVisible: false
   }
 
-  getApiVersions = async () => {
-    const { apiBaseUrl } = getConfig()
-    const response = await axios.get(apiBaseUrl + "/api/openapi/api_versions")
-    return response.data
+  getSelectedEnvironment = () => {
+    return this.state.localEnvironments[this.state.selectedEnvironmentIndex]
   }
 
   getServerEnvironments = async () => {
-    const { apiBaseUrl } = getConfig()
-    const response = await axios.get(apiBaseUrl + `/api/samples/list/environments`)
+    const response = await axios.get(this.apiBaseUrl + `/api/samples/list/environments`)
     return response.data && response.data.body
   }
 
   componentDidMount = async () => {
-    await this.refreshServerEnvironments()
+    this.refreshServerEnvironments()
+    this.refreshLocalEnvironments()
+    this.environmentFileSelector = document.createElement('input');
+    this.environmentFileSelector.setAttribute('type', 'file');
+    this.environmentFileSelector.addEventListener('input', (e) => {
+      if (e.target.files) {
+        this.handleImportEnvironmentFile(e.target.files[0])
+        this.environmentFileSelector.value = null
+      }
+    })
+
+    this.startAutoSaveTimer()
+  }
+
+  autoSave = false
+  autoSaveIntervalId = null
+
+  startAutoSaveTimer = () => {
+    this.autoSaveIntervalId = setInterval(() => {
+      if (this.autoSave) {
+        this.autoSave = false
+        this.saveLocalEnvironments()
+      }
+    },
+    2000)
+  }
+
+  componentWillUnmount = () => {
+    if (this.autoSaveIntervalId) {
+      clearInterval(this.autoSaveIntervalId)
+    }
   }
 
   refreshServerEnvironments = async () => {
     const serverEnvironments = await this.getServerEnvironments()
-    console.log(serverEnvironments)
     this.setState({ serverEnvironments })
   }
 
-  handleApiAdded = () => {
-    // this.refreshApiVersions()
-    this.setState({newAPIDialogEnabled: false})
-  }
-
-  handleDeleteAPI = async () => {
-    const res = await axios.delete(this.getSelectedVersionURL())
-    // this.refreshApiVersions()
-    return res.data
-  }
-
-  getSelectedVersionURL = () => {
-    const { apiBaseUrl } = getConfig()
-    if (this.state.selectedApiIndex !== null) {
-      const url = apiBaseUrl + '/api/openapi/definition/' +  this.state.apiVersions[this.state.selectedApiIndex].type + '/' + this.state.apiVersions[this.state.selectedApiIndex].majorVersion + '.' + this.state.apiVersions[this.state.selectedApiIndex].minorVersion
-      return url
-    } else {
-      return ''
+  refreshLocalEnvironments = async () => {
+    const storedEnvironmentFilesRaw = await LocalDB.getItem('environmentFiles')
+    if(storedEnvironmentFilesRaw) {
+      try {
+        this.setState({ localEnvironments: JSON.parse(storedEnvironmentFilesRaw) })
+      } catch (err) { }
+    }
+    const storedEnvironmentSelectedIndex = await LocalDB.getItem('environmentFilesSelectedIndex')
+    if(storedEnvironmentSelectedIndex !== null) {
+      this.setState({ selectedEnvironmentIndex: +storedEnvironmentSelectedIndex })
     }
   }
+
+  saveLocalEnvironments = async () => {
+    await LocalDB.setItem('environmentFiles', JSON.stringify(this.state.localEnvironments))
+    await LocalDB.setItem('environmentFilesSelectedIndex', this.state.selectedEnvironmentIndex + '')
+  }
+
+  handleImportServer = () => {
+    // this.refreshServerEnvironments()
+    // console.log('Handle import server')
+  }
+
+  handleServerEnvironmentImport = async (key) => {
+    if(this.state.serverEnvironments[key]) {
+      const environmentFileName = this.state.serverEnvironments[key].name
+      const resp = await axios.get(this.apiBaseUrl + '/api/samples/load', {
+        params: {
+          environment: environmentFileName
+        }
+      })
+      if(resp.data && resp.data.body && resp.data.body.inputValues) {
+        this.addLocalEnvironment(environmentFileName, resp.data.body.inputValues)
+      }
+    }
+  }
+
+  addLocalEnvironment = (environmentFileName, inputValues) => {
+    this.state.localEnvironments.push({
+      name: environmentFileName,
+      inputValues: inputValues
+    })
+    this.autoSave = true
+    this.forceUpdate()
+  }
+
+  handleDeleteEnvironment = (key) => {
+    this.state.localEnvironments.splice(key, 1)
+    this.autoSave = true
+    this.forceUpdate()
+  }
+
+  handleDuplicateEnvironment = (key) => {
+    const envCopy  = JSON.parse(JSON.stringify(this.state.localEnvironments[key]))
+    this.state.localEnvironments.push(envCopy)
+    this.state.selectedEnvironmentIndex = this.state.localEnvironments.length - 1
+    this.autoSave = true
+    this.forceUpdate()
+  }
+
+  handleRenameEnvironment = (newName) => {
+    if(this.state.localEnvironments[this.state.selectedEnvironmentIndex]) {
+      this.state.localEnvironments[this.state.selectedEnvironmentIndex].name = newName
+      this.autoSave = true
+      this.forceUpdate()
+    }
+  }
+
+  handleDownloadEnvironment = (key) => {
+    const contentObj = {
+      inputValues: this.state.localEnvironments[key].inputValues
+    }
+    download(JSON.stringify(contentObj, null, 2), this.state.localEnvironments[key].name, 'text/plain');
+  }
+
+  handleImportEnvironmentFile = (file_to_read) => {
+    message.loading({ content: 'Reading the file...', key: 'importFileProgress' });
+    var fileRead = new FileReader();
+    fileRead.onload = (e) => {
+      var content = e.target.result;
+      try {
+        var templateContent = JSON.parse(content);
+        if (templateContent.inputValues) {
+          this.addLocalEnvironment(file_to_read.name, templateContent.inputValues)
+          message.success({ content: 'Environment Loaded', key: 'importFileProgress', duration: 2 });
+        } else {
+          message.error({ content: 'Input Values not found in the file', key: 'importFileProgress', duration: 2 });
+        }
+      } catch (err) {
+        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+      }
+    };
+    fileRead.readAsText(file_to_read);
+  }
+
+  handleInputValuesChange = (name, value) => {
+    this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues[name] = value
+    this.autoSave = true
+    this.forceUpdate()
+  }
+
+  handleInputValuesDelete = (name) => {
+    delete this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues[name]
+    this.autoSave = true
+    this.forceUpdate()
+  }
+
 
   render() {
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
-        this.setState({selectedApiIndex: selectedRowKeys[0]})
+        this.setState({selectedEnvironmentIndex: selectedRowKeys[0]})
+        this.autoSave = true
       },
-      selectedRowKeys: [this.state.selectedApiIndex]
+      selectedRowKeys: [this.state.selectedEnvironmentIndex]
     }
 
     const columns = [
@@ -334,93 +231,203 @@ class EnvironmentManager extends React.Component {
         dataIndex: 'name',
       },
       {
-        title: 'Type',
-        dataIndex: 'type',
+        title: '# of Values',
+        dataIndex: 'valuesCount',
       },
     ];
 
-    const data = this.state.serverEnvironments.map((item, index) => {
+    const data = this.state.localEnvironments.map((item, index) => {
       return {
         key: index,
         name: item.name,
-        size: item.size,
-        type: 'Server'
+        valuesCount: Object.entries(item.inputValues).length
       }
     })
 
+    const getMenuItems = () => { 
+      return this.state.serverEnvironments.map((item, index) => {
+        return (
+          <Menu.Item key={index} icon={<FileOutlined />}>
+            {item.name}
+          </Menu.Item>
+        )
+      })
+    }
+
+    const menu = (
+      <Menu
+        onClick={(menuItem) => this.handleServerEnvironmentImport(menuItem.key)}
+      >
+        {getMenuItems()}
+      </Menu>
+    )
+
+
+    const getRenameDialogContent = () => {
+      return (
+        <>
+          <Row>
+            <Col>
+              <Input
+                placeholder="File name"
+                type="text"
+                value={this.state.renameEnvironmentNewName}
+                onChange={(e) => { this.setState({ renameEnvironmentNewName: e.target.value }) }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    this.setState({ renameEnvironementDialogVisible: false })
+                  }
+                }}
+                onPressEnter={() => {
+                  this.handleRenameEnvironment(this.state.renameEnvironmentNewName)
+                  this.setState({ renameEnvironementDialogVisible: false })
+                }}
+              />
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <Button
+                className="text-right mt-2"
+                color="success"
+                href="#pablo"
+                onClick={() => {
+                  this.handleRenameEnvironment(this.state.renameEnvironmentNewName)
+                  this.setState({ renameEnvironementDialogVisible: false })
+                }}
+                size="sm"
+              >
+                Save
+            </Button>
+            </Col>
+          </Row>
+        </>
+      )
+    }
+
+
     return (
       <>
-        {/* <Modal
-          title='API Documentation'
-          style={{ top: 20 }}
-          className="p-3"
-          width='90%'
-          destroyOnClose
-          footer={null}
-          visible={this.state.apiDocViewerVisible}
-          onCancel={ e => {
-            this.setState({apiDocViewerVisible: false})
-          }}
-        >
-          <APIDocViewer specUrl={this.getSelectedVersionURL()} />
-        </Modal> */}
-
         {/* Page content */}
           <Row className="mt--7 mb-4">
             <Col span={24}>
-              <Row>
-                <Col span={24}>
-                  <Button
-                    className="float-right"
-                    type="primary"
-                    onClick={() => {
-                      this.setState({newAPIDialogEnabled: true})
-                    }}
-                  >
-                    Import to Workspace
-                  </Button>
-                  <Button
-                    type="primary"
-                    danger
-                    onClick={this.handleDeleteAPI}
-                    disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex] && this.state.apiVersions[this.state.selectedApiIndex].additionalApi)}
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    className="ml-2"
-                    type="primary"
-                    shape="round"
-                    info
-                    onClick={ e => {
-                      this.setState({apiDocViewerVisible: true})
-                    }}
-                    disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex])}
-                  >
-                    Preview Environment
-                  </Button>
-                </Col>
-              </Row>
-              <Row className="mt-2">
-                <Col span={24}>
-                  <Table
-                    rowSelection={{
-                      type: 'radio',
-                      ...rowSelection,
-                    }}
-                    columns={columns}
-                    dataSource={data}
-                    pagination={false}
-                  />
-                </Col>
-              </Row>
-              <Row className="mt-2">
-                <Col span={24}>
-                  <AddNewAPI
-                    onAdded={this.handleApiAdded}
-                  />
-                </Col>
-              </Row>
+              <Collapse defaultActiveKey={['1']}>
+                <Panel header={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].name : 'Choose environment'} key="1">
+                  <Row>
+                    <Col span={24}>
+                      <Button
+                        type="primary"
+                        info
+                        onClick={e => {
+                          e.preventDefault();
+                          this.environmentFileSelector.click();
+                        }}
+                      >
+                        Import File
+                      </Button>
+                      <Dropdown
+                        className="ml-2 float-right"
+                        overlay={menu}
+                        trigger={['click']}
+                        onVisibleChange={(visible) => {
+                            if (visible) {
+                              this.handleImportServer()
+                            }
+                          }
+                        }
+                      >
+                        <Button
+                          type="primary"
+                        >
+                          Import from Server <DownOutlined />
+                        </Button>
+                      </Dropdown>
+                    </Col>
+                  </Row>
+                  <Row className='mt-2'>
+                    <Col span={24}>
+                      <Button
+                        type="primary"
+                        danger
+                        onClick={() => {
+                            this.handleDeleteEnvironment(this.state.selectedEnvironmentIndex)
+                            this.setState({selectedEnvironmentIndex: null})
+                          } 
+                        }
+                        disabled={this.state.selectedEnvironmentIndex === null}
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        className='ml-2'
+                        type="dashed"
+                        onClick={() => {
+                            this.handleDuplicateEnvironment(this.state.selectedEnvironmentIndex)
+                          } 
+                        }
+                        disabled={this.state.selectedEnvironmentIndex === null}
+                      >
+                        Duplicate
+                      </Button>
+                      <Popover
+                        content={getRenameDialogContent()}
+                        title="Enter new name"
+                        trigger="click"
+                        visible={this.state.renameEnvironementDialogVisible}
+                        onVisibleChange={(visible) => {
+                          if (visible) {
+                            this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name })
+                          }
+                          this.setState({ renameEnvironementDialogVisible: visible })
+                        }}
+                      >
+                        <Button
+                          className='ml-2'
+                          type="default"
+                          disabled={this.state.selectedEnvironmentIndex === null}
+                        >
+                          Rename
+                        </Button>
+                      </Popover>
+                      <Button
+                        className="float-right"
+                        type="default"
+                        shape="round"
+                        onClick={() => {
+                            this.handleDownloadEnvironment(this.state.selectedEnvironmentIndex)
+                          } 
+                        }
+                        disabled={this.state.selectedEnvironmentIndex === null}
+                      >
+                        Download
+                      </Button>
+                    </Col>
+                  </Row>
+                  <Row className="mt-2">
+                    <Col span={24}>
+                      <Table
+                        rowSelection={{
+                          type: 'radio',
+                          ...rowSelection,
+                        }}
+                        columns={columns}
+                        dataSource={data}
+                        pagination={false}
+                      />
+                    </Col>
+                  </Row>
+                </Panel>
+              </Collapse>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+              {
+                this.state.localEnvironments[this.state.selectedEnvironmentIndex]
+                ? <InputValues values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues : {} } onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
+                : null
+              }
             </Col>
           </Row>
       </>

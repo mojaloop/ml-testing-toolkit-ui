@@ -39,11 +39,12 @@ import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
 import ServerLogsViewer from './ServerLogsViewer'
 import EnvironmentManager from './EnvironmentManager'
+
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
-import { trace } from "mobx";
+import { extendObservable, trace } from "mobx";
 
 import { LocalDB } from '../../services/localDB/LocalDB';
 
@@ -84,166 +85,13 @@ function readFileAsync(file) {
   })
 }
 
-class InputValues extends React.Component {
-
-  state = {
-    addInputValueDialogVisible: false,
-    newInputValueName: '',
-    newInputValueType: 'string'
-  };
-
-  handleDeleteClick = (inputValueName) => {
-    this.props.onDelete(inputValueName)
-  }
-  getInputItemType = (inputValueName) => {
-    if (typeof this.props.values[inputValueName] === 'boolean') {
-      return (
-        <Checkbox
-          checked={this.props.values[inputValueName]}
-          onChange={(e) => this.props.onChange(inputValueName, e.target.checked)}
-        />
-      )
-    } else if (typeof this.props.values[inputValueName] === 'number') {
-      return (
-        <Input
-          value={this.props.values[inputValueName]}
-          onChange={(e) => this.props.onChange(inputValueName, +e.target.value)}
-        />
-      )
-    } else {
-      return (
-        <Input
-          value={this.props.values[inputValueName]}
-          onChange={(e) => this.props.onChange(inputValueName, e.target.value)}
-        />
-      )
-    }
-  }
-
-  getInputItems = () => {
-    let inputItems = []
-    let i = 0
-    for (let inputValueName in this.props.values) {
-      inputItems.push(
-        <>
-          <Descriptions.Item label={inputValueName}>
-            <Row gutter={8}>
-              <Col span={23}>
-                {this.getInputItemType(inputValueName)}
-              </Col>
-              <Col span={1}>
-                <DeleteTwoTone key={inputValueName} type="delete" theme="filled"
-                  onClick={() => this.handleDeleteClick(inputValueName)}
-                />
-              </Col>
-            </Row>
-
-          </Descriptions.Item>
-        </>
-      )
-    }
-    return inputItems
-  }
-
-  handleAddInputValue = (inputValueName) => {
-    // Check if the input value name already exists
-    if (this.props.values && this.props.values.hasOwnProperty(inputValueName)) {
-      message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 });
-    } else {
-      // Save the input value
-      let newValue = ''
-      if (this.state.newInputValueType === 'number') {
-        newValue = 0
-      } else if (this.state.newInputValueType === 'boolean') {
-        newValue = false
-      }
-      this.props.onChange(inputValueName, newValue)
-      this.state.newInputValueName = ''
-    }
-  }
-
-
-  render() {
-    const addInputValueDialogContent = (
-      <>
-        <Input
-          placeholder="Input Value Name"
-          type="text"
-          value={this.state.newInputValueName}
-          onChange={(e) => { this.setState({ newInputValueName: e.target.value }) }}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              this.setState({ addInputValueDialogVisible: false })
-            }
-          }}
-          onPressEnter={() => {
-            this.handleAddInputValue(this.state.newInputValueName)
-            this.setState({ addInputValueDialogVisible: false })
-          }}
-        />
-        <Radio.Group onChange={(e) => {
-          this.setState({ newInputValueType: e.target.value })
-        }}
-          value={this.state.newInputValueType}
-        >
-          <Radio value='string'>String</Radio>
-          <Radio value='number'>Number</Radio>
-          <Radio value='boolean'>Boolean</Radio>
-        </Radio.Group>
-        <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
-          onClick={() => {
-            this.handleAddInputValue(this.state.newInputValueName)
-            this.setState({ addInputValueDialogVisible: false })
-          }}
-          size="sm"
-        >
-          Add
-      </Button>
-      </>
-    )
-
-    return (
-      <>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Card className="bg-white shadow">
-              <Popover
-                content={addInputValueDialogContent}
-                title="Enter a new name"
-                trigger="click"
-                visible={this.state.addInputValueDialogVisible}
-                onVisibleChange={(visible) => this.setState({ addInputValueDialogVisible: visible })}
-              >
-                <Button
-                  className="text-right float-right"
-                  color="primary"
-                  size="sm"
-                >
-                  Add Input Value
-              </Button>
-              </Popover>
-
-              <Descriptions title="Input Values" bordered column={1} size='small'>
-                {this.getInputItems()}
-              </Descriptions>
-            </Card>
-          </Col>
-        </Row>
-      </>
-    )
-  }
-}
-
-
 class OutboundRequest extends React.Component {
 
   constructor() {
     super();
     this.fileManagerRef = React.createRef();
     this.iterationRunnerRef = React.createRef();
+    this.environmentManagerRef = React.createRef();
     const sessionId = TraceHeaderUtils.generateSessionId()
     this.state = {
       request: {},
@@ -301,7 +149,8 @@ class OutboundRequest extends React.Component {
       curTestCasesRequestsUpdated: false,
       tempReorderedTestCases: [],
       serverLogsVisible: true,
-      testCaseEditorLogs: []
+      testCaseEditorLogs: [],
+      environmentManagerVisible: false
     };
   }
 
@@ -345,21 +194,17 @@ class OutboundRequest extends React.Component {
 
     const additionalData = this.restoreAdditionalData()
     const storedFolderData = await this.restoreSavedFolderData()
-    const storedEnvironmentData = this.restoreSavedEnvironmentData()
 
     if (storedFolderData) {
       this.state.folderData = storedFolderData
       this.regenerateTemplate(additionalData.selectedFiles)
-    }
-    if (storedEnvironmentData) {
-      this.state.template.inputValues = storedEnvironmentData
     }
 
     if (additionalData) {
       this.state.additionalData = additionalData
     }
 
-    if (storedFolderData || storedEnvironmentData || additionalData) {
+    if (storedFolderData || additionalData) {
       this.forceUpdate()
     }
 
@@ -367,16 +212,9 @@ class OutboundRequest extends React.Component {
 
   }
 
-  handleInputValuesChange = (name, value) => {
-    this.state.template.inputValues[name] = value
-    this.autoSave = true
-    this.forceUpdate()
-  }
-
-  handleInputValuesDelete = (name) => {
-    delete this.state.template.inputValues[name]
-    this.autoSave = true
-    this.forceUpdate()
+  getInputValues = () => {
+    const env = this.environmentManagerRef.current && this.environmentManagerRef.current.getSelectedEnvironment()
+    return env && env.inputValues
   }
 
   handleIncomingProgress = (progress) => {
@@ -558,16 +396,6 @@ class OutboundRequest extends React.Component {
     return null
   }
 
-  restoreSavedEnvironmentData = () => {
-    const storedEnvironmentData = localStorage.getItem('environmentData')
-    if (storedEnvironmentData) {
-      try {
-        return JSON.parse(storedEnvironmentData)
-      } catch (err) { }
-    }
-    return null
-  }
-
   restoreAdditionalData = () => {
     const additionalData = localStorage.getItem('additionalData')
     if (additionalData) {
@@ -582,9 +410,7 @@ class OutboundRequest extends React.Component {
     this.autoSaveIntervalId = setInterval(() => {
       if (this.autoSave) {
         this.autoSave = false
-        // this.autoSaveTemplate(this.convertTemplate(this.state.template, true))
         this.autoSaveFolderData(this.state.folderData)
-        this.autoSaveEnvironmentData(this.state.template.inputValues)
         this.autoSaveAdditionalData(this.state.additionalData)
       }
     },
@@ -594,10 +420,6 @@ class OutboundRequest extends React.Component {
   autoSaveFolderData = (folderData) => {
     // localStorage.setItem('folderData', JSON.stringify(folderData));
     LocalDB.setItem('folderData', JSON.stringify(folderData))
-  }
-
-  autoSaveEnvironmentData = (environmentData) => {
-    localStorage.setItem('environmentData', JSON.stringify(environmentData));
   }
 
   autoSaveAdditionalData = (additionalData) => {
@@ -639,28 +461,6 @@ class OutboundRequest extends React.Component {
     }
     this.forceUpdate()
     // this.autoSave = true
-  }
-
-  handleImportEnvironmentFile = (file_to_read) => {
-    message.loading({ content: 'Reading the file...', key: 'importFileProgress' });
-    var fileRead = new FileReader();
-    fileRead.onload = (e) => {
-      var content = e.target.result;
-      try {
-        var templateContent = JSON.parse(content);
-        if (templateContent.inputValues) {
-          this.state.template.inputValues = templateContent.inputValues
-          this.forceUpdate()
-          this.autoSave = true
-          message.success({ content: 'Environment Loaded', key: 'importFileProgress', duration: 2 });
-        } else {
-          message.error({ content: 'Input Values not found in the file', key: 'importFileProgress', duration: 2 });
-        }
-      } catch (err) {
-        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
-      }
-    };
-    fileRead.readAsText(file_to_read);
   }
 
   handleDownloadReport = async (event, report) => {
@@ -743,7 +543,7 @@ class OutboundRequest extends React.Component {
               <TestCaseViewer
                 testCase={testCase}
                 onChange={this.handleTestCaseChange}
-                inputValues={this.state.template.inputValues}
+                inputValues={this.getInputValues()}
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
                 onDelete={() => { this.handleTestCaseDelete(testCaseIndex) } }
                 onDuplicate={() => { this.handleTestCaseDuplicate(testCaseIndex) } }
@@ -1142,18 +942,18 @@ class OutboundRequest extends React.Component {
         <Drawer
           title="Environment Manager"
           placement="right"
-          width={500}
+          width={800}
           closable={false}
           onClose={() => {
-            this.setState({ fileBrowserVisible: false })
+            this.setState({ environmentManagerVisible: false })
           }}
-          visible={true}
+          visible={this.state.environmentManagerVisible}
         >
           <EnvironmentManager
             folderData={this.state.folderData}
             selectedFiles={this.state.additionalData.selectedFiles}
             onChange={this.handleFileManagerContentChange}
-            ref={this.fileManagerRef}
+            ref={this.environmentManagerRef}
             ipcRenderer={ipcRenderer}
           />
         </Drawer>
@@ -1220,12 +1020,13 @@ class OutboundRequest extends React.Component {
               ? (
                 <TestCaseEditor
                   testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
-                  inputValues={this.state.template.inputValues}
+                  inputValues={this.getInputValues()}
                   userConfig={this.state.userConfig}
                   logs={this.state.testCaseEditorLogs}
                   onChange={this.handleTestCaseChange}
                   onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
                   traceID={this.state.lastOutgoingRequestID}
+                  onOpenEnvironmentManager={() => {this.setState({environmentManagerVisible: true})}}
                 />
               )
               : null
@@ -1248,6 +1049,15 @@ class OutboundRequest extends React.Component {
                           }}
                         >
                           Collections Manager
+                        </Button>
+                        <Button
+                          className="mr-2"
+                          type="primary"
+                          onClick={() => {
+                            this.setState({ environmentManagerVisible: true })
+                          }}
+                        >
+                          Environment Manager
                         </Button>
                         <Button type="dashed" onClick={async (e) => {
                           await this.loadSampleContent()
@@ -1520,42 +1330,6 @@ class OutboundRequest extends React.Component {
                           </>
                         )
                     }
-                  </TabPane>
-                  <TabPane key="2" tab={this.state.template.inputValues && Object.keys(this.state.template.inputValues).length ? 'Input Values' : (<Badge offset={[20, 0]} count={<WarningTwoTone twoToneColor="#f5222d" />}>Input Values</Badge>)}>
-                    <Row>
-                      <Col span={24}>
-                        <Popover
-                          className="float-right"
-                          content={getSaveTemplateDialogContent(2)}
-                          title="Enter filename to save"
-                          trigger="click"
-                          visible={this.state.saveTemplateEnvironementDialogVisible}
-                          onVisibleChange={(visible) => this.setState({ saveTemplateEnvironementDialogVisible: visible })}
-                        >
-                          <Button
-                            className="text-right float-right"
-                            type="default"
-                          >
-                            Export Current Environment
-                          </Button>
-                        </Popover>
-                        <Button
-                          type="primary"
-                          className='float-right mr-2'
-                          onClick={e => {
-                            e.preventDefault();
-                            this.environmentFileSelector.click();
-                          }}
-                        >
-                          Import Environment
-                        </Button>
-                      </Col>
-                    </Row>
-                    <Row className='mt-2'>
-                      <Col span={24}>
-                        <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
-                      </Col>
-                    </Row>
                   </TabPane>
                 </Tabs>
               </Col>
