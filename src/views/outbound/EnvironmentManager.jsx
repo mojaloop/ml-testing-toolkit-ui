@@ -57,7 +57,8 @@ class EnvironmentManager extends React.Component {
     localEnvironments: [],
     selectedEnvironmentIndex: null,
     renameEnvironmentNewName: '',
-    renameEnvironementDialogVisible: false
+    renameEnvironementDialogVisible: false,
+    environmentOptionsVisible: false
   }
 
   getSelectedEnvironment = () => {
@@ -118,12 +119,14 @@ class EnvironmentManager extends React.Component {
     const storedEnvironmentSelectedIndex = await LocalDB.getItem('environmentFilesSelectedIndex')
     if(storedEnvironmentSelectedIndex !== null) {
       this.setState({ selectedEnvironmentIndex: +storedEnvironmentSelectedIndex })
+    } else {
+      this.setState({environmentOptionsVisible: true})
     }
   }
 
   saveLocalEnvironments = async () => {
     await LocalDB.setItem('environmentFiles', JSON.stringify(this.state.localEnvironments))
-    await LocalDB.setItem('environmentFilesSelectedIndex', this.state.selectedEnvironmentIndex + '')
+    await LocalDB.setItem('environmentFilesSelectedIndex', this.state.selectedEnvironmentIndex)
   }
 
   handleImportServer = () => {
@@ -312,7 +315,12 @@ class EnvironmentManager extends React.Component {
         {/* Page content */}
           <Row className="mt--7 mb-4">
             <Col span={24}>
-              <Collapse defaultActiveKey={['1']}>
+              <Collapse
+                activeKey={this.state.environmentOptionsVisible ? ['1'] : []}
+                onChange={(key) => {
+                  this.setState({environmentOptionsVisible: (key[0] == 1)})
+                }}
+              >
                 <Panel header={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].name : 'Choose environment'} key="1">
                   <Row>
                     <Col span={24}>
