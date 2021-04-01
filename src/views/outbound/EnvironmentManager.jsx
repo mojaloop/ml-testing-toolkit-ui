@@ -35,6 +35,8 @@ const { Option } = Select;
 const { Text } = Typography;
 const { Panel } = Collapse;
 
+const DEFAULT_K8S_HUB_ENVIRONMENT = 'hub_k8s_environment.json'
+
 function download(content, fileName, contentType) {
   var a = document.createElement("a");
   var file = new Blob([content], { type: contentType });
@@ -71,8 +73,9 @@ class EnvironmentManager extends React.Component {
   }
 
   componentDidMount = async () => {
-    this.refreshServerEnvironments()
-    this.refreshLocalEnvironments()
+    await this.refreshServerEnvironments()
+    await this.refreshLocalEnvironments()
+    await this.invokeAutoEnvironmentDowloader()
     this.environmentFileSelector = document.createElement('input');
     this.environmentFileSelector.setAttribute('type', 'file');
     this.environmentFileSelector.addEventListener('input', (e) => {
@@ -106,21 +109,30 @@ class EnvironmentManager extends React.Component {
 
   refreshServerEnvironments = async () => {
     const serverEnvironments = await this.getServerEnvironments()
-    this.setState({ serverEnvironments })
+    await this.setState({ serverEnvironments })
   }
 
   refreshLocalEnvironments = async () => {
     const storedEnvironmentFilesRaw = await LocalDB.getItem('environmentFiles')
     if(storedEnvironmentFilesRaw) {
       try {
-        this.setState({ localEnvironments: JSON.parse(storedEnvironmentFilesRaw) })
+        await this.setState({ localEnvironments: JSON.parse(storedEnvironmentFilesRaw) })
       } catch (err) { }
     }
     const storedEnvironmentSelectedIndex = await LocalDB.getItem('environmentFilesSelectedIndex')
-    if(storedEnvironmentSelectedIndex !== null) {
-      this.setState({ selectedEnvironmentIndex: +storedEnvironmentSelectedIndex })
+    if(storedEnvironmentSelectedIndex >= 0) {
+      await this.setState({ selectedEnvironmentIndex: +storedEnvironmentSelectedIndex })
     } else {
-      this.setState({environmentOptionsVisible: true})
+      await this.setState({environmentOptionsVisible: true})
+    }
+  }
+
+  invokeAutoEnvironmentDowloader = async () => {
+    if(this.state.selectedEnvironmentIndex === null) {
+      const foundK8sEnv = this.state.serverEnvironments.findIndex(item => item.name.endsWith(DEFAULT_K8S_HUB_ENVIRONMENT))
+      if(foundK8sEnv >= 0) {
+        this.handleServerEnvironmentImport(foundK8sEnv) 
+      }
     }
   }
 
@@ -144,6 +156,7 @@ class EnvironmentManager extends React.Component {
       })
       if(resp.data && resp.data.body && resp.data.body.inputValues) {
         this.addLocalEnvironment(environmentFileName, resp.data.body.inputValues)
+        this.setState({selectedEnvironmentIndex: this.state.localEnvironments.length - 1})
       }
     }
   }

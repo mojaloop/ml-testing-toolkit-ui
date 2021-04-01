@@ -70,7 +70,7 @@ class InputValues extends React.Component {
     let i = 0
     for (let inputValueName in this.props.values) {
       inputItems.push(
-          <Row className='mb-2'>
+          <Row className='mb-2' key={inputValueName}>
             <Col span={12}>
               <Text>{inputValueName}</Text>
             </Col>

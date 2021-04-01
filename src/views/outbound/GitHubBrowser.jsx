@@ -24,6 +24,7 @@
 import React from "react";
 import getConfig from '../../utils/getConfig'
 import GitHub from 'github-api';
+import { FolderParser } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import { Row, Col, Table, Button, Typography, Tag, Progress } from 'antd';
 import { FolderOutlined, FileOutlined } from '@ant-design/icons';
@@ -93,7 +94,8 @@ class GitHubBrowser extends React.Component {
     // Get the total number of files in the directories
     const totalFileCount = await this.getGitHubTreeFileCount(selectedCollections)
     this.setState({gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, gitHubDownloadTotalFiles: totalFileCount})
-    await this.downloadGitHubObject(selectedCollections, this.folderData)
+    // await this.downloadGitHubObject(selectedCollections, this.folderData)
+    this.folderData = await this.downloadGitHubTree(selectedCollections)
     this.setState({gitHubDownloadStatusText: '', gitHubDownloadProgress: 100})
   }
 
@@ -119,14 +121,41 @@ class GitHubBrowser extends React.Component {
     }
   }
 
-  // TODO: Use the following getTree github api and get all the files without intermediate getContents requests. This can improve the overall download time.
-  // downloadGitHubTree = async (gObjects) => {
-  //   const resp = await gitRepo.getTree(gObjects[0].sha + '?recursive=true')
-  //   const treeData = resp.data && resp.data.tree
-  //   const fileCount = treeData.filter(item => item.type === 'blob').length
-  //   this.setState({tempText: JSON.stringify(fileCount, null, 2)})
-  // }
+  // TODO: The imported items are the sub items of the selected folder. But the folder name should be added.
+  downloadGitHubTree = async (gObjects) => {
+    var importFolderRawData = []
+    for (let i = 0; i < gObjects.length; i++) {
+      const folderName = gObjects[i].name
+      const resp = await gitRepo.getTree(gObjects[i].sha + '?recursive=true')
+      const treeData = resp.data && resp.data.tree
+      const fileList = treeData.filter(item => item.type === 'blob')
+      for (let j = 0; j < fileList.length; j++) {
+        const fileObj = fileList[j]
+        this.setState({gitHubDownloadStatusText: 'Downloading file ' + fileObj.path + '...'})
 
+        const resp2 = await axios.get(fileObj.url)
+        this.setState({gitHubDownloadStatusCount: this.state.gitHubDownloadStatusCount + 1})
+
+        try {
+          const fileContent = JSON.parse(atob(resp2.data.content))
+          importFolderRawData.push({
+            name: folderName + '/' + fileObj.path,
+            path: folderName + '/' + fileObj.path,
+            size: fileObj.size,
+            modified: '',
+            content: fileContent
+          })
+        } catch(err) {
+          console.log(err.message)
+        }
+      }
+    }
+    importFolderRawData.sort((a, b) => a.path.localeCompare(b.path))
+    return FolderParser.getFolderData(importFolderRawData)
+  }
+
+  // TODO: Handle master.json file properly to construct folderData array
+  
   downloadGitHubObject = async (gObjects, folderData) => {
     // Iterate through all the github objects
     for (let i = 0; i < gObjects.length; i++) {
