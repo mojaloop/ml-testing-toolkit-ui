@@ -325,7 +325,7 @@ class EnvironmentManager extends React.Component {
                   <Row>
                     <Col span={24}>
                       <Button
-                        type="primary"
+                        type="default"
                         info
                         onClick={e => {
                           e.preventDefault();
@@ -333,6 +333,17 @@ class EnvironmentManager extends React.Component {
                         }}
                       >
                         Import File
+                      </Button>
+                      <Button
+                        className="ml-2"
+                        type="primary"
+                        onClick={() => {
+                            this.handleDownloadEnvironment(this.state.selectedEnvironmentIndex)
+                          } 
+                        }
+                        disabled={this.state.selectedEnvironmentIndex === null}
+                      >
+                        Download
                       </Button>
                       <Dropdown
                         className="ml-2 float-right"
@@ -347,6 +358,8 @@ class EnvironmentManager extends React.Component {
                       >
                         <Button
                           type="primary"
+                          shape="round"
+                          danger
                         >
                           Import from Server <DownOutlined />
                         </Button>
@@ -398,18 +411,6 @@ class EnvironmentManager extends React.Component {
                           Rename
                         </Button>
                       </Popover>
-                      <Button
-                        className="float-right"
-                        type="default"
-                        shape="round"
-                        onClick={() => {
-                            this.handleDownloadEnvironment(this.state.selectedEnvironmentIndex)
-                          } 
-                        }
-                        disabled={this.state.selectedEnvironmentIndex === null}
-                      >
-                        Download
-                      </Button>
                     </Col>
                   </Row>
                   <Row className="mt-2">

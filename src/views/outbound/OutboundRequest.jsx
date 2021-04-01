@@ -27,7 +27,7 @@ import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
 import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio} from 'antd';
-import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
+import { WarningTwoTone, DeleteTwoTone, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
@@ -57,7 +57,7 @@ if (window && window.require) {
 
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 function buildFileSelector(multi = false, directory = false) {
   const fileSelector = document.createElement('input');
@@ -924,7 +924,7 @@ class OutboundRequest extends React.Component {
         <Drawer
           title="File Browser"
           placement="left"
-          width={500}
+          width={600}
           closable={false}
           onClose={() => {
             this.setState({ fileBrowserVisible: false })
@@ -950,11 +950,7 @@ class OutboundRequest extends React.Component {
           visible={this.state.environmentManagerVisible}
         >
           <EnvironmentManager
-            folderData={this.state.folderData}
-            selectedFiles={this.state.additionalData.selectedFiles}
-            onChange={this.handleFileManagerContentChange}
             ref={this.environmentManagerRef}
-            ipcRenderer={ipcRenderer}
           />
         </Drawer>
 
@@ -1036,35 +1032,27 @@ class OutboundRequest extends React.Component {
         <Row>
           <Col span={24}>
             <Affix offsetTop={2}>
+              <Row align="top">
+                <Col span={12}>                
+                  <Button type='primary' className='mt-2' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
+                    this.setState({ fileBrowserVisible: true })
+                  }}>
+                    <Text style={{color: 'white', fontWeight: 'bold'}}>Collections Manager</Text> <CaretRightFilled style={ {fontSize: '18px'} }/>
+                  </Button>
+                </Col>
+                <Col span={12}>       
+                  <Button type='primary' className='mt-2 float-right' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
+                      this.setState({ environmentManagerVisible: true })
+                    }}>
+                    <CaretLeftFilled style={ {fontSize: '18px'} }/> <Text style={{color: 'white', fontWeight: 'bold'}}>Environment Manager</Text>
+                  </Button>            
+                </Col>
+              </Row>
               <Row>
                 <Col span={24}>
                   <Card className="mb-4">
                     <Row>
                       <Col span={10}>
-                        <Button
-                          className="mr-2"
-                          type="primary"
-                          onClick={() => {
-                            this.setState({ fileBrowserVisible: true })
-                          }}
-                        >
-                          Collections Manager
-                        </Button>
-                        <Button
-                          className="mr-2"
-                          type="primary"
-                          onClick={() => {
-                            this.setState({ environmentManagerVisible: true })
-                          }}
-                        >
-                          Environment Manager
-                        </Button>
-                        <Button type="dashed" onClick={async (e) => {
-                          await this.loadSampleContent()
-                          this.setState({ loadSampleDialogVisible: true })
-                        }}>
-                          Load Sample
-                        </Button>
                         <Modal
                           title="Loaded Samples"
                           visible={this.state.loadSampleDialogVisible}

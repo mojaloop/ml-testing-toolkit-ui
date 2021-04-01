@@ -29,7 +29,7 @@ import _ from 'lodash';
 
 import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix, Typography } from 'antd';
 
-import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
+import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
 import ace from 'brace';
@@ -1052,41 +1052,46 @@ class TestCaseEditor extends React.Component {
         <Row>
           <Col span={24}>
             <Affix target={() => this.containerRef}>
-              <Card size="small">
-                <div className="float-right">
-                  <Button
-                    type="primary"
-                    onClick={() => {
+              <Row align="top">
+                <Col span={24}>       
+                  <Button type='primary' className='mt-2 float-right' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
                       this.props.onOpenEnvironmentManager()
-                    }}
-                  >
-                        Environment Manager
+                    }}>
+                    <CaretLeftFilled style={ {fontSize: '18px'} }/> <Text style={{color: 'white', fontWeight: 'bold'}}>Environment Manager</Text>
+                  </Button>            
+                </Col>
+              </Row>
+              <Row>
+                <Col span={24}>
+                  <Card size="small">
+                    <div className="float-right">
+                      <Button
+                        className='ml-2'
+                        type="primary"
+                        danger
+                        onClick={() => {
+                          this.props.onSend()
+                        }}
+                      >
+                            Send
+                      </Button>
+                    </div>
+                    <Popover
+                      content={addNewRequestDialogContent}
+                      title="Enter a description for the request"
+                      trigger="click"
+                      visible={this.state.addNewRequestDialogVisible}
+                      onVisibleChange={(visible) => this.setState({ addNewRequestDialogVisible: visible })}
+                    >
+                      <Button
+                        type="primary"
+                      >
+                        Add New Request
                   </Button>
-                  <Button
-                    className='ml-2'
-                    type="primary"
-                    danger
-                    onClick={() => {
-                      this.props.onSend()
-                    }}
-                  >
-                        Send
-                  </Button>
-                </div>
-                <Popover
-                  content={addNewRequestDialogContent}
-                  title="Enter a description for the request"
-                  trigger="click"
-                  visible={this.state.addNewRequestDialogVisible}
-                  onVisibleChange={(visible) => this.setState({ addNewRequestDialogVisible: visible })}
-                >
-                  <Button
-                    type="primary"
-                  >
-                    Add New Request
-              </Button>
-                </Popover>
-              </Card>
+                    </Popover>
+                  </Card>          
+                </Col>
+              </Row>
             </Affix>
           </Col>
         </Row>

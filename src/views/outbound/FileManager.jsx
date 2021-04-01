@@ -23,10 +23,11 @@
  ******/
 import React from "react";
 import _ from 'lodash';
-import { Button, Popconfirm, Row, Col, message } from 'antd';
+import { Button, Popconfirm, Row, Col, message, Popover } from 'antd';
 import FolderBrowser from "./FolderBrowser.jsx";
 import { FolderParser } from '@mojaloop/ml-testing-toolkit-shared-lib'
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, DownOutlined } from '@ant-design/icons';
+import GitHubBrowser from './GitHubBrowser'
 
 import JSZip from "jszip"
 const MASTERFILE_NAME = 'master.json'
@@ -58,6 +59,10 @@ function buildFileSelector( multi = false, directory = false ){
 }
 
 class FileManager extends React.Component {
+
+  state = {
+    importFromGitHubDialogVisible: false
+  }
 
   componentDidMount = () => {
     if (this.props.ipcRenderer) {
@@ -434,6 +439,13 @@ class FileManager extends React.Component {
     this.props.onChange(newFolderData, [])
   }
 
+  handleGitHubDownload = (importedFolderData) => {
+    // TODO: Continue to fix this
+    const newFolderData = [...this.props.folderData, ...importedFolderData]
+    this.props.onChange(newFolderData, [])
+    this.setState({importFromGitHubDialogVisible: false})
+  }
+
   render() {
     
     return (
@@ -480,6 +492,38 @@ class FileManager extends React.Component {
             </Row>
           )
           : (
+            <>
+            <Row className="mt-2">
+              <Col span={24}>
+                <Popover
+                  content={
+                    <div style={{width: '500px'}}>
+                      <GitHubBrowser
+                        onDownload={this.handleGitHubDownload}
+                      />
+                    </div>
+                  }
+                  title="Select Files / Folders"
+                  trigger="click"
+                  visible={this.state.importFromGitHubDialogVisible}
+                  onVisibleChange={(visible) => {
+                    // if (visible) {
+                    //   this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name })
+                    // }
+                    this.setState({ importFromGitHubDialogVisible: visible })
+                  }}
+                >
+                  <Button
+                    className='ml-2 float-right'
+                    type="primary"
+                    shape="round"
+                    danger
+                  >
+                    Import from Github <DownOutlined />
+                  </Button>
+                </Popover>
+              </Col>
+            </Row>
             <Row className="mt-2">
               <Col span={24}>
                 <Button
@@ -492,19 +536,7 @@ class FileManager extends React.Component {
                   Import File
                 </Button>
                 <Button
-                  type="primary"
-                  className="float-right ml-2"
-                  size="default"
-                  onClick={ e => {
-                    e.preventDefault();
-                    this.handleExportFolder()
-                  }}
-                >
-                  Export as Zip file
-                </Button>
-                <Button
-                  type="primary"
-                  className="float-right"
+                  className='ml-2'
                   size="default"
                   onClick={ e => {
                     e.preventDefault();
@@ -513,8 +545,20 @@ class FileManager extends React.Component {
                 >
                   Import Folder
                 </Button>
+                <Button
+                  type="primary"
+                  className="ml-2"
+                  size="default"
+                  onClick={ e => {
+                    e.preventDefault();
+                    this.handleExportFolder()
+                  }}
+                >
+                  Download as Zip file
+                </Button>
               </Col>
             </Row>
+            </>
           )
         }
         <Row className='mt-2'>
