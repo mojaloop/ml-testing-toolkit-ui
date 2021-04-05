@@ -28,15 +28,28 @@ import AdminFooter from "../components/Footers/AdminFooter.jsx";
 import Sidebar from "../components/Sidebar/Sidebar.jsx";
 
 import routes from "../routes.js";
-import getConfig from '../utils/getConfig'
-import { Layout, Card } from "antd";
+import { getConfig } from '../utils/getConfig'
+import { Layout, Card, Spin, Result, Row, Col } from "antd";
+import { fetchServerConfig, getUserConfig } from '../utils/getConfig'
+
 const { Header, Footer, Sider, Content } = Layout
-
-
 
 class Admin extends React.Component {
 
   isAuthEnabled = getConfig().isAuthEnabled
+
+  constructor () {
+    super()
+    this.state = {
+      isLoading: true,
+      isConnectionError: false,
+      connectionErrorMessage: ''
+    }  
+  }
+  
+  async componentDidMount () {
+    await this.fetchConfiguration()
+  }
 
   componentDidUpdate(e) {
     if (this.isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')){
@@ -46,6 +59,15 @@ class Admin extends React.Component {
     document.scrollingElement.scrollTop = 0;
     if(this.refs.mainContent) {
       this.refs.mainContent.scrollTop = 0;
+    }
+  }
+
+  fetchConfiguration = async () => {
+    try {
+      await fetchServerConfig()
+      this.setState({isLoading: false})
+    } catch(err) {
+      this.setState({isConnectionError: true, connectionErrorMessage: err.message, isLoading: false})
     }
   }
 
@@ -80,35 +102,57 @@ class Admin extends React.Component {
   render() {
     if (localStorage.getItem('JWT_COOKIE_EXP_AT') || !this.isAuthEnabled) {
       return (
-        <Layout style={{backgroundColor: '#fafafa'}}>
-          <Sidebar
-            {...this.props}
-            routes={routes}
-            logo={{
-              innerLink: "/admin/index",
-              imgSrc: require("../assets/img/mojaloop.png"),
-              imgAlt: "..."
-            }}
-          />
-          <Layout>
-            <AdminNavbar
-              {...this.props}
-              brandText={this.getBrandText(this.props.location.pathname)}
-            />
-            <Content>
-              <Header 
-                style={{
-                  height: '3vh',
-                  background: '#293e5d'
-                }}
+        <>
+        {
+          this.state.isLoading
+          ? (
+            <Spin tip="Loading..." size="large">
+              <Row>
+                <Col span={24} style={{height: '600px'}} />
+              </Row>
+            </Spin>
+          )
+          : this.state.isConnectionError
+            ? (
+              <Result
+                status="500"
+                title="500"
+                subTitle={this.state.connectionErrorMessage}
               />
-              <Card className="shadow ml-4 mr-4 mt-n5">
-                <Switch>{this.getRoutes(routes)}</Switch>
-              </Card>
-            </Content>
-            <AdminFooter />
-          </Layout>
-        </Layout>
+            )
+            :  (
+              <Layout style={{backgroundColor: '#fafafa'}}>
+                <Sidebar
+                  {...this.props}
+                  routes={routes}
+                  logo={{
+                    innerLink: "/admin/index",
+                    imgSrc: require("../assets/img/mojaloop.png"),
+                    imgAlt: "..."
+                  }}
+                />
+                <Layout>
+                  <AdminNavbar
+                    {...this.props}
+                    brandText={this.getBrandText(this.props.location.pathname)}
+                  />
+                  <Content>
+                    <Header 
+                      style={{
+                        height: '3vh',
+                        background: '#293e5d'
+                      }}
+                    />
+                    <Card className="shadow ml-4 mr-4 mt-n5">
+                      <Switch>{this.getRoutes(routes)}</Switch>
+                    </Card>
+                  </Content>
+                  <AdminFooter />
+                </Layout>
+              </Layout>
+            )
+        }
+        </>
       );
     } else {
       return (

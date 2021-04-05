@@ -42,7 +42,7 @@ import './fixAce.css';
 import RequestBuilder from './RequestBuilder'
 import TestAssertions from './TestAssertions'
 import ServerLogsViewer from './ServerLogsViewer'
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";

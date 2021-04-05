@@ -34,7 +34,7 @@ import './fixAce.css';
 import ConditionBuilder from './ConditionBuilder'
 import EventBuilder from './EventBuilder'
 import EventResponseBuilder from './EventResponseBuilder'
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import AceEditor from "react-ace";
 import { FactSelect } from './BuilderTools.jsx';
 

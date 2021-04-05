@@ -22,7 +22,7 @@
  --------------
  ******/
 import axios from 'axios'
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 
 class ResponseRulesService {
   async fetchResponseRulesFiles () {

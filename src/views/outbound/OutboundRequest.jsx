@@ -34,7 +34,7 @@ import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
 import SampleFilesViewer from './SampleFilesViewer'
 import IterationRunner from './IterationRunner'
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
 import ServerLogsViewer from './ServerLogsViewer'

@@ -30,7 +30,7 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import RulesEditor from './RuleEditor'
 import RuleViewer from './RuleViewer'
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 

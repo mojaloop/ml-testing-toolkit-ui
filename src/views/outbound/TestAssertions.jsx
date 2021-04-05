@@ -39,7 +39,7 @@ import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-eclipse";
-import getConfig from '../../utils/getConfig';
+import { getConfig } from '../../utils/getConfig';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';

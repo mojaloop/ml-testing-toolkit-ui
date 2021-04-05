@@ -22,10 +22,11 @@
  --------------
  ******/
 import React from "react";
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import axios from 'axios';
 import { LocalDB } from '../../services/localDB/LocalDB';
 import InputValues from './InputValues'
+import { getUserConfig } from '../../utils/getConfig'
 
 import { Select, Row, Col, Table, Button, Upload, message, Card, Typography, Input, Tag, Radio, Dropdown, Menu, Collapse, Popover } from 'antd';
 import { InboxOutlined, DownOutlined, FileOutlined } from '@ant-design/icons';
@@ -34,8 +35,6 @@ const { Dragger } = Upload;
 const { Option } = Select;
 const { Text } = Typography;
 const { Panel } = Collapse;
-
-const DEFAULT_K8S_HUB_ENVIRONMENT = 'hub_k8s_environment.json'
 
 function download(content, fileName, contentType) {
   var a = document.createElement("a");
@@ -47,6 +46,7 @@ function download(content, fileName, contentType) {
 
 class EnvironmentManager extends React.Component {
   apiBaseUrl = null
+  DEFAULT_ENVIRONMENT_FILE_NAME = 'hub_local_environment.json'
 
   constructor () {
     super()
@@ -73,6 +73,9 @@ class EnvironmentManager extends React.Component {
   }
 
   componentDidMount = async () => {
+    const userConfig = getUserConfig()
+    this.DEFAULT_ENVIRONMENT_FILE_NAME = userConfig && userConfig.DEFAULT_ENVIRONMENT_FILE_NAME
+
     await this.refreshServerEnvironments()
     await this.refreshLocalEnvironments()
     await this.invokeAutoEnvironmentDowloader()
@@ -120,7 +123,7 @@ class EnvironmentManager extends React.Component {
       } catch (err) { }
     }
     const storedEnvironmentSelectedIndex = await LocalDB.getItem('environmentFilesSelectedIndex')
-    if(storedEnvironmentSelectedIndex >= 0) {
+    if(storedEnvironmentSelectedIndex && storedEnvironmentSelectedIndex >= 0) {
       await this.setState({ selectedEnvironmentIndex: +storedEnvironmentSelectedIndex })
     } else {
       await this.setState({environmentOptionsVisible: true})
@@ -129,7 +132,7 @@ class EnvironmentManager extends React.Component {
 
   invokeAutoEnvironmentDowloader = async () => {
     if(this.state.selectedEnvironmentIndex === null) {
-      const foundK8sEnv = this.state.serverEnvironments.findIndex(item => item.name.endsWith(DEFAULT_K8S_HUB_ENVIRONMENT))
+      const foundK8sEnv = this.state.serverEnvironments.findIndex(item => item.name.endsWith(this.DEFAULT_ENVIRONMENT_FILE_NAME))
       if(foundK8sEnv >= 0) {
         this.handleServerEnvironmentImport(foundK8sEnv) 
       }
@@ -172,6 +175,7 @@ class EnvironmentManager extends React.Component {
 
   handleDeleteEnvironment = (key) => {
     this.state.localEnvironments.splice(key, 1)
+    this.state.selectedEnvironmentIndex = null
     this.autoSave = true
     this.forceUpdate()
   }

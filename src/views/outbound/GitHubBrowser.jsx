@@ -22,20 +22,18 @@
  --------------
  ******/
 import React from "react";
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import GitHub from 'github-api';
 import { FolderParser } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import { Row, Col, Table, Button, Typography, Tag, Progress } from 'antd';
 import { FolderOutlined, FileOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import { getUserConfig } from '../../utils/getConfig'
 
 const { Text, Title } = Typography
 
 const gh = new GitHub();
-const gitRepo = gh.getRepo('mojaloop', 'testing-toolkit-test-cases')
-
-const GITHUB_BASE_PATH = 'collections/hub'
 
 class GitHubBrowser extends React.Component {
   apiBaseUrl = null
@@ -50,7 +48,7 @@ class GitHubBrowser extends React.Component {
     serverCollections: [],
     selectedCollections: [],
     isGettingFileList: false,
-    currentFolder: GITHUB_BASE_PATH,
+    currentFolder: '/',
     tempText: '',
     gitHubDownloadStatusCount: 0,
     gitHubDownloadStatusText: '',
@@ -59,16 +57,25 @@ class GitHubBrowser extends React.Component {
   }
 
   folderData = []
+  gitHubConfig = {}
+  gitRepo = null
 
   componentDidMount = async () => {
+    const userConfig = getUserConfig()
+    
+    this.gitHubConfig = userConfig && userConfig.GITHUB_CONFIG
+    this.gitRepo = gh.getRepo(this.gitHubConfig.TEST_CASES_REPO_OWNER, this.gitHubConfig.TEST_CASES_REPO_NAME)
+    
+    this.state.currentFolder = this.gitHubConfig.TEST_CASES_REPO_BASE_PATH 
     await this.reloadFileList()
-    // console.log(resp.data)
   }
 
   reloadFileList = async () => {
-    this.setState({isGettingFileList: true})
-    const resp = await gitRepo.getContents(null, this.state.currentFolder)
-    this.setState({serverCollections: resp.data, isGettingFileList: false})
+    if(this.gitRepo) {
+      this.setState({isGettingFileList: true})
+      const resp = await this.gitRepo.getContents(null, this.state.currentFolder)
+      this.setState({serverCollections: resp.data, isGettingFileList: false})
+    }
   }
 
   changeFolder = (item) => {
@@ -80,7 +87,7 @@ class GitHubBrowser extends React.Component {
   backToParentFolder = () => {
     this.resetDownloadStatus()
     const pathArr = this.state.currentFolder.split('/')
-    if (pathArr.length > 1 && this.state.currentFolder !== GITHUB_BASE_PATH) {
+    if (pathArr.length > 1 && this.state.currentFolder !== this.gitHubConfig.TEST_CASES_REPO_BASE_PATH) {
       pathArr.pop()
       this.state.currentFolder = pathArr.join('/')
       this.reloadFileList()
@@ -102,7 +109,7 @@ class GitHubBrowser extends React.Component {
   getGitHubTreeFileCount = async (gObjects) => {
     let fileCount = 0
     for (let i = 0; i < gObjects.length; i++) {
-      const resp = await gitRepo.getTree(gObjects[i].sha + '?recursive=true')
+      const resp = await this.gitRepo.getTree(gObjects[i].sha + '?recursive=true')
       const treeData = resp.data && resp.data.tree
       fileCount += treeData.filter(item => item.type === 'blob').length
     }
@@ -126,7 +133,7 @@ class GitHubBrowser extends React.Component {
     var importFolderRawData = []
     for (let i = 0; i < gObjects.length; i++) {
       const folderName = gObjects[i].name
-      const resp = await gitRepo.getTree(gObjects[i].sha + '?recursive=true')
+      const resp = await this.gitRepo.getTree(gObjects[i].sha + '?recursive=true')
       const treeData = resp.data && resp.data.tree
       const fileList = treeData.filter(item => item.type === 'blob')
       for (let j = 0; j < fileList.length; j++) {
@@ -173,7 +180,7 @@ class GitHubBrowser extends React.Component {
         newObj.children = []
         // Get objects in the directory
         this.setState({gitHubDownloadStatusText: 'Fetching directory ' + gObject.path + '...'})
-        const resp = await gitRepo.getContents(null, gObject.path)
+        const resp = await this.gitRepo.getContents(null, gObject.path)
         await this.downloadGitHubObject(resp.data, newObj.children)        
       } else if(gObject.type === 'file') {
         this.setState({gitHubDownloadStatusCount: this.state.gitHubDownloadStatusCount + 1})
@@ -232,7 +239,7 @@ class GitHubBrowser extends React.Component {
     })
 
     const getHeaderOptions = () => {
-      if(this.state.currentFolder !== GITHUB_BASE_PATH) {
+      if(this.state.currentFolder !== this.gitHubConfig.TEST_CASES_REPO_BASE_PATH) {
         return <Button onClick={this.backToParentFolder}>Back</Button>
       }
     }
@@ -286,6 +293,7 @@ class GitHubBrowser extends React.Component {
                 <Col span={24}>
                   <Button
                     onClick={this.handleDownloadCollections}
+                    disabled={this.state.selectedCollections.length === 0}
                   >
                     Download
                   </Button>

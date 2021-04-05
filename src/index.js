@@ -28,7 +28,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 
 import AdminLayout from "./layouts/Admin.jsx";
-import getConfig from './utils/getConfig'
+import { getConfig } from './utils/getConfig'
 
 import './index.css';
 import 'antd/dist/antd.css';

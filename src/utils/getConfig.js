@@ -23,7 +23,9 @@
  ******/
 import axios from 'axios';
 
-const getConfig = () => {
+var cache_userConfig = {}
+
+export const getConfig = () => {
   const { protocol, hostname } = window.location
   // Using the same protocol as we've been loaded from to avoid Mixed Content error.
   let apiBaseUrl = 'TTK_API_BASE_URL'
@@ -46,4 +48,12 @@ export const getServerConfig = async () => {
   return { userConfigRuntime, userConfigStored }
 }
 
-export default getConfig
+export const fetchServerConfig = async () => {
+  const { apiBaseUrl } = getConfig()
+  const response = await axios.get(apiBaseUrl + "/api/config/user")
+  cache_userConfig = response.data.runtime
+}
+
+export const getUserConfig = () => {
+  return cache_userConfig
+}
