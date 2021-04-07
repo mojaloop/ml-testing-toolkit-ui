@@ -63,10 +63,6 @@ class EnvironmentManager extends React.Component {
     environmentOptionsVisible: false
   }
 
-  getSelectedEnvironment = () => {
-    return this.state.localEnvironments[this.state.selectedEnvironmentIndex]
-  }
-
   getServerEnvironments = async () => {
     const response = await axios.get(this.apiBaseUrl + `/api/samples/list/environments`)
     return response.data && response.data.body
@@ -87,7 +83,7 @@ class EnvironmentManager extends React.Component {
         this.environmentFileSelector.value = null
       }
     })
-
+    this.notifyChangeEnvironment()
     this.startAutoSaveTimer()
   }
 
@@ -124,7 +120,7 @@ class EnvironmentManager extends React.Component {
     }
     const storedEnvironmentSelectedIndex = await LocalDB.getItem('environmentFilesSelectedIndex')
     if(storedEnvironmentSelectedIndex && storedEnvironmentSelectedIndex >= 0) {
-      await this.setState({ selectedEnvironmentIndex: +storedEnvironmentSelectedIndex })
+      this.changeSelectedEnvironmentIndex(+storedEnvironmentSelectedIndex)
     } else {
       await this.setState({environmentOptionsVisible: true})
     }
@@ -159,7 +155,7 @@ class EnvironmentManager extends React.Component {
       })
       if(resp.data && resp.data.body && resp.data.body.inputValues) {
         this.addLocalEnvironment(environmentFileName, resp.data.body.inputValues)
-        this.setState({selectedEnvironmentIndex: this.state.localEnvironments.length - 1})
+        this.changeSelectedEnvironmentIndex(this.state.localEnvironments.length - 1)
       }
     }
   }
@@ -175,7 +171,7 @@ class EnvironmentManager extends React.Component {
 
   handleDeleteEnvironment = (key) => {
     this.state.localEnvironments.splice(key, 1)
-    this.state.selectedEnvironmentIndex = null
+    this.changeSelectedEnvironmentIndex(null)
     this.autoSave = true
     this.forceUpdate()
   }
@@ -183,7 +179,7 @@ class EnvironmentManager extends React.Component {
   handleDuplicateEnvironment = (key) => {
     const envCopy  = JSON.parse(JSON.stringify(this.state.localEnvironments[key]))
     this.state.localEnvironments.push(envCopy)
-    this.state.selectedEnvironmentIndex = this.state.localEnvironments.length - 1
+    this.changeSelectedEnvironmentIndex(this.state.localEnvironments.length - 1)
     this.autoSave = true
     this.forceUpdate()
   }
@@ -225,22 +221,34 @@ class EnvironmentManager extends React.Component {
 
   handleInputValuesChange = (name, value) => {
     this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues[name] = value
+    this.notifyChangeEnvironment()
     this.autoSave = true
     this.forceUpdate()
   }
 
   handleInputValuesDelete = (name) => {
     delete this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues[name]
+    this.notifyChangeEnvironment()
     this.autoSave = true
     this.forceUpdate()
+  }
+
+  changeSelectedEnvironmentIndex = (newIndex) => {
+    this.state.selectedEnvironmentIndex = newIndex
+    this.autoSave = true
+    this.setState({selectedEnvironmentIndex: newIndex})
+    this.notifyChangeEnvironment()
+  }
+
+  notifyChangeEnvironment = () => {
+    this.props.onChange(this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues)
   }
 
 
   render() {
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
-        this.setState({selectedEnvironmentIndex: selectedRowKeys[0]})
-        this.autoSave = true
+        this.changeSelectedEnvironmentIndex(selectedRowKeys[0])
       },
       selectedRowKeys: [this.state.selectedEnvironmentIndex]
     }
@@ -390,7 +398,7 @@ class EnvironmentManager extends React.Component {
                         danger
                         onClick={() => {
                             this.handleDeleteEnvironment(this.state.selectedEnvironmentIndex)
-                            this.setState({selectedEnvironmentIndex: null})
+                            this.changeSelectedEnvironmentIndex(null)
                           } 
                         }
                         disabled={this.state.selectedEnvironmentIndex === null}

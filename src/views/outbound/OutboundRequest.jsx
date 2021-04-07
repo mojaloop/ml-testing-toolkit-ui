@@ -90,13 +90,11 @@ class OutboundRequest extends React.Component {
     super();
     this.fileManagerRef = React.createRef();
     this.iterationRunnerRef = React.createRef();
-    this.environmentManagerRef = React.createRef();
     const sessionId = TraceHeaderUtils.generateSessionId()
     this.state = {
       request: {},
-      template: {
-        inputValues: {}
-      },
+      template: {},
+      inputValues: {},
       additionalData: {
         selectedFiles: []
       },
@@ -207,9 +205,8 @@ class OutboundRequest extends React.Component {
 
   }
 
-  getInputValues = () => {
-    const env = this.environmentManagerRef.current && this.environmentManagerRef.current.getSelectedEnvironment()
-    return env && env.inputValues
+  handleInputValuesChange = (newInputValues) => {
+    this.setState({inputValues: newInputValues})
   }
 
   handleIncomingProgress = (progress) => {
@@ -283,8 +280,8 @@ class OutboundRequest extends React.Component {
     // const outboundRequestID = Math.random().toString(36).substring(7);
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
-    // this.state.template = this.convertTemplate(this.state.template)
     const convertedTemplate = template ? this.convertTemplate(template) : this.convertTemplate(this.state.template)
+    convertedTemplate.inputValues = this.state.inputValues
     // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
     await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
@@ -426,14 +423,13 @@ class OutboundRequest extends React.Component {
       message.error('Filename should be ended with .json');
       return
     }
-    let templateContent = {}
-    const { inputValues, ...remainingTemplateContent } = this.state.template
+    let downloadContent = {}
     if (saveTemplateOption === 1) {
-      templateContent = { ...remainingTemplateContent }
+      downloadContent = this.state.template
     } else if (saveTemplateOption === 2) {
-      templateContent = { inputValues }
+      downloadContent = this.state.inputValues
     }
-    this.download(JSON.stringify(this.convertTemplate(templateContent), null, 2), fileName, 'text/plain');
+    this.download(JSON.stringify(this.convertTemplate(downloadContent), null, 2), fileName, 'text/plain');
   }
 
   regenerateTemplate = async (selectedFiles = null) => {
@@ -538,7 +534,7 @@ class OutboundRequest extends React.Component {
               <TestCaseViewer
                 testCase={testCase}
                 onChange={this.handleTestCaseChange}
-                inputValues={this.getInputValues()}
+                inputValues={this.state.inputValues}
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
                 onDelete={() => { this.handleTestCaseDelete(testCaseIndex) } }
                 onDuplicate={() => { this.handleTestCaseDuplicate(testCaseIndex) } }
@@ -791,6 +787,7 @@ class OutboundRequest extends React.Component {
         </Drawer>
         <Drawer
           title="Environment Manager"
+          forceRender
           placement="right"
           width={800}
           closable={false}
@@ -800,7 +797,7 @@ class OutboundRequest extends React.Component {
           visible={this.state.environmentManagerVisible}
         >
           <EnvironmentManager
-            ref={this.environmentManagerRef}
+            onChange={this.handleInputValuesChange}
           />
         </Drawer>
 
@@ -814,7 +811,7 @@ class OutboundRequest extends React.Component {
           footer={null}
           onCancel={() => { this.setState({ showTemplate: false }) }}
         >
-          <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
+          <pre>{JSON.stringify(this.convertTemplate({...this.state.template, inputValues: this.state.inputValues}), null, 2)}</pre>
         </Modal>
         <Modal
           style={{ top: 20 }}
@@ -827,7 +824,7 @@ class OutboundRequest extends React.Component {
           onCancel={() => { this.setState({ showIterationRunner: false }) }}
         >
           <IterationRunner
-            template={this.convertTemplate(this.state.template)}
+            template={this.convertTemplate({...this.state.template, inputValues: this.state.inputValues})}
             sessionId={this.state.sessionId}
             ref={this.iterationRunnerRef}
           />
@@ -866,7 +863,7 @@ class OutboundRequest extends React.Component {
               ? (
                 <TestCaseEditor
                   testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
-                  inputValues={this.getInputValues()}
+                  inputValues={this.state.inputValues}
                   userConfig={this.state.userConfig}
                   logs={this.state.testCaseEditorLogs}
                   onChange={this.handleTestCaseChange}
