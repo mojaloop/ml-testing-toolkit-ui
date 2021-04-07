@@ -32,7 +32,6 @@ import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
-import SampleFilesViewer from './SampleFilesViewer'
 import IterationRunner from './IterationRunner'
 import { getConfig } from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
@@ -119,10 +118,6 @@ class OutboundRequest extends React.Component {
       userConfig: null,
       sendingOutboundRequestID: null,
       lastOutgoingRequestID: null,
-      loadSampleDialogVisible: false,
-      loadSampleFiles: {},
-      loadSampleChecked: {},
-      loadSampleCollectionTypes: ['hub', 'dfsp', 'provisioning'],
       sequenceDiagramVisible: false,
       folderData: [],
       fileBrowserVisible: false,
@@ -571,151 +566,6 @@ class OutboundRequest extends React.Component {
     )
   }
 
-  handleLoadSample = async () => {
-    message.loading({ content: 'Loading Sample...', key: 'loadSampleProgress' });
-    try {
-      if (this.state.loadSampleChecked.collections) {
-        this.state.additionalData.importedFilename = (this.state.loadSampleChecked.collections.length > 1) ? 'Multiple Files' : this.state.loadSampleChecked.collections[0]
-      }
-      if (this.state.loadSampleChecked.environment === 'none') {
-        this.state.loadSampleChecked.environment = null
-      }
-      const { apiBaseUrl } = getConfig()
-      const resp = await axios.get(apiBaseUrl + '/api/samples/loadFolderWise', {
-        params: this.state.loadSampleChecked
-      })
-      if (resp.data.body.name) {
-        this.state.template.name = resp.data.body.name
-      }
-      if (Object.keys(resp.data.body.environment || {}).length !== 0) {
-        this.state.template.inputValues = resp.data.body.environment
-      }
-      if (resp.data.body.test_cases) {
-        this.state.template.test_cases = resp.data.body.test_cases
-      }
-      if (resp.data.body.collections && resp.data.body.collections.length > 0) {
-        await this.setState({ fileBrowserVisible: true })
-        this.fileManagerRef.current.updateFoldersAndFiles(resp.data.body.collections)
-      }
-
-      this.forceUpdate()
-      this.autoSave = true
-    } catch (err) {
-      message.error({ content: ((err.response) ? err.response.data : err.message), key: 'loadSampleProgress', duration: 2 });
-      return
-    }
-    message.success({ content: 'Sample Loaded', key: 'loadSampleProgress', duration: 2 });
-  }
-
-  loadSampleContent = async () => {
-    const { apiBaseUrl } = getConfig()
-    if (!this.state.loadSampleCollections) {
-      this.state.loadSampleCollections = {}
-      for (const index in this.state.loadSampleCollectionTypes) {
-        const resp = await axios.get(apiBaseUrl + `/api/samples/list/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
-        if (resp.data.body.length > 0) {
-          this.state.loadSampleCollections[this.state.loadSampleCollectionTypes[index]] = resp.data.body
-        }
-      }
-    }
-    if (!this.state.loadSampleEnvironments) {
-      const resp = await axios.get(apiBaseUrl + `/api/samples/list/environments`)
-      resp.data.body.push({ name: 'none' })
-      if (resp.data.body.length > 0) {
-        this.state.loadSampleEnvironments = resp.data.body.map(file => file.name)
-      }
-    }
-  }
-
-  loadSampleCollections = (type) => {
-    const collections = []
-    if (this.state.loadSampleCollections && this.state.loadSampleCollections[type]) {
-      for (const i in this.state.loadSampleCollections[type]) {
-        collections.push({ key: i, collection: this.state.loadSampleCollections[type][i] })
-      }
-    }
-    return collections
-  }
-
-  loadSampleCollectionsAsFilesArray = (type) => {
-    if (this.state.loadSampleCollections && this.state.loadSampleCollections[type]) {
-      return this.state.loadSampleCollections[type].map((file) => {
-        return {
-          key: file.name,
-          size: file.size,
-        }
-      })
-    } else {
-      return []
-    }
-  }
-
-  loadSampleEnvironments = () => {
-    const environments = []
-    if (this.state.loadSampleEnvironments) {
-      for (const i in this.state.loadSampleEnvironments) {
-        environments.push({ key: i, environment: this.state.loadSampleEnvironments[i] })
-      }
-    }
-    return environments
-  }
-
-  loadSampleCollectionsTabContent = () => {
-    return this.state.loadSampleCollectionTypes.map(type => {
-      const files = this.loadSampleCollectionsAsFilesArray(type)
-      if (files && files.length > 0) {
-        return (
-          <Tabs.TabPane tab={type} key={type}>
-            <SampleFilesViewer files={files} prefix={'examples/collections/' + type + '/'} onChange={(selectedCollections) => {
-              // this.setState({selectedCollections: selectedRowKeys})
-              this.state.loadSampleChecked.collections = selectedCollections
-            }} />
-          </Tabs.TabPane>
-        )
-      } else {
-        return null
-      }
-    })
-  }
-
-  clearSampleSelectionState = () => {
-    this.setState({ selectedCollections: [], selectedEnvironments: [], loadSampleChecked: {} })
-  }
-
-  loadSampleTabContent = () => {
-    return this.state.loadSampleTypes.map(type => {
-      return (
-        <Tabs.TabPane tab={type} key={type}>
-          <Col span={11}>
-            <Table
-              rowSelection={{
-                type: 'checkbox', selectedRowKeys: this.state.selectedCollections, onChange: (selectedRowKeys, selectedRows) => {
-                  this.setState({ selectedCollections: selectedRowKeys })
-                  this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => { return selectedRow.collection })
-                }
-              }}
-              columns={[{ title: 'Collections', dataIndex: 'collection', render: text => <a>{text}</a> }]}
-              dataSource={this.loadSampleCollections(type)}
-            />
-          </Col>
-          <Col span={2} />
-          <Col span={11}>
-            <Table
-              rowSelection={{
-                type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
-                  this.setState({ selectedEnvironments: selectedRowKeys })
-                  this.state.loadSampleChecked.environment = selectedRows[0].environment
-                }
-              }}
-              columns={[{ title: 'Environments', dataIndex: 'environment', render: text => <a>{text}</a> }]}
-              dataSource={this.loadSampleEnvironments(type)}
-            />
-          </Col>
-        </Tabs.TabPane>
-      )
-    })
-  }
-
   handleShowSequenceDiagram = async (testCase) => {
     await this.setState({ sequenceDiagramVisible: true })
     this.seqDiagContainer.removeAttribute('data-processed')
@@ -1052,44 +902,7 @@ class OutboundRequest extends React.Component {
                 <Col span={24}>
                   <Card className="mb-4">
                     <Row>
-                      <Col span={10}>
-                        <Modal
-                          title="Loaded Samples"
-                          visible={this.state.loadSampleDialogVisible}
-                          width='50%'
-                          onOk={async () => {
-                            await this.handleLoadSample()
-                            this.clearSampleSelectionState()
-                            this.setState({ loadSampleDialogVisible: false })
-                          }}
-                          onCancel={() => {
-                            this.clearSampleSelectionState()
-                            this.setState({ loadSampleDialogVisible: false })
-                          }}
-                        >
-                          <Collapse defaultActiveKey={['1']}>
-                            <Collapse.Panel header="Collections" key="1">
-                              <Tabs defaultActiveKey={this.state.loadSampleCollectionTypes[0]} onChange={() => {
-                                this.setState({ selectedCollections: [] })
-                              }}>
-                                {this.loadSampleCollectionsTabContent()}
-                              </Tabs>
-                            </Collapse.Panel>
-                            <Collapse.Panel header="Environments" key="2">
-                              <Table
-                                rowSelection={{
-                                  type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
-                                    this.setState({ selectedEnvironments: selectedRowKeys })
-                                    this.state.loadSampleChecked.environment = selectedRows[0].environment
-                                  }
-                                }}
-                                columns={[{ dataIndex: 'environment', render: text => <a>{text}</a> }]}
-                                dataSource={this.loadSampleEnvironments()}
-                              />
-                            </Collapse.Panel>
-                          </Collapse>
-                        </Modal>
-                      </Col>
+                      <Col span={10}></Col>
                       <Col span={4} className="text-center">
                       {
                         this.state.totalAssertionsCount > 0
