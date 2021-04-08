@@ -23,7 +23,7 @@
  ******/
 import React from "react";
 import { Layout, Button, Typography } from 'antd'
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 
 const { Header } = Layout;
 const { Title } = Typography;

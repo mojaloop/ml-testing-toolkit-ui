@@ -25,7 +25,7 @@
 import React from "react";
 import { Table, Tag, Spin, message, Collapse, Button, Row, Col } from "antd";
 import axios from 'axios';
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 
 const { Panel } = Collapse
 

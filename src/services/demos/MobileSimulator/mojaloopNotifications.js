@@ -23,7 +23,7 @@
  ******/
 
 import socketIOClient from "socket.io-client";
-import getConfig from '../../../utils/getConfig'
+import { getConfig } from '../../../utils/getConfig'
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 class NotificationService {

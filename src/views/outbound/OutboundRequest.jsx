@@ -27,22 +27,23 @@ import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
 import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio} from 'antd';
-import { WarningTwoTone, DeleteTwoTone } from '@ant-design/icons';
+import { WarningTwoTone, DeleteTwoTone, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
-import SampleFilesViewer from './SampleFilesViewer'
 import IterationRunner from './IterationRunner'
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 import FileManager from "./FileManager.jsx";
 import ServerLogsViewer from './ServerLogsViewer'
+import EnvironmentManager from './EnvironmentManager'
+
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
-import { trace } from "mobx";
+import { extendObservable, trace } from "mobx";
 
 import { LocalDB } from '../../services/localDB/LocalDB';
 
@@ -55,7 +56,7 @@ if (window && window.require) {
 
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 function buildFileSelector(multi = false, directory = false) {
   const fileSelector = document.createElement('input');
@@ -83,160 +84,6 @@ function readFileAsync(file) {
   })
 }
 
-class InputValues extends React.Component {
-
-  state = {
-    addInputValueDialogVisible: false,
-    newInputValueName: '',
-    newInputValueType: 'string'
-  };
-
-  handleDeleteClick = (inputValueName) => {
-    this.props.onDelete(inputValueName)
-  }
-  getInputItemType = (inputValueName) => {
-    if (typeof this.props.values[inputValueName] === 'boolean') {
-      return (
-        <Checkbox
-          checked={this.props.values[inputValueName]}
-          onChange={(e) => this.props.onChange(inputValueName, e.target.checked)}
-        />
-      )
-    } else if (typeof this.props.values[inputValueName] === 'number') {
-      return (
-        <Input
-          value={this.props.values[inputValueName]}
-          onChange={(e) => this.props.onChange(inputValueName, +e.target.value)}
-        />
-      )
-    } else {
-      return (
-        <Input
-          value={this.props.values[inputValueName]}
-          onChange={(e) => this.props.onChange(inputValueName, e.target.value)}
-        />
-      )
-    }
-  }
-
-  getInputItems = () => {
-    let inputItems = []
-    let i = 0
-    for (let inputValueName in this.props.values) {
-      inputItems.push(
-        <>
-          <Descriptions.Item label={inputValueName}>
-            <Row gutter={8}>
-              <Col span={23}>
-                {this.getInputItemType(inputValueName)}
-              </Col>
-              <Col span={1}>
-                <DeleteTwoTone key={inputValueName} type="delete" theme="filled"
-                  onClick={() => this.handleDeleteClick(inputValueName)}
-                />
-              </Col>
-            </Row>
-
-          </Descriptions.Item>
-        </>
-      )
-    }
-    return inputItems
-  }
-
-  handleAddInputValue = (inputValueName) => {
-    // Check if the input value name already exists
-    if (this.props.values && this.props.values.hasOwnProperty(inputValueName)) {
-      message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 });
-    } else {
-      // Save the input value
-      let newValue = ''
-      if (this.state.newInputValueType === 'number') {
-        newValue = 0
-      } else if (this.state.newInputValueType === 'boolean') {
-        newValue = false
-      }
-      this.props.onChange(inputValueName, newValue)
-      this.state.newInputValueName = ''
-    }
-  }
-
-
-  render() {
-    const addInputValueDialogContent = (
-      <>
-        <Input
-          placeholder="Input Value Name"
-          type="text"
-          value={this.state.newInputValueName}
-          onChange={(e) => { this.setState({ newInputValueName: e.target.value }) }}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              this.setState({ addInputValueDialogVisible: false })
-            }
-          }}
-          onPressEnter={() => {
-            this.handleAddInputValue(this.state.newInputValueName)
-            this.setState({ addInputValueDialogVisible: false })
-          }}
-        />
-        <Radio.Group onChange={(e) => {
-          this.setState({ newInputValueType: e.target.value })
-        }}
-          value={this.state.newInputValueType}
-        >
-          <Radio value='string'>String</Radio>
-          <Radio value='number'>Number</Radio>
-          <Radio value='boolean'>Boolean</Radio>
-        </Radio.Group>
-        <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
-          onClick={() => {
-            this.handleAddInputValue(this.state.newInputValueName)
-            this.setState({ addInputValueDialogVisible: false })
-          }}
-          size="sm"
-        >
-          Add
-      </Button>
-      </>
-    )
-
-    return (
-      <>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Card className="bg-white shadow">
-              <Popover
-                content={addInputValueDialogContent}
-                title="Enter a new name"
-                trigger="click"
-                visible={this.state.addInputValueDialogVisible}
-                onVisibleChange={(visible) => this.setState({ addInputValueDialogVisible: visible })}
-              >
-                <Button
-                  className="text-right float-right"
-                  color="primary"
-                  size="sm"
-                >
-                  Add Input Value
-              </Button>
-              </Popover>
-
-              <Descriptions title="Input Values" bordered column={1} size='small'>
-                {this.getInputItems()}
-              </Descriptions>
-            </Card>
-          </Col>
-        </Row>
-      </>
-    )
-  }
-}
-
-
 class OutboundRequest extends React.Component {
 
   constructor() {
@@ -246,9 +93,8 @@ class OutboundRequest extends React.Component {
     const sessionId = TraceHeaderUtils.generateSessionId()
     this.state = {
       request: {},
-      template: {
-        inputValues: {}
-      },
+      template: {},
+      inputValues: {},
       additionalData: {
         selectedFiles: []
       },
@@ -270,10 +116,6 @@ class OutboundRequest extends React.Component {
       userConfig: null,
       sendingOutboundRequestID: null,
       lastOutgoingRequestID: null,
-      loadSampleDialogVisible: false,
-      loadSampleFiles: {},
-      loadSampleChecked: {},
-      loadSampleCollectionTypes: ['hub', 'dfsp', 'provisioning'],
       sequenceDiagramVisible: false,
       folderData: [],
       fileBrowserVisible: false,
@@ -300,7 +142,8 @@ class OutboundRequest extends React.Component {
       curTestCasesRequestsUpdated: false,
       tempReorderedTestCases: [],
       serverLogsVisible: true,
-      testCaseEditorLogs: []
+      testCaseEditorLogs: [],
+      environmentManagerVisible: false
     };
   }
 
@@ -344,21 +187,17 @@ class OutboundRequest extends React.Component {
 
     const additionalData = this.restoreAdditionalData()
     const storedFolderData = await this.restoreSavedFolderData()
-    const storedEnvironmentData = this.restoreSavedEnvironmentData()
 
     if (storedFolderData) {
       this.state.folderData = storedFolderData
       this.regenerateTemplate(additionalData.selectedFiles)
-    }
-    if (storedEnvironmentData) {
-      this.state.template.inputValues = storedEnvironmentData
     }
 
     if (additionalData) {
       this.state.additionalData = additionalData
     }
 
-    if (storedFolderData || storedEnvironmentData || additionalData) {
+    if (storedFolderData || additionalData) {
       this.forceUpdate()
     }
 
@@ -366,16 +205,8 @@ class OutboundRequest extends React.Component {
 
   }
 
-  handleInputValuesChange = (name, value) => {
-    this.state.template.inputValues[name] = value
-    this.autoSave = true
-    this.forceUpdate()
-  }
-
-  handleInputValuesDelete = (name) => {
-    delete this.state.template.inputValues[name]
-    this.autoSave = true
-    this.forceUpdate()
+  handleInputValuesChange = (newInputValues) => {
+    this.setState({inputValues: newInputValues})
   }
 
   handleIncomingProgress = (progress) => {
@@ -449,8 +280,8 @@ class OutboundRequest extends React.Component {
     // const outboundRequestID = Math.random().toString(36).substring(7);
     message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
-    // this.state.template = this.convertTemplate(this.state.template)
     const convertedTemplate = template ? this.convertTemplate(template) : this.convertTemplate(this.state.template)
+    convertedTemplate.inputValues = this.state.inputValues
     // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
     await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
@@ -557,16 +388,6 @@ class OutboundRequest extends React.Component {
     return null
   }
 
-  restoreSavedEnvironmentData = () => {
-    const storedEnvironmentData = localStorage.getItem('environmentData')
-    if (storedEnvironmentData) {
-      try {
-        return JSON.parse(storedEnvironmentData)
-      } catch (err) { }
-    }
-    return null
-  }
-
   restoreAdditionalData = () => {
     const additionalData = localStorage.getItem('additionalData')
     if (additionalData) {
@@ -581,9 +402,7 @@ class OutboundRequest extends React.Component {
     this.autoSaveIntervalId = setInterval(() => {
       if (this.autoSave) {
         this.autoSave = false
-        // this.autoSaveTemplate(this.convertTemplate(this.state.template, true))
         this.autoSaveFolderData(this.state.folderData)
-        this.autoSaveEnvironmentData(this.state.template.inputValues)
         this.autoSaveAdditionalData(this.state.additionalData)
       }
     },
@@ -595,10 +414,6 @@ class OutboundRequest extends React.Component {
     LocalDB.setItem('folderData', JSON.stringify(folderData))
   }
 
-  autoSaveEnvironmentData = (environmentData) => {
-    localStorage.setItem('environmentData', JSON.stringify(environmentData));
-  }
-
   autoSaveAdditionalData = (additionalData) => {
     localStorage.setItem('additionalData', JSON.stringify(additionalData));
   }
@@ -608,14 +423,13 @@ class OutboundRequest extends React.Component {
       message.error('Filename should be ended with .json');
       return
     }
-    let templateContent = {}
-    const { inputValues, ...remainingTemplateContent } = this.state.template
+    let downloadContent = {}
     if (saveTemplateOption === 1) {
-      templateContent = { ...remainingTemplateContent }
+      downloadContent = this.state.template
     } else if (saveTemplateOption === 2) {
-      templateContent = { inputValues }
+      downloadContent = this.state.inputValues
     }
-    this.download(JSON.stringify(this.convertTemplate(templateContent), null, 2), fileName, 'text/plain');
+    this.download(JSON.stringify(this.convertTemplate(downloadContent), null, 2), fileName, 'text/plain');
   }
 
   regenerateTemplate = async (selectedFiles = null) => {
@@ -638,28 +452,6 @@ class OutboundRequest extends React.Component {
     }
     this.forceUpdate()
     // this.autoSave = true
-  }
-
-  handleImportEnvironmentFile = (file_to_read) => {
-    message.loading({ content: 'Reading the file...', key: 'importFileProgress' });
-    var fileRead = new FileReader();
-    fileRead.onload = (e) => {
-      var content = e.target.result;
-      try {
-        var templateContent = JSON.parse(content);
-        if (templateContent.inputValues) {
-          this.state.template.inputValues = templateContent.inputValues
-          this.forceUpdate()
-          this.autoSave = true
-          message.success({ content: 'Environment Loaded', key: 'importFileProgress', duration: 2 });
-        } else {
-          message.error({ content: 'Input Values not found in the file', key: 'importFileProgress', duration: 2 });
-        }
-      } catch (err) {
-        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
-      }
-    };
-    fileRead.readAsText(file_to_read);
   }
 
   handleDownloadReport = async (event, report) => {
@@ -742,7 +534,7 @@ class OutboundRequest extends React.Component {
               <TestCaseViewer
                 testCase={testCase}
                 onChange={this.handleTestCaseChange}
-                inputValues={this.state.template.inputValues}
+                inputValues={this.state.inputValues}
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
                 onDelete={() => { this.handleTestCaseDelete(testCaseIndex) } }
                 onDuplicate={() => { this.handleTestCaseDuplicate(testCaseIndex) } }
@@ -768,151 +560,6 @@ class OutboundRequest extends React.Component {
         <Menu.Item key='printhtml'>Printer Friendly HTML report</Menu.Item>
       </Menu>
     )
-  }
-
-  handleLoadSample = async () => {
-    message.loading({ content: 'Loading Sample...', key: 'loadSampleProgress' });
-    try {
-      if (this.state.loadSampleChecked.collections) {
-        this.state.additionalData.importedFilename = (this.state.loadSampleChecked.collections.length > 1) ? 'Multiple Files' : this.state.loadSampleChecked.collections[0]
-      }
-      if (this.state.loadSampleChecked.environment === 'none') {
-        this.state.loadSampleChecked.environment = null
-      }
-      const { apiBaseUrl } = getConfig()
-      const resp = await axios.get(apiBaseUrl + '/api/samples/loadFolderWise', {
-        params: this.state.loadSampleChecked
-      })
-      if (resp.data.body.name) {
-        this.state.template.name = resp.data.body.name
-      }
-      if (Object.keys(resp.data.body.environment || {}).length !== 0) {
-        this.state.template.inputValues = resp.data.body.environment
-      }
-      if (resp.data.body.test_cases) {
-        this.state.template.test_cases = resp.data.body.test_cases
-      }
-      if (resp.data.body.collections && resp.data.body.collections.length > 0) {
-        await this.setState({ fileBrowserVisible: true })
-        this.fileManagerRef.current.updateFoldersAndFiles(resp.data.body.collections)
-      }
-
-      this.forceUpdate()
-      this.autoSave = true
-    } catch (err) {
-      message.error({ content: ((err.response) ? err.response.data : err.message), key: 'loadSampleProgress', duration: 2 });
-      return
-    }
-    message.success({ content: 'Sample Loaded', key: 'loadSampleProgress', duration: 2 });
-  }
-
-  loadSampleContent = async () => {
-    const { apiBaseUrl } = getConfig()
-    if (!this.state.loadSampleCollections) {
-      this.state.loadSampleCollections = {}
-      for (const index in this.state.loadSampleCollectionTypes) {
-        const resp = await axios.get(apiBaseUrl + `/api/samples/list/collections?type=${this.state.loadSampleCollectionTypes[index]}`)
-        if (resp.data.body.length > 0) {
-          this.state.loadSampleCollections[this.state.loadSampleCollectionTypes[index]] = resp.data.body
-        }
-      }
-    }
-    if (!this.state.loadSampleEnvironments) {
-      const resp = await axios.get(apiBaseUrl + `/api/samples/list/environments`)
-      resp.data.body.push({ name: 'none' })
-      if (resp.data.body.length > 0) {
-        this.state.loadSampleEnvironments = resp.data.body.map(file => file.name)
-      }
-    }
-  }
-
-  loadSampleCollections = (type) => {
-    const collections = []
-    if (this.state.loadSampleCollections && this.state.loadSampleCollections[type]) {
-      for (const i in this.state.loadSampleCollections[type]) {
-        collections.push({ key: i, collection: this.state.loadSampleCollections[type][i] })
-      }
-    }
-    return collections
-  }
-
-  loadSampleCollectionsAsFilesArray = (type) => {
-    if (this.state.loadSampleCollections && this.state.loadSampleCollections[type]) {
-      return this.state.loadSampleCollections[type].map((file) => {
-        return {
-          key: file.name,
-          size: file.size,
-        }
-      })
-    } else {
-      return []
-    }
-  }
-
-  loadSampleEnvironments = () => {
-    const environments = []
-    if (this.state.loadSampleEnvironments) {
-      for (const i in this.state.loadSampleEnvironments) {
-        environments.push({ key: i, environment: this.state.loadSampleEnvironments[i] })
-      }
-    }
-    return environments
-  }
-
-  loadSampleCollectionsTabContent = () => {
-    return this.state.loadSampleCollectionTypes.map(type => {
-      const files = this.loadSampleCollectionsAsFilesArray(type)
-      if (files && files.length > 0) {
-        return (
-          <Tabs.TabPane tab={type} key={type}>
-            <SampleFilesViewer files={files} prefix={'examples/collections/' + type + '/'} onChange={(selectedCollections) => {
-              // this.setState({selectedCollections: selectedRowKeys})
-              this.state.loadSampleChecked.collections = selectedCollections
-            }} />
-          </Tabs.TabPane>
-        )
-      } else {
-        return null
-      }
-    })
-  }
-
-  clearSampleSelectionState = () => {
-    this.setState({ selectedCollections: [], selectedEnvironments: [], loadSampleChecked: {} })
-  }
-
-  loadSampleTabContent = () => {
-    return this.state.loadSampleTypes.map(type => {
-      return (
-        <Tabs.TabPane tab={type} key={type}>
-          <Col span={11}>
-            <Table
-              rowSelection={{
-                type: 'checkbox', selectedRowKeys: this.state.selectedCollections, onChange: (selectedRowKeys, selectedRows) => {
-                  this.setState({ selectedCollections: selectedRowKeys })
-                  this.state.loadSampleChecked.collections = selectedRows.map(selectedRow => { return selectedRow.collection })
-                }
-              }}
-              columns={[{ title: 'Collections', dataIndex: 'collection', render: text => <a>{text}</a> }]}
-              dataSource={this.loadSampleCollections(type)}
-            />
-          </Col>
-          <Col span={2} />
-          <Col span={11}>
-            <Table
-              rowSelection={{
-                type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
-                  this.setState({ selectedEnvironments: selectedRowKeys })
-                  this.state.loadSampleChecked.environment = selectedRows[0].environment
-                }
-              }}
-              columns={[{ title: 'Environments', dataIndex: 'environment', render: text => <a>{text}</a> }]}
-              dataSource={this.loadSampleEnvironments(type)}
-            />
-          </Col>
-        </Tabs.TabPane>
-      )
-    })
   }
 
   handleShowSequenceDiagram = async (testCase) => {
@@ -1123,7 +770,7 @@ class OutboundRequest extends React.Component {
         <Drawer
           title="File Browser"
           placement="left"
-          width={500}
+          width={600}
           closable={false}
           onClose={() => {
             this.setState({ fileBrowserVisible: false })
@@ -1138,6 +785,21 @@ class OutboundRequest extends React.Component {
             ipcRenderer={ipcRenderer}
           />
         </Drawer>
+        <Drawer
+          title="Environment Manager"
+          forceRender
+          placement="right"
+          width={800}
+          closable={false}
+          onClose={() => {
+            this.setState({ environmentManagerVisible: false })
+          }}
+          visible={this.state.environmentManagerVisible}
+        >
+          <EnvironmentManager
+            onChange={this.handleInputValuesChange}
+          />
+        </Drawer>
 
         <Modal
           centered
@@ -1149,7 +811,7 @@ class OutboundRequest extends React.Component {
           footer={null}
           onCancel={() => { this.setState({ showTemplate: false }) }}
         >
-          <pre>{JSON.stringify(this.convertTemplate(this.state.template), null, 2)}</pre>
+          <pre>{JSON.stringify(this.convertTemplate({...this.state.template, inputValues: this.state.inputValues}), null, 2)}</pre>
         </Modal>
         <Modal
           style={{ top: 20 }}
@@ -1162,7 +824,7 @@ class OutboundRequest extends React.Component {
           onCancel={() => { this.setState({ showIterationRunner: false }) }}
         >
           <IterationRunner
-            template={this.convertTemplate(this.state.template)}
+            template={this.convertTemplate({...this.state.template, inputValues: this.state.inputValues})}
             sessionId={this.state.sessionId}
             ref={this.iterationRunnerRef}
           />
@@ -1201,12 +863,13 @@ class OutboundRequest extends React.Component {
               ? (
                 <TestCaseEditor
                   testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
-                  inputValues={this.state.template.inputValues}
+                  inputValues={this.state.inputValues}
                   userConfig={this.state.userConfig}
                   logs={this.state.testCaseEditorLogs}
                   onChange={this.handleTestCaseChange}
                   onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
                   traceID={this.state.lastOutgoingRequestID}
+                  onOpenEnvironmentManager={() => {this.setState({environmentManagerVisible: true})}}
                 />
               )
               : null
@@ -1216,63 +879,27 @@ class OutboundRequest extends React.Component {
         <Row>
           <Col span={24}>
             <Affix offsetTop={2}>
+              <Row align="top">
+                <Col span={12}>                
+                  <Button type='primary' className='mt-2' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
+                    this.setState({ fileBrowserVisible: true })
+                  }}>
+                    <Text style={{color: 'white', fontWeight: 'bold'}}>Collections Manager</Text> <CaretRightFilled style={ {fontSize: '18px'} }/>
+                  </Button>
+                </Col>
+                <Col span={12}>       
+                  <Button type='primary' className='mt-2 float-right' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
+                      this.setState({ environmentManagerVisible: true })
+                    }}>
+                    <CaretLeftFilled style={ {fontSize: '18px'} }/> <Text style={{color: 'white', fontWeight: 'bold'}}>Environment Manager</Text>
+                  </Button>            
+                </Col>
+              </Row>
               <Row>
                 <Col span={24}>
                   <Card className="mb-4">
                     <Row>
-                      <Col span={10}>
-                        <Button
-                          className="mr-2"
-                          type="primary"
-                          onClick={() => {
-                            this.setState({ fileBrowserVisible: true })
-                          }}
-                        >
-                          Collections Manager
-                        </Button>
-                        <Button type="dashed" onClick={async (e) => {
-                          await this.loadSampleContent()
-                          this.setState({ loadSampleDialogVisible: true })
-                        }}>
-                          Load Sample
-                        </Button>
-                        <Modal
-                          title="Loaded Samples"
-                          visible={this.state.loadSampleDialogVisible}
-                          width='50%'
-                          onOk={async () => {
-                            await this.handleLoadSample()
-                            this.clearSampleSelectionState()
-                            this.setState({ loadSampleDialogVisible: false })
-                          }}
-                          onCancel={() => {
-                            this.clearSampleSelectionState()
-                            this.setState({ loadSampleDialogVisible: false })
-                          }}
-                        >
-                          <Collapse defaultActiveKey={['1']}>
-                            <Collapse.Panel header="Collections" key="1">
-                              <Tabs defaultActiveKey={this.state.loadSampleCollectionTypes[0]} onChange={() => {
-                                this.setState({ selectedCollections: [] })
-                              }}>
-                                {this.loadSampleCollectionsTabContent()}
-                              </Tabs>
-                            </Collapse.Panel>
-                            <Collapse.Panel header="Environments" key="2">
-                              <Table
-                                rowSelection={{
-                                  type: 'radio', disabled: true, selectedRowKeys: this.state.selectedEnvironments, onChange: (selectedRowKeys, selectedRows) => {
-                                    this.setState({ selectedEnvironments: selectedRowKeys })
-                                    this.state.loadSampleChecked.environment = selectedRows[0].environment
-                                  }
-                                }}
-                                columns={[{ dataIndex: 'environment', render: text => <a>{text}</a> }]}
-                                dataSource={this.loadSampleEnvironments()}
-                              />
-                            </Collapse.Panel>
-                          </Collapse>
-                        </Modal>
-                      </Col>
+                      <Col span={10}></Col>
                       <Col span={4} className="text-center">
                       {
                         this.state.totalAssertionsCount > 0
@@ -1501,42 +1128,6 @@ class OutboundRequest extends React.Component {
                           </>
                         )
                     }
-                  </TabPane>
-                  <TabPane key="2" tab={this.state.template.inputValues && Object.keys(this.state.template.inputValues).length ? 'Input Values' : (<Badge offset={[20, 0]} count={<WarningTwoTone twoToneColor="#f5222d" />}>Input Values</Badge>)}>
-                    <Row>
-                      <Col span={24}>
-                        <Popover
-                          className="float-right"
-                          content={getSaveTemplateDialogContent(2)}
-                          title="Enter filename to save"
-                          trigger="click"
-                          visible={this.state.saveTemplateEnvironementDialogVisible}
-                          onVisibleChange={(visible) => this.setState({ saveTemplateEnvironementDialogVisible: visible })}
-                        >
-                          <Button
-                            className="text-right float-right"
-                            type="default"
-                          >
-                            Export Current Environment
-                          </Button>
-                        </Popover>
-                        <Button
-                          type="primary"
-                          className='float-right mr-2'
-                          onClick={e => {
-                            e.preventDefault();
-                            this.environmentFileSelector.click();
-                          }}
-                        >
-                          Import Environment
-                        </Button>
-                      </Col>
-                    </Row>
-                    <Row className='mt-2'>
-                      <Col span={24}>
-                        <InputValues values={this.state.template.inputValues} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
-                      </Col>
-                    </Row>
                   </TabPane>
                 </Tabs>
               </Col>

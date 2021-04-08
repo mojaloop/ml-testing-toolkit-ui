@@ -22,7 +22,7 @@
  --------------
  ******/
 import axios from 'axios'
-import getConfig from '../../../utils/getConfig'
+import { getConfig, getServerConfig } from '../../../utils/getConfig'
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 class OutboundService {
@@ -30,12 +30,18 @@ class OutboundService {
   apiBaseUrl = ''
   inputValues = {}
   sessionId = '123'
+  userConfig = {}
 
   constructor (sessionId = '123') {
     const { apiBaseUrl } = getConfig()
     this.apiBaseUrl = apiBaseUrl
     this.sessionId = sessionId
-    this.reloadEnvironment()
+    this.initEnvironment()
+  }
+
+  initEnvironment = async () => {
+    await this.fetchUserConfig()
+    await this.reloadEnvironment()
   }
 
   getSessionId () {
@@ -47,9 +53,15 @@ class OutboundService {
     const currentEndToEndId = TraceHeaderUtils.generateEndToEndId()
     return traceIdPrefix + this.sessionId + currentEndToEndId
   }
+
+  async fetchUserConfig () {
+    const { userConfigRuntime } = await getServerConfig()
+    this.userConfig = userConfigRuntime
+  }
   
   async reloadEnvironment () {
-    const environmentURL = '/api/samples/loadFolderWise?environment=examples/environments/hub-k8s-local-environment.json'
+    let DEFAULT_ENVIRONMENT_FILE_NAME = this.userConfig ? this.userConfig.DEFAULT_ENVIRONMENT_FILE_NAME : 'hub-local-environment.json'
+    const environmentURL = '/api/samples/loadFolderWise?environment=examples/environments/' + DEFAULT_ENVIRONMENT_FILE_NAME
     const resp = await axios.get(this.apiBaseUrl + environmentURL)
     if (resp.data && resp.data.body && resp.data.body.environment) {
       this.inputValues =  resp.data.body.environment

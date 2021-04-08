@@ -25,7 +25,7 @@ import React from "react";
 
 import { withRouter, Redirect } from "react-router-dom";
 import { message, Button, Form, Input } from 'antd';
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 
 import "./Auth.css";
 

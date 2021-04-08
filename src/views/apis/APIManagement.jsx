@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from "react";
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import axios from 'axios';
 import APIDocViewer from './APIDocViewer'
 

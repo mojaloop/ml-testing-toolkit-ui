@@ -30,7 +30,7 @@ import 'antd/dist/antd.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import axios from 'axios';
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import { getServerConfig } from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
 

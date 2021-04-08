@@ -23,7 +23,7 @@
  ******/
 import React from "react";
 import socketIOClient from "socket.io-client";
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 
 import { Row, Col, Card, Button } from 'antd';
 import mermaid from 'mermaid'

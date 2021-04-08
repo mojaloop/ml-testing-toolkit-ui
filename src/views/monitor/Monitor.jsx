@@ -23,7 +23,7 @@
  ******/
 import React from "react";
 import socketIOClient from "socket.io-client";
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 
 import { Tag, Timeline, Card, Table, Row, Col, Button, Typography } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';

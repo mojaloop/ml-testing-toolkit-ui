@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from "react";
-import getConfig from '../../utils/getConfig'
+import { getConfig } from '../../utils/getConfig'
 import APIDocViewer from './APIDocViewer'
 import axios from 'axios';
 import { Select, Row, Col, Card } from 'antd';
