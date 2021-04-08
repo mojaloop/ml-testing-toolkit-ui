@@ -151,7 +151,7 @@ class TestCaseViewer extends React.Component {
         <Menu.Item key="rename">Rename</Menu.Item>
         <Menu.Item key="duplicate">Duplicate</Menu.Item>
         <Menu.Item key="delete">Delete</Menu.Item>
-        <Menu.Item key="send">Send this test case</Menu.Item>
+        <Menu.Item key="send">Run this test case</Menu.Item>
         {
           this.props.testCase && this.props.testCase.requests && this.props.testCase.requests.length > 1
           ? <Menu.Item key="reorderRequests">Reorder requests</Menu.Item>

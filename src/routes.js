@@ -90,7 +90,7 @@ var routes = [
   },
   {
     path: "/outbound_request",
-    name: "Outbound Request",
+    name: "Test Runner",
     icon: <SendOutlined />,
     component: OutboundRequest,
     layout: "/admin"

@@ -278,7 +278,7 @@ class OutboundRequest extends React.Component {
     const traceId = traceIdPrefix + this.state.sessionId + this.state.currentEndToEndId
 
     // const outboundRequestID = Math.random().toString(36).substring(7);
-    message.loading({ content: 'Sending the outbound request...', key: 'outboundSendProgress' });
+    message.loading({ content: 'Initilizing the test cases...', key: 'outboundSendProgress' });
     const { apiBaseUrl } = getConfig()
     const convertedTemplate = template ? this.convertTemplate(template) : this.convertTemplate(this.state.template)
     convertedTemplate.inputValues = this.state.inputValues
@@ -939,7 +939,7 @@ class OutboundRequest extends React.Component {
                           danger
                           onClick={this.handleSendStopClick}
                         >
-                          {this.state.sendingOutboundRequestID ? 'Stop' : 'Send'}
+                          {this.state.sendingOutboundRequestID ? 'Stop' : 'Run'}
                         </Button>
                         <Button
                           className="float-right mr-2"
