@@ -22,10 +22,8 @@
  --------------
  ******/
 import React from "react";
-import { getConfig } from '../../utils/getConfig'
-import GitHub from 'github-api';
 import { FolderParser } from '@mojaloop/ml-testing-toolkit-shared-lib'
-
+import GitHubService from '../../services/gitHub'
 import { Row, Col, Table, Button, Typography, Tag, Progress } from 'antd';
 import { FolderOutlined, FileOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -33,16 +31,7 @@ import { getUserConfig } from '../../utils/getConfig'
 
 const { Text, Title } = Typography
 
-const gh = new GitHub();
-
 class GitHubBrowser extends React.Component {
-  apiBaseUrl = null
-
-  constructor () {
-    super()
-    const { apiBaseUrl } = getConfig()
-    this.apiBaseUrl = apiBaseUrl
-  }
 
   state = {
     serverCollections: [],
@@ -64,7 +53,7 @@ class GitHubBrowser extends React.Component {
     const userConfig = getUserConfig()
     
     this.gitHubConfig = userConfig && userConfig.GITHUB_CONFIG
-    this.gitRepo = gh.getRepo(this.gitHubConfig.TEST_CASES_REPO_OWNER, this.gitHubConfig.TEST_CASES_REPO_NAME)
+    this.gitRepo = new GitHubService(this.gitHubConfig.TEST_CASES_REPO_OWNER, this.gitHubConfig.TEST_CASES_REPO_NAME)
     
     this.state.currentFolder = this.gitHubConfig.TEST_CASES_REPO_BASE_PATH 
     await this.reloadFileList()
@@ -73,7 +62,7 @@ class GitHubBrowser extends React.Component {
   reloadFileList = async () => {
     if(this.gitRepo) {
       this.setState({isGettingFileList: true})
-      const resp = await this.gitRepo.getContents(null, this.state.currentFolder)
+      const resp = await this.gitRepo.getContents(this.state.currentFolder)
       this.setState({serverCollections: resp.data, isGettingFileList: false})
     }
   }
@@ -109,7 +98,7 @@ class GitHubBrowser extends React.Component {
   getGitHubTreeFileCount = async (gObjects) => {
     let fileCount = 0
     for (let i = 0; i < gObjects.length; i++) {
-      const resp = await this.gitRepo.getTree(gObjects[i].sha + '?recursive=true')
+      const resp = await this.gitRepo.getTree(gObjects[i].sha)
       const treeData = resp.data && resp.data.tree
       fileCount += treeData.filter(item => item.type === 'blob').length
     }
@@ -133,7 +122,7 @@ class GitHubBrowser extends React.Component {
     var importFolderRawData = []
     for (let i = 0; i < gObjects.length; i++) {
       const folderName = gObjects[i].name
-      const resp = await this.gitRepo.getTree(gObjects[i].sha + '?recursive=true')
+      const resp = await this.gitRepo.getTree(gObjects[i].sha)
       const treeData = resp.data && resp.data.tree
       const fileList = treeData.filter(item => item.type === 'blob')
       for (let j = 0; j < fileList.length; j++) {
@@ -180,7 +169,7 @@ class GitHubBrowser extends React.Component {
         newObj.children = []
         // Get objects in the directory
         this.setState({gitHubDownloadStatusText: 'Fetching directory ' + gObject.path + '...'})
-        const resp = await this.gitRepo.getContents(null, gObject.path)
+        const resp = await this.gitRepo.getContents(gObject.path)
         await this.downloadGitHubObject(resp.data, newObj.children)        
       } else if(gObject.type === 'file') {
         this.setState({gitHubDownloadStatusCount: this.state.gitHubDownloadStatusCount + 1})
