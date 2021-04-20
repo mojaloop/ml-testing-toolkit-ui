@@ -798,10 +798,16 @@ export class TestAssertions extends React.Component {
     const results = this.props.request.status && this.props.request.status.testResult && this.props.request.status.testResult.results ? this.props.request.status.testResult.results : {}
     return this.props.request.tests.assertions.map((assertion, key) => {
       let status = null
+      let color = '#87d068'
       if (results[assertion.id]) {
+        if(results[assertion.id].status == 'FAILED'){
+          color = '#f50'
+        } else if (results[assertion.id].status == 'SKIPPED') {
+          color = '#f4c10b'
+        }
         status = (
           <Tooltip placement="topLeft" title={results[assertion.id].message}>
-            <Tag color={results[assertion.id].status=='FAILED'?'#f50':'#87d068'}>
+            <Tag color={color}>
               {results[assertion.id].status}
             </Tag>
           </Tooltip>
