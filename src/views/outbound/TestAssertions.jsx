@@ -802,7 +802,7 @@ export class TestAssertions extends React.Component {
       if (results[assertion.id]) {
         if(results[assertion.id].status == 'FAILED'){
           color = '#f50'
-        } else if (results[assertion.id].skipped === true) {
+        } else if (results[assertion.id].status == 'SKIPPED') {
           color = '#f4c10b'
         }
         status = (
