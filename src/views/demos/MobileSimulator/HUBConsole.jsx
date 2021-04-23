@@ -181,14 +181,18 @@ class HUBConsole extends React.Component {
         title: 'Position',
         dataIndex: 'position',
       },
-      // {
-      //   title: 'Settlement',
-      //   dataIndex: 'settlement',
-      // },
       {
-        title: 'NET_DEBIT_CAP',
-        dataIndex: 'NET_DEBIT_CAP',
+        title: 'Settlement',
+        dataIndex: 'settlement',
       },
+      {
+        title: 'Interchange Fee',
+        dataIndex: 'INTERCHANGE_FEE',
+      },
+      // {
+      //   title: 'NET_DEBIT_CAP',
+      //   dataIndex: 'NET_DEBIT_CAP',
+      // },
     ];
     const settlementColumns = [
       {
@@ -210,16 +214,21 @@ class HUBConsole extends React.Component {
         const detail = currVal[0] + ': ' + currVal[1]
         return idx == 0 ? detail : prevVal + ', ' + detail
       }, '')
-      // const settlementData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'SETTLEMENT').reduce((prevVal,currVal,idx) => {
-      //   const detail = currVal.currency + ': ' + currVal.value
-      //   return idx == 0 ? detail : prevVal + ', ' + detail
-      // }, '')
+      const settlementData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'SETTLEMENT').reduce((prevVal,currVal,idx) => {
+        const detail = currVal.currency + ': ' + currVal.value
+        return idx == 0 ? detail : prevVal + ', ' + detail
+      }, '')
+      const interchangeFeeData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'INTERCHANGE_FEE').reduce((prevVal,currVal,idx) => {
+        const detail = currVal.currency + ': ' + currVal.value
+        return idx == 0 ? detail : prevVal + ', ' + detail
+      }, '')
       return {
         key: index,
         dfspId: dfspItem[0],
         position: positionData,
-        // settlement: settlementData
-        NET_DEBIT_CAP: netDebitCapData
+        settlement: settlementData,
+        NET_DEBIT_CAP: netDebitCapData,
+        INTERCHANGE_FEE: interchangeFeeData
       }
     })
 
@@ -313,7 +322,7 @@ class HUBConsole extends React.Component {
             columns={dfspValuesColumns}
             dataSource={dfspValuesData}
             bordered
-            title={() => <Text strong>Positions</Text>}
+            title={() => <Text strong>Accounts</Text>}
             pagination={false}
             scroll={{ y: 540 }}
             loading={this.state.getDFSPValuesInProgress}

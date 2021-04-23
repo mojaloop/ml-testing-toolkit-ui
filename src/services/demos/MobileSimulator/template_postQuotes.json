@@ -30,7 +30,8 @@
               "partyIdInfo": {
                 "partyIdType": "{$inputs.fromIdType}",
                 "partyIdentifier": "{$inputs.fromIdValue}",
-                "fspId": "{$inputs.mobileSimPayerFsp}"
+                "fspId": "{$inputs.mobileSimPayerFsp}",
+                "extensionList":{"extension":[{"key":"accountType","value":"Wallet"}]}
               },
               "personalInfo": {
                 "complexName": {
@@ -44,7 +45,8 @@
               "partyIdInfo": {
                 "partyIdType": "{$inputs.toIdType}",
                 "partyIdentifier": "{$inputs.toIdValue}",
-                "fspId": "{$inputs.mobileSimPayeeFsp}"
+                "fspId": "{$inputs.mobileSimPayeeFsp}",
+                "extensionList":{"extension":[{"key":"accountType","value":"Wallet"}]}
               }
             },
             "amountType": "RECEIVE",
