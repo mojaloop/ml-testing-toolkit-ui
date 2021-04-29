@@ -25,7 +25,9 @@
 import React from "react";
 import _ from 'lodash';
 
-import { Input, Checkbox, Divider, Tooltip, message, Row, Col, Typography, Button, Modal, Table, Select, Tabs } from 'antd';
+import { Input, Checkbox, Divider, Tooltip, message, Row, Col, Typography, Button, Modal, Table, Select, Tabs, Card } from 'antd';
+import { QuestionCircleTwoTone } from '@ant-design/icons';
+
 import 'antd/dist/antd.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -70,6 +72,8 @@ class ParamInput extends React.Component {
   handleValueChange = (event) => {
     if ((typeof this.props.value) === 'boolean') {
       this.inputValue = event.target.checked
+    } else if ((typeof this.props.value) === 'number') {
+      this.inputValue = +event.target.value
     } else {
       this.inputValue = event.target.value
     }
@@ -101,16 +105,19 @@ class ParamInput extends React.Component {
           <Divider />
           <Row className="mb-4">
             <Col span={8}>
-              <Text strong>{this.props.name}</Text>
-            </Col>
-            <Col span={16}>
+              <Text strong>{this.props.name}</Text>&nbsp;
               {
                 this.props.tooltip
                 ? (
-                <Tooltip placement="topLeft" title={this.props.tooltip}>{inputElement}</Tooltip>
+                  <Tooltip placement="topLeft" title={this.props.tooltip}>
+                    <QuestionCircleTwoTone style={{ fontSize: '18px' }} />
+                  </Tooltip>
                 )
-                : inputElement
+                : null
               }
+            </Col>
+            <Col span={16}>
+              {inputElement}
             </Col>
           </Row>
         </>
@@ -395,35 +402,37 @@ class ConfigurationEditor extends React.Component {
             </Col>
           </Row>
           <Row>
-            <Col span={24}>
-            <ParamInput name="Callback URL" itemRef={this.props.config} itemKey="CALLBACK_ENDPOINT" value={this.props.config.CALLBACK_ENDPOINT} onChange={this.handleParamValueChange} />
-            <ParamInput name="FSP ID" itemRef={this.props.config} itemKey="FSPID" value={this.props.config.FSPID} onChange={this.handleParamValueChange} />
-            <ParamInput name="Send Callback" itemRef={this.props.config} itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
-            <ParamInput name="Enable Version Negotiation Support" itemRef={this.props.config}  itemKey="VERSIONING_SUPPORT_ENABLE" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange}  />
-            <Divider />
-            <ParamInput name="Enable Hub Only Mode" itemRef={this.props.config} itemKey="HUB_ONLY_MODE" value={this.props.config.HUB_ONLY_MODE} onChange={this.handleParamValueChange} />
-            <Divider />
-            <CallbackResourceEndpointsInput name="Enable Callback resource endpoints" itemRef={this.props.config.CALLBACK_RESOURCE_ENDPOINTS}  itemKey="enabled" value={this.props.config.CALLBACK_RESOURCE_ENDPOINTS.enabled} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
-            <Divider />
-            <DFSPWiseEndpointsInput name="DFSP Wise endpoints" itemRef={this.props.config.ENDPOINTS_DFSP_WISE} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
-            <Divider />
-            <ParamInput name="Validate Transfers with previous quote" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
-            <ParamInput name="Validate IlpPacket in transfers" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_ILP_PACKET" value={this.props.config.TRANSFERS_VALIDATION_ILP_PACKET} onChange={this.handleParamValueChange} />
-            <ParamInput name="Validate Condition in transfers" itemRef={this.props.config} itemKey="TRANSFERS_VALIDATION_CONDITION" value={this.props.config.TRANSFERS_VALIDATION_CONDITION} onChange={this.handleParamValueChange} />
-            <ParamInput name="ILP Secret" itemKey="ILP_SECRET" itemRef={this.props.config}  value={this.props.config.ILP_SECRET} onChange={this.handleParamValueChange} />
-            <Divider />
-            <ParamInput name="Enable Inbound JWS Validation" itemRef={this.props.config} itemKey="VALIDATE_INBOUND_JWS" value={this.props.config.VALIDATE_INBOUND_JWS} onChange={this.handleParamValueChange} />
-            <ParamInput name="Enable Inbound JWS Validation for PUT /parties" itemRef={this.props.config}  itemKey="VALIDATE_INBOUND_PUT_PARTIES_JWS" value={this.props.config.VALIDATE_INBOUND_PUT_PARTIES_JWS} onChange={this.handleParamValueChange} />
-            <ParamInput name="Enable Outbound JWS Signing" itemRef={this.props.config}  itemKey="JWS_SIGN" value={this.props.config.JWS_SIGN} onChange={this.handleParamValueChange} />
-            <ParamInput name="Enable Outbound JWS Signing for PUT /parties" itemRef={this.props.config}  itemKey="JWS_SIGN_PUT_PARTIES" value={this.props.config.JWS_SIGN_PUT_PARTIES} onChange={this.handleParamValueChange} />
-            <Divider />
-            <ParamInput name="Connection Manager API URL" itemRef={this.props.config}  itemKey="CONNECTION_MANAGER_API_URL" value={this.props.config.CONNECTION_MANAGER_API_URL} onChange={this.handleParamValueChange} />
-            <Divider />
-            <ParamInput name="Inbound Mutual TLS" itemRef={this.props.config} itemKey="INBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
-            <ParamInput name="Outbound Mutual TLS" itemRef={this.props.config} itemKey="OUTBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
-            <Divider />
-            <ParamInput name="Advanced Features" itemRef={this.props.config} itemKey="ADVANCED_FEATURES_ENABLED" value={this.props.config.ADVANCED_FEATURES_ENABLED} onChange={this.handleParamValueChange} />
+            <Col span={12}>
+              <Card>
+                <ParamInput name="Callback URL" itemRef={this.props.config} itemKey="CALLBACK_ENDPOINT" value={this.props.config.CALLBACK_ENDPOINT} onChange={this.handleParamValueChange} />
+                <ParamInput name="FSP ID" itemRef={this.props.config} itemKey="FSPID" value={this.props.config.FSPID} onChange={this.handleParamValueChange} />
+                <ParamInput name="Send Callback" itemRef={this.props.config} itemKey="SEND_CALLBACK_ENABLE" value={this.props.config.SEND_CALLBACK_ENABLE} onChange={this.handleParamValueChange} />
+                <ParamInput name="Enable Version Negotiation Support" itemRef={this.props.config}  itemKey="VERSIONING_SUPPORT_ENABLE" value={this.props.config.VERSIONING_SUPPORT_ENABLE} onChange={this.handleParamValueChange}  />
+                <ParamInput name="Validate Transfers with previous quote" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES" value={this.props.config.TRANSFERS_VALIDATION_WITH_PREVIOUS_QUOTES} onChange={this.handleParamValueChange} />
+                <ParamInput name="Validate IlpPacket in transfers" itemRef={this.props.config}  itemKey="TRANSFERS_VALIDATION_ILP_PACKET" value={this.props.config.TRANSFERS_VALIDATION_ILP_PACKET} onChange={this.handleParamValueChange} />
+                <ParamInput name="Validate Condition in transfers" itemRef={this.props.config} itemKey="TRANSFERS_VALIDATION_CONDITION" value={this.props.config.TRANSFERS_VALIDATION_CONDITION} onChange={this.handleParamValueChange} />
+                <ParamInput name="ILP Secret" itemKey="ILP_SECRET" itemRef={this.props.config}  value={this.props.config.ILP_SECRET} onChange={this.handleParamValueChange} />
+                <ParamInput name="Advanced Features" itemRef={this.props.config} itemKey="ADVANCED_FEATURES_ENABLED" value={this.props.config.ADVANCED_FEATURES_ENABLED} onChange={this.handleParamValueChange} />
+                <ParamInput name="Default Request Timeout" tooltip="Default time to wait for the response of an outbound request" itemRef={this.props.config} itemKey="DEFAULT_REQUEST_TIMEOUT" value={this.props.config.DEFAULT_REQUEST_TIMEOUT} onChange={this.handleParamValueChange} />
+                <ParamInput name="Script Timeout" tooltip="Time to wait for the pre-request and post-request scripts in test execution" itemRef={this.props.config} itemKey="SCRIPT_TIMEOUT" value={this.props.config.SCRIPT_TIMEOUT} onChange={this.handleParamValueChange} />
+                <ParamInput name="Callback Timeout" tooltip="Time to wait for the callback in test execution" itemRef={this.props.config} itemKey="CALLBACK_TIMEOUT" value={this.props.config.CALLBACK_TIMEOUT} onChange={this.handleParamValueChange} />
+              </Card>
             </Col>
+            <Col span={12}>
+              <Card>
+                <ParamInput name="Enable Hub Only Mode" itemRef={this.props.config} itemKey="HUB_ONLY_MODE" value={this.props.config.HUB_ONLY_MODE} onChange={this.handleParamValueChange} />
+                <CallbackResourceEndpointsInput name="Enable Callback resource endpoints" itemRef={this.props.config.CALLBACK_RESOURCE_ENDPOINTS}  itemKey="enabled" value={this.props.config.CALLBACK_RESOURCE_ENDPOINTS.enabled} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
+                <DFSPWiseEndpointsInput name="DFSP Wise endpoints" itemRef={this.props.config.ENDPOINTS_DFSP_WISE} onChange={this.handleParamValueChange} config={this.props.config} configRuntime={this.props.configRuntime} handleParamValueChange={this.handleParamValueChange} handleSave={this.handleSave} />
+                <ParamInput name="Enable Inbound JWS Validation" itemRef={this.props.config} itemKey="VALIDATE_INBOUND_JWS" value={this.props.config.VALIDATE_INBOUND_JWS} onChange={this.handleParamValueChange} />
+                <ParamInput name="Enable Inbound JWS Validation for PUT /parties" itemRef={this.props.config}  itemKey="VALIDATE_INBOUND_PUT_PARTIES_JWS" value={this.props.config.VALIDATE_INBOUND_PUT_PARTIES_JWS} onChange={this.handleParamValueChange} />
+                <ParamInput name="Enable Outbound JWS Signing" itemRef={this.props.config}  itemKey="JWS_SIGN" value={this.props.config.JWS_SIGN} onChange={this.handleParamValueChange} />
+                <ParamInput name="Enable Outbound JWS Signing for PUT /parties" itemRef={this.props.config}  itemKey="JWS_SIGN_PUT_PARTIES" value={this.props.config.JWS_SIGN_PUT_PARTIES} onChange={this.handleParamValueChange} />
+                <ParamInput name="Connection Manager API URL" itemRef={this.props.config}  itemKey="CONNECTION_MANAGER_API_URL" value={this.props.config.CONNECTION_MANAGER_API_URL} onChange={this.handleParamValueChange} />
+                <ParamInput name="Inbound Mutual TLS" itemRef={this.props.config} itemKey="INBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.INBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
+                <ParamInput name="Outbound Mutual TLS" itemRef={this.props.config} itemKey="OUTBOUND_MUTUAL_TLS_ENABLED" value={this.props.config.OUTBOUND_MUTUAL_TLS_ENABLED} onChange={this.handleParamValueChange} />
+              </Card>
+            </Col>
+
           </Row>
         </Col>
       </Row>
