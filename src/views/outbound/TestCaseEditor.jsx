@@ -27,7 +27,7 @@ import _ from 'lodash';
 
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix, Typography } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix, Typography, Alert } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -615,7 +615,12 @@ class TestCaseEditor extends React.Component {
     if (this.props.testCase.requests) {
       return this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
         const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions ? item.status.testResult.passedCount + '/' + item.tests.assertions.length : ''
-        const testStatusColor = item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount === item.tests.assertions.length ? '#87d068' : '#f50'
+        let testStatusColor = '#f50'
+        if (item.status && item.status.progressStatus == 'SKIPPED') {
+          testStatusColor = '#D7D700'
+        } else if (item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount === item.tests.assertions.length) {
+          testStatusColor = '#87d068'
+        }
         let requestShow
         if (item.status && item.status.requestSent) {
           requestShow = item.status.requestSent
@@ -627,6 +632,18 @@ class TestCaseEditor extends React.Component {
             <Tabs defaultActiveKey='1'>
               <TabPane tab="Request" key="1">
                 <>
+                  {
+                    item.status && item.status.progressStatus == 'SKIPPED'
+                      ? (
+                        <Alert
+                          message="Request Skipped"
+                          type="warning"
+                          showIcon
+                          className="mb-2"
+                        />
+                      )
+                      : null
+                  }
                   {
                     requestShow.headers
                       ? (
