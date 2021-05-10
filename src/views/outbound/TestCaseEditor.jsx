@@ -43,6 +43,7 @@ import RequestBuilder from './RequestBuilder'
 import TestAssertions from './TestAssertions'
 import ServerLogsViewer from './ServerLogsViewer'
 import { getConfig } from '../../utils/getConfig'
+import { TTKColors } from '../../utils/styleHelpers'
 
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
@@ -615,11 +616,11 @@ class TestCaseEditor extends React.Component {
     if (this.props.testCase.requests) {
       return this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
         const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions ? item.status.testResult.passedCount + '/' + item.tests.assertions.length : ''
-        let testStatusColor = '#f50'
+        let testStatusColor = TTKColors.assertionFailed
         if (item.status && item.status.progressStatus == 'SKIPPED') {
-          testStatusColor = '#D7D700'
+          testStatusColor = TTKColors.assertionSkipped
         } else if (item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount === item.tests.assertions.length) {
-          testStatusColor = '#87d068'
+          testStatusColor = TTKColors.assertionPassed
         }
         let requestShow
         if (item.status && item.status.requestSent) {
