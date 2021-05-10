@@ -45,6 +45,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 import { extendObservable, trace } from "mobx";
 
+import { TTKColors } from '../../utils/styleHelpers'
 import { LocalDB } from '../../services/localDB/LocalDB';
 
 let ipcRenderer = null
@@ -228,6 +229,7 @@ class OutboundRequest extends React.Component {
           const failedCount = (progress.testResult && progress.testResult.results && progress.testResult.passedCount !== progress.testResult.results.length) ? Object.entries(progress.testResult.results).filter(item => item[1].status === 'FAILED').length : 0
           this.state.totalPassedCount += passedCount
           this.state.totalFailedCount += failedCount
+          request.status.progressStatus = progress.status
           if (progress.status === 'SUCCESS') {
             request.status.state = 'finish'
             request.status.response = progress.response
@@ -255,9 +257,15 @@ class OutboundRequest extends React.Component {
                 testCase.requests[i].status.additionalInfo = {}
                 testCase.requests[i].status.testResult = null
               }
-
             }
             // message.error({ content: 'Test case failed', key: 'outboundSendProgress', duration: 3 });
+          } else if (progress.status === 'SKIPPED') {
+            request.status.state = 'error'
+            request.status.response = progress.response
+            request.status.callback = progress.callback
+            request.status.requestSent = progress.requestSent
+            request.status.additionalInfo = progress.additionalInfo
+            request.status.testResult = progress.testResult
           }
           this.forceUpdate()
         }
@@ -912,12 +920,12 @@ class OutboundRequest extends React.Component {
                           </Row>
                           <Row className='mt-4'>
                             <Col span={8}>
-                              <Badge count="PASSED" style={{ backgroundColor: '#87d068' }}>
+                              <Badge count="PASSED" style={{ backgroundColor: TTKColors.assertionPassed }}>
                                 <Progress type="circle" width={50} status="success" percent={100} format={() => this.state.totalPassedCount} />
                               </Badge>
                             </Col>
                             <Col span={8}>
-                              <Badge count="FAILED" style={{ backgroundColor: '#f50' }}>
+                              <Badge count="FAILED" style={{ backgroundColor: TTKColors.assertionFailed }}>
                                 <Progress type="circle" width={50} status="exception" percent={100} format={() => this.state.totalFailedCount} />
                               </Badge>
                             </Col>

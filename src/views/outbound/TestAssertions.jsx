@@ -40,6 +40,7 @@ import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-eclipse";
 import { getConfig } from '../../utils/getConfig';
+import { TTKColors } from '../../utils/styleHelpers'
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
 import 'jsoneditor-react/es/editor.min.css';
@@ -798,12 +799,12 @@ export class TestAssertions extends React.Component {
     const results = this.props.request.status && this.props.request.status.testResult && this.props.request.status.testResult.results ? this.props.request.status.testResult.results : {}
     return this.props.request.tests.assertions.map((assertion, key) => {
       let status = null
-      let color = '#87d068'
+      let color = TTKColors.assertionPassed
       if (results[assertion.id]) {
         if(results[assertion.id].status == 'FAILED'){
-          color = '#f50'
+          color = TTKColors.assertionFailed
         } else if (results[assertion.id].status == 'SKIPPED') {
-          color = '#f4c10b'
+          color = TTKColors.assertionSkipped
         }
         status = (
           <Tooltip placement="topLeft" title={results[assertion.id].message}>

@@ -30,6 +30,8 @@ import { MoreOutlined, DoubleRightOutlined } from '@ant-design/icons';
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 
+import { TTKColors } from '../../utils/styleHelpers'
+
 const { Panel } = Collapse;
 const { Step } = Steps;
 const { Title, Text } = Typography;
@@ -60,7 +62,12 @@ class TestCaseViewer extends React.Component {
       const requestRows = this.props.testCase.requests.map(item => {
         if (item.method && item.operationPath) {
           const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : ''
-          const testStatusColor = item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount===item.tests.assertions.length ? '#87d068' : '#f50'
+          let testStatusColor = TTKColors.assertionFailed
+          if (item.status && item.status.progressStatus == 'SKIPPED') {
+            testStatusColor = TTKColors.assertionSkipped
+          } else if (item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount === item.tests.assertions.length) {
+            testStatusColor = TTKColors.assertionPassed
+          }
           return (
               <tr>
                 <td className="align-text-top" width='25px'>
