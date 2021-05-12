@@ -23,7 +23,7 @@
  --------------
  ******/
 import React from "react";
-import { Select, message, Row, Col, Button, Typography, Input, Tabs, Tag, Popover, Descriptions} from 'antd';
+import { Select, message, Row, Col, Button, Typography, Input, Tabs, Tag, Popover, Descriptions, Radio} from 'antd';
 import ace from 'brace';
 import 'jsoneditor-react/es/editor.min.css';
 import 'brace/mode/json';
@@ -272,6 +272,7 @@ class RulesEditor extends React.Component {
         params: {}
       },
       scripts: null,
+      scriptingEngine: null,
       conditions: [],
       pathMethodConditions: [],
       apiVersions: [],
@@ -308,6 +309,7 @@ class RulesEditor extends React.Component {
     let pathMethodConditions = []
     let conditions = []
     let scripts
+    let scriptingEngine
     try {
       pathMethodConditions = inputRule.conditions.all.filter(item => {
         if(item.fact === 'method' || item.fact === 'operationPath') {
@@ -336,6 +338,7 @@ class RulesEditor extends React.Component {
       event = inputRule.event
       if (event.params && event.params.scripts) {
         scripts = event.params.scripts.exec
+        scriptingEngine = event.params.scripts.scriptingEngine
       }
     }
 
@@ -356,7 +359,7 @@ class RulesEditor extends React.Component {
       environment = await this.getEnvironment()
     } catch (err) {}
 
-    this.setState({description, conditions, pathMethodConditions, event, selectedResource, apiVersions, selectedApiVersion, scripts, environment })
+    this.setState({description, conditions, pathMethodConditions, event, selectedResource, apiVersions, selectedApiVersion, scripts, scriptingEngine, environment })
   }
 
   handleReloadEnvironment = async () => {
@@ -408,7 +411,8 @@ class RulesEditor extends React.Component {
       event: {...this.state.event}
     }
     rule.event.params.scripts = {
-      exec: (this.state.scripts && this.state.scripts.length === 1 && this.state.scripts[0].trim() === '') ? undefined : this.state.scripts
+      exec: (this.state.scripts && this.state.scripts.length === 1 && this.state.scripts[0].trim() === '') ? undefined : this.state.scripts,
+      scriptingEngine: this.state.scriptingEngine || 'postman'
     }
     return JSON.stringify(rule, null, 2)
   }
@@ -734,28 +738,45 @@ class RulesEditor extends React.Component {
                     </div>
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="Scripts" key="scripts">
-                    <div className="pl-lg-4">
-                      <AceEditor
-                        ref="preReqScriptAceEditor"
-                        mode="javascript"
-                        theme="eclipse"
-                        width='100%'
-                        value={ this.state.scripts ? this.state.scripts.join('\n') : '' }
-                        onChange={ (newScript) => {
-                          this.state.scripts = newScript.split('\n')
-                        }}
-                        name="UNIQUE_ID_OF_DIV"
-                        wrapEnabled={true}
-                        showPrintMargin={true}
-                        showGutter={true}
-                        tabSize={2}
-                        enableBasicAutocompletion={true}
-                        enableLiveAutocompletion={true}
-                      />
-                      <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                        <Button color="secondary" size="sm">Add Configurable Params</Button>
-                      </Popover>
-                    </div>
+                    <Row>
+                      <Col span={24}>
+                        <Radio.Group
+                          onChange={(e) => {
+                            this.setState({scriptingEngine: e.target.value})
+                          }}
+                          value={this.state.scriptingEngine || 'postman'}
+                        >
+                          <Radio value={'javascript'}>Javascript</Radio>
+                          <Radio value={'postman'}>Postman-script</Radio>
+                        </Radio.Group>
+                      </Col>
+                    </Row>
+                    <Row className="mt-2">
+                      <Col span={24}>
+                        <div className="pl-lg-4">
+                          <AceEditor
+                            ref="preReqScriptAceEditor"
+                            mode="javascript"
+                            theme="eclipse"
+                            width='100%'
+                            value={ this.state.scripts ? this.state.scripts.join('\n') : '' }
+                            onChange={ (newScript) => {
+                              this.state.scripts = newScript.split('\n')
+                            }}
+                            name="UNIQUE_ID_OF_DIV"
+                            wrapEnabled={true}
+                            showPrintMargin={true}
+                            showGutter={true}
+                            tabSize={2}
+                            enableBasicAutocompletion={true}
+                            enableLiveAutocompletion={true}
+                          />
+                          <Popover content={content} title="Select a Configurable Parameter" trigger="click">
+                            <Button color="secondary" size="sm">Add Configurable Params</Button>
+                          </Popover>
+                        </div>
+                      </Col>
+                    </Row>
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="Environment" disabled={Object.keys(this.state.environment).length === 0} key={Object.keys(this.state.environment).length === 0 ? undefined : "environment"} >
                     <Descriptions bordered column={1} size='small'>
