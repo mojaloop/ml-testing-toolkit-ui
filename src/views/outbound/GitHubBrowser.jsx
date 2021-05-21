@@ -70,8 +70,18 @@ class GitHubBrowser extends React.Component {
       this.setState({isGettingTagList: true})
       try {
         const resp = await this.gitRepo.getTags()
-        this.setState({gitTags: resp.data.map(item => item.name), isGettingTagList: false})
-        this.handleTagChange(0)
+        const gitTags = resp.data.map(item => item.name)
+        this.setState({gitTags: gitTags, isGettingTagList: false})
+        if (this.gitHubConfig.TEST_CASES_REPO_DEFAULT_RELEASE_TAG && this.gitHubConfig.TEST_CASES_REPO_DEFAULT_RELEASE_TAG !== 'latest') {
+          const index = gitTags.findIndex(tagName => tagName === this.gitHubConfig.TEST_CASES_REPO_DEFAULT_RELEASE_TAG)
+          if (index !== -1) {
+            this.handleTagChange(index)
+          } else {
+            this.handleTagChange(0)
+          }
+        } else {
+          this.handleTagChange(0)
+        }
       } catch(err) {
         this.setState({errorText: err.message, isGettingTagList: false})
       }
