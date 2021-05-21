@@ -34,15 +34,30 @@
      this.repoOwner = repoOwner
      this.repoName = repoName
    }
- 
-   getContents = async (folderPath) => {
-    return await axios.get(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/contents/${folderPath}`)
-   }
 
-   getTree = async (treeSHA) => {
-    return await axios.get(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/git/trees/${treeSHA}?recursive=true`)
-   }
+    _gitGetRequest = async (url) => {
+      try {
+        return await axios.get(url)
+      } catch(err) {
+        if (err.response && err.response.data && err.response.data.message) {
+          throw new Error(err.response.data.message)
+        }
+        throw new Error(err.message)
+      }
+    }
  
+    getContents = async (folderPath, ref) => {
+      const qParams = ref ? `?ref=${ref}` : ''
+      return await this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/contents/${folderPath}${qParams}`)
+    }
+
+    getTree = async (treeSHA) => {
+      return await this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/git/trees/${treeSHA}?recursive=true`)
+    }
+
+    getTags = async () => {
+      return await this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/tags`)
+    }
  }
  
  export default GitHubService
