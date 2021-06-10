@@ -799,6 +799,7 @@ class OutboundRequest extends React.Component {
           placement="right"
           width={800}
           closable={false}
+          zIndex={1100}
           onClose={() => {
             this.setState({ environmentManagerVisible: false })
           }}
