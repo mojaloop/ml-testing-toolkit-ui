@@ -22,66 +22,31 @@
  --------------
  ******/
 import React from "react";
-import socketIOClient from "socket.io-client";
-import { getConfig } from '../../utils/getConfig'
 
 import { Row, Col, Card, Button } from 'antd';
 import mermaid from 'mermaid'
 
-class IncomingMonitor extends React.Component {
+class SequenceDiagram extends React.Component {
 
   newState =  {
     logs: [],
     lastLogTime: null,
-    sequenceItems: [],
-    timeline: {
-      outbound: {
-        socket: null,
-        socketTopic: "newOutboundLog"
-      },
-      inbound: {
-        socket: null,
-        socketTopic: "newLog"
-      }
-    }
+    sequenceItems: []
   }
+
+  inboundPeerName = 'In'
+  outboundPeerName = 'Out'
+  ttkPeerName = 'TTK'
+
+  timeToRefresh = 1 * 60 * 1000
 
   constructor() {
     super();
     this.state = JSON.parse(JSON.stringify(this.newState))
   }
-  
-  componentWillUnmount = () => {
-    if (this.state.timeline.inbound.socket) {
-      this.state.timeline.inbound.socket.disconnect()
-  }
-    if (this.state.timeline.outbound.socket) {
-      this.state.timeline.outbound.socket.disconnect()
-    }
-  }
 
-  componentDidMount = async () => {
-
-    this.resetWelcomeMessage()
-
-    const { apiBaseUrl } = getConfig()
-
-    for (const logType of Object.keys(this.state.timeline)) {
-      const item = this.state.timeline[logType]
-      item.socket = socketIOClient(apiBaseUrl);
-      if (getConfig().isAuthEnabled) {
-        const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
-        if (dfspId) {
-              item.socketTopic = `${item.socketTopic}/${dfspId}`
-        }
-      }
-
-      item.socket.on(item.socketTopic, log => {
-        this.appendLog(log)
-        this.forceUpdate()
-      });
-    }
-    this.forceUpdate()
+  componentDidMount() {
+    this.initDiagram()
   }
 
   appendLog = (log) => {
@@ -89,7 +54,7 @@ class IncomingMonitor extends React.Component {
     // Check for the time of last log and clear the old data
     var datetime = new Date( this.state.lastLogTime ).getTime();
     var now = new Date( log.logTime ).getTime();
-    if ( (now - datetime) > 5000 ) {
+    if ( (now - datetime) > this.timeToRefresh ) {
       this.state.sequenceItems = []
     }
 
@@ -146,44 +111,28 @@ class IncomingMonitor extends React.Component {
     this.state.sequenceItems.sort(function(a,b){
       return new Date(a.logTime) - new Date(b.logTime);
     });
-    this.seqDiagContainer.removeAttribute('data-processed')
-    let seqSteps = ''
+    let seqSteps = this.getDiagramHeaders()
     const rowCount = this.state.sequenceItems.length
     for (let i=0; i<rowCount; i++) {
-      let transactionBegan = false
       if ( this.state.sequenceItems[i].type === 'outboundRequest' ) {
-        // seqSteps += 'Note over TTK,PEER: ' + testCase.requests[i].status.requestSent.description + '\n'
-        seqSteps += 'TTK->>PEER: [HTTP REQ] ' + this.state.sequenceItems[i].title + '\n'
-        // transactionBegan  = true
-        // seqSteps += 'activate PEER\n'
+        seqSteps += `${this.ttkPeerName}->>${this.outboundPeerName}: [HTTP REQ] ` + this.state.sequenceItems[i].title + '\n'
       }
       if ( this.state.sequenceItems[i].type === 'outboundResponse' ) {
-        seqSteps += 'PEER--' + (this.state.sequenceItems[i].isError ? 'x' : '>>') + 'TTK: [HTTP RESP] ' + this.state.sequenceItems[i].title + '\n'
+        seqSteps += `${this.outboundPeerName}--` + (this.state.sequenceItems[i].isError ? 'x' : '>>') + `${this.ttkPeerName}: [HTTP RESP] ` + this.state.sequenceItems[i].title + '\n'
       }
-      // if ( testCase.requests[i].status && testCase.requests[i].status.response ) {
-      //   const stepStr = testCase.requests[i].status.response.status + ' ' + testCase.requests[i].status.response.statusText + ' ' +testCase.requests[i].status.state
-      //   if (testCase.requests[i].status.state === 'error') {
-      //     seqSteps += 'PEER--xTTK: [HTTP RESP] ' + stepStr + '\n'
-      //   } else {
-      //     seqSteps += 'PEER-->>TTK: [HTTP RESP] ' + stepStr + '\n'
-      //   }
-      // }
-      // if ( testCase.requests[i].status && testCase.requests[i].status.callback ) {
-      //   const stepStr = testCase.requests[i].status.callback.url
-      //   seqSteps += 'PEER-->>TTK: [ASYNC CALLBACK] ' + stepStr + '\n'
-      // }
       if ( this.state.sequenceItems[i].type === 'inboundRequest' ) {
-        seqSteps += 'PEER->>TTK: [HTTP REQ] ' + this.state.sequenceItems[i].title + '\n'
+        seqSteps += `${this.inboundPeerName}->>${this.ttkPeerName}: [HTTP REQ] ${this.state.sequenceItems[i].title}\n`
       }
       if ( this.state.sequenceItems[i].type === 'inboundResponse' ) {
-        seqSteps += 'TTK--' + (this.state.sequenceItems[i].isError ? 'x' : '>>') + 'PEER: [HTTP RESP] ' + this.state.sequenceItems[i].title + '\n'
+        seqSteps += `${this.ttkPeerName}--` + (this.state.sequenceItems[i].isError ? 'x' : '>>') + `${this.inboundPeerName}: [HTTP RESP] ` + this.state.sequenceItems[i].title + '\n'
       }
-
-      // if (transactionBegan) {
-      //   seqSteps += 'deactivate PEER\n'
-      // }
     }
 
+    this.drawDiagram(seqSteps)
+  }
+
+  drawDiagram = (seqSteps) => {
+    this.seqDiagContainer.removeAttribute('data-processed')
     const code = 'sequenceDiagram\n' + seqSteps
     try {
       mermaid.parse(code)
@@ -192,18 +141,24 @@ class IncomingMonitor extends React.Component {
     } catch (e) {
       console.log('Diagram generation error', e.str || e.message)
     }
+  }
 
+  initDiagram = () => {
+    this.drawDiagram(this.getDiagramHeaders())
+  }
+
+  getDiagramHeaders = () => {
+    let seqSteps = ''
+    seqSteps += `Note over ${this.inboundPeerName},${this.ttkPeerName}: Inbound Requests\n`
+    seqSteps += `Note over ${this.ttkPeerName},${this.outboundPeerName}: Outbound Requests\n`
+    return seqSteps
   }
 
   handleClearLogs = () => {
     this.state.sequenceItems = []
     this.refreshSequenceDiagram()
-    this.resetWelcomeMessage()
+    this.initDiagram()
     this.forceUpdate()
-  }
-
-  resetWelcomeMessage = () => {
-    this.seqDiagContainer.innerHTML = '<h4><br /><br /><br />Welcome to Testing Toolkit</h4>'
   }
 
   render () {
@@ -241,4 +196,4 @@ class IncomingMonitor extends React.Component {
   }
 }
 
-export default IncomingMonitor;
+export default SequenceDiagram;
