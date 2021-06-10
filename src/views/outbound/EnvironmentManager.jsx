@@ -241,7 +241,9 @@ class EnvironmentManager extends React.Component {
   }
 
   notifyChangeEnvironment = () => {
-    this.props.onChange(this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues)
+    if (this.state.localEnvironments[this.state.selectedEnvironmentIndex]) {
+      this.props.onChange(this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues)
+    }
   }
 
 
