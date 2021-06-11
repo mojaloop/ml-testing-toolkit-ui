@@ -27,7 +27,7 @@ import RulesCallback from "./views/rules/RulesCallback.jsx";
 // import RulesForward from "./views/rules/RulesForward.jsx";
 import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
 import Monitor from "./views/monitor/Monitor.jsx";
-import MonitorDiagram from "./views/monitor/MonitorDiagram.jsx";
+import Dashboard from "./views/dashboard/Dashboard.jsx";
 import Settings from "./views/settings/Settings.jsx";
 import APIManagement from "./views/apis/APIManagement.jsx";
 import Demos from "./views/demos/Demos.jsx";
@@ -50,7 +50,7 @@ var routes = [
     path: "/index",
     name: "Dashboard",
     icon: <DashboardOutlined />,
-    component: MonitorDiagram,
+    component: Dashboard,
     layout: "/admin"
   },
   {
