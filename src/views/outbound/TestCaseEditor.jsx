@@ -623,15 +623,17 @@ class TestCaseEditor extends React.Component {
           testStatusColor = TTKColors.assertionPassed
         }
         let requestShow
+        let suffixRequestBody = ''
         if (item.status && item.status.requestSent) {
           requestShow = item.status.requestSent
+          suffixRequestBody = ' Sent'
         } else {
           requestShow = item
         }
         return (
           <Col span={24 / (this.props.testCase.requests.length ? (endIndex - startIndex) : 1)}>
             <Tabs defaultActiveKey='1'>
-              <TabPane tab="Request" key="1">
+              <TabPane tab={'Request'} key="1">
                 <>
                   {
                     item.status && item.status.progressStatus == 'SKIPPED'
@@ -648,9 +650,9 @@ class TestCaseEditor extends React.Component {
                   {
                     requestShow.headers
                       ? (
-                        <Card size="small" title="Header" className="mb-2">
+                        <Card size="small" title={'Header' + suffixRequestBody} className="mb-2">
                           <Descriptions bordered column={1} size='small'>
-                            {this.getObjectAsDescriptions(this.replaceInputValues(requestShow.headers))}
+                            {this.getObjectAsDescriptions(requestShow.headers)}
                           </Descriptions>
                         </Card>
                       )
@@ -659,22 +661,12 @@ class TestCaseEditor extends React.Component {
                   {
                     requestShow.body
                       ? (
-                        <Card size="small" className="mb-2" title="Body">
-                          <AceEditor
-                            ref="assertionAceEditor"
-                            mode="json"
-                            theme="github"
-                            width='100%'
-                            height='100px'
-                            value={JSON.stringify(this.replaceInputValues(requestShow.body), null, 2)}
-                            name="UNIQUE_ID_OF_DIV"
-                            wrapEnabled={true}
-                            showPrintMargin={true}
-                            showGutter={false}
-                            readOnly={true}
-                            highlightActiveLine={false}
-                            tabSize={2}
-                          />
+                        <Card size="small" className="mb-2" title={'Body' + suffixRequestBody}>
+                          <Text>
+                            <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                              {JSON.stringify(requestShow.body,null,2)}
+                            </pre>
+                          </Text>
                         </Card>
                       )
                       : null
