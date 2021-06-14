@@ -241,7 +241,9 @@ class EnvironmentManager extends React.Component {
   }
 
   notifyChangeEnvironment = () => {
-    this.props.onChange(this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues)
+    if (this.state.localEnvironments[this.state.selectedEnvironmentIndex]) {
+      this.props.onChange(this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues)
+    }
   }
 
 
@@ -421,6 +423,7 @@ class EnvironmentManager extends React.Component {
                         title="Enter new name"
                         trigger="click"
                         visible={this.state.renameEnvironementDialogVisible}
+                        zIndex={1101}
                         onVisibleChange={(visible) => {
                           if (visible) {
                             this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name })
