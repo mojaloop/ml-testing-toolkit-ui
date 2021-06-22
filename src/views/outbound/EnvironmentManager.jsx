@@ -374,6 +374,7 @@ class EnvironmentManager extends React.Component {
                       </Button>
                       <Dropdown
                         className="ml-2 float-right"
+                        zIndex={1101}
                         overlay={menu}
                         trigger={['click']}
                         onVisibleChange={(visible) => {
