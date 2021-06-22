@@ -26,7 +26,7 @@ import { getConfig } from '../../utils/getConfig'
 import axios from 'axios';
 import APIDocViewer from './APIDocViewer'
 
-import { Select, Row, Col, Table, Button, Modal, Upload, message, Card, Typography, Input, Tag, Radio } from 'antd';
+import { Select, Row, Col, Table, Button, Modal, Upload, message, Card, Typography, Input, Tag, Radio, Spin } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 
 const { Dragger } = Upload;
@@ -41,7 +41,8 @@ class AddNewAPI extends React.Component {
     validationError: null,
     newApiName: null,
     newApiVersion: null,
-    newApiAsynchronous: null
+    newApiAsynchronous: null,
+    isLoading: false
   }
   apiBaseUrl = null
 
@@ -64,32 +65,48 @@ class AddNewAPI extends React.Component {
   }
 
   addApiFile = async () => {
+    this.setState({isLoading: true})
     const data = new FormData() 
     data.append('file', this.state.selectedFile)
     data.append('name', this.state.newApiName)
     data.append('version', this.state.newApiVersion)
     data.append('asynchronous', this.state.newApiAsynchronous)
-    const url = this.apiBaseUrl + "/api/openapi/definition";
-    const res = await axios.post(url, data, {
-      headers: {
-        'content-type': 'multipart/form-data'
+    try {
+      const url = this.apiBaseUrl + "/api/openapi/definition";
+      const res = await axios.post(url, data, {
+        headers: {
+          'content-type': 'multipart/form-data'
+        }
+      })
+      this.setState({isLoading: false})
+      this.props.onAdded()
+      return res.data
+    } catch(err) {
+      if (err.response && err.response.data) {
+        if (err.response.data.errors) {
+          message.error(err.response.data.errors.join(', '))
+        } else {
+          message.error(JSON.stringify(err.response.data))
+        }
+      } else {
+        message.error(err.message)
       }
-    })
-    this.props.onAdded()
-    return res.data
+      this.setState({isLoading: false})
+    }
   }
 
   handleFileImport = async (infoObject) => {
     this.state.selectedFile = infoObject.file
     try {
+      this.setState({isLoading: true})
       const validationResult = await this.validateApiFile()
       const newApiName = this.state.selectedFile && this.state.selectedFile.name && this.state.selectedFile.name.split('.')[0]
       const newApiVersion = validationResult && validationResult.apiDefinition && validationResult.apiDefinition.info && validationResult.apiDefinition.info.version
       const newApiAsynchronous = 'false'
-      this.setState({validatedApiDefinition: validationResult.apiDefinition, validationError: null, newApiName, newApiVersion, newApiAsynchronous })
+      this.setState({validatedApiDefinition: validationResult.apiDefinition, validationError: null, newApiName, newApiVersion, newApiAsynchronous, isLoading: false })
     } catch(err) {
       infoObject.onError('Validation Error')
-      this.setState({validatedApiDefinition: null, selectedFile: null, validationError: err.response.data})
+      this.setState({validatedApiDefinition: null, selectedFile: null, validationError: err.response.data, isLoading: false})
     }
   }
 
@@ -163,6 +180,7 @@ class AddNewAPI extends React.Component {
   render() {
     return (
       <>
+      <Spin size="large" spinning={this.state.isLoading}>
       <Dragger
         name='spec_file'
         multiple={false}
@@ -263,6 +281,7 @@ class AddNewAPI extends React.Component {
           )
           : null
       }
+      </Spin>
       </>
     )
   }
