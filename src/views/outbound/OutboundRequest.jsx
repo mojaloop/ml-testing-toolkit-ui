@@ -865,6 +865,7 @@ class OutboundRequest extends React.Component {
           visible={this.state.showTestCaseIndex != null ? true : false}
           footer={null}
           keyboard={false}
+          maskClosable={false}
           onCancel={() => { this.setState({ showTestCaseIndex: null }) }}
         >
           {

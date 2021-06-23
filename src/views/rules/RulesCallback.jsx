@@ -287,6 +287,7 @@ class RulesCallback extends React.Component {
             visible={this.state.editRule? true : false}
             footer={null}
             onCancel={this.handleRuleCancelClick}
+            maskClosable={false}
           >
             <RulesEditor
               rule={this.state.editRule}

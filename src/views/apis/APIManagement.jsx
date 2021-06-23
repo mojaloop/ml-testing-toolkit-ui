@@ -292,7 +292,8 @@ class APIManagement extends React.Component {
     apiVersions: [],
     newAPIDialogEnabled: false,
     selectedApiIndex: null,
-    apiDocViewerVisible: false
+    apiDocViewerVisible: false,
+    isLoading: false
   }
 
   getApiVersions = async () => {
@@ -306,8 +307,9 @@ class APIManagement extends React.Component {
   }
 
   refreshApiVersions = async () => {
+    this.setState({isLoading: true})
     const apiVersions = await this.getApiVersions()
-    this.setState({ apiVersions, selectedApiIndex: null })
+    this.setState({ apiVersions, selectedApiIndex: null, isLoading: false })
   }
 
   handleApiAdded = () => {
@@ -394,7 +396,7 @@ class APIManagement extends React.Component {
         >
           <APIDocViewer specUrl={this.getSelectedVersionURL()} />
         </Modal>
-
+        <Spin size="large" spinning={this.state.isLoading}>
         {/* Page content */}
           <Row className="mt--7 mb-4">
             <Col span={24}>
@@ -446,6 +448,7 @@ class APIManagement extends React.Component {
               </Row>
             </Col>
           </Row>
+        </Spin>
       </>
     );
   }
