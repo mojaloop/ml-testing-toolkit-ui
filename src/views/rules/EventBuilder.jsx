@@ -68,7 +68,7 @@ class ConfigurableParameter extends React.Component {
       )
     })
   }
-  
+
   handleModeChange = async (mode) => {
     var factData = null
     switch(mode) {
@@ -131,7 +131,7 @@ class ConfigurableParameter extends React.Component {
         finalValue = '{$request.body.' + this.inputValue + '}'
         break
       case 2:
-        finalValue = '{$request.header.' + this.inputValue + '}'
+        finalValue = '{$request.header.' + this.inputValue.toLowerCase() + '}'
         break
       case 3:
         finalValue = '{$session.negotiatedContentType}'
@@ -139,7 +139,7 @@ class ConfigurableParameter extends React.Component {
       default:
         finalValue = this.inputValue
     }
-    
+
 
     this.props.onChange(finalValue)
   }
@@ -211,7 +211,7 @@ class FixedCallbackBuilder extends React.Component {
   //   // console.log(this.props.callbackRootParameters)
   //   // console.log(this.props.resourceDefinition.parameters)
   //   // console.log(this.props.callbackDefinition)
-    
+
 
 
   // }
@@ -260,7 +260,7 @@ class FixedCallbackBuilder extends React.Component {
     this.addHeaderItem(event.item.props.children);
   };
 
-  headerItemsMenu = () => {    
+  headerItemsMenu = () => {
     const headerParams = this.state.allParamsFromDefinition.filter(item => {
       return item.in === 'header'
     })
@@ -487,7 +487,7 @@ class HeaderInputComponent extends React.Component {
     this.props.onDelete(this.props.itemKey)
   }
 
-  
+
   render() {
 
     const content = (
@@ -500,7 +500,7 @@ class HeaderInputComponent extends React.Component {
       />
     )
 
-    
+
     return (
       <>
       <Row>
@@ -516,7 +516,7 @@ class HeaderInputComponent extends React.Component {
             />
           </Tooltip>
         </Col>
-        
+
         <Col span={12} className="pl-2">
           <Input
             placeholder="Name"
@@ -562,7 +562,7 @@ class MockCallbackBuilder extends React.Component {
         this.setState({overrideChecked: true})
       }
     }
-    
+
   }
 
   handleOverrideChecked = (event) => {
@@ -576,7 +576,7 @@ class MockCallbackBuilder extends React.Component {
     // const paramsObject = {}
     // paramsObject.header = this.getHeaderObject()
     // paramsObject.body = this.state.body
-  
+
     this.props.onChange(paramsObject)
   }
 
@@ -611,7 +611,7 @@ class MockCallbackBuilder extends React.Component {
 }
 
 class ParamsBuilder extends React.Component {
-  
+
   render() {
     if (this.props.eventType === 'FIXED_CALLBACK' || this.props.eventType === 'FIXED_ERROR_CALLBACK') {
       return (

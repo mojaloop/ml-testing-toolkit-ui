@@ -79,7 +79,7 @@ class ConfigurableParameter extends React.Component {
       )
     })
   }
-  
+
   // handleParamTypeChange = async (paramType) => {
   //   var factData = null
   //   switch(paramType) {
@@ -280,7 +280,7 @@ class ConfigurableParameter extends React.Component {
         finalValue = '{$request.body.' + this.inputValue + '}'
         break
       case 2:
-        finalValue = '{$request.header.' + this.inputValue + '}'
+        finalValue = '{$request.header.' + this.inputValue.toLowerCase() + '}'
         break
       case 3:
         finalValue = '{$session.negotiatedContentType}'
@@ -288,7 +288,7 @@ class ConfigurableParameter extends React.Component {
       default:
         finalValue = this.inputValue
     }
-    
+
 
     this.props.onChange(finalValue)
   }
@@ -347,7 +347,7 @@ class PathBuilder extends React.Component {
   updatePath = () => {
     let operationPath = this.props.request.operationPath
     for (let k in this.state.params) {
-      operationPath = operationPath.replace('{'+k+'}', this.state.params[k])      
+      operationPath = operationPath.replace('{'+k+'}', this.state.params[k])
     }
     this.props.request.path = operationPath
     this.props.onChange()
@@ -497,7 +497,7 @@ class OptionsBuilder extends React.Component {
         )
       }
     }
-  
+
     return (
       <>
       <Row className="mb-2">
@@ -668,7 +668,7 @@ class QueryParamsBuilder extends React.Component {
 
     const addQueryParamDialogContent = (
       <>
-      <Input 
+      <Input
         placeholder="Enter name"
         type="text"
         value={this.state.newQueryParamName}
@@ -751,7 +751,7 @@ class QueryParamsBuilder extends React.Component {
                       {this.getQueryParamItems()}
                       </>
                     )
-                  }                  
+                  }
                 </Col>
               </Row>
             </Card>
@@ -814,7 +814,7 @@ class QueryParamsInputComponent extends React.Component {
     this.props.onDelete(this.props.itemKey)
   }
 
-  
+
   render() {
     return (
       <>
@@ -833,7 +833,7 @@ class QueryParamsInputComponent extends React.Component {
             />
           </Tooltip>
         </Col>
-        
+
         <Col span={14}>
           <Input
             className="form-control-alternative"
@@ -1067,7 +1067,7 @@ class HeaderBodyBuilder extends React.Component {
       <>
       <Row>
         <Col span={24}>
-          <Input 
+          <Input
             placeholder="Enter name"
             type="text"
             value={this.state.newCustomHeaderName}
@@ -1194,7 +1194,7 @@ class HeaderBodyBuilder extends React.Component {
                       </Row>
                       </>
                     )
-                  }                  
+                  }
                 </Col>
               </Row>
             </Card>
@@ -1291,7 +1291,7 @@ class HeaderInputComponent extends React.Component {
     this.props.onDelete(this.props.itemKey)
   }
 
-  
+
   render() {
     return (
       <>
@@ -1310,7 +1310,7 @@ class HeaderInputComponent extends React.Component {
             />
           </Tooltip>
         </Col>
-        
+
         <Col span={14}>
           <Input
             className="form-control-alternative"
@@ -1404,7 +1404,7 @@ class CurlImporter extends React.Component {
       </Row>
       </>
     )
-  
+
     return (
       <Popover
         content={importCurlCommandDialogContent}
@@ -1442,7 +1442,7 @@ class RequestBuilder extends React.Component {
   //       this.setState({overrideChecked: true})
   //     }
   //   }
-    
+
   // }
 
   handleRequestChange = () => {
@@ -1470,7 +1470,7 @@ class RequestBuilder extends React.Component {
                 onChange={this.handleRequestChange}
                 resourceDefinition={this.props.resourceDefinition}
               />
-              <OptionsBuilder 
+              <OptionsBuilder
                 request={this.props.request}
                 inputValues={this.props.inputValues}
                 onChange={this.handleRequestChange}

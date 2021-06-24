@@ -69,7 +69,7 @@ class ConfigurableParameter extends React.Component {
       )
     })
   }
-  
+
   handleModeChange = async (mode) => {
     var factData = null
     let allParameters = []
@@ -146,7 +146,7 @@ class ConfigurableParameter extends React.Component {
         finalValue = '{$request.body.' + this.inputValue + '}'
         break
       case 2:
-        finalValue = '{$request.header.' + this.inputValue + '}'
+        finalValue = '{$request.header.' + this.inputValue.toLowerCase() + '}'
         break
       case 3:
         finalValue = '{$session.negotiatedContentType}'
@@ -154,7 +154,7 @@ class ConfigurableParameter extends React.Component {
       default:
         finalValue = this.inputValue
     }
-    
+
 
     this.props.onChange(finalValue)
   }
@@ -273,7 +273,7 @@ class FixedCallbackBuilder extends React.Component {
     this.addHeaderItem(event.item.props.children);
   };
 
-  headerItemsMenu = () => {    
+  headerItemsMenu = () => {
     const menuItems = this.allHeadersArray.map((item, key) => {
       return (
         <Menu.Item key={key}>{item.name}</Menu.Item>
@@ -499,7 +499,7 @@ class HeaderInputComponent extends React.Component {
     this.props.onDelete(this.props.itemKey)
   }
 
-  
+
   render() {
 
     const content = (
@@ -512,7 +512,7 @@ class HeaderInputComponent extends React.Component {
       />
     )
 
-    
+
     return (
       <>
       <Row>
@@ -528,7 +528,7 @@ class HeaderInputComponent extends React.Component {
             />
           </Tooltip>
         </Col>
-        
+
         <Col span={12} className="pl-2">
           <Input
             placeholder="Name"
@@ -574,7 +574,7 @@ class MockCallbackBuilder extends React.Component {
         this.setState({overrideChecked: true})
       }
     }
-    
+
   }
 
   handleOverrideChecked = (event) => {
@@ -588,7 +588,7 @@ class MockCallbackBuilder extends React.Component {
     // const paramsObject = {}
     // paramsObject.header = this.getHeaderObject()
     // paramsObject.body = this.state.body
-  
+
     this.props.onChange(paramsObject)
   }
 
@@ -623,7 +623,7 @@ class MockCallbackBuilder extends React.Component {
 }
 
 class ParamsBuilder extends React.Component {
-  
+
   componentDidMount = () => {
     if (this.props.eventParams && !this.props.eventParams.statusCode) {
       this.props.eventParams.statusCode = (new FactDataGenerator()).pickSuccessCodeFromResponsesObject(this.props.responses)
@@ -653,7 +653,7 @@ class ParamsBuilder extends React.Component {
         <Row className="mt-2">
           <Col span={24}>
             <Row>
-              <Col><Text>Response Code</Text></Col>            
+              <Col><Text>Response Code</Text></Col>
               <Col className="pl-2">
                 <Select
                   value={this.props.eventParams.statusCode}
