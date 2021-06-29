@@ -24,8 +24,8 @@
     },
     "1638|redoc>prismjs": {
       "decision": "ignore",
-      "madeAt": 1624902117299,
-      "expiresAt": 1627494106024
+      "madeAt": 1624971858761,
+      "expiresAt": 1627563853593
     },
     "1648|react-scripts>webpack>node-libs-browser>crypto-browserify>browserify-sign>elliptic": {
       "decision": "ignore",
@@ -30106,6 +30106,11 @@
       "decision": "ignore",
       "madeAt": 1624902143777,
       "expiresAt": 1627494106024
+    },
+    "1762|redoc>prismjs": {
+      "decision": "ignore",
+      "madeAt": 1624971858761,
+      "expiresAt": 1627563853593
     }
   },
   "rules": {},
