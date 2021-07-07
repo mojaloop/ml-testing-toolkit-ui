@@ -99,7 +99,7 @@ class ParamInput extends React.Component {
       )
     )
 
-    if (this.props.value || _.isBoolean(this.props.value )) {
+    if (this.props.value !== undefined || _.isBoolean(this.props.value )) {
       return (
         <>
           <Divider />
