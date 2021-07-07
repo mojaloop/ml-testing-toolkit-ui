@@ -163,6 +163,7 @@ class InputValues extends React.Component {
                     content={addInputValueDialogContent}
                     title="Enter a new name"
                     trigger="click"
+                    zIndex={1101}
                     visible={this.state.addInputValueDialogVisible}
                     onVisibleChange={(visible) => this.setState({ addInputValueDialogVisible: visible })}
                   >

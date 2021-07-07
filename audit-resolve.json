@@ -30111,6 +30111,10 @@
       "decision": "ignore",
       "madeAt": 1624971858761,
       "expiresAt": 1627563853593
+    },
+    "1763|socket.io-client>socket.io-parser": {
+      "decision": "postpone",
+      "madeAt": 1625659886379
     }
   },
   "rules": {},
