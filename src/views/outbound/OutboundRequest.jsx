@@ -225,10 +225,12 @@ class OutboundRequest extends React.Component {
         let request = testCase.requests.find(item => item.id === progress.requestId)
         if (request.status) {
           // Update total passed count
-          const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
-          const failedCount = (progress.testResult && progress.testResult.results && progress.testResult.passedCount !== progress.testResult.results.length) ? Object.entries(progress.testResult.results).filter(item => item[1].status === 'FAILED').length : 0
-          this.state.totalPassedCount += passedCount
-          this.state.totalFailedCount += failedCount
+          // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+          // const failedCount = (progress.testResult && progress.testResult.results && progress.testResult.passedCount !== progress.testResult.results.length) ? Object.entries(progress.testResult.results).filter(item => item[1].status === 'FAILED').length : 0
+          // this.state.totalPassedCount += passedCount
+          // this.state.totalFailedCount += failedCount
+          this.state.totalPassedCount = progress.totalProgress.assertionsPassed
+          this.state.totalFailedCount = progress.totalProgress.assertionsFailed
           request.status.progressStatus = progress.status
           if (progress.status === 'SUCCESS') {
             request.status.state = 'finish'
