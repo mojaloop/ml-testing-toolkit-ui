@@ -359,7 +359,7 @@ class APIManagement extends React.Component {
     const data = this.state.apiVersions.map((item, index) => {
       return {
         key: index,
-        name: item.type,
+        name: item.type + (item.caption ? ' ' + item.caption : ''),
         version: item.majorVersion + '.' + item.minorVersion,
         type: item.asynchronous? 'Async' : 'Sync'
       }

@@ -142,7 +142,7 @@ class ApiVersionSelector extends React.Component {
   getApiVersionOptions = () => {
     this.apiVersionOptions = this.props.apiVersions.map((item, index) => {
       return (
-        <Option key={index} value={JSON.stringify(item)}>{item.type} {item.majorVersion}.{item.minorVersion}</Option>
+        <Option key={index} value={JSON.stringify(item)}>{item.type + (item.caption ? ' ' + item.caption : '')} {item.majorVersion}.{item.minorVersion}</Option>
       )
     })
     return this.apiVersionOptions
