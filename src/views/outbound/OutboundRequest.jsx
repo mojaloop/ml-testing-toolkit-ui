@@ -495,6 +495,32 @@ class OutboundRequest extends React.Component {
 
   }
 
+  handleDownloadDefinition = async (event) => {
+    switch (event.key) {
+      case 'printhtml':
+      case 'html':
+      default:
+        message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
+        const { apiBaseUrl } = getConfig()
+        const reportFormat = event.key
+        const response = await axios.post(apiBaseUrl + "/api/reports/testcase_definition/" + reportFormat, this.state.template, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
+        let downloadFilename = "test." + reportFormat
+        if (response.headers['content-disposition']) {
+          const disposition = response.headers['content-disposition']
+          if (disposition && disposition.indexOf('attachment') !== -1) {
+            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            var matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) {
+              downloadFilename = matches[1].replace(/['"]/g, '');
+            }
+          }
+        }
+        FileDownload(response.data, downloadFilename)
+        message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 });
+    }
+
+  }
+
   handleTestCaseChange = () => {
     this.autoSave = true
     this.forceUpdate()
@@ -568,6 +594,14 @@ class OutboundRequest extends React.Component {
         <Menu.Item key='json'>JSON format</Menu.Item>
         <Menu.Item key='html'>HTML report</Menu.Item>
         <Menu.Item key='printhtml'>Printer Friendly HTML report</Menu.Item>
+      </Menu>
+    )
+  }
+
+  downloadDefinitionMenu = () => {
+    return (
+      <Menu onClick={(event) => this.handleDownloadDefinition(event)}>
+        <Menu.Item key='html'>HTML report</Menu.Item>
       </Menu>
     )
   }
@@ -1018,6 +1052,19 @@ class OutboundRequest extends React.Component {
                                 onClick={e => e.preventDefault()}
                               >
                                 Download Report
+                            </Button>
+                            </Dropdown>
+                            : null
+                        }
+                        {
+                          this.state.template.test_cases && this.state.template.test_cases.length > 0
+                            ?
+                            <Dropdown overlay={this.downloadDefinitionMenu()}>
+                              <Button
+                                className="float-right mr-2"
+                                onClick={e => e.preventDefault()}
+                              >
+                                Download Testcase Definition
                             </Button>
                             </Dropdown>
                             : null
