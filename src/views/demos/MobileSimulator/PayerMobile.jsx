@@ -22,9 +22,10 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result } from 'antd';
+import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, Select } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 const { Text } = Typography
+const { Option } = Select
 
 class PayerMobile extends React.Component {
   state = {
@@ -35,7 +36,9 @@ class PayerMobile extends React.Component {
     partyInfo: {},
     quotesRequest: {},
     quotesResponse: {},
-    transfersResponse: {}
+    transfersResponse: {},
+    accounts: [],
+    selectedCurrency: null
   }
 
   constructor () {
@@ -99,6 +102,11 @@ class PayerMobile extends React.Component {
       {
         break
       }
+      case 'accountsUpdate':
+      {
+        this.setState({accounts: event.data.accounts})
+        break
+      }
     }
   }
 
@@ -110,56 +118,82 @@ class PayerMobile extends React.Component {
         return <Skeleton active />
       case 'putParties':
         return (
-          <Card className='mr-3'>
+          <Card size="small">
             <Row>
-              <Col span={12}>
+              <Col span={8}>
                 <Text>F.Name:</Text>
               </Col>
-              <Col span={12}>
+              <Col span={16}>
                 <Text strong>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.firstName}</Text>
               </Col>
             </Row>
             <Row>
-              <Col span={12}>
+              <Col span={8}>
                 <Text>M.Name:</Text>
               </Col>
-              <Col span={12}>
+              <Col span={16}>
                 <Text strong>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.middleName}</Text>
               </Col>
             </Row>
             <Row>
-              <Col span={12}>
+              <Col span={8}>
                 <Text>L.Name:</Text>
               </Col>
-              <Col span={12}>
+              <Col span={16}>
                 <Text strong>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.lastName}</Text>
               </Col>
             </Row>
             <Row>
-              <Col span={12}>
+              <Col span={8}>
                 <Text>Bank:</Text>
               </Col>
-              <Col span={12}>
+              <Col span={16}>
                 <Text strong>Green Bank</Text>
               </Col>
             </Row>
-            <Row className='mt-4'>
-              <Col span={24}>
-                <Text strong>Amount:</Text>
-                <InputNumber
-                  className='ml-2'
-                  value={this.state.amount}
-                  onChange={(newNumber) => {
-                    this.setState({amount: newNumber})
-                  }}
-                  formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                />
+            <Row className='mt-1'>
+              <Col span={8}><Text strong>Amount:</Text></Col>
+              <Col span={16}>
+                <Row className='mt-1'>
+                  <Col span={24}>
+                    <InputNumber
+                      className='ml-2'
+                      value={this.state.amount}
+                      onChange={(newNumber) => {
+                        this.setState({amount: newNumber})
+                      }}
+                      // formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                      // parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                    />
+                  </Col>
+                </Row>
+                <Row className='mt-1'>
+                  <Col span={24}>
+                    <Select
+                      className='ml-2'
+                      style={{ width: 120 }}
+                      placeholder='Currency'
+                      // loading={this.state.getHubConsoleInitValuesProgress}
+                      // disabled={this.state.getHubConsoleInitValuesProgress}
+                      value={this.state.selectedCurrency}
+                      defaultActiveFirstOption
+                      onChange={(currency) => {
+                        this.setState({selectedCurrency: currency})
+                      }}
+                    >
+                      {
+                        this.state.accounts.filter(item => item.ledgerAccountType === 'POSITION').map(account => {
+                          return <Option value={account.currency}>{account.currency}</Option>
+                        })
+                      }
+                    </Select>
+                  </Col>
+                </Row>
               </Col>
             </Row>
-            <Row className='mt-4'>
+            <Row className='mt-3'>
               <Col span={24} className='text-center'>
-                <Button type='primary' shape="round" danger onClick={this.handleGetQuote}>Get Quote</Button>
+                <Button type='primary' shape="round" danger disabled={!this.state.selectedCurrency} onClick={this.handleGetQuote}>Get Quote</Button>
               </Col>
             </Row>
             
@@ -167,7 +201,7 @@ class PayerMobile extends React.Component {
         )
       case 'putQuotes':
         return (
-          <Card className='mr-3'>
+          <Card size="small">
             <Row>
               <Col span={12}>
                 <Text>Transfer Amount:</Text>
@@ -238,7 +272,7 @@ class PayerMobile extends React.Component {
 
   handleGetQuote = async (e) => {
     this.setState({stage: 'postQuotes'})
-    const resp = await this.props.outboundService.postQuotes(this.state.amount)
+    const resp = await this.props.outboundService.postQuotes(this.state.amount, this.state.selectedCurrency)
   }
 
   handleSend = async (e) => {
@@ -256,7 +290,7 @@ class PayerMobile extends React.Component {
   render() {
     return (
       <>
-      <Row className='mt-4 ml-2'>
+      <Row className='ml-2'>
         <Col span={24}>
           <Text strong>Enter Phone Number</Text>
           <Input.Search
@@ -267,7 +301,7 @@ class PayerMobile extends React.Component {
           />
         </Col>
       </Row>
-      <Row className='mt-4 ml-2'>
+      <Row className='mt-1 ml-2'>
         <Col span={24}>
           { this.getStageData() }
         </Col>

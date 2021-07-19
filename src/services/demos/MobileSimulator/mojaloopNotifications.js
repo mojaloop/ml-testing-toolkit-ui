@@ -84,6 +84,17 @@ class NotificationService {
     })
   }
 
+  notifyPayerGetAccounts = (progress) => {
+    // Monitoring Logs
+    this.notificationEventFunction({
+      category: 'payer',
+      type: 'accountsUpdate',
+      data: {
+        accounts: progress.response.body
+      }
+    })
+  }
+
   notifyPayeeMonitorLog = (log) => {
     // Monitoring Logs
     this.notificationEventFunction({
@@ -295,6 +306,7 @@ class NotificationService {
             break
         }
       } else {
+        // By test case name
         switch (log.testCaseName) {
           case 'PAYER_FSP_PROVISIONING':
           case 'PAYEE_FSP_PROVISIONING':
@@ -315,7 +327,16 @@ class NotificationService {
           case 'GET_SETTLEMENT_MODELS':
             this.notifyGetSettlementModels(log)
             break
+          case 'GET_PAYER_ACCOUNTS':
+            this.notifyPayerGetAccounts(log)
+            break
         }      
+        // By request name
+        switch (log.requestSent.description) {
+          case 'GET_PAYER_ACCOUNTS':
+            this.notifyPayerGetAccounts(log)
+            break
+        }
       }
       return null
     }
