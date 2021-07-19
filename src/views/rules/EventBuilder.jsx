@@ -131,7 +131,7 @@ class ConfigurableParameter extends React.Component {
         finalValue = '{$request.body.' + this.inputValue + '}'
         break
       case 2:
-        finalValue = '{$request.header.' + this.inputValue.toLowerCase() + '}'
+        finalValue = '{$request.headers.' + this.inputValue.toLowerCase() + '}'
         break
       case 3:
         finalValue = '{$session.negotiatedContentType}'
