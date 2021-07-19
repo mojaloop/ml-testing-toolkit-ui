@@ -203,7 +203,7 @@
           },
           "scriptingEngine": "javascript",
           "body": {
-            "settlementModel": "DEFERREDNET",
+            "settlementModel": "{$inputs.settlementModel}",
             "reason": "TESTING",
             "settlementWindows": [
               {

@@ -135,6 +135,26 @@ class NotificationService {
 
   }
 
+  notifyGetHubConsoleInitValues = (progress) => {
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getHubConsoleInitValuesFinished',
+        data: {
+          result: progress
+        }
+      })
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getHubConsoleInitValuesTerminated',
+        data: {
+          result: progress
+        }
+      })
+    }
+  }
+
   notifyDFSPValues = (progress) => {
     if (progress.status === 'FINISHED') {
       this.notificationEventFunction({
@@ -180,6 +200,17 @@ class NotificationService {
     }
   }
 
+  notifyGetSettlementModels = (progress) => {
+    if (progress.response.status === 200) {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'settlementModelsUpdate',
+        data: {
+          settlementModels: progress.response.body
+        }
+      })
+    }
+  }
   notifyGetSettlements = (progress) => {
     if (progress.status === 'FINISHED') {
       this.notificationEventFunction({
@@ -242,7 +273,7 @@ class NotificationService {
 
   handleNotificationLog = (log) => {
     // console.log(log)
-
+    
     // Handle the outbound progress events
     if ( log.internalLogType === 'outboundProgress' ) {
       if (log.status === 'FINISHED' || log.status === 'TERMINATED') {
@@ -252,6 +283,9 @@ class NotificationService {
             break
           case 'GET_DFSP_VALUES':
             this.notifyDFSPValues(log)
+            break
+          case 'GET_HUBCONSOLE_INIT_VALUES':
+            this.notifyGetHubConsoleInitValues(log)
             break
           case 'GET_SETTLEMENTS':
             this.notifyGetSettlements(log)
@@ -277,6 +311,9 @@ class NotificationService {
             break
           case 'GET_PARTICIPANTS':
             this.notifyGetParticipants(log)
+            break
+          case 'GET_SETTLEMENT_MODELS':
+            this.notifyGetSettlementModels(log)
             break
         }      
       }

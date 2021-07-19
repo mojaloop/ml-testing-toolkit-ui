@@ -118,6 +118,15 @@ class OutboundService {
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     return resp
   }
+
+  async getHubConsoleInitValues () {
+    const traceId = this.getTraceId()
+    const template = require('./template_getHubConsoleInitValues.json')
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
+
   async getDFSPValues () {
     const traceId = this.getTraceId()
     const template = require('./template_getDFSPValues')
@@ -134,10 +143,12 @@ class OutboundService {
     return resp
   }
 
-  async executeSettlement () {
+  async executeSettlement (settlementModel) {
     const traceId = this.getTraceId()
     const template = require('./template_executeSettlement')
     template.inputValues = this.inputValues
+    // Replace corresponding values in inputValues
+    template.inputValues.settlementModel = settlementModel + ''
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     return resp
   }
