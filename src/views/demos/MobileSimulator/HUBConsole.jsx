@@ -22,18 +22,22 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col, Typography, Button, Table, Tag, Progress, Descriptions } from 'antd';
+import { Row, Col, Typography, Button, Table, Tag, Progress, Descriptions, Select } from 'antd';
 const { Text, Title } = Typography
+const { Option } = Select;
 
 class HUBConsole extends React.Component {
   state = {
     getDFSPValuesInProgress: false,
     getSettlementsInProgress: false,
+    getHubConsoleInitValuesProgress: false,
     provisioningStatus: '',
     dfsps: {},
+    settlementModels: [],
     settlements: [],
     participants: [],
-    continueRefreshing: false
+    continueRefreshing: false,
+    selectedSettlementModel: null
   }
 
   constructor () {
@@ -44,6 +48,7 @@ class HUBConsole extends React.Component {
     setTimeout(() => {
       this.handleRefreshAll()
     }, 1000)
+    await this.handleHubConsoleInitValues()
     // await this.handleDFSPValues()
     // await this.handleGetSettlements()
     // this.handleRefreshAll()
@@ -70,6 +75,10 @@ class HUBConsole extends React.Component {
 
     this.forceUpdate()
   }
+  handleSettlementModelsUpdate = (settlementModels) => {
+    this.state.settlementModels = settlementModels
+    this.forceUpdate()
+  }
   handleSettlementsUpdate = (settlements) => {
     settlements.sort((a,b) => b.id - a.id )
     this.state.settlements = settlements
@@ -94,6 +103,13 @@ class HUBConsole extends React.Component {
       {
         if (event.data && event.data.limitsData) {
           this.handleLimitsUpdate(event.data.limitsData)
+        }
+        break
+      }
+      case 'settlementModelsUpdate':
+      {
+        if (event.data && event.data.settlementModels) {
+          this.handleSettlementModelsUpdate(event.data.settlementModels)
         }
         break
       }
@@ -128,6 +144,16 @@ class HUBConsole extends React.Component {
         }
         break
       }
+      case 'getHubConsoleInitValuesFinished':
+      {
+        this.setState({getHubConsoleInitValuesProgress: false})
+        break
+      }
+      case 'getHubConsoleInitValuesTerminated':
+      {
+        this.setState({getHubConsoleInitValuesProgress: false})
+        break
+      }
       case 'getSettlementsFinished':
       {
         this.setState({getSettlementsInProgress: false})
@@ -156,13 +182,17 @@ class HUBConsole extends React.Component {
     this.setState({getDFSPValuesInProgress: true})
     const resp = await this.props.outboundService.getDFSPValues()
   }
+  handleHubConsoleInitValues = async () => {
+    this.setState({getHubConsoleInitValuesProgress: true})
+    const resp = await this.props.outboundService.getHubConsoleInitValues()
+  }
   handleGetSettlements = async () => {
     this.setState({getSettlementsInProgress: true})
     const resp = await this.props.outboundService.getSettlements()
   }
   handleExecuteSettlement = async () => {
     this.setState({executeSettlementInProgress: true})
-    const resp = await this.props.outboundService.executeSettlement()
+    const resp = await this.props.outboundService.executeSettlement(this.state.selectedSettlementModel)
   }
 
   handleRefreshAll = async () => {
@@ -306,9 +336,28 @@ class HUBConsole extends React.Component {
           </Button>
         </Col> */}
         <Col span={12} className='text-right'>
+          <Select
+            className='mr-2'
+            style={{ width: 220 }}
+            placeholder='Select Settlement Model'
+            loading={this.state.getHubConsoleInitValuesProgress}
+            disabled={this.state.getHubConsoleInitValuesProgress}
+            value={this.state.selectedSettlementModel}
+            defaultActiveFirstOption
+            onChange={(settlementModel) => {
+              this.setState({selectedSettlementModel: settlementModel})
+            }}
+          >
+            {
+              this.state.settlementModels.map(settlementModel => {
+                return <Option value={settlementModel.name}>{settlementModel.name}</Option>
+              })
+            }
+          </Select>
           <Button
             type='primary'
             onClick={this.handleExecuteSettlement}
+            disabled={!this.state.selectedSettlementModel}
             loading={this.state.executeSettlementInProgress}
             danger
           >

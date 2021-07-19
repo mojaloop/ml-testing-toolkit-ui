@@ -81,12 +81,13 @@ class OutboundService {
     // return null
     return resp
   }
-  async postQuotes (amount) {
+  async postQuotes (amount, currency) {
     const traceId = this.getTraceId()
     const template = require('./template_postQuotes.json')
     template.inputValues = this.inputValues
     // Replace corresponding values in inputValues
     template.inputValues.amount = amount + ''
+    template.inputValues.currency = currency + ''
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     // if(typeof response.data === 'object') {
     //   return response.data
@@ -118,6 +119,15 @@ class OutboundService {
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     return resp
   }
+
+  async getHubConsoleInitValues () {
+    const traceId = this.getTraceId()
+    const template = require('./template_getHubConsoleInitValues.json')
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
+
   async getDFSPValues () {
     const traceId = this.getTraceId()
     const template = require('./template_getDFSPValues')
@@ -134,10 +144,12 @@ class OutboundService {
     return resp
   }
 
-  async executeSettlement () {
+  async executeSettlement (settlementModel) {
     const traceId = this.getTraceId()
     const template = require('./template_executeSettlement')
     template.inputValues = this.inputValues
+    // Replace corresponding values in inputValues
+    template.inputValues.settlementModel = settlementModel + ''
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     return resp
   }
