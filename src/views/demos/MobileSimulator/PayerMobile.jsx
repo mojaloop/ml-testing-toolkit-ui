@@ -207,7 +207,7 @@ class PayerMobile extends React.Component {
                 <Text>Transfer Amount:</Text>
               </Col>
               <Col span={12}>
-                <Text strong>${this.state.quotesResponse && this.state.quotesResponse.transferAmount && this.state.quotesResponse.transferAmount.amount}</Text>
+                <Text strong>{this.state.quotesResponse && this.state.quotesResponse.transferAmount && (this.state.quotesResponse.transferAmount.amount + ' ' + this.state.quotesResponse.transferAmount.currency)}</Text>
               </Col>
             </Row>
             <Row>
@@ -215,7 +215,7 @@ class PayerMobile extends React.Component {
                 <Text>Payee Fsp Fee:</Text>
               </Col>
               <Col span={12}>
-                <Text strong>${this.state.quotesResponse && this.state.quotesResponse.payeeFspFee && this.state.quotesResponse.payeeFspFee.amount}</Text>
+                <Text strong>{this.state.quotesResponse && this.state.quotesResponse.payeeFspFee && (this.state.quotesResponse.payeeFspFee.amount + ' ' + this.state.quotesResponse.payeeFspFee.currency)}</Text>
               </Col>
             </Row>
             <Row>
@@ -223,7 +223,7 @@ class PayerMobile extends React.Component {
                 <Text>payeeFspCommission:</Text>
               </Col>
               <Col span={12}>
-                <Text strong>${this.state.quotesResponse && this.state.quotesResponse.payeeFspCommission && this.state.quotesResponse.payeeFspCommission.amount}</Text>
+                <Text strong>{this.state.quotesResponse && this.state.quotesResponse.payeeFspCommission && (this.state.quotesResponse.payeeFspCommission.amount + ' ' + this.state.quotesResponse.payeeFspFee.currency)}</Text>
               </Col>
             </Row>
             <Row className='mt-4'>
@@ -278,7 +278,7 @@ class PayerMobile extends React.Component {
   handleSend = async (e) => {
     this.setState({stage: 'postTransfers'})
     if (this.state.quotesRequest && this.state.quotesResponse) {
-      const resp = await this.props.outboundService.postTransfers(this.state.amount, this.state.quotesRequest.transactionId, this.state.quotesResponse.expiration, this.state.quotesResponse.ilpPacket, this.state.quotesResponse.condition)
+      const resp = await this.props.outboundService.postTransfers(this.state.quotesResponse.transferAmount.amount, this.state.quotesRequest.transactionId, this.state.quotesResponse.expiration, this.state.quotesResponse.ilpPacket, this.state.quotesResponse.condition)
     } 
   }
   

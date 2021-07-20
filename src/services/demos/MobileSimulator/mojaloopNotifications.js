@@ -670,7 +670,8 @@ class NotificationService {
         category: 'payee',
         type: 'payeePutQuotes',
         data: {
-          resource: log.resource
+          resource: log.resource,
+          requestBody: log.additionalData.request.body
         }
       })
     }
@@ -688,7 +689,7 @@ class NotificationService {
         type: 'payeePutQuotesResponse',
         data: {
           resource: log.resource,
-          responseStatus: log.additionalData.response.status + ' ' + log.additionalData.response.statusText
+          responseStatus: log.additionalData.response && (log.additionalData.response.status + ' ' + log.additionalData.response.statusText)
         }
       })
     }
