@@ -100,7 +100,7 @@ class SequenceDiagram extends React.Component {
           type: 'outboundResponse',
           method: log.resource.method,
           path: log.resource.path,
-          title: log.additionalData.response.status + ' ' + log.additionalData.response.statusText
+          title: log.additionalData.response && (log.additionalData.response.status + ' ' + log.additionalData.response.statusText)
         })
       }
     }

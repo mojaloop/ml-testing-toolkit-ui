@@ -22,14 +22,15 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col, Typography, Button, Table, Tag, Progress } from 'antd';
+import { Row, Col, Typography, Button, Table, Tag, Progress, InputNumber } from 'antd';
 const { Text } = Typography
 
 class Settings extends React.Component {
   state = {
     provisioningInProgress: false,
     provisioningStatus: '',
-    progressSteps: {}
+    progressSteps: {},
+    payerFspTransferExpirationOffsetSec: 60
   }
 
   constructor () {
@@ -37,6 +38,7 @@ class Settings extends React.Component {
   }
 
   componentDidMount = async () => {
+    this.setState({payerFspTransferExpirationOffsetSec: this.props.outboundService.getCustomParams().payerFspTransferExpirationOffset / 1000})
   }
 
   handleTestCaseProgressUpdate = (data) => {
@@ -107,6 +109,20 @@ class Settings extends React.Component {
 
     return (
       <>
+      <Row className='mt-4 ml-2'>
+        <Col span={24}>
+          <Text strong>Payer Transfer Expiry:</Text>
+          <InputNumber
+            className='ml-4'
+            value={this.state.payerFspTransferExpirationOffsetSec}
+            onChange={(newNumber) => {
+              this.setState({payerFspTransferExpirationOffsetSec: newNumber})
+              this.props.outboundService.setCustomParams({payerFspTransferExpirationOffset: newNumber * 1000})
+            }}
+          />
+          <Text className='ml-2'>Seconds</Text>
+        </Col>
+      </Row>
       <Row className='mt-4 ml-2'>
         <Col span={24}>
           <Button
