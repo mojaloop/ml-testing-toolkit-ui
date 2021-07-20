@@ -84,6 +84,17 @@ class NotificationService {
     })
   }
 
+  notifyPayerGetAccounts = (progress) => {
+    // Monitoring Logs
+    this.notificationEventFunction({
+      category: 'payer',
+      type: 'accountsUpdate',
+      data: {
+        accounts: progress.response.body
+      }
+    })
+  }
+
   notifyPayeeMonitorLog = (log) => {
     // Monitoring Logs
     this.notificationEventFunction({
@@ -135,6 +146,26 @@ class NotificationService {
 
   }
 
+  notifyGetHubConsoleInitValues = (progress) => {
+    if (progress.status === 'FINISHED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getHubConsoleInitValuesFinished',
+        data: {
+          result: progress
+        }
+      })
+    } else if (progress.status === 'TERMINATED') {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'getHubConsoleInitValuesTerminated',
+        data: {
+          result: progress
+        }
+      })
+    }
+  }
+
   notifyDFSPValues = (progress) => {
     if (progress.status === 'FINISHED') {
       this.notificationEventFunction({
@@ -180,6 +211,17 @@ class NotificationService {
     }
   }
 
+  notifyGetSettlementModels = (progress) => {
+    if (progress.response.status === 200) {
+      this.notificationEventFunction({
+        category: 'hubConsole',
+        type: 'settlementModelsUpdate',
+        data: {
+          settlementModels: progress.response.body
+        }
+      })
+    }
+  }
   notifyGetSettlements = (progress) => {
     if (progress.status === 'FINISHED') {
       this.notificationEventFunction({
@@ -242,7 +284,7 @@ class NotificationService {
 
   handleNotificationLog = (log) => {
     // console.log(log)
-
+    
     // Handle the outbound progress events
     if ( log.internalLogType === 'outboundProgress' ) {
       if (log.status === 'FINISHED' || log.status === 'TERMINATED') {
@@ -253,6 +295,9 @@ class NotificationService {
           case 'GET_DFSP_VALUES':
             this.notifyDFSPValues(log)
             break
+          case 'GET_HUBCONSOLE_INIT_VALUES':
+            this.notifyGetHubConsoleInitValues(log)
+            break
           case 'GET_SETTLEMENTS':
             this.notifyGetSettlements(log)
             break
@@ -261,6 +306,7 @@ class NotificationService {
             break
         }
       } else {
+        // By test case name
         switch (log.testCaseName) {
           case 'PAYER_FSP_PROVISIONING':
           case 'PAYEE_FSP_PROVISIONING':
@@ -278,7 +324,19 @@ class NotificationService {
           case 'GET_PARTICIPANTS':
             this.notifyGetParticipants(log)
             break
+          case 'GET_SETTLEMENT_MODELS':
+            this.notifyGetSettlementModels(log)
+            break
+          case 'GET_PAYER_ACCOUNTS':
+            this.notifyPayerGetAccounts(log)
+            break
         }      
+        // By request name
+        switch (log.requestSent.description) {
+          case 'GET_PAYER_ACCOUNTS':
+            this.notifyPayerGetAccounts(log)
+            break
+        }
       }
       return null
     }
@@ -612,7 +670,8 @@ class NotificationService {
         category: 'payee',
         type: 'payeePutQuotes',
         data: {
-          resource: log.resource
+          resource: log.resource,
+          requestBody: log.additionalData.request.body
         }
       })
     }
@@ -630,7 +689,7 @@ class NotificationService {
         type: 'payeePutQuotesResponse',
         data: {
           resource: log.resource,
-          responseStatus: log.additionalData.response.status + ' ' + log.additionalData.response.statusText
+          responseStatus: log.additionalData.response && (log.additionalData.response.status + ' ' + log.additionalData.response.statusText)
         }
       })
     }

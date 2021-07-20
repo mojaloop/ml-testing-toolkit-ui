@@ -99,6 +99,22 @@
               ]
             }
           }
+        },
+        {
+          "id": 4,
+          "description": "GET_PAYER_ACCOUNTS",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/{name}/accounts",
+          "path": "/participants/{$inputs.mobileSimPayerFsp}/accounts",
+          "method": "get",
+          "params": {
+            "name": "{$inputs.mobileSimPayerFsp}"
+          },
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}"
         }
       ]
     }

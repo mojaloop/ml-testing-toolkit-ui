@@ -28,6 +28,7 @@ const { Text, Title } = Typography
 class PayeeMobile extends React.Component {
   state = {
     receivedAmount: null,
+    payeeReceiveAmount: null,
     payerComplexName: null,
     stage: null
   }
@@ -67,17 +68,19 @@ class PayeeMobile extends React.Component {
       // {
       //   break
       // }
-      // case 'payeePutQuotes':
-      // {
-      //   break
-      // }
+      case 'payeePutQuotes':
+      {
+        this.setState({payeeReceiveAmount: event.data.requestBody && event.data.requestBody.payeeReceiveAmount && event.data.requestBody.payeeReceiveAmount.amount})
+        break
+      }
       // case 'payeePutQuotesResponse':
       // {
       //   break
       // }
       case 'payeePostTransfers':
       {
-        this.setState({receivedAmount: event.data.requestBody && event.data.requestBody.amount && event.data.requestBody.amount.amount})
+        // this.setState({receivedAmount: event.data.requestBody && event.data.requestBody.amount && event.data.requestBody.amount.amount})
+        this.setState({receivedAmount: this.state.payeeReceiveAmount})
         break
       }
       // case 'payeePostTransfersResponse':

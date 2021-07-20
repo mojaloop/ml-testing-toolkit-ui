@@ -24,6 +24,7 @@
 import axios from 'axios'
 import { getConfig, getServerConfig } from '../../../utils/getConfig'
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
+import _ from 'lodash';
 
 class OutboundService {
 
@@ -31,6 +32,9 @@ class OutboundService {
   inputValues = {}
   sessionId = '123'
   userConfig = {}
+  customParams = {
+    payerFspTransferExpirationOffset: 60 * 1000
+  }
 
   constructor (sessionId = '123') {
     const { apiBaseUrl } = getConfig()
@@ -68,6 +72,14 @@ class OutboundService {
     }
   }
 
+  setCustomParams = (newConfig) => {
+    _.merge(this.customParams, newConfig)
+  }
+
+  getCustomParams = () => {
+    return this.customParams
+  }
+
   async getParties (idNumber) {
     const traceId = this.getTraceId()
     const template = require('./template_getParties.json')
@@ -81,12 +93,13 @@ class OutboundService {
     // return null
     return resp
   }
-  async postQuotes (amount) {
+  async postQuotes (amount, currency) {
     const traceId = this.getTraceId()
     const template = require('./template_postQuotes.json')
     template.inputValues = this.inputValues
     // Replace corresponding values in inputValues
     template.inputValues.amount = amount + ''
+    template.inputValues.currency = currency + ''
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     // if(typeof response.data === 'object') {
     //   return response.data
@@ -104,6 +117,7 @@ class OutboundService {
     template.inputValues.quotesCallbackExpiration = expiration + ''
     template.inputValues.quotesCallbackIlpPacket = ilpPacket + ''
     template.inputValues.quotesCallbackCondition = condition + ''
+    template.inputValues.expirationOffset = this.customParams.payerFspTransferExpirationOffset
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     // if(typeof response.data === 'object') {
     //   return response.data
@@ -118,6 +132,15 @@ class OutboundService {
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     return resp
   }
+
+  async getHubConsoleInitValues () {
+    const traceId = this.getTraceId()
+    const template = require('./template_getHubConsoleInitValues.json')
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
+
   async getDFSPValues () {
     const traceId = this.getTraceId()
     const template = require('./template_getDFSPValues')
@@ -134,10 +157,12 @@ class OutboundService {
     return resp
   }
 
-  async executeSettlement () {
+  async executeSettlement (settlementModel) {
     const traceId = this.getTraceId()
     const template = require('./template_executeSettlement')
     template.inputValues = this.inputValues
+    // Replace corresponding values in inputValues
+    template.inputValues.settlementModel = settlementModel + ''
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     return resp
   }
