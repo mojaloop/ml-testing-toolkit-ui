@@ -601,7 +601,7 @@ class OutboundRequest extends React.Component {
   downloadDefinitionMenu = () => {
     return (
       <Menu onClick={(event) => this.handleDownloadDefinition(event)}>
-        <Menu.Item key='html'>HTML report</Menu.Item>
+        <Menu.Item key='html'>HTML format</Menu.Item>
       </Menu>
     )
   }
@@ -979,96 +979,91 @@ class OutboundRequest extends React.Component {
                       }
                       </Col>
                       <Col span={10}>
-                        <Button
-                          className="float-right"
-                          type="primary"
-                          danger
-                          onClick={this.handleSendStopClick}
-                        >
-                          {this.state.sendingOutboundRequestID ? 'Stop' : 'Run'}
-                        </Button>
-                        <Button
-                          className="float-right mr-2"
-                          type="dashed"
-                          danger
-                          onClick={() => { this.setState({ showIterationRunner: true }) }}
-                        >
-                          Iteration Runner
-                        </Button>
-                        <Button
-                          className="float-right mr-2"
-                          type="dashed"
-                          onClick={() => { this.setState({ showTemplate: true }) }}
-                        >
-                          Show Current Template
-                        </Button>
-                        {
-                          getConfig().isAuthEnabled ?
-                            <>
-                              <Button className="float-right" type="primary" danger onClick={async (e) => {
-                                this.setState({ historyReportsLocal: await this.historyReportsLocal() })
-                                this.setState({ historyReportsVisible: true })
-                              }}>
-                                Reports History
+                        <Row>
+                          <Col span='24'>
+                            <Button
+                              className="float-right"
+                              type="primary"
+                              danger
+                              onClick={this.handleSendStopClick}
+                            >
+                              {this.state.sendingOutboundRequestID ? 'Stop' : 'Run'}
                             </Button>
-                              {
-                                this.state.historyReportsVisible
-                                  ?
-                                  <Modal
-                                    title="Reports History"
-                                    visible={this.state.historyReportsVisible}
-                                    width='70%'
-                                    onOk={() => {
-                                      this.setState({ historyReportsVisible: false })
-                                    }}
-                                    onCancel={() => {
-                                      this.setState({ historyReportsVisible: false })
-                                    }}
+                            <Button
+                              className="float-right mr-2"
+                              type="dashed"
+                              danger
+                              onClick={() => { this.setState({ showIterationRunner: true }) }}
+                            >
+                              Iteration Runner
+                            </Button>
+                            <Button
+                              className="float-right mr-2"
+                              type="dashed"
+                              onClick={() => { this.setState({ showTemplate: true }) }}
+                            >
+                              Show Current Template
+                            </Button>
+                            {
+                              getConfig().isAuthEnabled ?
+                                <>
+                                  <Button className="float-right" type="primary" danger onClick={async (e) => {
+                                    this.setState({ historyReportsLocal: await this.historyReportsLocal() })
+                                    this.setState({ historyReportsVisible: true })
+                                  }}>
+                                    Reports History
+                                </Button>
+                                  {
+                                    this.state.historyReportsVisible
+                                      ?
+                                      <Modal
+                                        title="Reports History"
+                                        visible={this.state.historyReportsVisible}
+                                        width='70%'
+                                        onOk={() => {
+                                          this.setState({ historyReportsVisible: false })
+                                        }}
+                                        onCancel={() => {
+                                          this.setState({ historyReportsVisible: false })
+                                        }}
+                                      >
+                                        <Row>
+                                          <Col>
+                                            <Table
+                                              columns={this.state.historyReportsColumns}
+                                              dataSource={this.historyReportsDataSource()}
+                                            />
+                                          </Col>
+                                        </Row>
+                                      </Modal>
+                                      :
+                                      null
+                                  }
+                                </>
+                                :
+                                null
+                            }
+                          </Col>
+                        </Row>
+                        <Row className='mt-2'>
+                          <Col span='24'>
+                            {
+                              this.state.testReport
+                                ?
+                                <Dropdown overlay={this.downloadReportMenu()}>
+                                  <Button
+                                    className="float-right"
+                                    type='primary'
+                                    shape='round'
+                                    onClick={e => e.preventDefault()}
                                   >
-                                    <Row>
-                                      <Col>
-                                        <Table
-                                          columns={this.state.historyReportsColumns}
-                                          dataSource={this.historyReportsDataSource()}
-                                        />
-                                      </Col>
-                                    </Row>
-                                  </Modal>
-                                  :
-                                  null
-                              }
-                            </>
-                            :
-                            null
-                        }
-                        {
-                          this.state.testReport
-                            ?
-                            <Dropdown overlay={this.downloadReportMenu()}>
-                              <Button
-                                className="float-right mr-2"
-                                type="primary"
-                                danger
-                                onClick={e => e.preventDefault()}
-                              >
-                                Download Report
-                            </Button>
-                            </Dropdown>
-                            : null
-                        }
-                        {
-                          this.state.template.test_cases && this.state.template.test_cases.length > 0
-                            ?
-                            <Dropdown overlay={this.downloadDefinitionMenu()}>
-                              <Button
-                                className="float-right mr-2"
-                                onClick={e => e.preventDefault()}
-                              >
-                                Download Testcase Definition
-                            </Button>
-                            </Dropdown>
-                            : null
-                        }
+                                    Download Report
+                                </Button>
+                                </Dropdown>
+                                : null
+                            }
+                          </Col>
+                        </Row>
                       </Col>
                     </Row>
                   </Card>
@@ -1090,8 +1085,23 @@ class OutboundRequest extends React.Component {
                   <TabPane tab="Test Cases" key="1">
                     <Row className="mb-2">
                       <Col span={24}>
+                        {
+                          this.state.template.test_cases && this.state.template.test_cases.length > 0
+                            ?
+                            <Dropdown overlay={this.downloadDefinitionMenu()}>
+                              <Button
+                                className="float-right"
+                                type='primary'
+                                shape='round'
+                                onClick={e => e.preventDefault()}
+                              >
+                                Download Definition
+                            </Button>
+                            </Dropdown>
+                            : null
+                        }
                         <Popover
-                          className="float-right"
+                          className="float-right mr-2"
                           content={getSaveTemplateDialogContent(1)}
                           title="Enter filename to save"
                           trigger="click"

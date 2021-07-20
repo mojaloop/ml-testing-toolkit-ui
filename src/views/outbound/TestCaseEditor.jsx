@@ -49,6 +49,7 @@ import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-terminal";
 import "ace-builds/src-noconflict/theme-dracula";
+import MetadataEditor from "./MetadataEditor";
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -635,6 +636,12 @@ class TestCaseEditor extends React.Component {
             <Tabs defaultActiveKey='1'>
               <TabPane tab={'Request'} key="1">
                 <>
+                  <Card size="small" title={'Meta Data'} className="mb-2">
+                    <MetadataEditor
+                      values={item.meta}
+                      onChange={this.props.onChange}
+                    />
+                  </Card>
                   {
                     item.status && item.status.progressStatus == 'SKIPPED'
                       ? (
