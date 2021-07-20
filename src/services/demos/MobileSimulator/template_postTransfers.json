@@ -30,14 +30,27 @@
               "amount": "{$inputs.amount}",
               "currency": "{$inputs.currency}"
             },
-            "expiration": "{$inputs.quotesCallbackExpiration}",
+            "expiration": "{$requestVariables.transferExpiration}",
             "ilpPacket": "{$inputs.quotesCallbackIlpPacket}",
             "condition": "{$inputs.quotesCallbackCondition}"
           },
           "tests": {
             "assertions": []
           },
-          "url": "{$inputs.HOST_ML_API_ADAPTER}"
+          "url": "{$inputs.HOST_ML_API_ADAPTER}",
+          "scriptingEngine": "javascript",
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "let expirationOffset = 60 * 1000",
+                "if (environment.expirationOffset) {",
+                "  expirationOffset = environment.expirationOffset",
+                "}",
+                "requestVariables.transferExpiration = new Date(new Date().getTime() + expirationOffset).toISOString()",
+                ""
+              ]
+            }
+          }
         }
       ]
     }

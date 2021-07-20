@@ -24,6 +24,7 @@
 import axios from 'axios'
 import { getConfig, getServerConfig } from '../../../utils/getConfig'
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
+import _ from 'lodash';
 
 class OutboundService {
 
@@ -31,6 +32,9 @@ class OutboundService {
   inputValues = {}
   sessionId = '123'
   userConfig = {}
+  customParams = {
+    payerFspTransferExpirationOffset: 60 * 1000
+  }
 
   constructor (sessionId = '123') {
     const { apiBaseUrl } = getConfig()
@@ -66,6 +70,14 @@ class OutboundService {
     if (resp.data && resp.data.body && resp.data.body.environment) {
       this.inputValues =  resp.data.body.environment
     }
+  }
+
+  setCustomParams = (newConfig) => {
+    _.merge(this.customParams, newConfig)
+  }
+
+  getCustomParams = () => {
+    return this.customParams
   }
 
   async getParties (idNumber) {
@@ -105,6 +117,7 @@ class OutboundService {
     template.inputValues.quotesCallbackExpiration = expiration + ''
     template.inputValues.quotesCallbackIlpPacket = ilpPacket + ''
     template.inputValues.quotesCallbackCondition = condition + ''
+    template.inputValues.expirationOffset = this.customParams.payerFspTransferExpirationOffset
     const resp = await axios.post(this.apiBaseUrl + "/api/outbound/template/" + traceId, template , { headers: { 'Content-Type': 'application/json' } })
     // if(typeof response.data === 'object') {
     //   return response.data
