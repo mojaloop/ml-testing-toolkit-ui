@@ -288,7 +288,7 @@
                 "if(environment.winstate===\"PENDING_SETTLEMENT\"){",
                 "",
                 "res.participants.map(function (participant) {",
-                "   participant.accounts.filter(account => account.netSettlementAmount.currency === environment.SIMPAYER_CURRENCY).forEach(curAccount => {",
+                "   participant.accounts.forEach(curAccount => {",
                 "//for(const curAccount of account) {     ",
                 "",
                 " dfspsacc[i] = {",
@@ -324,7 +324,7 @@
                 "  console.log(\"Window is empty\")",
                 "}",
                 "/*res.participants.map(participant => {",
-                "  participant.accounts.filter(account => account.netSettlementAmount.currency === pm.environment.get('SIMPAYER_CURRENCY'))",
+                "  participant.accounts",
                 "    .forEach(curAccount => {*/",
                 "  "
               ]
@@ -383,7 +383,7 @@
                 "",
                 "",
                 "res.participants.map(function (participant) {",
-                "   participant.accounts.filter(account => account.netSettlementAmount.currency === environment.SIMPAYER_CURRENCY).forEach(curAccount => {",
+                "   participant.accounts.forEach(curAccount => {",
                 "//for(const curAccount of account) {     ",
                 "",
                 " dfspsacc[i] = {",
@@ -419,7 +419,7 @@
                 "  console.log(\"Window is empty\")",
                 "}",
                 "/*res.participants.map(participant => {",
-                "  participant.accounts.filter(account => account.netSettlementAmount.currency === pm.environment.get('SIMPAYER_CURRENCY'))",
+                "  participant.accounts",
                 "    .forEach(curAccount => {*/",
                 "  "
               ]
@@ -473,7 +473,7 @@
                 "",
                 "",
                 "res.participants.map(function (participant) {",
-                "   participant.accounts.filter(account => account.netSettlementAmount.currency === environment.SIMPAYER_CURRENCY).forEach(curAccount => {",
+                "   participant.accounts.forEach(curAccount => {",
                 "//for(const curAccount of account) {     ",
                 "",
                 " dfspsacc[i] = {",
@@ -509,7 +509,7 @@
                 "  console.log(\"Window is empty\")",
                 "}",
                 "/*res.participants.map(participant => {",
-                "  participant.accounts.filter(account => account.netSettlementAmount.currency === pm.environment.get('SIMPAYER_CURRENCY'))",
+                "  participant.accounts",
                 "    .forEach(curAccount => {*/",
                 "  "
               ]
@@ -563,7 +563,7 @@
                 "",
                 "",
                 "res.participants.map(function (participant) {",
-                "   participant.accounts.filter(account => account.netSettlementAmount.currency === environment.SIMPAYER_CURRENCY).forEach(curAccount => {",
+                "   participant.accounts.forEach(curAccount => {",
                 "//for(const curAccount of account) {     ",
                 "",
                 " dfspsacc[i] = {",
