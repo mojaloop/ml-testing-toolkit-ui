@@ -26,6 +26,7 @@ import _ from 'lodash';
 
 import { Row, Col, Steps, Tag, Dropdown, Menu, message, Input, Collapse, Card, Button , Typography } from 'antd';
 import { MoreOutlined, DoubleRightOutlined } from '@ant-design/icons';
+import MetadataEditor from "./MetadataEditor";
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
@@ -269,6 +270,14 @@ class TestCaseViewer extends React.Component {
                   )
                   : null
                 }
+              </Col>
+            </Row>
+            <Row>
+              <Col span={24}>
+                <MetadataEditor
+                  values={this.props.testCase.meta}
+                  onChange={this.props.onChange}
+                />
               </Col>
             </Row>
             <Row>

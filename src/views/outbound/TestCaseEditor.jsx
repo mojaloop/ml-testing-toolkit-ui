@@ -1069,43 +1069,53 @@ class TestCaseEditor extends React.Component {
         <Row>
           <Col span={24}>
             <Affix target={() => this.containerRef}>
-              <Row align="top">
-                <Col span={24}>       
-                  <Button type='primary' className='mt-2 float-right' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
-                      this.props.onOpenEnvironmentManager()
-                    }}>
-                    <CaretLeftFilled style={ {fontSize: '18px'} }/> <Text style={{color: 'white', fontWeight: 'bold'}}>Environment Manager</Text>
-                  </Button>            
-                </Col>
-              </Row>
               <Row>
                 <Col span={24}>
                   <Card size="small">
-                    <div className="float-right">
-                      <Button
-                        className='ml-2'
-                        type="primary"
-                        danger
-                        onClick={() => {
-                          this.props.onSend()
-                        }}
-                      >
-                            Send
-                      </Button>
-                    </div>
-                    <Popover
-                      content={addNewRequestDialogContent}
-                      title="Enter a description for the request"
-                      trigger="click"
-                      visible={this.state.addNewRequestDialogVisible}
-                      onVisibleChange={(visible) => this.setState({ addNewRequestDialogVisible: visible })}
-                    >
-                      <Button
-                        type="primary"
-                      >
-                        Add New Request
-                  </Button>
-                    </Popover>
+                    <Row align="top">
+                      <Col span={18}>
+                        <MetadataEditor
+                          values={this.props.testCase.meta}
+                          onChange={this.props.onChange}
+                        />
+                      </Col>
+                      <Col span={6}>
+                        <Button type='primary' className='mt-2 float-right' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
+                            this.props.onOpenEnvironmentManager()
+                          }}>
+                          <CaretLeftFilled style={ {fontSize: '18px'} }/> <Text style={{color: 'white', fontWeight: 'bold'}}>Environment Manager</Text>
+                        </Button>            
+                      </Col>
+                    </Row>
+                    <Row align="top">
+                      <Col span={24}>
+                        <div className="float-right">
+                          <Button
+                            className='ml-2'
+                            type="primary"
+                            danger
+                            onClick={() => {
+                              this.props.onSend()
+                            }}
+                          >
+                                Send
+                          </Button>
+                        </div>
+                        <Popover
+                          content={addNewRequestDialogContent}
+                          title="Enter a description for the request"
+                          trigger="click"
+                          visible={this.state.addNewRequestDialogVisible}
+                          onVisibleChange={(visible) => this.setState({ addNewRequestDialogVisible: visible })}
+                        >
+                          <Button
+                            type="primary"
+                          >
+                            Add New Request
+                          </Button>
+                        </Popover>
+                      </Col>
+                    </Row>
                   </Card>          
                 </Col>
               </Row>

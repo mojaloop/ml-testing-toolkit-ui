@@ -896,7 +896,7 @@ class OutboundRequest extends React.Component {
           bodyStyle={{ height: '85vh', 'overflow-y': 'auto' }}
           destroyOnClose
           forceRender
-          title="Test Case Editor"
+          title={ this.state.showTestCaseIndex != null ? this.state.template.test_cases[this.state.showTestCaseIndex].name : '' }
           width='90%'
           visible={this.state.showTestCaseIndex != null ? true : false}
           footer={null}
