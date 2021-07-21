@@ -495,6 +495,32 @@ class OutboundRequest extends React.Component {
 
   }
 
+  handleDownloadDefinition = async (event) => {
+    switch (event.key) {
+      case 'printhtml':
+      case 'html':
+      default:
+        message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
+        const { apiBaseUrl } = getConfig()
+        const reportFormat = event.key
+        const response = await axios.post(apiBaseUrl + "/api/reports/testcase_definition/" + reportFormat, this.state.template, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
+        let downloadFilename = "test." + reportFormat
+        if (response.headers['content-disposition']) {
+          const disposition = response.headers['content-disposition']
+          if (disposition && disposition.indexOf('attachment') !== -1) {
+            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            var matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) {
+              downloadFilename = matches[1].replace(/['"]/g, '');
+            }
+          }
+        }
+        FileDownload(response.data, downloadFilename)
+        message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 });
+    }
+
+  }
+
   handleTestCaseChange = () => {
     this.autoSave = true
     this.forceUpdate()
@@ -568,6 +594,14 @@ class OutboundRequest extends React.Component {
         <Menu.Item key='json'>JSON format</Menu.Item>
         <Menu.Item key='html'>HTML report</Menu.Item>
         <Menu.Item key='printhtml'>Printer Friendly HTML report</Menu.Item>
+      </Menu>
+    )
+  }
+
+  downloadDefinitionMenu = () => {
+    return (
+      <Menu onClick={(event) => this.handleDownloadDefinition(event)}>
+        <Menu.Item key='html'>HTML format</Menu.Item>
       </Menu>
     )
   }
@@ -862,7 +896,7 @@ class OutboundRequest extends React.Component {
           bodyStyle={{ height: '85vh', 'overflow-y': 'auto' }}
           destroyOnClose
           forceRender
-          title="Test Case Editor"
+          title={ this.state.showTestCaseIndex != null ? this.state.template.test_cases[this.state.showTestCaseIndex].name : '' }
           width='90%'
           visible={this.state.showTestCaseIndex != null ? true : false}
           footer={null}
@@ -945,83 +979,91 @@ class OutboundRequest extends React.Component {
                       }
                       </Col>
                       <Col span={10}>
-                        <Button
-                          className="float-right"
-                          type="primary"
-                          danger
-                          onClick={this.handleSendStopClick}
-                        >
-                          {this.state.sendingOutboundRequestID ? 'Stop' : 'Run'}
-                        </Button>
-                        <Button
-                          className="float-right mr-2"
-                          type="dashed"
-                          danger
-                          onClick={() => { this.setState({ showIterationRunner: true }) }}
-                        >
-                          Iteration Runner
-                        </Button>
-                        <Button
-                          className="float-right mr-2"
-                          type="dashed"
-                          onClick={() => { this.setState({ showTemplate: true }) }}
-                        >
-                          Show Current Template
-                        </Button>
-                        {
-                          getConfig().isAuthEnabled ?
-                            <>
-                              <Button className="float-right" type="primary" danger onClick={async (e) => {
-                                this.setState({ historyReportsLocal: await this.historyReportsLocal() })
-                                this.setState({ historyReportsVisible: true })
-                              }}>
-                                Reports History
+                        <Row>
+                          <Col span='24'>
+                            <Button
+                              className="float-right"
+                              type="primary"
+                              danger
+                              onClick={this.handleSendStopClick}
+                            >
+                              {this.state.sendingOutboundRequestID ? 'Stop' : 'Run'}
                             </Button>
-                              {
-                                this.state.historyReportsVisible
-                                  ?
-                                  <Modal
-                                    title="Reports History"
-                                    visible={this.state.historyReportsVisible}
-                                    width='70%'
-                                    onOk={() => {
-                                      this.setState({ historyReportsVisible: false })
-                                    }}
-                                    onCancel={() => {
-                                      this.setState({ historyReportsVisible: false })
-                                    }}
+                            <Button
+                              className="float-right mr-2"
+                              type="dashed"
+                              danger
+                              onClick={() => { this.setState({ showIterationRunner: true }) }}
+                            >
+                              Iteration Runner
+                            </Button>
+                            <Button
+                              className="float-right mr-2"
+                              type="dashed"
+                              onClick={() => { this.setState({ showTemplate: true }) }}
+                            >
+                              Show Current Template
+                            </Button>
+                            {
+                              getConfig().isAuthEnabled ?
+                                <>
+                                  <Button className="float-right" type="primary" danger onClick={async (e) => {
+                                    this.setState({ historyReportsLocal: await this.historyReportsLocal() })
+                                    this.setState({ historyReportsVisible: true })
+                                  }}>
+                                    Reports History
+                                </Button>
+                                  {
+                                    this.state.historyReportsVisible
+                                      ?
+                                      <Modal
+                                        title="Reports History"
+                                        visible={this.state.historyReportsVisible}
+                                        width='70%'
+                                        onOk={() => {
+                                          this.setState({ historyReportsVisible: false })
+                                        }}
+                                        onCancel={() => {
+                                          this.setState({ historyReportsVisible: false })
+                                        }}
+                                      >
+                                        <Row>
+                                          <Col>
+                                            <Table
+                                              columns={this.state.historyReportsColumns}
+                                              dataSource={this.historyReportsDataSource()}
+                                            />
+                                          </Col>
+                                        </Row>
+                                      </Modal>
+                                      :
+                                      null
+                                  }
+                                </>
+                                :
+                                null
+                            }
+                          </Col>
+                        </Row>
+                        <Row className='mt-2'>
+                          <Col span='24'>
+                            {
+                              this.state.testReport
+                                ?
+                                <Dropdown overlay={this.downloadReportMenu()}>
+                                  <Button
+                                    className="float-right"
+                                    type='primary'
+                                    shape='round'
+                                    onClick={e => e.preventDefault()}
                                   >
-                                    <Row>
-                                      <Col>
-                                        <Table
-                                          columns={this.state.historyReportsColumns}
-                                          dataSource={this.historyReportsDataSource()}
-                                        />
-                                      </Col>
-                                    </Row>
-                                  </Modal>
-                                  :
-                                  null
-                              }
-                            </>
-                            :
-                            null
-                        }
-                        {
-                          this.state.testReport
-                            ?
-                            <Dropdown overlay={this.downloadReportMenu()}>
-                              <Button
-                                className="float-right mr-2"
-                                type="primary"
-                                danger
-                                onClick={e => e.preventDefault()}
-                              >
-                                Download Report
-                            </Button>
-                            </Dropdown>
-                            : null
-                        }
+                                    Download Report
+                                </Button>
+                                </Dropdown>
+                                : null
+                            }
+                          </Col>
+                        </Row>
                       </Col>
                     </Row>
                   </Card>
@@ -1043,8 +1085,23 @@ class OutboundRequest extends React.Component {
                   <TabPane tab="Test Cases" key="1">
                     <Row className="mb-2">
                       <Col span={24}>
+                        {
+                          this.state.template.test_cases && this.state.template.test_cases.length > 0
+                            ?
+                            <Dropdown overlay={this.downloadDefinitionMenu()}>
+                              <Button
+                                className="float-right"
+                                type='primary'
+                                shape='round'
+                                onClick={e => e.preventDefault()}
+                              >
+                                Download Definition
+                            </Button>
+                            </Dropdown>
+                            : null
+                        }
                         <Popover
-                          className="float-right"
+                          className="float-right mr-2"
                           content={getSaveTemplateDialogContent(1)}
                           title="Enter filename to save"
                           trigger="click"
