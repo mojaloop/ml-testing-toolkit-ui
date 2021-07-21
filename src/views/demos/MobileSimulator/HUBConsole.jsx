@@ -23,6 +23,7 @@
  ******/
 import React from "react";
 import { Row, Col, Typography, Button, Table, Tag, Progress, Descriptions, Select } from 'antd';
+import { hashRGB } from '../../../utils/styleHelpers'
 const { Text, Title } = Typography
 const { Option } = Select;
 
@@ -237,20 +238,21 @@ class HUBConsole extends React.Component {
 
     const dfspValuesData = Object.entries(this.state.dfsps).map((dfspItem,index) => {
       const positionData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'POSITION').reduce((prevVal,currVal,idx) => {
-        const detail = currVal.currency + ': ' + currVal.value
-        return idx == 0 ? detail : prevVal + ', ' + detail
+        const detail = <Tag color={hashRGB(currVal.currency)}>{currVal.currency + ': ' + currVal.value}</Tag>
+        return idx == 0 ? detail : (<>{prevVal}<br />{detail}</>)
       }, '')
       const netDebitCapData = dfspItem[1].NET_DEBIT_CAP && Object.entries(dfspItem[1].NET_DEBIT_CAP).reduce((prevVal,currVal,idx) => {
-        const detail = currVal[0] + ': ' + currVal[1]
-        return idx == 0 ? detail : prevVal + ', ' + detail
+        const detail = <Tag color={hashRGB(currVal[0])}>{currVal[0] + ': ' + currVal[1]}</Tag>
+        return idx == 0 ? detail : (<>{prevVal}<br />{detail}</>)
       }, '')
       const settlementData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'SETTLEMENT').reduce((prevVal,currVal,idx) => {
-        const detail = currVal.currency + ': ' + currVal.value
-        return idx == 0 ? detail : prevVal + ', ' + detail
+        const detail = <Tag color={hashRGB(currVal.currency)}>{currVal.currency + ': ' + currVal.value}</Tag>
+        // const detail = currVal.currency + ': ' + currVal.value
+        return idx == 0 ? detail : (<>{prevVal}<br />{detail}</>)
       }, '')
       const interchangeFeeData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'INTERCHANGE_FEE').reduce((prevVal,currVal,idx) => {
-        const detail = currVal.currency + ': ' + currVal.value
-        return idx == 0 ? detail : prevVal + ', ' + detail
+        const detail = <Tag color={hashRGB(currVal.currency)}>{currVal.currency + ': ' + currVal.value}</Tag>
+        return idx == 0 ? detail : (<>{prevVal}<br />{detail}</>)
       }, '')
       return {
         key: index,
