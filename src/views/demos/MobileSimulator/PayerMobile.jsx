@@ -246,7 +246,7 @@ class PayerMobile extends React.Component {
                 ? (
                   <Result
                     status="success"
-                    title={'Sent $' + this.state.amount}
+                    title={'Sent ' + this.state.amount + ' ' + this.state.selectedCurrency}
                     subTitle={this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && 'to ' + this.state.partyInfo.personalInfo.complexName.lastName}
                   />
                 )

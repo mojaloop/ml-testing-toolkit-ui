@@ -37,7 +37,7 @@ class PayeeMobile extends React.Component {
   }
 
   resetState = () => {
-    this.setState({receivedAmount: null, payerComplexName: null, stage: null})
+    this.setState({receivedAmount: null, payeeReceiveAmount: null, payerComplexName: null, stage: null})
   }
 
   handleNotificationEvents = (event) => {
@@ -70,7 +70,7 @@ class PayeeMobile extends React.Component {
       // }
       case 'payeePutQuotes':
       {
-        this.setState({payeeReceiveAmount: event.data.requestBody && event.data.requestBody.payeeReceiveAmount && event.data.requestBody.payeeReceiveAmount.amount})
+        this.setState({payeeReceiveAmount: event.data.requestBody && event.data.requestBody.payeeReceiveAmount})
         break
       }
       // case 'payeePutQuotesResponse':
@@ -109,8 +109,8 @@ class PayeeMobile extends React.Component {
             <Col span={24} className='text-center'>
               <Result
                 status="success"
-                title={'Received ' + this.state.receivedAmount}
-                subTitle={'from ' + this.state.payerComplexName.lastName}
+                title={'Received ' + this.state.receivedAmount.amount + ' ' + this.state.receivedAmount.currency}
+                subTitle={'from ' + this.state.payerComplexName.firstName}
               />
             </Col>
           </Row>
