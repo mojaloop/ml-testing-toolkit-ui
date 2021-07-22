@@ -974,6 +974,62 @@
               }
             ]
           }
+        },
+        {
+          "id": 29,
+          "description": "Funds-In to all settlement accounts",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/{name}/accounts",
+          "path": "/participants/{$inputs.mobileSimPayerFsp}/accounts",
+          "method": "get",
+          "params": {
+            "name": "{$inputs.mobileSimPayerFsp}"
+          },
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "headers": {},
+          "tests": {
+            "assertions": []
+          },
+          "scriptingEngine": "javascript",
+          "scripts": {
+            "postRequest": {
+              "exec": [
+                "var jsonData = response.body;\r",
+                "const fundsInAmount = 10000\r",
+                "const config = { headers: {'Content-Type': 'application/json','FSPIOP-Source': environment.mobileSimPayerFsp} };\r",
+                "\r",
+                "// TODO: The following function should be implemented in the javascript engine of TTK\r",
+                "function uuidv4() {\r",
+                "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\r",
+                "    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);\r",
+                "    return v.toString(16);\r",
+                "  });\r",
+                "}\r",
+                "\r",
+                "for(var i in jsonData) {\r",
+                "  if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {\r",
+                "    const payerfspSettlementAccountId = jsonData[i].id;\r",
+                "    const reqBody = {\r",
+                "        transferId: uuidv4(),\r",
+                "        externalReference: 'string',\r",
+                "        action: 'recordFundsIn',\r",
+                "        reason: 'Inititial Funds-In',\r",
+                "        amount: {\r",
+                "          amount: fundsInAmount,\r",
+                "          currency: jsonData[i].currency\r",
+                "        }\r",
+                "      }\r",
+                "    const resp = await axios.post(environment.HOST_CENTRAL_LEDGER + '/participants/' + environment.mobileSimPayerFsp + '/accounts/' + payerfspSettlementAccountId, reqBody,config)\r",
+                "  }\r",
+                "}\r",
+                ""
+              ]
+            }
+          }
         }
       ]
     },
@@ -1949,6 +2005,62 @@
                 ]
               }
             ]
+          }
+        },
+        {
+          "id": 29,
+          "description": "Funds-In to all settlement accounts",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/{name}/accounts",
+          "path": "/participants/{$inputs.mobileSimPayeeFsp}/accounts",
+          "method": "get",
+          "params": {
+            "name": "{$inputs.mobileSimPayeeFsp}"
+          },
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "headers": {},
+          "tests": {
+            "assertions": []
+          },
+          "scriptingEngine": "javascript",
+          "scripts": {
+            "postRequest": {
+              "exec": [
+                "var jsonData = response.body;\r",
+                "const fundsInAmount = 10000\r",
+                "const config = { headers: {'Content-Type': 'application/json','FSPIOP-Source': environment.mobileSimPayeeFsp} };\r",
+                "\r",
+                "// TODO: The following function should be implemented in the javascript engine of TTK\r",
+                "function uuidv4() {\r",
+                "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\r",
+                "    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);\r",
+                "    return v.toString(16);\r",
+                "  });\r",
+                "}\r",
+                "\r",
+                "for(var i in jsonData) {\r",
+                "  if(jsonData[i].ledgerAccountType === 'SETTLEMENT') {\r",
+                "    const payeefspSettlementAccountId = jsonData[i].id;\r",
+                "    const reqBody = {\r",
+                "        transferId: uuidv4(),\r",
+                "        externalReference: 'string',\r",
+                "        action: 'recordFundsIn',\r",
+                "        reason: 'Inititial Funds-In',\r",
+                "        amount: {\r",
+                "          amount: fundsInAmount,\r",
+                "          currency: jsonData[i].currency\r",
+                "        }\r",
+                "      }\r",
+                "    const resp = await axios.post(environment.HOST_CENTRAL_LEDGER + '/participants/' + environment.mobileSimPayeeFsp + '/accounts/' + payeefspSettlementAccountId, reqBody,config)\r",
+                "  }\r",
+                "}\r",
+                ""
+              ]
+            }
           }
         }
       ]
