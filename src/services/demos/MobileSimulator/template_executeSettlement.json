@@ -605,6 +605,435 @@
           }
         }
       ]
+    },
+    {
+      "id": 2,
+      "name": "Funds_out for PayeeFSP",
+      "meta": {
+        "info": "Funds_out for PayeeFSP"
+      },
+      "requests": [
+        {
+          "id": 1,
+          "description": "Get settlement",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 2,
+            "type": "settlements"
+          },
+          "operationPath": "/settlements/{id}",
+          "path": "/settlements/{$environment.settlementId}",
+          "method": "get",
+          "params": {
+            "id": "{$environment.settlementId}"
+          },
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                "let fundsOutAccounts = {}",
+                "const participants = response.body.participants",
+                "for (let i=0; i < participants.length; i++) {",
+                "  for (let j=0; j < participants[i].accounts.length; j++) {",
+                "    const account  = participants[i].accounts[j]",
+                "    if (account.state === 'SETTLED' && account.netSettlementAmount.amount < 0) {",
+                "      fundsOutAccounts[account.id] = -account.netSettlementAmount.amount",
+                "    }",
+                "  }",
+                "}",
+                "environment.fundsOutAccounts = fundsOutAccounts",
+                ""
+              ]
+            }
+          },
+          "scriptingEngine": "javascript",
+          "url": "{$inputs.HOST_CENTRAL_SETTLEMENT}"
+        },
+        {
+          "id": 2,
+          "meta": {
+            "info": "Get testingtoolkitdfsp settlement account"
+          },
+          "description": "Get testingtoolkitdfsp settlement account",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/{name}/accounts",
+          "path": "/participants/{$inputs.mobileSimPayeeFsp}/accounts",
+          "method": "get",
+          "params": {
+            "name": "{$inputs.mobileSimPayeeFsp}"
+          },
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "headers": {
+            "FSPIOP-Source": "{$inputs.fromFspId}",
+            "Authorization": "{$inputs.TTK_BEARER_TOKEN}"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response code is 200",
+                "exec": [
+                  "expect(response.status).to.equal(200)"
+                ]
+              }
+            ]
+          },
+          "scriptingEngine": "javascript",
+          "scripts": {
+            "postRequest": {
+              "exec": [
+                "\r",
+                "var jsonData = response.body;\r",
+                "\r",
+                "// Find the position account exists for funds-out\r",
+                "for(var i in jsonData) {\r",
+                "  if(jsonData[i].ledgerAccountType === 'POSITION' && environment.fundsOutAccounts[jsonData[i].id]) {\r",
+                "    const settlementAccount  = jsonData.find(item => (item.ledgerAccountType === 'SETTLEMENT') && (item.currency === jsonData[i].currency))\r",
+                "    if (settlementAccount) {\r",
+                "      environment.payeefspSettlementAccountId = settlementAccount.id\r",
+                "      environment.payeefspSettlementAccountAmount = environment.fundsOutAccounts[jsonData[i].id]\r",
+                "      environment.payeefspSettlementAccountCurrency = settlementAccount.currency\r",
+                "      break\r",
+                "    }\r",
+                "  }\r",
+                "}\r",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "id": 3,
+          "meta": {
+            "info": "Record Funds Out Prepare&Reserve- SIMPAYER"
+          },
+          "description": "Record Funds Out Prepare&Reserve- SIMPAYER",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/{name}/accounts/{id}",
+          "path": "/participants/{$inputs.mobileSimPayeeFsp}/accounts/{$environment.payeefspSettlementAccountId}",
+          "method": "post",
+          "params": {
+            "name": "{$inputs.mobileSimPayeeFsp}",
+            "id": "{$environment.payeefspSettlementAccountId}"
+          },
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "headers": {
+            "FSPIOP-Source": "{$inputs.mobileSimPayeeFsp}",
+            "Authorization": "{$inputs.TTK_BEARER_TOKEN}",
+            "Content-Type": "application/json"
+          },
+          "scriptingEngine": "javascript",
+          "body": {
+            "transferId": "{$function.generic.generateUUID}",
+            "externalReference": "string",
+            "action": "recordFundsOutPrepareReserve",
+            "reason": "string",
+            "amount": {
+              "amount": "{$environment.payeefspSettlementAccountAmount}",
+              "currency": "{$environment.payeefspSettlementAccountCurrency}"
+            },
+            "extensionList": {
+              "extension": [
+                {
+                  "key": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response code is 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              }
+            ]
+          },
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "if (!environment.payeefspSettlementAccountId) {\r",
+                "  custom.skipRequest()\r",
+                "}\r",
+                "// environment.fundsOutPrepareReserveAmount= requestVariables.fundsOutPrepareAmount;\r",
+                "// requestVariables.payerid= environment.testingtoolkitdfspSettlementAccountId\r",
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                "/*var url = environment.HOST_CENTRAL_LEDGER;\r",
+                "console.log(url);\r",
+                "\r",
+                "\r",
+                "const res = await axios.get(environment.HOST_CENTRAL_LEDGER+'/participants/testingtoolkitdfsp/accounts');\r",
+                "console.log(res.data);\r",
+                "*/\r",
+                "\r",
+                "environment.transferidfi = '{$request.body.transferId}'\r",
+                "console.log(environment.transferidfi);"
+              ]
+            }
+          }
+        },
+        {
+          "id": 4,
+          "meta": {
+            "info": "Record Funds Out Commit - SIMPAYER"
+          },
+          "description": "Record Funds Out Commit - SIMPAYER",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/{name}/accounts/{id}/transfers/{transferId}",
+          "path": "/participants/{$inputs.mobileSimPayeeFsp}/accounts/{$environment.payeefspSettlementAccountId}/transfers/{$environment.transferidfi}",
+          "method": "put",
+          "params": {
+            "name": "{$inputs.mobileSimPayeeFsp}",
+            "id": "{$environment.payeefspSettlementAccountId}",
+            "transferId": "{$environment.transferidfi}"
+          },
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "headers": {
+            "Content-Type": "application/json",
+            "FSPIOP-Source": "{$inputs.mobileSimPayeeFsp}",
+            "Authorization": "{$inputs.TTK_BEARER_TOKEN}"
+          },
+          "body": {
+            "action": "recordFundsOutCommit",
+            "reason": "Reason for out flow of funds"
+          },
+          "scriptingEngine": "javascript",
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response code is 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              }
+            ]
+          },
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "if (!environment.payeefspSettlementAccountId) {",
+                "  custom.skipRequest()",
+                "}",
+                "environment.fundsOutCommitAmount = environment.fundsOutPrepareReserveAmount"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Funds_in for PayerFSP",
+      "meta": {
+        "info": "Funds_in for PayerFSP"
+      },
+      "requests": [
+        {
+          "id": 1,
+          "description": "Get settlement",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 2,
+            "type": "settlements"
+          },
+          "operationPath": "/settlements/{id}",
+          "path": "/settlements/{$environment.settlementId}",
+          "method": "get",
+          "params": {
+            "id": "{$environment.settlementId}"
+          },
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                "let fundsInAccounts = {}",
+                "const participants = response.body.participants",
+                "for (let i=0; i < participants.length; i++) {",
+                "  for (let j=0; j < participants[i].accounts.length; j++) {",
+                "    const account  = participants[i].accounts[j]",
+                "    if (account.state === 'SETTLED' && account.netSettlementAmount.amount > 0) {",
+                "      fundsInAccounts[account.id] = account.netSettlementAmount.amount",
+                "    }",
+                "  }",
+                "}",
+                "environment.fundsInAccounts = fundsInAccounts",
+                ""
+              ]
+            }
+          },
+          "scriptingEngine": "javascript",
+          "url": "{$inputs.HOST_CENTRAL_SETTLEMENT}"
+        },
+        {
+          "id": 2,
+          "meta": {
+            "info": "Get testingtoolkitdfsp settlement account"
+          },
+          "description": "Get testingtoolkitdfsp settlement account",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/{name}/accounts",
+          "path": "/participants/{$inputs.mobileSimPayerFsp}/accounts",
+          "method": "get",
+          "params": {
+            "name": "{$inputs.mobileSimPayerFsp}"
+          },
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "headers": {
+            "FSPIOP-Source": "{$inputs.fromFspId}",
+            "Authorization": "{$inputs.TTK_BEARER_TOKEN}"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response code is 200",
+                "exec": [
+                  "expect(response.status).to.equal(200)"
+                ]
+              }
+            ]
+          },
+          "scriptingEngine": "javascript",
+          "scripts": {
+            "postRequest": {
+              "exec": [
+                "\r",
+                "var jsonData = response.body;\r",
+                "\r",
+                "// Find the position account exists for funds-out\r",
+                "for(var i in jsonData) {\r",
+                "  if(jsonData[i].ledgerAccountType === 'POSITION' && environment.fundsInAccounts[jsonData[i].id]) {\r",
+                "    const settlementAccount  = jsonData.find(item => (item.ledgerAccountType === 'SETTLEMENT') && (item.currency === jsonData[i].currency))\r",
+                "    if (settlementAccount) {\r",
+                "      environment.payerfspSettlementAccountId = settlementAccount.id\r",
+                "      environment.payerfspSettlementAccountAmount = environment.fundsInAccounts[jsonData[i].id]\r",
+                "      environment.payerfspSettlementAccountCurrency = settlementAccount.currency\r",
+                "      break\r",
+                "    }\r",
+                "  }\r",
+                "}\r",
+                "\r",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "id": 9,
+          "meta": {
+            "info": "Record funds in - prepare 2"
+          },
+          "description": "Record funds in - prepare 2",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/participants/{name}/accounts/{id}",
+          "path": "/participants/{$inputs.mobileSimPayerFsp}/accounts/{$environment.payerfspSettlementAccountId}",
+          "method": "post",
+          "params": {
+            "name": "{$inputs.mobileSimPayerFsp}",
+            "id": "{$environment.payerfspSettlementAccountId}"
+          },
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "headers": {
+            "FSPIOP-Source": "{$inputs.mobileSimPayerFsp}",
+            "Authorization": "{$inputs.TTK_BEARER_TOKEN}",
+            "Content-Type": "application/json"
+          },
+          "scriptingEngine": "javascript",
+          "body": {
+            "transferId": "{$function.generic.generateUUID}",
+            "externalReference": "string",
+            "action": "recordFundsIn",
+            "reason": "string",
+            "amount": {
+              "amount": "{$environment.payerfspSettlementAccountAmount}",
+              "currency": "{$environment.payerfspSettlementAccountCurrency}"
+            },
+            "extensionList": {
+              "extension": [
+                {
+                  "key": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response code is 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              }
+            ]
+          },
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "\r",
+                "requestVariables.fundsInPrepareAmount= 10;\r",
+                "environment.fundsInPrepareAmount= requestVariables.fundsInPrepareAmount;\r",
+                "requestVariables.payerid= environment.testingtoolkitdfspSettlementAccountId\r",
+                "\r",
+                "\r",
+                "console.log(requestVariables.payerid);\r",
+                ""
+              ]
+            },
+            "postRequest": {
+              "exec": [
+                "/*var url = environment.HOST_CENTRAL_LEDGER;\r",
+                "console.log(url);\r",
+                "\r",
+                "\r",
+                "const res = await axios.get(environment.HOST_CENTRAL_LEDGER+'/participants/testingtoolkitdfsp/accounts');\r",
+                "console.log(res.data);\r",
+                "*/\r",
+                "\r",
+                "environment.transferidfi = '{$request.body.transferId}'\r",
+                "console.log(environment.transferidfi);"
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
