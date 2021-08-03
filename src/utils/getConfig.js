@@ -28,12 +28,13 @@ var cache_userConfig = {}
 export const getConfig = () => {
   const { protocol, hostname } = window.location
   // Using the same protocol as we've been loaded from to avoid Mixed Content error.
-  let apiBaseUrl = 'TTK_API_BASE_URL'
+  // let apiBaseUrl = 'TTK_API_BASE_URL'
+  let apiBaseUrl = 'http://testing-toolkit.moja4.test.mojaloop.live'
   if (!apiBaseUrl.startsWith('http')) {
     apiBaseUrl = `${protocol}//${hostname}:5050`
   }
-  const AUTH_ENABLED = 'TTK_AUTH_ENABLED'
-  // const AUTH_ENABLED = 'TRUE'
+  // const AUTH_ENABLED = 'TTK_AUTH_ENABLED'
+  const AUTH_ENABLED = 'TRUE'
   const isAuthEnabled = AUTH_ENABLED ? AUTH_ENABLED.toUpperCase() === 'TRUE' : false
 
   return { apiBaseUrl, isAuthEnabled }

@@ -24,38 +24,24 @@
 import React from "react";
 
 import { withRouter, Redirect } from "react-router-dom";
-import { message, Button, Form, Input } from 'antd';
+import { message, Button, Form, Input, Row, Col, Card } from 'antd';
 import { getConfig } from '../../utils/getConfig'
-
-import "./Auth.css";
 
 const axios = require('axios').default
 
 class Login extends React.Component {
-  
-  constructor() {
-    super()
-    this.state = {
-      username: '',
-      password: ''
-    }
-  }
 
-  validateForm = () => {
-    return this.state.username.length > 0 && this.state.password.length > 0;
-  }
-
-  handleSubmit = async (e) => {
-    e.preventDefault()
+  onFinish = async (formValues) => {
+    console.log(formValues)
     try {
       const { apiBaseUrl } = getConfig()
       axios.defaults.withCredentials = true
       const res = await axios.post(apiBaseUrl + '/api/oauth2/login/', {
-        username: this.state.username,
-        password: this.state.password
+        username: formValues.username,
+        password: formValues.password
       }, { headers: { 'Content-Type': 'application/json' } })
       if (res.status === 200) {
-        this.props.handleLogin(e, res.data.token.payload)
+        this.props.handleLogin(res.data.token.payload)
         message.success({ content: 'login successful', key: 'login', duration: 1 });
         this.props.history.push("/admin/index")
         return
@@ -64,36 +50,69 @@ class Login extends React.Component {
     message.error({ content: 'login failed', key: 'login', duration: 3 });
   }
 
+  onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo);
+  };
+
   render() {
     return (
-      <div className="auth">
-        <Form className="auth__form"
-          onFinish={async e => {await this.handleSubmit(e)}}
-        >
-          <Form.Item className="auth__form__username" label="Username" name="username"
-            rules={[{ required: true, message: 'Please input your username!' }]}
+      <Row style={{marginTop: '250px'}}>
+        <Col colspan={24} className='mx-auto'>
+          <Card className='align-middle p-4' style={{width: '500px'}}>
+          <Form
+            name="basic"
+            labelCol={{
+              span: 8,
+            }}
+            wrapperCol={{
+              span: 16,
+            }}
+            initialValues={{
+              // remember: true,
+            }}
+            onFinish={this.onFinish}
+            onFinishFailed={this.onFinishFailed}
           >
-            <Input
-              autoFocus
-              value={this.state.username}
-              onChange={e => this.setState({username: e.target.value})}
-            />
-          </Form.Item>
-          <Form.Item className="auth__form__password" label="Password" name="password"
-            rules={[{ required: true, message: 'Please input your username!' }]}
-          >
-            <Input
-              autoFocus
-              type="password"
-              value={this.state.password}
-              onChange={e => this.setState({password: e.target.value})}
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button className="auth__form__submit__btn" block bsSize="large" disabled={!this.validateForm()} type='submit'>Submit</Button>
-          </Form.Item>
-        </Form>
-      </div>
+            <Form.Item
+              label="Username"
+              name="username"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please input your username!',
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please input your password!',
+                },
+              ]}
+            >
+              <Input.Password />
+            </Form.Item>
+
+            <Form.Item
+              wrapperCol={{
+                offset: 8,
+                span: 16,
+              }}
+            >
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+          </Card>
+        </Col>
+      </Row>
     )
   }
 }
