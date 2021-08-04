@@ -96,7 +96,7 @@ class Sidebar extends React.Component {
         </Row>
         <Row>
           <Col span={24} className="text-center">
-            <Title level={4} className="font-weight-light">Testing Toolkit</Title>
+            <Title level={4} style={{ color: '#293e5d' }}>Testing Toolkit</Title>
           </Col>
         </Row>
         <Menu className="mt-4" mode="inline"

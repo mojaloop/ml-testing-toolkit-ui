@@ -65,8 +65,7 @@ function App() {
 
   const [user, setUser] = useState(isLoggedIn());
 
-  const handleLogin = (e, token) => {
-    e.preventDefault()
+  const handleLogin = (token) => {
     localStorage.setItem('JWT_COOKIE_EXP_AT', token.iat + token.maxAge)
     localStorage.setItem('JWT_COOKIE_DFSP_ID', token.dfspId)
     setUser(true)
