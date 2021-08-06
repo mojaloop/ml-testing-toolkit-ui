@@ -34,8 +34,8 @@ class SequenceDiagram extends React.Component {
     sequenceItems: []
   }
 
-  inboundPeerName = 'In'
-  outboundPeerName = 'Out'
+  inboundPeerName = 'Inbound'
+  outboundPeerName = 'Outbound'
   ttkPeerName = 'TTK'
 
   timeToRefresh = 1 * 60 * 1000

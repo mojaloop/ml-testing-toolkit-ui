@@ -35,6 +35,7 @@ import 'antd/dist/antd.css';
 
 import Login from './views/login/Login.jsx';
 import MobileSimulator from "./views/demos/MobileSimulator/MobileSimulator.jsx";
+import DemoTestRunner from "./views/demos/DemoTestRunner/DemoTestRunner.jsx";
 
 
 const axios = require('axios').default
@@ -97,6 +98,7 @@ function App() {
           <Switch>
             <Route path="/admin" render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
             <Route exact path='/mobilesimulator' render={props => <MobileSimulator {...props} />} />
+            <Route exact path='/demotestrunner' render={props => <DemoTestRunner {...props} />} />
             <Redirect from='/' to='/admin/index' />
           </Switch>
         }

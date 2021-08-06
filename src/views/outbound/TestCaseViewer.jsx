@@ -191,6 +191,16 @@ class TestCaseViewer extends React.Component {
         <Row>
           <Col span={24}>
           <Card>
+          {
+            this.props.noOptions
+            ? (
+              <Row>
+                <Col span={16}>
+                  <Title level={4}>{this.props.testCase.name}</Title>
+                </Col>
+              </Row>
+            )
+            : (
             <Row>
               <Col span={16}>
                 {
@@ -272,6 +282,8 @@ class TestCaseViewer extends React.Component {
                 }
               </Col>
             </Row>
+            )
+          }
             <Row>
               <Col span={24}>
                 <MetadataEditor
