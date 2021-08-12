@@ -35,6 +35,7 @@ import axios from 'axios';
 import { getConfig } from '../../utils/getConfig'
 import { getServerConfig } from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
+import TokenFetcher from "./TokenFetcher";
 
 const { Text } = Typography;
 
@@ -833,7 +834,8 @@ class Settings extends React.Component {
             endpoints: []
           }
         }
-      }
+      },
+      tokenFetcherEnabled: false
     };
   }
 
@@ -858,7 +860,41 @@ class Settings extends React.Component {
   
   render() {
     return (
-      <ConfigurationEditor config={this.state.userConfigStored} configRuntime={this.state.userConfigRuntime} onSave={this.handleSaveUserConfig} doRefresh={this.getUserConfiguration} />
+      <>
+        {
+          getConfig().isAuthEnabled
+          ? (
+            <Modal
+              title='Token Fetcher'
+              className="w-50"
+              destroyOnClose
+              footer={null}
+              visible={this.state.tokenFetcherEnabled}
+              onCancel={ e => {
+                this.setState({tokenFetcherEnabled: false})
+              }}
+            >
+              <TokenFetcher />
+            </Modal>
+          )
+          : null
+        }
+        {
+          getConfig().isAuthEnabled
+          ? (
+            <Button
+              type="primary"
+              onClick={() => {
+                this.setState({tokenFetcherEnabled: true})
+              }}
+            >
+              Get Token
+            </Button>
+          )
+          : null
+        }
+        <ConfigurationEditor config={this.state.userConfigStored} configRuntime={this.state.userConfigRuntime} onSave={this.handleSaveUserConfig} doRefresh={this.getUserConfiguration} />
+      </>
     );
   }
 }
