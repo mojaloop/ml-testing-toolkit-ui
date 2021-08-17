@@ -24,7 +24,7 @@
 import React from "react";
 import moment from 'moment';
 
-import { message, Button, Form, Input, Row, Col, Card, Layout, Typography } from 'antd';
+import { message, Button, Row, Col, Card, Layout, Typography, Descriptions } from 'antd';
 import { getConfig } from '../../utils/getConfig'
 
 const { Text, Title } = Typography
@@ -38,24 +38,47 @@ class TokenFetcher extends React.Component {
     this.state = {
       token: '',
       expiresInSec: 0,
+      authConfig: {}
     };
   }
 
-  onFinish = async (formValues) => {
-    console.log(formValues)
+  componentDidMount = async () => {
+    this.getAuthInfo()
+  }
+
+  getAuthInfo = async () => {
     try {
       const { apiBaseUrl } = getConfig()
       axios.defaults.withCredentials = true
-      const res = await axios.post(apiBaseUrl + '/api/oauth2/tokeninfo', {
-        username: 'dfsp1',
-        password: formValues.password
+      const res = await axios.get(apiBaseUrl + '/api/keycloak/clientinfo')
+      if (res.status === 200) {
+        // this.setState({ token: res.data.access_token, expiresInSec: res.data.expires_in } )
+        this.setState({ authConfig: res.data } )
+        return
+      } else {
+        message.error({ content: 'Getting Token info failed: ' + res.statusText, key: 'login', duration: 3 });
+      }
+    } catch (err) {
+      message.error({ content: 'Getting Token info failed: ' + err.message, key: 'login', duration: 3 });
+    }
+  }
+
+  handleGenerateToken = async () => {
+    try {
+      const { apiBaseUrl } = getConfig()
+      axios.defaults.withCredentials = true
+      const res = await axios.post(apiBaseUrl + '/api/keycloak/tokeninfo', {
+        ...this.state.authConfig
       }, { headers: { 'Content-Type': 'application/json' } })
       if (res.status === 200) {
         this.setState({ token: res.data.access_token, expiresInSec: res.data.expires_in } )
         return
+      } else {
+        message.error({ content: 'Generating token failed: ' + res.statusText, key: 'login', duration: 3 });
       }
-    } catch (err) {}
-    message.error({ content: 'Authentication failed', key: 'login', duration: 3 });
+    } catch (err) {
+      message.error({ content: 'Generating token failed: ' + err.message, key: 'login', duration: 3 });
+    }
   }
 
   onFinishFailed = (errorInfo) => {
@@ -63,56 +86,41 @@ class TokenFetcher extends React.Component {
   };
 
   render() {
+    const displayAuthInfo = (info) => {
+      const descriptionItems = Object.entries(info).map( item => (
+          <Descriptions.Item label={item[0]}>
+            {item[1]}
+          </Descriptions.Item>
+      ))
+      return (
+        <Row>
+          <Col span={24}>
+            <Descriptions layout="horizontal" column={1} size='small' bordered>
+              {descriptionItems}
+            </Descriptions>
+          </Col>
+        </Row>
+      )
+    }
+
     return (
       <Layout style={{backgroundColor: '#ffffff'}}>
         <Content>
           <Row>
             <Col colspan={24} className='mx-auto'>
-              <Card className='align-middle p-4' style={{width: '600px'}}>
-              <Form
-                name="basic"
-                labelCol={{
-                  span: 4,
-                }}
-                wrapperCol={{
-                  span: 20,
-                }}
-                initialValues={{
-                  // remember: true,
-                }}
-                onFinish={this.onFinish}
-                onFinishFailed={this.onFinishFailed}
-              >
-                <Form.Item
-                  label="Password"
-                  name="password"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input your password!',
-                    },
-                  ]}
-                >
-                  <Input.Password />
-                </Form.Item>
-
-                <Form.Item
-                  wrapperCol={{
-                    offset: 4,
-                    span: 20,
-                  }}
-                >
-                  <Button type="primary" htmlType="submit">
-                    Get Token
-                  </Button>
-                </Form.Item>
-              </Form>
+              <Card className='align-middle' style={{width: '600px'}}>
+                <Title className='mt-2' level={4}>Use the following information in your DFSP service to get the token periodically</Title>
+                {displayAuthInfo(this.state.authConfig)}
+                <Button className='mt-2' type="primary" onClick={this.handleGenerateToken}>
+                  Generate a Static Token
+                </Button>
               {
                 this.state.token
                 ? (
                   <>
-                  <Title level={4}>Copy the following token. It expires { moment().add(this.state.expiresInSec, 'seconds').fromNow() }</Title>
+                  <Title className='mt-2' level={4}>Copy the following token. It expires { moment().add(this.state.expiresInSec, 'seconds').fromNow() }</Title>
                   <Text
+                    className='mt-2'
                     copyable = {
                       {
                         text: this.state.token

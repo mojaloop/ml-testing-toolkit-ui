@@ -865,7 +865,7 @@ class Settings extends React.Component {
           getConfig().isAuthEnabled
           ? (
             <Modal
-              title='Token Fetcher'
+              title='Token Information'
               className="w-50"
               destroyOnClose
               footer={null}
@@ -884,11 +884,12 @@ class Settings extends React.Component {
           ? (
             <Button
               type="primary"
+              shape='round'
               onClick={() => {
                 this.setState({tokenFetcherEnabled: true})
               }}
             >
-              Get Token
+              Token Info
             </Button>
           )
           : null
