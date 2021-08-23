@@ -93,13 +93,24 @@ class TokenFetcher extends React.Component {
           </Descriptions.Item>
       ))
       return (
-        <Row>
-          <Col span={24}>
-            <Descriptions layout="horizontal" column={1} size='small' bordered>
-              {descriptionItems}
-            </Descriptions>
-          </Col>
-        </Row>
+        <>
+        {
+          Object.entries(info).length > 0
+          ? (
+            <>
+            <Title className='mt-2' level={4}>Use the following information in your DFSP service to get the token periodically</Title>
+            <Row>
+              <Col span={24}>
+                <Descriptions layout="horizontal" column={1} size='small' bordered>
+                  {descriptionItems}
+                </Descriptions>
+              </Col>
+            </Row>
+            </>
+          )
+          : <Title className='mt-2' style={{color: 'red'}} level={4}>There is some issue getting token information</Title>
+        }
+        </>
       )
     }
 
@@ -109,7 +120,6 @@ class TokenFetcher extends React.Component {
           <Row>
             <Col colspan={24} className='mx-auto'>
               <Card className='align-middle' style={{width: '600px'}}>
-                <Title className='mt-2' level={4}>Use the following information in your DFSP service to get the token periodically</Title>
                 {displayAuthInfo(this.state.authConfig)}
                 <Button className='mt-2' type="primary" onClick={this.handleGenerateToken}>
                   Generate a Static Token
