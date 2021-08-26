@@ -29,7 +29,7 @@ import { SettingOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseViewer from '../../outbound/TestCaseViewer'
-import { getConfig } from '../../../utils/getConfig'
+import { fetchServerConfig, getConfig } from '../../../utils/getConfig'
 import FileManager from "../../outbound/FileManager.jsx";
 import EnvironmentManager from '../../outbound/EnvironmentManager'
 import Monitor from '../../monitor/Monitor'
@@ -95,6 +95,8 @@ class OutboundRequest extends React.Component {
   }
 
   componentDidMount = async () => {
+    await fetchServerConfig()
+
     this.environmentFileSelector = buildFileSelector();
     this.environmentFileSelector.addEventListener('input', (e) => {
       if (e.target.files) {
