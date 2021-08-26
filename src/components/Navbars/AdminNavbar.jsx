@@ -22,11 +22,11 @@
  --------------
  ******/
 import React from "react";
-import { Layout, Button, Typography } from 'antd'
+import { Layout, Button, Typography, Row, Col } from 'antd'
 import { getConfig } from '../../utils/getConfig'
 
 const { Header } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 class AdminNavbar extends React.Component {
   render() {
@@ -40,16 +40,20 @@ class AdminNavbar extends React.Component {
             background: '#293e5d'
           }}
         >
-            <Title
-              level={4}
-              className="text-white text-uppercase d-none d-lg-inline-block"
-            >
-              {this.props.brandText}
-            </Title>
+          <Row>
+            <Col span={12}>
+              <Title
+                level={4}
+                className="text-white text-uppercase d-none d-lg-inline-block"
+              >
+                {this.props.brandText}
+              </Title>
+            </Col>
+            <Col span={12} className='text-right'>
             {
               dfspId
               ?
-              <span>{dfspId}</span>
+              <Text className="text-white d-none d-lg-inline-block">{dfspId}</Text>
               :
               null
             }
@@ -65,11 +69,14 @@ class AdminNavbar extends React.Component {
                   this.props.handleLogout()
                 }}
                 size="sm"
+                className='ml-4'
               >
                 Logout
               </Button>
               : null
-            }            
+            }
+            </Col>
+          </Row>            
         </Header>
       </>
     );
