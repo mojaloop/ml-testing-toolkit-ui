@@ -30,6 +30,7 @@ import 'antd/dist/antd.css';
 
 import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
 import { ConfigurableParameter } from './RuleEditor'
+import ArrayInputValues from '../common/ArrayInputValues'
 // import './index.css';
 import Ajv from 'ajv';
 const ajv = new Ajv({allErrors: true});
@@ -59,7 +60,6 @@ class ValueSelector extends React.Component {
         this.props.onChange(newValue)
         this.setState({ajvErrors: ''})
       } else {
-        console.log(newValue)
         this.props.onChange(newValue)
         this.setState({ajvErrors: this.validateAjv.errors})
       }
@@ -80,6 +80,17 @@ class ValueSelector extends React.Component {
           )
         })}
         </Select>
+      )
+    } else if (this.props.selectedOperator === 'in' || this.props.selectedOperator === 'notIn') {
+      return (
+        <>
+          <ArrayInputValues placeholder="Value" 
+            values={this.props.value && this.props.value.split(',')}
+            onChange={ (newValue) => {
+              this.handleValueChange(newValue.join(','))
+            }}
+          />
+        </>
       )
     } else {
       return (
@@ -325,6 +336,8 @@ class Condition extends React.Component {
         } else {
           operatorList.push({displayName: 'Equal', name: 'equal'})
           operatorList.push({displayName: 'Not Equal', name: 'notEqual'})
+          operatorList.push({displayName: 'In', name: 'in'})
+          operatorList.push({displayName: 'Not In', name: 'notIn'})
         }
       } else if (this.state.selectedFact.type === 'integer') {
         operatorList.push({displayName: 'Equal', name: 'equal'})
@@ -389,7 +402,7 @@ class Condition extends React.Component {
                 Value
               </label>
               <br />
-              <ValueSelector value={this.props.condition.value} selectedFact={this.state.selectedFact} onChange={this.handleValueChange} />
+              <ValueSelector value={this.props.condition.value} selectedFact={this.state.selectedFact} selectedOperator={this.state.selectedOperator} onChange={this.handleValueChange} />
 
           </td>
           <td align='right'>

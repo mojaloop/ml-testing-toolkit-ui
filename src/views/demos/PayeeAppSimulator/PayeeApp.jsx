@@ -39,7 +39,7 @@ class PayeeMobile extends React.Component {
     payerComplexName: null,
     balance: {},
     transactionHistory: [],
-    partyIdValue: '659876543210'
+    partyIdValue: '18045042357'
   }
 
   constructor () {
@@ -55,7 +55,7 @@ class PayeeMobile extends React.Component {
     if (environmentRes.status == 200) {
       const partyData = environmentRes.data && environmentRes.data.partyData && environmentRes.data.partyData['MSISDN/' + this.state.partyIdValue]
       if(partyData) {
-        this.setState({balance: partyData.balance, transactionHistory: partyData.transactionHistory})
+        this.setState({balance: partyData.balance, transactionHistory: partyData.transactionHistory.reverse()})
       }
     }
   }
@@ -72,7 +72,7 @@ class PayeeMobile extends React.Component {
     console.log(event)
     const amountStr = event.transaction.amount + ' ' + event.transaction.currency
     const payerInfo = `${event.transaction.from.idValue}` + (event.transaction.from.displayName? ` (${event.transaction.from.displayName})` : '')
-    this.setState({balance: event.newBalance, balanceCurrency: event.transaction.currency, transactionHistory: event.transactionHistory})
+    this.setState({balance: event.newBalance, balanceCurrency: event.transaction.currency, transactionHistory: event.transactionHistory.reverse()})
     this.openNotification(`Received amount ${amountStr}`, `from ${payerInfo}`)
   }
 
@@ -100,7 +100,7 @@ class PayeeMobile extends React.Component {
         render: from => {
           return (
             <>
-            <Text>{from.displayName}</Text>
+            <Text>{from.displayName}</Text>&nbsp;
             <Tag color='geekblue' key={from.idValue}>
               {from.idValue}
             </Tag>
@@ -132,7 +132,7 @@ class PayeeMobile extends React.Component {
         <Row style={{marginTop: 100}}></Row>
         <Row className='mt-4'>
           <Col span={24} className='text-center'>
-            <Title level={3}>Welcome</Title>
+            <Title level={3}>Welcome {this.state.partyIdValue}</Title>
           </Col>
         </Row>
         <Row className='mt-4'>

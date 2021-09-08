@@ -68,13 +68,21 @@ class RuleViewer extends React.Component {
       })
     } catch(err){}
 
+    const getItemValueString = (itemValue) => {
+      if (Array.isArray(itemValue)) {
+        return itemValue.toString()
+      } else {
+        return itemValue
+      }
+    }
+
     const conditionItems = conditions.map(item => {
       return (
         <>
         <Card size="small" className="mt-1" >
           <Tag color="cyan">{item.fact}.{item.path}</Tag>
           <Tag>{item.operator}</Tag>
-          <Tag color="blue">{item.value}</Tag>
+          <Tag color="blue">{getItemValueString(item.value)}</Tag>
           </Card>
         </>
       )
