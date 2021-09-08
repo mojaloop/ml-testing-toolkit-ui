@@ -22,7 +22,8 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col, Typography, notification, Statistic, Card, Table, Tag, Space } from 'antd';
+import { Row, Col, Typography, notification, Statistic, Card, Table, Tag, Layout, Form, Input, Button, message } from 'antd';
+
 import { CheckOutlined } from '@ant-design/icons';
 
 import axios from 'axios';
@@ -39,29 +40,47 @@ class PayeeMobile extends React.Component {
     payerComplexName: null,
     balance: {},
     transactionHistory: [],
-    partyIdValue: '18045042357'
-  }
-
-  constructor () {
-    super()
-    this.notificationServiceObj = new NotificationService()
-    // const sessionId = this.notificationServiceObj.getSessionId()
+    partyIdType: 'MSISDN',
+    partyIdValue: null
   }
 
   componentDidMount = async () => {
-    this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents)
-    const { apiBaseUrl } = getConfig()
-    const environmentRes = await axios.get(`${apiBaseUrl}/api/objectstore/inboundEnvironment`)
-    if (environmentRes.status == 200) {
-      const partyData = environmentRes.data && environmentRes.data.partyData && environmentRes.data.partyData['MSISDN/' + this.state.partyIdValue]
-      if(partyData) {
-        this.setState({balance: partyData.balance, transactionHistory: partyData.transactionHistory.reverse()})
+    if (!this.state.partyIdValue) {
+      const partyIdValue = localStorage.getItem('partyIdValue')
+      if (partyIdValue) {
+        this.state.partyIdValue = partyIdValue
+        this.forceUpdate()
+        this.initStuff()
       }
     }
   }
 
+  initStuff = async () => {
+    if (this.state.partyIdValue) {
+      const partyIdType = this.state.partyIdType
+      const partyIdValue = this.state.partyIdValue
+      this.notificationServiceObj = new NotificationService(partyIdType + '/' + partyIdValue)
+      this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents)
+
+      const { apiBaseUrl } = getConfig()
+      const environmentRes = await axios.get(`${apiBaseUrl}/api/objectstore/inboundEnvironment`)
+      if (environmentRes.status == 200) {
+        const partyData = environmentRes.data && environmentRes.data.partyData && environmentRes.data.partyData[partyIdType + '/' + partyIdValue]
+        if(partyData) {
+          this.setState({balance: partyData.balance, transactionHistory: partyData.transactionHistory.reverse()})
+        }
+      }
+    }
+  }
+
+  cleanupStuff = () => {
+    if (this.notificationServiceObj) {
+      this.notificationServiceObj.disconnect()
+    }
+  }
+
   componentWillUnmount = () => {
-    this.notificationServiceObj.disconnect()
+    this.cleanupStuff()
   }
 
   resetState = () => {
@@ -128,41 +147,144 @@ class PayeeMobile extends React.Component {
     )
   }
 
+  handleLogout = () => {
+    localStorage.clear()
+    this.setState({partyIdValue: null})
+    this.cleanupStuff()
+  }
+
+  handleLogin = async (formValues) => {
+    try {
+      const { apiBaseUrl } = getConfig()
+      const res = await axios.get(apiBaseUrl + '/api/objectstore/provisionedParties')
+      if (res.status === 200) {
+        console.log(res.data)
+        message.success({ content: 'login successful', key: 'login', duration: 1 })
+        localStorage.setItem('partyIdValue', formValues.username)
+        this.state.partyIdValue = formValues.username
+        this.forceUpdate()
+        this.initStuff()
+        return
+      }
+    } catch (err) {}
+    message.error({ content: 'login failed', key: 'login', duration: 3 })
+  }
+
+  onLoginFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo)
+  }
+
   render() {
     return (
-      <>
-        <Row style={{marginTop: 100}}></Row>
-        <Row className='mt-4'>
-          <Col span={24} className='text-center'>
-            <Title level={3}>Welcome {this.state.partyIdValue}</Title>
-          </Col>
-        </Row>
-        <Row className='mt-4'>
-          <Col span={24} className='text-center'>
-            <Card className='shadow'>
-              {
-                Object.keys(this.state.balance).map(currency => {
-                  return (
-                    <Statistic
-                      title="Account Balance"
-                      value={this.state.balance[currency]}
-                      precision={0}
-                      valueStyle={{ color: '#3f8600' }}
-                      suffix={currency}
-                    />
-                  )
-                })
-              }
+      this.state.partyIdValue
+      ? (
+        <>
+          <Row className='mt-2'>
+            <Col span={24}>
+              <Button
+                className='float-right mr-2'
+                onClick={this.handleLogout}
+              >
+                Logout
+              </Button>
+            </Col>
+          </Row>
+          <Row style={{marginTop: 100}}></Row>
+          <Row className='mt-4'>
+            <Col span={24} className='text-center'>
+              <Title level={3}>Welcome {this.state.partyIdValue}</Title>
+            </Col>
+          </Row>
+          <Row className='mt-4'>
+            <Col span={24} className='text-center'>
+              <Card className='shadow'>
+                {
+                  Object.keys(this.state.balance).map(currency => {
+                    return (
+                      <Statistic
+                        title="Account Balance"
+                        value={this.state.balance[currency]}
+                        precision={0}
+                        valueStyle={{ color: '#3f8600' }}
+                        suffix={currency}
+                      />
+                    )
+                  })
+                }
 
-            </Card>
-          </Col>
-        </Row>
-        <Row className='mt-4'>
-          <Col span={24} className='text-center'>
-            { this.getTransactionHistory() }
-          </Col>
-        </Row>
-      </>
+              </Card>
+            </Col>
+          </Row>
+          <Row className='mt-4'>
+            <Col span={24} className='text-center'>
+              { this.getTransactionHistory() }
+            </Col>
+          </Row>
+        </>
+      )
+      : (
+        <Layout style={{backgroundColor: '#ffffff', height: '100%'}}>
+          <Layout.Content>
+            <Row style={{marginTop: '250px'}}>
+              <Col colspan={24} className='mx-auto'>
+                <Card className='shadow ml-1 mr-1 mt-n5 align-middle p-2' style={{width: '100%'}}>
+                <Form
+                  name="basic"
+                  labelCol={{
+                    span: 8,
+                  }}
+                  wrapperCol={{
+                    span: 16,
+                  }}
+                  initialValues={{
+                    // remember: false,
+                  }}
+                  onFinish={(this.handleLogin)}
+                  onFinishFailed={this.onLoginFailed}
+                >
+                  <Form.Item
+                    label="Username"
+                    name="username"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please input your username!',
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Password"
+                    name="password"
+                    rules={[
+                      {
+                        required: false,
+                        message: 'Please input your password!',
+                      },
+                    ]}
+                  >
+                    <Input.Password />
+                  </Form.Item>
+
+                  <Form.Item
+                    wrapperCol={{
+                      offset: 8,
+                      span: 16,
+                    }}
+                  >
+                    <Button type="primary" htmlType="submit">
+                      Login
+                    </Button>
+                  </Form.Item>
+                </Form>
+                </Card>
+              </Col>
+            </Row>
+          </Layout.Content>
+        </Layout>
+      )
     );
   }
 }
