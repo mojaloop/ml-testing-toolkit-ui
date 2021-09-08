@@ -21,40 +21,44 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import axios from 'axios';
+import React from "react";
+import 'antd/dist/antd.css'
+import mobile_bg from '../../../assets/img/mobile_plain.png';
 
-var cache_userConfig = {}
+import PayeeApp from "./PayeeApp.jsx";
 
-export const getConfig = () => {
-  const { protocol, hostname } = window.location
-  // Using the same protocol as we've been loaded from to avoid Mixed Content error.
-  // let apiBaseUrl = 'TTK_API_BASE_URL'
-  let apiBaseUrl = 'http://api.visa.modusbox.com:5050'
-  if (!apiBaseUrl.startsWith('http')) {
-    apiBaseUrl = `${protocol}//${hostname}:5050`
+class MobileSimulator extends React.Component {
+
+  render() {
+    return (
+      <>
+          <div
+            style={{
+              width:'45vh',
+              height: '90vh',
+              backgroundImage: `url(${mobile_bg})`,
+              backgroundSize: '45vh',
+              backgroundRepeat: 'no-repeat',
+              paddingTop: '10vh',
+              paddingLeft: '4vh'
+            }}>
+              <div style={{ width: '37vh', height: '72vh', overflow: 'scroll'}}>
+                <PayeeApp
+                  notificationProperties = {{
+                    top: 100,
+                    style: {
+                      marginLeft: 18,
+                      width: 350,
+                      borderRadius: 30,
+                      backgroundColor: '#d4e4ff'
+                    }
+                  }}
+                />
+              </div>
+          </div>
+      </>
+    );
   }
-  const AUTH_ENABLED = 'TTK_AUTH_ENABLED'
-  // const AUTH_ENABLED = 'TRUE'
-  const isAuthEnabled = AUTH_ENABLED ? AUTH_ENABLED.toUpperCase() === 'TRUE' : false
-
-  return { apiBaseUrl, isAuthEnabled }
 }
 
-export const getServerConfig = async () => {
-  const { apiBaseUrl } = getConfig()
-  const response = await axios.get(apiBaseUrl + "/api/config/user")
-  const userConfigRuntime = response.data.runtime
-  const userConfigStored = response.data.stored
-
-  return { userConfigRuntime, userConfigStored }
-}
-
-export const fetchServerConfig = async () => {
-  const { apiBaseUrl } = getConfig()
-  const response = await axios.get(apiBaseUrl + "/api/config/user")
-  cache_userConfig = response.data.runtime
-}
-
-export const getUserConfig = () => {
-  return cache_userConfig
-}
+export default MobileSimulator;

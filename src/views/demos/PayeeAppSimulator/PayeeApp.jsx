@@ -81,6 +81,8 @@ class PayeeMobile extends React.Component {
       message,
       description,
       duration: 6,
+      placement: 'topLeft',
+      ...this.props.notificationProperties,
       icon: <CheckOutlined style={{ color: '#10e98e' }} />,
     });
   };
