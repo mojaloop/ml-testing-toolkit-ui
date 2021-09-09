@@ -21,59 +21,42 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Row, Col } from 'antd';
 
-class Demos extends React.Component {
+import socketIOClient from "socket.io-client";
+import { getConfig } from '../../../utils/getConfig'
 
-  render() {
-    return (
-      <>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/mobilesimulator"
-                target="_blank"
-              >
-                Mobile Simulator
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/payeemobile"
-                target="_blank"
-              >
-                Payee App Simulator
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/demotestrunner"
-                target="_blank"
-              >
-                Test Runner (Demo friendly)
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-      </>
-    );
+class NotificationService {
+
+  notificationEventFunction = () => {}
+
+  setNotificationEventListener (notificationEventFunction) {
+    this.notificationEventFunction = notificationEventFunction
   }
+
+  apiBaseUrl = ''
+  sessionId = ''
+  socket = null
+  socketTopic = 'pushMessage'
+
+  constructor (sessionId = null) {
+    const { apiBaseUrl } = getConfig()
+    this.apiBaseUrl = apiBaseUrl
+    this.sessionId = sessionId
+
+    this.socket = socketIOClient(this.apiBaseUrl)
+    this.socket.on(this.socketTopic + (this.sessionId ? '/' + this.sessionId : ''), message => {
+      this.notificationEventFunction(message)
+    })
+  }
+
+  getSessionId () {
+    return this.sessionId
+  }
+
+  disconnect () {
+    this.socket.disconnect()
+  }
+
 }
 
-export default Demos;
+export default NotificationService

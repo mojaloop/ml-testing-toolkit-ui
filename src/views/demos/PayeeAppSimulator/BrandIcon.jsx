@@ -22,58 +22,38 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col } from 'antd';
+import { Image } from 'antd';
+import { getConfig } from '../../../utils/getConfig'
 
-class Demos extends React.Component {
+
+class BrandIcon extends React.Component {
+
+  state = {
+    image: null
+  }
+
+  constructor () {
+    super()
+    const { payeeAppSimulatorBrandConfig } = getConfig()
+    this.state.image = payeeAppSimulatorBrandConfig.icon
+  }
 
   render() {
     return (
       <>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/mobilesimulator"
-                target="_blank"
-              >
-                Mobile Simulator
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/payeemobile"
-                target="_blank"
-              >
-                Payee App Simulator
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/demotestrunner"
-                target="_blank"
-              >
-                Test Runner (Demo friendly)
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
+      {
+        this.state.image
+        ? (
+          <Image
+            width={this.props.width || '150px'}
+            src={this.state.image}
+          />
+        )
+        : null
+      }
       </>
     );
   }
 }
 
-export default Demos;
+export default BrandIcon

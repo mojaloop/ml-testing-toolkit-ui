@@ -22,58 +22,50 @@
  --------------
  ******/
 import React from "react";
-import { Row, Col } from 'antd';
+import 'antd/dist/antd.css'
+import mobile_bg from '../../../assets/img/mobile_plain.png';
 
-class Demos extends React.Component {
+import PayeeApp from "./PayeeApp.jsx";
+
+class MobileAppWrapper extends React.Component {
 
   render() {
     return (
       <>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/mobilesimulator"
-                target="_blank"
-              >
-                Mobile Simulator
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/payeemobile"
-                target="_blank"
-              >
-                Payee App Simulator
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
-      <Row className='my-4'>
-        <Col span={24}>
-          <ul>
-            <li>
-              <a
-                href="/demotestrunner"
-                target="_blank"
-              >
-                Test Runner (Demo friendly)
-              </a>
-            </li>
-          </ul>
-        </Col>
-      </Row>
+          <div
+            style={{
+              width:'45vh',
+              height: '90vh',
+              backgroundImage: `url(${mobile_bg})`,
+              backgroundSize: '45vh',
+              backgroundRepeat: 'no-repeat',
+              paddingTop: '10vh',
+              paddingLeft: '4vh'
+            }}>
+              <div style={{ width: '37vh', height: '72vh', overflow: 'scroll'}}>
+                <PayeeApp
+                  notificationProperties = {{
+                    top: 100,
+                    style: {
+                      marginLeft: 18,
+                      width: 350,
+                      borderRadius: 30,
+                      backgroundColor: '#d4e4ff'
+                    }
+                  }}
+                  messageProperties = {{
+                    style :{
+                      textAlign: "left",
+                      marginLeft: '15vh',
+                      marginTop: '10vh'
+                    }
+                  }}
+                />
+              </div>
+          </div>
       </>
     );
   }
 }
 
-export default Demos;
+export default MobileAppWrapper;

@@ -35,6 +35,8 @@ import 'antd/dist/antd.css';
 
 import Login from './views/login/Login.jsx';
 import MobileSimulator from "./views/demos/MobileSimulator/MobileSimulator.jsx";
+import PayeeAppSimulator from "./views/demos/PayeeAppSimulator/PayeeApp";
+import PayeeMobileSimulator from "./views/demos/PayeeAppSimulator/PayeeMobile";
 import DemoTestRunner from "./views/demos/DemoTestRunner/DemoTestRunner.jsx";
 
 
@@ -98,6 +100,8 @@ function App() {
           <Switch>
             <Route path="/admin" render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
             <Route exact path='/mobilesimulator' render={props => <MobileSimulator {...props} />} />
+            <Route exact path='/payeeapp' render={props => <PayeeAppSimulator {...props} />} />
+            <Route exact path='/payeemobile' render={props => <PayeeMobileSimulator {...props} />} />
             <Route exact path='/demotestrunner' render={props => <DemoTestRunner {...props} />} />
             <Redirect from='/' to='/admin/index' />
           </Switch>
