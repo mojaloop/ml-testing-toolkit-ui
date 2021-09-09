@@ -27,7 +27,7 @@ import mobile_bg from '../../../assets/img/mobile_plain.png';
 
 import PayeeApp from "./PayeeApp.jsx";
 
-class MobileSimulator extends React.Component {
+class MobileAppWrapper extends React.Component {
 
   render() {
     return (
@@ -53,6 +53,13 @@ class MobileSimulator extends React.Component {
                       backgroundColor: '#d4e4ff'
                     }
                   }}
+                  messageProperties = {{
+                    style :{
+                      textAlign: "left",
+                      marginLeft: '15vh',
+                      marginTop: '10vh'
+                    }
+                  }}
                 />
               </div>
           </div>
@@ -61,4 +68,4 @@ class MobileSimulator extends React.Component {
   }
 }
 
-export default MobileSimulator;
+export default MobileAppWrapper;

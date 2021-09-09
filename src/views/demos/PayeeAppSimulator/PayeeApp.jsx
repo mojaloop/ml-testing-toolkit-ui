@@ -31,6 +31,8 @@ import axios from 'axios';
 import NotificationService from '../../../services/demos/PayeeAppSimulator/payeeNotifications'
 import { getConfig } from '../../../utils/getConfig'
 
+import BrandIcon from './BrandIcon'
+
 const { Text, Title } = Typography
 
 class PayeeMobile extends React.Component {
@@ -40,25 +42,27 @@ class PayeeMobile extends React.Component {
     payerComplexName: null,
     balance: {},
     transactionHistory: [],
-    partyIdType: 'MSISDN',
-    partyIdValue: null
+    party: {}
   }
 
   componentDidMount = async () => {
-    if (!this.state.partyIdValue) {
-      const partyIdValue = localStorage.getItem('partyIdValue')
-      if (partyIdValue) {
-        this.state.partyIdValue = partyIdValue
-        this.forceUpdate()
-        this.initStuff()
-      }
+    if (!this.state.party.idValue) {
+      const partyFoundStr = localStorage.getItem('party')
+      try {
+        const partyFound = JSON.parse(partyFoundStr)
+        if (partyFound.idValue) {
+          this.state.party = partyFound
+          this.forceUpdate()
+          this.initStuff()
+        }
+      } catch(err) {}
     }
   }
 
   initStuff = async () => {
-    if (this.state.partyIdValue) {
-      const partyIdType = this.state.partyIdType
-      const partyIdValue = this.state.partyIdValue
+    if (this.state.party.idValue) {
+      const partyIdType = this.state.party.idType
+      const partyIdValue = this.state.party.idValue
       this.notificationServiceObj = new NotificationService(partyIdType + '/' + partyIdValue)
       this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents)
 
@@ -149,25 +153,31 @@ class PayeeMobile extends React.Component {
 
   handleLogout = () => {
     localStorage.clear()
-    this.setState({partyIdValue: null})
+    this.setState({party: {}})
     this.cleanupStuff()
   }
 
   handleLogin = async (formValues) => {
     try {
       const { apiBaseUrl } = getConfig()
-      const res = await axios.get(apiBaseUrl + '/api/objectstore/provisionedParties')
-      if (res.status === 200) {
-        console.log(res.data)
-        message.success({ content: 'login successful', key: 'login', duration: 1 })
-        localStorage.setItem('partyIdValue', formValues.username)
-        this.state.partyIdValue = formValues.username
-        this.forceUpdate()
-        this.initStuff()
+      const res = await axios.get(apiBaseUrl + '/api/objectstore/partyInfo')
+      if (res.status === 200 && res.data && res.data.provisionedParties) {
+        const provisionedParties = res.data.provisionedParties
+        const partyFound = provisionedParties.find(party => party.idValue === formValues.username)
+        if (partyFound) {
+          console.log(partyFound)
+          message.success({ content: 'login successful', key: 'login', duration: 1, ...this.props.messageProperties })
+          localStorage.setItem('party', JSON.stringify(partyFound))
+          this.state.party = partyFound
+          this.forceUpdate()
+          this.initStuff()
+        } else {
+          throw new Error()
+        }
         return
       }
     } catch (err) {}
-    message.error({ content: 'login failed', key: 'login', duration: 3 })
+    message.error({ content: 'login failed', key: 'login', duration: 3, ...this.props.messageProperties })
   }
 
   onLoginFailed = (errorInfo) => {
@@ -176,23 +186,39 @@ class PayeeMobile extends React.Component {
 
   render() {
     return (
-      this.state.partyIdValue
+      this.state.party?.idValue
       ? (
         <>
-          <Row className='mt-2'>
-            <Col span={24}>
-              <Button
-                className='float-right mr-2'
-                onClick={this.handleLogout}
-              >
-                Logout
-              </Button>
+          <Row className='mt-3'>
+            <Col span={12}>
+              <span className='ml-3'>
+                <BrandIcon width='100px' className='float-center' />
+              </span>
+            </Col>
+            <Col span={12}>
+              <span className='float-right mr-3 mt-2'>
+                <Row>
+                  <Col span={24}>
+                    <Button
+                      className='float-right'
+                      onClick={this.handleLogout}
+                    >
+                      Logout
+                    </Button>
+                  </Col>
+                </Row>
+                <Row className='mt-2'>
+                  <Col span={24}>
+                    <Text className='float-right' type='secondary' strong>{this.state.party.idValue}</Text>
+                  </Col>
+                </Row>
+              </span>
             </Col>
           </Row>
-          <Row style={{marginTop: 100}}></Row>
+          <Row style={{marginTop: 30}}></Row>
           <Row className='mt-4'>
             <Col span={24} className='text-center'>
-              <Title level={3}>Welcome {this.state.partyIdValue}</Title>
+              <Title level={3}>Welcome {this.state.party.displayName}</Title>
             </Col>
           </Row>
           <Row className='mt-4'>
@@ -225,7 +251,12 @@ class PayeeMobile extends React.Component {
       : (
         <Layout style={{backgroundColor: '#ffffff', height: '100%'}}>
           <Layout.Content>
-            <Row style={{marginTop: '250px'}}>
+            <Row style={{marginTop: '100px', textAlign: 'center'}}>
+              <Col span={24}>
+                <BrandIcon width='150px' className='float-center' />
+              </Col>
+            </Row>
+            <Row style={{marginTop: '100px'}}>
               <Col colspan={24} className='mx-auto'>
                 <Card className='shadow ml-1 mr-1 mt-n5 align-middle p-2' style={{width: '100%'}}>
                 <Form
