@@ -28,6 +28,7 @@ import { Row, Col, Table, Button, Typography, Tag, Progress, Select } from 'antd
 import { FolderOutlined, FileOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { getUserConfig } from '../../utils/getConfig'
+import { decodeBase64 } from '../../utils/decoders'
 
 const { Text, Title } = Typography
 const { Option } = Select;
@@ -185,13 +186,14 @@ class GitHubBrowser extends React.Component {
         this.setState({gitHubDownloadStatusCount: this.state.gitHubDownloadStatusCount + 1})
 
         try {
-          const fileContent = JSON.parse(atob(resp2.data.content))
+          const fileContent = decodeBase64(resp2.data.content)
+          const fileContentObj = JSON.parse(fileContent)
           importFolderRawData.push({
             name: folderName + '/' + fileObj.path,
             path: folderName + '/' + fileObj.path,
             size: fileObj.size,
             modified: '',
-            content: fileContent
+            content: fileContentObj
           })
         } catch(err) {
           console.log(err.message)
