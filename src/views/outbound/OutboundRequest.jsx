@@ -144,7 +144,8 @@ class OutboundRequest extends React.Component {
       tempReorderedTestCases: [],
       serverLogsVisible: true,
       testCaseEditorLogs: [],
-      environmentManagerVisible: false
+      environmentManagerVisible: false,
+      resetExecutionOptionEnabled: false
     };
   }
 
@@ -211,6 +212,9 @@ class OutboundRequest extends React.Component {
   }
 
   handleIncomingProgress = (progress) => {
+    if (!this.state.sendingOutboundRequestID) {
+      return null
+    }
     if (progress.status === 'FINISHED') {
       message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
       this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult })
@@ -295,6 +299,7 @@ class OutboundRequest extends React.Component {
     // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
     await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
+    this.state.resetExecutionOptionEnabled = false
     this.state.sendingOutboundRequestID = traceId
     this.state.lastOutgoingRequestID = traceId
     this.state.testCaseEditorLogs = []
@@ -322,9 +327,20 @@ class OutboundRequest extends React.Component {
     await axios.delete(apiBaseUrl + "/api/outbound/template/" + outboundRequestID)
   }
 
+  handleResetExecution = async () => {
+    message.error({ content: 'Execution has been reset', key: 'outboundSendProgress', duration: 2 });
+    message.error({ content: 'Execution has been reset', key: 'outboundStopProgress', duration: 2 });
+    this.setState({ sendingOutboundRequestID: null, resetExecutionOptionEnabled: false })
+  }
+
   handleSendStopClick = () => {
     if (this.state.sendingOutboundRequestID) {
-      this.handleStopExecution(this.state.sendingOutboundRequestID)
+      if (this.state.resetExecutionOptionEnabled) { 
+        this.handleResetExecution(this.state.sendingOutboundRequestID)
+      } else {
+        this.handleStopExecution(this.state.sendingOutboundRequestID)
+        this.setState({ resetExecutionOptionEnabled: true })
+      }
     } else {
       this.handleSendTemplate()
     }
@@ -987,7 +1003,7 @@ class OutboundRequest extends React.Component {
                               danger
                               onClick={this.handleSendStopClick}
                             >
-                              {this.state.sendingOutboundRequestID ? 'Stop' : 'Run'}
+                              {this.state.sendingOutboundRequestID ? (this.state.resetExecutionOptionEnabled ? 'Reset' : 'Stop') : 'Run'}
                             </Button>
                             <Button
                               className="float-right mr-2"
