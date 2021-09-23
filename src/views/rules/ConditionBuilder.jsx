@@ -73,6 +73,7 @@ class ValueSelector extends React.Component {
         <Select
           onChange={this.handleValueChange}
           value={this.props.value}
+          style={{ width: 220 }}
         >
         { this.props.selectedFact.enum.map(item => {
           return (
@@ -362,10 +363,8 @@ class Condition extends React.Component {
   render() {
     return (
       <Card>
-        <table width="100%">
-          <tbody>
-          <tr>
-          <td>
+          <Row>
+          <Col span={8}>
               <label>
                 Fact Type
               </label>
@@ -374,50 +373,49 @@ class Condition extends React.Component {
               <Select 
                 value={JSON.stringify(this.state.selectedFactType)}
                 onChange={this.handleFactTypeSelect}
-                style={{minWidth: '150px'}}
+                style={{width: '100%'}}
               >
                 {this.getFactTypeItems()} 
               </Select>
-          </td>
-          <td>
+          </Col>
+          <Col span={8} className='pl-2'>
               <label>
                 Fact
               </label>
               <br />
               <FactSelect factData={this.state.factData} value={this.state.selectedFactPath} onSelect={this.handleFactSelect} />
-          </td>
-          <td>
+          </Col>
+          <Col span={8} className='pl-2'>
               <label>
                 Operator
               </label>
               <br />
-              <Select style={{ width: 180 }} value={this.state.selectedOperator} onChange={this.handleOperatorSelect}>
+              <Select style={{ width: '100%' }} value={this.state.selectedOperator} onChange={this.handleOperatorSelect}>
                 {this.getOperatorItems()}
               </Select>
-          </td>
-        </tr>
-        <tr>
-          <td colSpan='2'>
+          </Col>
+        </Row>
+        <Row className='mt-2'>
+          <Col span={8}>
               <label>
                 Value
               </label>
               <br />
               <ValueSelector value={this.props.condition.value} selectedFact={this.state.selectedFact} selectedOperator={this.state.selectedOperator} onChange={this.handleValueChange} />
 
-          </td>
-          <td align='right'>
+          </Col>
+          <Col span={16}>
             <br />
             <Button
+              className='float-right'
               type="primary"
               danger
               onClick={this.handleDelete}
             >
               Delete
             </Button>
-          </td>
-          </tr>
-          </tbody>
-        </table>
+          </Col>
+          </Row>
       </Card>
 
     )
