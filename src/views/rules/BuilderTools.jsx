@@ -26,6 +26,7 @@ import axios from 'axios';
 import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd';
 import 'antd/dist/antd.css';
 import jsf from 'json-schema-faker';
+import _ from 'lodash';
 // import './index.css';
 import Ajv from 'ajv';
 const ajv = new Ajv({allErrors: true});
@@ -37,6 +38,16 @@ jsf.option({
   ignoreMissingRefs: true,
   maxItems: 2
 })
+
+const _getSchema = (contentObj) => {
+  if (contentObj.hasOwnProperty('allOf')) {
+    return _.reduce(contentObj.allOf, _.merge)
+  } else if (contentObj.hasOwnProperty('oneOf')) {
+    return _.reduce(contentObj.oneOf, _.merge)
+  } else {
+    return contentObj
+  }
+}
 
 export class FactSelect extends React.Component {
   constructor () {
@@ -90,10 +101,11 @@ export class FactSelect extends React.Component {
   }
 
   getNodeFacts = (nodeData, parentId=0, valuePrefix='') => {
+    const nodeSchema = _getSchema(nodeData)
     let factTreeData = [];
-    for (let property in nodeData.properties) {
+    for (let property in nodeSchema.properties) {
       let isLeaf = true;
-      const fact = nodeData.properties[property];
+      const fact = _getSchema(nodeSchema.properties[property]);
       if (fact.type === 'object') {
         isLeaf = false;
       }
@@ -145,7 +157,7 @@ export class FactDataGenerator {
   getBodyFactData = (resourceDefinition) => {
     let bodySchema = {}
     try {
-      bodySchema = resourceDefinition.requestBody.content['application/json'].schema
+      bodySchema = _getSchema(resourceDefinition.requestBody.content['application/json'].schema)
     } catch(err) {
     }
     return bodySchema
@@ -174,7 +186,7 @@ export class FactDataGenerator {
     try {
       totalParameters.concat(resourceDefinition.parameters).forEach((item) => {
         if (item.in === 'header') {
-          headerSchema.properties[item.name] = item.schema
+          headerSchema.properties[item.name] = _getSchema(item.schema)
         }
       })
     } catch(err) {
@@ -207,7 +219,7 @@ export class FactDataGenerator {
     try {
       parameters.forEach((item) => {
         if (item.in === 'path') {
-          pathParametersSchema.properties[item.name] = item.schema
+          pathParametersSchema.properties[item.name] = _getSchema(item.schema)
         }
       })
     } catch(err) {
@@ -224,7 +236,7 @@ export class FactDataGenerator {
     try {
       parameters.forEach((item) => {
         if (item.in === 'query') {
-          queryParametersSchema.properties[item.name] = item.schema
+          queryParametersSchema.properties[item.name] = _getSchema(item.schema)
         }
       })
     } catch(err) {
@@ -246,7 +258,7 @@ export class FactDataGenerator {
         return {
           type: 'object',
           properties: {
-            body: resourceDefinition.responses[errorCode].content['application/json'].schema
+            body: _getSchema(resourceDefinition.responses[errorCode].content['application/json'].schema)
           }
         }
       } catch(err) {
@@ -261,7 +273,7 @@ export class FactDataGenerator {
   getSelectedResponseBodySchema = (responses, statusCode) => {
     let bodySchema = {}
     try {
-      bodySchema = responses[statusCode].content['application/json'].schema
+      bodySchema = _getSchema(responses[statusCode].content['application/json'].schema)
     } catch(err) {
     }
     return bodySchema
