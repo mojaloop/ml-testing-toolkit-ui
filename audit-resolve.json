@@ -150,7 +150,7 @@
     },
     "565|react-scripts>webpack>terser-webpack-plugin>cacache>ssri": {
       "decision": "postpone",
-      "madeAt": 1632415808487
+      "madeAt": 1633434823479
     },
     "1665|socket.io-client>engine.io-client>xmlhttprequest-ssl": {
       "decision": "fix",
@@ -23570,7 +23570,7 @@
     },
     "1693|react-scripts>postcss-safe-parser>postcss": {
       "decision": "postpone",
-      "madeAt": 1632415808983
+      "madeAt": 1633434823798
     },
     "1693|react-scripts>css-loader>icss-utils>postcss": {
       "decision": "postpone",
@@ -23886,7 +23886,7 @@
     },
     "1693|react-scripts>resolve-url-loader>postcss": {
       "decision": "postpone",
-      "madeAt": 1632415811063
+      "madeAt": 1633434827474
     },
     "1746|socket.io-client>engine.io-client>xmlhttprequest-ssl": {
       "decision": "fix",
@@ -24060,19 +24060,19 @@
     },
     "1747|react-scripts>react-dev-utils>browserslist": {
       "decision": "postpone",
-      "madeAt": 1632415811570
+      "madeAt": 1633434828222
     },
     "1748|react-scripts>webpack-dev-server>ws": {
       "decision": "postpone",
-      "madeAt": 1632415809479
+      "madeAt": 1633434824387
     },
     "1751|react-scripts>webpack>watchpack>watchpack-chokidar2>chokidar>glob-parent": {
       "decision": "postpone",
-      "madeAt": 1632415812110
+      "madeAt": 1633434828866
     },
     "1751|react-scripts>webpack-dev-server>chokidar>glob-parent": {
       "decision": "postpone",
-      "madeAt": 1632415812110
+      "madeAt": 1633434828866
     },
     "1754|react-scripts>@svgr/webpack>@svgr/plugin-svgo>svgo>css-select>css-what": {
       "decision": "ignore",
@@ -24104,11 +24104,11 @@
     },
     "1770|react-scripts>terser-webpack-plugin>cacache>tar": {
       "decision": "postpone",
-      "madeAt": 1632415810097
+      "madeAt": 1633434825442
     },
     "1771|react-scripts>terser-webpack-plugin>cacache>tar": {
       "decision": "postpone",
-      "madeAt": 1632415810097
+      "madeAt": 1633434825442
     },
     "1776|react-scripts>webpack-dev-server>sockjs-client>eventsource>original>url-parse": {
       "decision": "fix",
@@ -25280,15 +25280,15 @@
     },
     "1779|react-scripts>terser-webpack-plugin>cacache>tar": {
       "decision": "postpone",
-      "madeAt": 1632415810097
+      "madeAt": 1633434825442
     },
     "1780|react-scripts>terser-webpack-plugin>cacache>tar": {
       "decision": "postpone",
-      "madeAt": 1632415810097
+      "madeAt": 1633434825442
     },
     "1781|react-scripts>terser-webpack-plugin>cacache>tar": {
       "decision": "postpone",
-      "madeAt": 1632415810097
+      "madeAt": 1633434825442
     }
   },
   "rules": {},
