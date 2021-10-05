@@ -111,7 +111,8 @@ class FolderBrowser extends React.Component {
 
   onCheck = checkedKeys => {
     const selectedFiles = checkedKeys
-    this.props.onSelect(selectedFiles)
+    const selectedLabels = selectedFiles.length === 0 ? [] : null
+    this.props.onSelect(selectedFiles, selectedLabels)
     this.setState({checkedKeys})
   };
 
@@ -435,10 +436,6 @@ class FolderBrowser extends React.Component {
     })
   }
 
-  handleSelectLabelsDialog = (props) => {
-    this.setState({selectLabelsDialogList: props.selectedLabels})
-  }
-
   render() {
     
     return (
@@ -487,7 +484,9 @@ class FolderBrowser extends React.Component {
           labelsMapping={this.state.labelsMapping}
           labels={this.props.labels}
           selectedLabels={this.state.selectLabelsDialogList}
-          onSelect = {this.handleSelectLabelsDialog}
+          onSelect = {(props) => {
+            this.setState({selectLabelsDialogList: props.selectedLabels})
+          }}
         />
       </Modal>
       <Tree

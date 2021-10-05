@@ -61,28 +61,27 @@ class LabelsManager extends React.Component {
           selectedFilesByLabel.push(...this.props.labelsMapping[label])
         }
       }
-      const selectedFiles = []
-      if (selectedFilesByLabel.length > this.state.selectedFilesByLabel) {
-        selectedFiles.push(...this.props.selectedFiles)
-        for (let i = 0; i < selectedFilesByLabel.length; i++) {
-          if (!selectedFiles.includes(selectedFilesByLabel[i])) {
-            selectedFiles.push(selectedFilesByLabel[i])
+      if (this.props.selectedFiles) {
+        props.selectedFiles = []
+        if (selectedFilesByLabel.length > this.state.selectedFilesByLabel.length) {
+          for (let i = 0; i < selectedFilesByLabel.length; i++) {
+            if (!this.props.selectedFiles.includes(selectedFilesByLabel[i])) {
+              props.selectedFiles.push(selectedFilesByLabel[i])
+            }
           }
-        }
-      } else {
-        for (let i = 0; i < this.props.selectedFiles.length; i++) {
-          const label = this.props.selectedFiles[i]
-          if (selectedFilesByLabel.includes(label) || !this.state.selectedFilesByLabel.includes(label)) {
-            selectedFiles.push(label)
+          props.selectedFiles.push(...this.props.selectedFiles)
+        } else {
+          for (let i = 0; i < this.props.selectedFiles.length; i++) {
+            const selectedFile = this.props.selectedFiles[i]
+            if (selectedFilesByLabel.includes(selectedFile) || !this.state.selectedFilesByLabel.includes(selectedFile)) {
+              props.selectedFiles.push(selectedFile)
+            }
           }
         }
       }
       
       this.setState({selectedFilesByLabel})
-      this.props.onSelect({
-        selectedFiles,
-        selectedLabels: props.selectedLabels
-      })
+      this.props.onSelect(props)
     }
   }
 
