@@ -404,7 +404,7 @@ class FolderBrowser extends React.Component {
   getDataLabelsMapping = (folderData = [], result = {}, parentLabels = []) => {
     for (let i = 0; i < folderData.length; i++) {
       const data = folderData[i];
-      const currentParentLabels = [...parentLabels, ...data.extraInfo.labels]
+      const currentParentLabels = [...parentLabels, ...(data.extraInfo.labels || [])]
       for (let j = 0; j < currentParentLabels.length; j++) {
         const label = currentParentLabels[j];
         if (!result[label]) {
