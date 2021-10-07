@@ -446,6 +446,7 @@ class FolderBrowser extends React.Component {
           selectedFiles={this.props.selectedFiles}
           labels={this.props.labels}
           selectedLabels={this.props.selectedLabels}
+          checkedKeys={this.state.checkedKeys}
           onSelect = {props => {
             this.props.onSelect(props.selectedFiles, props.selectedLabels)
             this.setState({checkedKeys: props.selectedFiles})
