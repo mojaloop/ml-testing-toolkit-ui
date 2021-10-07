@@ -62,8 +62,9 @@ class LabelsManager extends React.Component {
         }
       }
       if (this.props.selectedFiles) {
-        if (!this.props.checkedKeys || this.props.checkedKeys.length === 0) {
+        if (this.props.clearSelectedLabels) {
           this.state.selectedFilesByLabel = []
+          props.clearSelectedLabels = false
         }
         props.selectedFiles = []
         if (selectedFilesByLabel.length > this.state.selectedFilesByLabel.length) {

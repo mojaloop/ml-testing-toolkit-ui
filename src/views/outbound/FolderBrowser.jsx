@@ -59,7 +59,8 @@ class FolderBrowser extends React.Component {
         extraData: {}
       },
       copiedFile: null,
-      labelsMapping: {}
+      labelsMapping: {},
+      clearSelectedLabels: false
     }
   }
 
@@ -110,10 +111,16 @@ class FolderBrowser extends React.Component {
   };
 
   onCheck = checkedKeys => {
-    const selectedFiles = checkedKeys
-    const selectedLabels = selectedFiles.length === 0 ? [] : null
-    this.props.onSelect(selectedFiles, selectedLabels)
-    this.setState({checkedKeys})
+    const newState = {
+      checkedKeys
+    }
+    let selectedLabels
+    if (checkedKeys.length === 0) {
+      selectedLabels = []
+      newState.clearSelectedLabels = true
+    }
+    this.props.onSelect(checkedKeys, selectedLabels)
+    this.setState(newState)
   };
 
   onSelect = (selectedKeys, info) => {
@@ -446,10 +453,16 @@ class FolderBrowser extends React.Component {
           selectedFiles={this.props.selectedFiles}
           labels={this.props.labels}
           selectedLabels={this.props.selectedLabels}
-          checkedKeys={this.state.checkedKeys}
+          clearSelectedLabels={this.state.clearSelectedLabels}
           onSelect = {props => {
             this.props.onSelect(props.selectedFiles, props.selectedLabels)
-            this.setState({checkedKeys: props.selectedFiles})
+            const newState = {
+              checkedKeys: props.selectedFiles
+            }
+            if (props.clearSelectedLabels) {
+              newState.clearSelectedLabels = props.clearSelectedLabels
+            }
+            this.setState(newState)
           }}
         />
       </Row>
