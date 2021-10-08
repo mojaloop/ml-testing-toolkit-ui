@@ -30,8 +30,7 @@ class LabelsManager extends React.Component {
   constructor () {
     super()
     this.state = {
-      labelsMapping: {},
-      selectedFilesByLabel: []
+      labelsMapping: {}
     }
   }
 
@@ -54,20 +53,16 @@ class LabelsManager extends React.Component {
 
   handleSelectionLabelsChanged = async (props) => {
     if (props.selectedLabels) {
-      const selectedFilesByLabel = []
-      for (let i = 0; i < props.selectedLabels.length; i++) {
-        const label = props.selectedLabels[i]
-        if (this.props.labelsMapping[label]) {
-          selectedFilesByLabel.push(...this.props.labelsMapping[label])
-        }
-      }
       if (this.props.selectedFiles) {
-        if (this.props.clearSelectedLabels) {
-          this.state.selectedFilesByLabel = []
-          props.clearSelectedLabels = false
+        const selectedFilesByLabel = []
+        for (let i = 0; i < props.selectedLabels.length; i++) {
+          const label = props.selectedLabels[i]
+          if (this.props.labelsMapping[label]) {
+            selectedFilesByLabel.push(...this.props.labelsMapping[label])
+          }
         }
         props.selectedFiles = []
-        if (selectedFilesByLabel.length > this.state.selectedFilesByLabel.length) {
+        if (selectedFilesByLabel.length > this.props.labelsManager.selectedFiles.length) {
           for (let i = 0; i < selectedFilesByLabel.length; i++) {
             if (!this.props.selectedFiles.includes(selectedFilesByLabel[i])) {
               props.selectedFiles.push(selectedFilesByLabel[i])
@@ -77,14 +72,13 @@ class LabelsManager extends React.Component {
         } else {
           for (let i = 0; i < this.props.selectedFiles.length; i++) {
             const selectedFile = this.props.selectedFiles[i]
-            if (selectedFilesByLabel.includes(selectedFile) || !this.state.selectedFilesByLabel.includes(selectedFile)) {
+            if (selectedFilesByLabel.includes(selectedFile) || !this.props.labelsManager.selectedFiles.includes(selectedFile)) {
               props.selectedFiles.push(selectedFile)
             }
           }
         }
+        this.props.labelsManager.selectedFiles = selectedFilesByLabel
       }
-      
-      this.setState({selectedFilesByLabel})
       this.props.onSelect(props)
     }
   }
