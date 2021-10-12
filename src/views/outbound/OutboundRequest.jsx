@@ -97,8 +97,10 @@ class OutboundRequest extends React.Component {
       template: {},
       inputValues: {},
       additionalData: {
-        selectedFiles: []
+        selectedFiles: [],
+        selectedLabels: []
       },
+      labels: [],
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
       newTemplateName: '',
@@ -192,11 +194,15 @@ class OutboundRequest extends React.Component {
 
     if (storedFolderData) {
       this.state.folderData = storedFolderData
-      this.regenerateTemplate(additionalData.selectedFiles)
+      this.regenerateTemplate(additionalData)
     }
 
     if (additionalData) {
       this.state.additionalData = additionalData
+    }
+
+    if (this.state.userConfig.LABELS) {
+      this.state.labels.push(...this.state.userConfig.LABELS)
     }
 
     if (storedFolderData || additionalData) {
@@ -387,7 +393,7 @@ class OutboundRequest extends React.Component {
       // Find highest request id to determine the new ID
       let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
       fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName, requests: [] })
-      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+      this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
       this.autoSave = true
     } else {
@@ -458,9 +464,9 @@ class OutboundRequest extends React.Component {
     this.download(JSON.stringify(this.convertTemplate(downloadContent), null, 2), fileName, 'text/plain');
   }
 
-  regenerateTemplate = async (selectedFiles = null) => {
+  regenerateTemplate = async (additionalData = {}) => {
     var testCases = []
-    testCases = FolderParser.getTestCases(this.state.folderData, selectedFiles)
+    testCases = FolderParser.getTestCases(this.state.folderData, additionalData.selectedFiles || [])
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
     this.state.template.test_cases = []
     for (let i=0; i < testCases.length; i++) {
@@ -474,7 +480,8 @@ class OutboundRequest extends React.Component {
     this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files',
-      selectedFiles: selectedFiles
+      selectedFiles: additionalData.selectedFiles || [],
+      selectedLabels: additionalData.selectedLabels || []
     }
     this.forceUpdate()
     // this.autoSave = true
@@ -547,7 +554,7 @@ class OutboundRequest extends React.Component {
     if(fileSelected) {
       const fileTemplate = fileSelected.content
       fileTemplate.test_cases.splice(testCaseIndex,1)
-      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+      this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
       this.autoSave = true
     } else {
@@ -569,7 +576,7 @@ class OutboundRequest extends React.Component {
 
       fileTemplate.test_cases.push({ id: maxId + 1, name: name + ' Copy', ...clonedProps })
 
-      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+      this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
       this.autoSave = true
     } else {
@@ -670,12 +677,17 @@ class OutboundRequest extends React.Component {
     }
   }
 
-  handleFileManagerContentChange = async (folderData, selectedFiles = null) => {
-    this.state.folderData = folderData
+  handleFileManagerContentChange = async (folderData, selectedFiles, selectedLabels) => {
+    if (folderData) {
+      this.state.folderData = folderData
+    }
     if (selectedFiles != null) {
       this.state.additionalData.selectedFiles = selectedFiles
     }
-    this.regenerateTemplate(this.state.additionalData.selectedFiles)
+    if (selectedLabels) {
+      this.state.additionalData.selectedLabels = selectedLabels
+    }
+    this.regenerateTemplate(this.state.additionalData)
     this.autoSave = true
     this.forceUpdate()
   }
@@ -840,6 +852,8 @@ class OutboundRequest extends React.Component {
           <FileManager
             folderData={this.state.folderData}
             selectedFiles={this.state.additionalData.selectedFiles}
+            labels={this.state.labels}
+            selectedLabels={this.state.additionalData.selectedLabels}
             onChange={this.handleFileManagerContentChange}
             ref={this.fileManagerRef}
             ipcRenderer={ipcRenderer}
@@ -1157,7 +1171,7 @@ class OutboundRequest extends React.Component {
                                     if (this.state.curTestCasesUpdated) {
                                       const fileSelected = this.getSingleFileSelected()
                                       fileSelected.content.test_cases = this.state.tempReorderedTestCases
-                                      this.regenerateTemplate(this.state.additionalData.selectedFiles)
+                                      this.regenerateTemplate(this.state.additionalData)
                                       this.setState({ curTestCasesUpdated: false, tempReorderedTestCases: [] })
                                       this.autoSaveFolderData(this.state.folderData)
                                     } else {
