@@ -58,11 +58,7 @@ class FolderBrowser extends React.Component {
         key: '',
         extraData: {}
       },
-      copiedFile: null,
-      labelsMapping: {},
-      labelsManager: {
-        selectedFiles: []
-      }
+      copiedFile: null
     }
   }
 
@@ -72,18 +68,17 @@ class FolderBrowser extends React.Component {
     this.state.rootNodeKey = this.state.treeDataArray[0] && this.state.treeDataArray[0].key
     this.setState({
       checkedKeys: this.props.selectedFiles, 
-      expandedKeys: [this.state.rootNodeKey],
-      labelsMapping: this.getDataLabelsMapping(this.props.folderData)})
+      expandedKeys: [this.state.rootNodeKey]
+    })
   }
 
   componentDidUpdate = () => {
     this.state.checkedKeys = this.props.selectedFiles
     if (this.state.treeDataArray !== this.props.folderData) {
       this.convertFolderData(this.props.folderData)
-      this.props.onSelect([],[])
+      this.props.onSelect([])
       this.setState({
         treeDataArray: this.props.folderData,
-        labelsMapping: this.getDataLabelsMapping(this.props.folderData) 
       })
     }
   }
@@ -113,12 +108,7 @@ class FolderBrowser extends React.Component {
   };
 
   onCheck = checkedKeys => {
-    let selectedLabels
-    if (checkedKeys.length === 0) {
-      selectedLabels = []
-      this.state.labelsManager.selectedFiles = []
-    }
-    this.props.onSelect(checkedKeys, selectedLabels)
+    this.props.onSelect(checkedKeys)
     this.setState({
       checkedKeys
     })
@@ -409,32 +399,23 @@ class FolderBrowser extends React.Component {
     return this.state.rightClickNodeTreeItem.pageX === "" ? '' : menu;
   };
 
-  getDataLabelsMapping = (folderData = [], result = {}, parentLabels = []) => {
-    for (let i = 0; i < folderData.length; i++) {
-      const data = folderData[i];
-      const currentParentLabels = [...parentLabels, ...(data.extraInfo.labels || [])]
-      for (let j = 0; j < currentParentLabels.length; j++) {
-        const label = currentParentLabels[j];
-        if (!result[label]) {
-          result[label] = []
-        }
-        result[label].push(data.key)
-      }
-      if (data.extraInfo.type === "folder") {
-        this.getDataLabelsMapping(data.children, result, currentParentLabels)
-      }
-    }
-    return result
-  }
-
   handleSelectLabelsDialogOk = () => {
     this.state.rightClickNodeTreeItem.nodeRef.extraInfo.labels = this.state.selectLabelsDialogList
-    this.convertFolderData(this.props.folderData)
+    console.log(this.state.treeDataArray)
+    console.log(this.props.folderData)
+    console.log(this.props.labelsManager)
+    this.props.onSelect()
+
+
     this.setState({
-      selectLabelsDialogEnabled: false,
-      treeDataArray: this.props.folderData,
-      labelsMapping: this.getDataLabelsMapping(this.props.folderData) 
+      selectLabelsDialogEnabled: false
     })
+    // this.convertFolderData(this.props.folderData)
+    //   this.props.onSelect([])
+    //   this.setState({
+    //     treeDataArray: this.props.folderData,
+    //   })
+    // }
   }
 
   handleSelectLabelsDialogCancel = () => {
@@ -448,21 +429,26 @@ class FolderBrowser extends React.Component {
     
     return (
       <>
-      <Row className='mt'>
-        <LabelsManager
-          labelsMapping={this.state.labelsMapping}
-          selectedFiles={this.props.selectedFiles}
-          labels={this.props.labels}
-          selectedLabels={this.props.selectedLabels}
-          labelsManager={this.state.labelsManager}
-          onSelect = {props => {
-            this.props.onSelect(props.selectedFiles, props.selectedLabels)
-            this.setState({
-              checkedKeys: props.selectedFiles
-            })
-          }}
-        />
-      </Row>
+      {
+        this.props.folderData.length > 0 ?
+        <Row className='mt'>
+          <Col span={24}>
+            <LabelsManager
+              visible={this.props.folderData.length > 0}
+              selectedFiles={this.props.selectedFiles}
+              labelsManager={this.props.labelsManager}
+              onSelect = {props => {
+                this.props.labelsManager.selectedLabels = props.selectedLabels || []
+                this.props.onSelect(props.selectedFiles)
+                this.setState({
+                  checkedKeys: props.selectedFiles
+                })
+              }}
+            />
+          </Col>
+        </Row>
+        : null
+      }
       <Modal
         title={this.state.inputDialogData.title}
         visible={this.state.inputDialogEnabled}
@@ -492,9 +478,10 @@ class FolderBrowser extends React.Component {
         onCancel={this.handleSelectLabelsDialogCancel}
       >
         <LabelsManager
-          labelsMapping={this.state.labelsMapping}
-          labels={this.props.labels}
-          selectedLabels={this.state.selectLabelsDialogList}
+          labelsManager={{
+            selectedLabels: this.state.selectLabelsDialogList,
+            labels: this.props.labelsManager.labels
+          }}
           onSelect = {(props) => {
             this.setState({selectLabelsDialogList: props.selectedLabels})
           }}

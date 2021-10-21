@@ -30,7 +30,7 @@ class LabelsManager extends React.Component {
   constructor () {
     super()
     this.state = {
-      labelsMapping: {}
+      labelsMapping: null
     }
   }
 
@@ -43,11 +43,11 @@ class LabelsManager extends React.Component {
   }
 
   updateLabelsMapping = () => {
-    if ((this.state.labelsMapping !== this.props.labelsMapping)) {
+    if (this.props.selectedFiles && (JSON.stringify(this.state.labelsMapping || {}) !== JSON.stringify(this.props.labelsManager.mapping || {}))) {
       this.setState({
-        labelsMapping: this.props.labelsMapping
+        labelsMapping: this.props.labelsManager.mapping
       })
-      this.handleSelectionLabelsChanged({selectedLabels: this.props.selectedLabels})
+      this.handleSelectionLabelsChanged({selectedLabels: this.props.labelsManager.selectedLabels})
     }
   }
 
@@ -57,30 +57,35 @@ class LabelsManager extends React.Component {
         const selectedFilesByLabel = []
         for (let i = 0; i < props.selectedLabels.length; i++) {
           const label = props.selectedLabels[i]
-          if (this.props.labelsMapping[label]) {
-            selectedFilesByLabel.push(...this.props.labelsMapping[label])
+          if (this.props.labelsManager.mapping[label]) {
+            selectedFilesByLabel.push(...this.props.labelsManager.mapping[label])
           }
         }
-        props.selectedFiles = []
+        const selectedFiles = []
+        console.log(selectedFilesByLabel)
+        console.log(this.props.labelsManager.selectedFiles)
+        console.log(this.props.selectedFiles)
         if (selectedFilesByLabel.length > this.props.labelsManager.selectedFiles.length) {
           for (let i = 0; i < selectedFilesByLabel.length; i++) {
             if (!this.props.selectedFiles.includes(selectedFilesByLabel[i])) {
-              props.selectedFiles.push(selectedFilesByLabel[i])
+              selectedFiles.push(selectedFilesByLabel[i])
             }
           }
-          props.selectedFiles.push(...this.props.selectedFiles)
+          selectedFiles.push(...this.props.selectedFiles)
         } else {
           for (let i = 0; i < this.props.selectedFiles.length; i++) {
             const selectedFile = this.props.selectedFiles[i]
             if (selectedFilesByLabel.includes(selectedFile) || !this.props.labelsManager.selectedFiles.includes(selectedFile)) {
-              props.selectedFiles.push(selectedFile)
+              selectedFiles.push(selectedFile)
             }
           }
         }
+        props.selectedFiles = selectedFiles
         this.props.labelsManager.selectedFiles = selectedFilesByLabel
       }
-      this.props.onSelect(props)
     }
+    console.log(props)
+    this.props.onSelect(props)
   }
 
   getLabelsOptions = (labels, selectedLabels) => {
@@ -95,7 +100,7 @@ class LabelsManager extends React.Component {
   }
 
   getLabelByName = (labelName => {
-    return this.props.labels.filter(label => label.name === labelName)
+    return this.props.labelsManager.labels.filter(label => label.name === labelName)
   })
 
 
@@ -105,9 +110,9 @@ class LabelsManager extends React.Component {
       <Select 
           mode="multiple"
           placeholder="Select Labels"
-          value={this.props.selectedLabels}
+          value={this.props.labelsManager.selectedLabels}
           tagRender={(props) => {
-            const label = this.props.labels.find(label => label.name === props.value)
+            const label = this.props.labelsManager.labels.find(label => label.name === props.value)
             if (label) {
               return (
                 <Tag 
@@ -128,7 +133,7 @@ class LabelsManager extends React.Component {
           onChange={selectedLabels => {
             this.handleSelectionLabelsChanged({selectedLabels})
           }}
-          options={this.getLabelsOptions(this.props.labels, this.props.selectedLabels)}
+          options={this.getLabelsOptions([...this.props.labelsManager.labels], this.props.labelsManager.selectedLabels)}
           style={{width:'100%'}}
         />
     )
