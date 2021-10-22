@@ -201,8 +201,10 @@ class TestCaseViewer extends React.Component {
                     editable={{
                       tooltip: 'click to edit test case name',
                       onChange: (newTitle) => {
-                        this.props.testCase.name = newTitle
-                        this.props.onChange()
+                        if (this.props.testCase.name !== newTitle) {
+                          this.props.testCase.name = newTitle
+                          this.props.onChange()
+                        }
                       }
                     }}
                   >{this.props.testCase.name}</Title>
@@ -258,8 +260,10 @@ class TestCaseViewer extends React.Component {
                     editable={{
                       tooltip: 'click to edit test case name',
                       onChange: (newTitle) => {
-                        this.props.testCase.name = newTitle
-                        this.props.onChange()
+                        if (this.props.testCase.name !== newTitle) {
+                          this.props.testCase.name = newTitle
+                          this.props.onChange()
+                        }
                       }
                     }}
                   >{this.props.testCase.name}</Title>
