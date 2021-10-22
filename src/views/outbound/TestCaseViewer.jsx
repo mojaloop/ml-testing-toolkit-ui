@@ -32,7 +32,6 @@ import {SortableContainer, SortableElement} from 'react-sortable-hoc'
 import arrayMove from 'array-move'
 
 import { TTKColors } from '../../utils/styleHelpers'
-import TextEditor from "./TextEditor";
 
 const { Panel } = Collapse;
 const { Step } = Steps;
@@ -197,10 +196,16 @@ class TestCaseViewer extends React.Component {
             ? (
               <Row>
                 <Col span={24}>
-                  <TextEditor
-                    value={this.props.testCase.name}
-                    onChange={this.props.onChange}
-                  />
+                  <Title 
+                    level={4}
+                    editable={{
+                      tooltip: 'click to edit test case name',
+                      onChange: (newTitle) => {
+                        this.props.testCase.name = newTitle
+                        this.props.onChange()
+                      }
+                    }}
+                  >{this.props.testCase.name}</Title>
                 </Col>
               </Row>
             )
@@ -248,10 +253,16 @@ class TestCaseViewer extends React.Component {
                     </table>
                   )
                   : 
-                  <TextEditor
-                    value={this.props.testCase.name}
-                    onChange={this.props.onChange}
-                  />
+                  <Title 
+                    level={4}
+                    editable={{
+                      tooltip: 'click to edit test case name',
+                      onChange: (newTitle) => {
+                        this.props.testCase.name = newTitle
+                        this.props.onChange()
+                      }
+                    }}
+                  >{this.props.testCase.name}</Title>
                 }
               </Col>
               <Col span={8}>
