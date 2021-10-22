@@ -307,6 +307,16 @@ class TestCaseViewer extends React.Component {
             </Row>
             )
           }
+          {
+            this.props.testCase.fileInfo.labels && this.props.testCase.fileInfo.labels.length > 0
+            ? (
+              <Row>
+                <Col span={24}>
+                  <Text strong>labels: {this.props.testCase.fileInfo.labels.toString()}</Text>
+                </Col>
+              </Row>
+            ): null
+          }
             <Row>
               <Col span={24}>
                 <MetadataEditor

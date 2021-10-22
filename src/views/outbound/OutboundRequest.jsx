@@ -198,12 +198,6 @@ class OutboundRequest extends React.Component {
       this.state.additionalData = additionalData
     }
 
-    const storedFolderData = await this.restoreSavedFolderData()
-    if (storedFolderData) {
-      this.state.folderData = storedFolderData
-      this.regenerateTemplate(this.state.additionalData)
-    }
-
     const labelsManager = this.restoreLabelsManager()
     if (labelsManager) {
       this.state.labelsManager.mapping = labelsManager.mapping
@@ -216,6 +210,12 @@ class OutboundRequest extends React.Component {
     }
     if (!this.state.labelsManager.mapping && this.state.folderData) {
       this.state.labelsManager.mapping = this.getDataLabelsMapping(this.state.folderData)
+    }
+
+    const storedFolderData = await this.restoreSavedFolderData()
+    if (storedFolderData) {
+      this.state.folderData = storedFolderData
+      this.regenerateTemplate(this.state.additionalData)
     }
 
     if (storedFolderData || additionalData || labelsManager) {
@@ -502,6 +502,7 @@ class OutboundRequest extends React.Component {
         testCases[i].requests = []
       }
       const testCaseRef = testCases[i]
+      testCaseRef.fileInfo.labels = this.getTestCaseLabels(testCaseRef.fileInfo.path)
       this.state.template.test_cases.push({ ...testCaseRef, id: i + 1})
     }
     // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
@@ -609,6 +610,19 @@ class OutboundRequest extends React.Component {
     } else {
       message.error('ERROR: no file selected or multiple files are selected');
     }
+  }
+
+  getTestCaseLabels = (testCaseName) => {
+    const labels = []
+    if (this.state.labelsManager.mapping) {
+      const mapping = {...this.state.labelsManager.mapping}
+      Object.keys(mapping).forEach(function(key) {
+        if (mapping[key].includes(testCaseName)) {
+          labels.push(key)
+        }
+      });
+    }
+    return labels
   }
 
   getTestCaseItems = () => {
