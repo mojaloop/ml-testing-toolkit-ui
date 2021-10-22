@@ -62,9 +62,6 @@ class LabelsManager extends React.Component {
           }
         }
         const selectedFiles = []
-        console.log(selectedFilesByLabel)
-        console.log(this.props.labelsManager.selectedFiles)
-        console.log(this.props.selectedFiles)
         if (selectedFilesByLabel.length > this.props.labelsManager.selectedFiles.length) {
           for (let i = 0; i < selectedFilesByLabel.length; i++) {
             if (!this.props.selectedFiles.includes(selectedFilesByLabel[i])) {
@@ -84,7 +81,6 @@ class LabelsManager extends React.Component {
         this.props.labelsManager.selectedFiles = selectedFilesByLabel
       }
     }
-    console.log(props)
     this.props.onSelect(props)
   }
 

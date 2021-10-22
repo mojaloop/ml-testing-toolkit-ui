@@ -401,21 +401,12 @@ class FolderBrowser extends React.Component {
 
   handleSelectLabelsDialogOk = () => {
     this.state.rightClickNodeTreeItem.nodeRef.extraInfo.labels = this.state.selectLabelsDialogList
-    console.log(this.state.treeDataArray)
-    console.log(this.props.folderData)
-    console.log(this.props.labelsManager)
-    this.props.onSelect()
-
-
+    this.convertFolderData(this.props.folderData)
     this.setState({
-      selectLabelsDialogEnabled: false
+      selectLabelsDialogEnabled: false,
+      treeDataArray: this.props.folderData,
     })
-    // this.convertFolderData(this.props.folderData)
-    //   this.props.onSelect([])
-    //   this.setState({
-    //     treeDataArray: this.props.folderData,
-    //   })
-    // }
+    this.props.onSelect()
   }
 
   handleSelectLabelsDialogCancel = () => {
