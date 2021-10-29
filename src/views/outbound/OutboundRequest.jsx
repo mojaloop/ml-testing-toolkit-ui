@@ -502,7 +502,6 @@ class OutboundRequest extends React.Component {
         testCases[i].requests = []
       }
       const testCaseRef = testCases[i]
-      testCaseRef.fileInfo.labels = this.getTestCaseLabels(testCaseRef.fileInfo.path)
       this.state.template.test_cases.push({ ...testCaseRef, id: i + 1})
     }
     // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
@@ -612,18 +611,6 @@ class OutboundRequest extends React.Component {
     }
   }
 
-  getTestCaseLabels = (testCaseName) => {
-    const labels = []
-    if (this.state.labelsManager.mapping) {
-      const mapping = {...this.state.labelsManager.mapping}
-      Object.keys(mapping).forEach(function(key) {
-        if (mapping[key].includes(testCaseName)) {
-          labels.push(key)
-        }
-      });
-    }
-    return labels
-  }
 
   getTestCaseItems = () => {
     if (this.state.template.test_cases) {
@@ -633,6 +620,7 @@ class OutboundRequest extends React.Component {
             <Col span={24}>
               <TestCaseViewer
                 testCase={testCase}
+                labelsManager={this.state.labelsManager}
                 onChange={this.handleTestCaseChange}
                 inputValues={this.state.inputValues}
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}

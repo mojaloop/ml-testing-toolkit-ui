@@ -124,6 +124,35 @@ class TestCaseViewer extends React.Component {
     this.props.onChange()
   }
 
+  getTestCaseLabelsTags = () => {
+    const output = this.props.testCase.fileInfo.labels.map(selectedLabel => {
+      const label = this.props.labelsManager.labels.find(label => label.name === selectedLabel)
+      if (label) {
+        return (
+          <Tag 
+            color={label.color}
+            onMouseDown={event => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+            style={{ marginRight: 3 }}
+          >
+            {label.name}
+          </Tag>
+        )
+      } else {
+        return (
+          null
+        )
+      }
+    })
+    return (
+      <>
+        {output}
+      </>
+    )
+  }
+
   render() {
 
     const onClick = ({ key }) => {
@@ -308,11 +337,21 @@ class TestCaseViewer extends React.Component {
             )
           }
           {
+            this.props.testCase.fileInfo.path
+            ? (
+              <Row>
+                <Col span={24}>
+                  <Text strong>File path: {this.props.testCase.fileInfo.path.toString()}</Text>
+                </Col>
+              </Row>
+            ): null
+          }
+          {
             this.props.testCase.fileInfo.labels && this.props.testCase.fileInfo.labels.length > 0
             ? (
               <Row>
                 <Col span={24}>
-                  <Text strong>labels: {this.props.testCase.fileInfo.labels.toString()}</Text>
+                  <Text strong>Labels: {this.getTestCaseLabelsTags()}</Text>
                 </Col>
               </Row>
             ): null
