@@ -97,10 +97,14 @@ class OutboundRequest extends React.Component {
       template: {},
       inputValues: {},
       additionalData: {
-        selectedFiles: [],
-        selectedLabels: []
+        selectedFiles: []
       },
-      labels: [],
+      labelsManager: {
+        mapping: null,
+        labels: [],
+        selectedLabels: [],
+        selectedFiles: []
+      },
       addNewRequestDialogVisible: false,
       newRequestDescription: '',
       newTemplateName: '',
@@ -190,22 +194,31 @@ class OutboundRequest extends React.Component {
     this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
 
     const additionalData = this.restoreAdditionalData()
-    const storedFolderData = await this.restoreSavedFolderData()
-
-    if (storedFolderData) {
-      this.state.folderData = storedFolderData
-      this.regenerateTemplate(additionalData)
-    }
-
     if (additionalData) {
       this.state.additionalData = additionalData
     }
 
-    if (this.state.userConfig.LABELS) {
-      this.state.labels.push(...this.state.userConfig.LABELS)
+    const labelsManager = this.restoreLabelsManager()
+    if (labelsManager) {
+      this.state.labelsManager.mapping = labelsManager.mapping
+      this.state.labelsManager.labels = labelsManager.labels
+      this.state.labelsManager.selectedLabels = labelsManager.selectedLabels
+      this.state.labelsManager.selectedFiles = labelsManager.selectedFiles
+    }
+    if (this.state.labelsManager.labels.length === 0 && this.state.userConfig.LABELS && this.state.userConfig.LABELS.length > 0) {
+      this.state.labelsManager.labels.push(...this.state.userConfig.LABELS)
+    }
+    if (!this.state.labelsManager.mapping && this.state.folderData) {
+      this.state.labelsManager.mapping = this.getDataLabelsMapping(this.state.folderData)
     }
 
-    if (storedFolderData || additionalData) {
+    const storedFolderData = await this.restoreSavedFolderData()
+    if (storedFolderData) {
+      this.state.folderData = storedFolderData
+      this.regenerateTemplate(this.state.additionalData)
+    }
+
+    if (storedFolderData || additionalData || labelsManager) {
       this.forceUpdate()
     }
 
@@ -427,7 +440,17 @@ class OutboundRequest extends React.Component {
         return JSON.parse(additionalData)
       } catch (err) { }
     }
-    return {}
+    return null
+  }
+
+  restoreLabelsManager = () => {
+    const labelsManager = localStorage.getItem('labelsManager')
+    if(labelsManager) {
+      try {
+        return JSON.parse(labelsManager)
+      } catch (err) { }
+    }
+    return null
   }
 
   startAutoSaveTimer = () => {
@@ -436,6 +459,7 @@ class OutboundRequest extends React.Component {
         this.autoSave = false
         this.autoSaveFolderData(this.state.folderData)
         this.autoSaveAdditionalData(this.state.additionalData)
+        this.autoSaveLabelsManager(this.state.labelsManager)
       }
     },
       2000)
@@ -448,6 +472,10 @@ class OutboundRequest extends React.Component {
 
   autoSaveAdditionalData = (additionalData) => {
     localStorage.setItem('additionalData', JSON.stringify(additionalData));
+  }
+
+  autoSaveLabelsManager = (labelsManager) => {
+    localStorage.setItem('labelsManager', JSON.stringify(labelsManager));
   }
 
   handleTemplateSaveClick = (fileName, saveTemplateOption) => {
@@ -480,8 +508,7 @@ class OutboundRequest extends React.Component {
     this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files',
-      selectedFiles: additionalData.selectedFiles || [],
-      selectedLabels: additionalData.selectedLabels || []
+      selectedFiles: additionalData.selectedFiles || []
     }
     this.forceUpdate()
     // this.autoSave = true
@@ -584,6 +611,7 @@ class OutboundRequest extends React.Component {
     }
   }
 
+
   getTestCaseItems = () => {
     if (this.state.template.test_cases) {
       return this.state.template.test_cases.map((testCase, testCaseIndex) => {
@@ -592,6 +620,7 @@ class OutboundRequest extends React.Component {
             <Col span={24}>
               <TestCaseViewer
                 testCase={testCase}
+                labelsManager={this.state.labelsManager}
                 onChange={this.handleTestCaseChange}
                 inputValues={this.state.inputValues}
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
@@ -677,15 +706,17 @@ class OutboundRequest extends React.Component {
     }
   }
 
-  handleFileManagerContentChange = async (folderData, selectedFiles, selectedLabels) => {
+  handleFileManagerContentChange = async (folderData, selectedFiles) => {
     if (folderData) {
       this.state.folderData = folderData
+      this.state.labelsManager.mapping = this.getDataLabelsMapping(folderData)
     }
     if (selectedFiles != null) {
+      if (selectedFiles.length === 0) {
+        this.state.labelsManager.selectedFiles = []
+        this.state.labelsManager.selectedLabels = []
+      }
       this.state.additionalData.selectedFiles = selectedFiles
-    }
-    if (selectedLabels) {
-      this.state.additionalData.selectedLabels = selectedLabels
     }
     this.regenerateTemplate(this.state.additionalData)
     this.autoSave = true
@@ -734,6 +765,24 @@ class OutboundRequest extends React.Component {
       }
     }
     return fileSelected
+  }
+
+  getDataLabelsMapping = (folderData = [], result = {}, parentLabels = []) => {
+    for (let i = 0; i < folderData.length; i++) {
+      const data = folderData[i];
+      const currentParentLabels = [...parentLabels, ...(data.extraInfo.labels || [])]
+      for (let j = 0; j < currentParentLabels.length; j++) {
+        const label = currentParentLabels[j];
+        if (!result[label]) {
+          result[label] = []
+        }
+        result[label].push(data.key)
+      }
+      if (data.extraInfo.type === "folder") {
+        this.getDataLabelsMapping(data.children, result, currentParentLabels)
+      }
+    }
+    return result
   }
 
   render() {
@@ -852,8 +901,7 @@ class OutboundRequest extends React.Component {
           <FileManager
             folderData={this.state.folderData}
             selectedFiles={this.state.additionalData.selectedFiles}
-            labels={this.state.labels}
-            selectedLabels={this.state.additionalData.selectedLabels}
+            labelsManager={this.state.labelsManager}
             onChange={this.handleFileManagerContentChange}
             ref={this.fileManagerRef}
             ipcRenderer={ipcRenderer}

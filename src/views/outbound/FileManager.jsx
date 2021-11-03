@@ -273,8 +273,8 @@ class FileManager extends React.Component {
     message.success({ content: 'Files imported', key: 'importFileProgress', duration: 2 });
   }
 
-  handleSelectionChanged = async (selectedFiles, selectedLabels) => {
-    this.props.onChange(this.props.folderData, selectedFiles, selectedLabels)
+  handleSelectionChanged = async (selectedFiles) => {
+    this.props.onChange(this.props.folderData, selectedFiles)
   }
 
   handleOrderChange = async () => {
@@ -566,8 +566,7 @@ class FileManager extends React.Component {
             <FolderBrowser
               folderData={this.props.folderData}
               selectedFiles={this.props.selectedFiles}
-              labels={this.props.labels}
-              selectedLabels={this.props.selectedLabels}
+              labelsManager={this.props.labelsManager}
               onSelect = {this.handleSelectionChanged}
               onOrderChange={this.handleOrderChange}
               onAddFileOrFolder={this.handleAddFileOrFolder}

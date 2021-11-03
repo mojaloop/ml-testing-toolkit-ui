@@ -124,6 +124,35 @@ class TestCaseViewer extends React.Component {
     this.props.onChange()
   }
 
+  getTestCaseLabelsTags = () => {
+    const output = this.props.testCase.fileInfo.labels.map(selectedLabel => {
+      const label = this.props.labelsManager.labels.find(label => label.name === selectedLabel)
+      if (label) {
+        return (
+          <Tag 
+            color={label.color}
+            onMouseDown={event => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+            style={{ marginRight: 3 }}
+          >
+            {label.name}
+          </Tag>
+        )
+      } else {
+        return (
+          null
+        )
+      }
+    })
+    return (
+      <>
+        {output}
+      </>
+    )
+  }
+
   render() {
 
     const onClick = ({ key }) => {
@@ -195,8 +224,19 @@ class TestCaseViewer extends React.Component {
             this.props.noOptions
             ? (
               <Row>
-                <Col span={16}>
-                  <Title level={4}>{this.props.testCase.name}</Title>
+                <Col span={24}>
+                  <Title 
+                    level={4}
+                    editable={{
+                      tooltip: 'click to edit test case name',
+                      onChange: (newTitle) => {
+                        if (this.props.testCase.name !== newTitle) {
+                          this.props.testCase.name = newTitle
+                          this.props.onChange()
+                        }
+                      }
+                    }}
+                  >{this.props.testCase.name}</Title>
                 </Col>
               </Row>
             )
@@ -243,7 +283,19 @@ class TestCaseViewer extends React.Component {
                       </tbody>
                     </table>
                   )
-                  : <Title level={4}>{this.props.testCase.name}</Title>
+                  : 
+                  <Title 
+                    level={4}
+                    editable={{
+                      tooltip: 'click to edit test case name',
+                      onChange: (newTitle) => {
+                        if (this.props.testCase.name !== newTitle) {
+                          this.props.testCase.name = newTitle
+                          this.props.onChange()
+                        }
+                      }
+                    }}
+                  >{this.props.testCase.name}</Title>
                 }
               </Col>
               <Col span={8}>
@@ -283,6 +335,26 @@ class TestCaseViewer extends React.Component {
               </Col>
             </Row>
             )
+          }
+          {
+            this.props.testCase.fileInfo.path
+            ? (
+              <Row>
+                <Col span={24}>
+                  <Text strong>File path: {this.props.testCase.fileInfo.path.toString()}</Text>
+                </Col>
+              </Row>
+            ): null
+          }
+          {
+            this.props.testCase.fileInfo.labels && this.props.testCase.fileInfo.labels.length > 0
+            ? (
+              <Row>
+                <Col span={24}>
+                  <Text strong>Labels: {this.getTestCaseLabelsTags()}</Text>
+                </Col>
+              </Row>
+            ): null
           }
             <Row>
               <Col span={24}>
