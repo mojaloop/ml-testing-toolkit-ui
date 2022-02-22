@@ -177,7 +177,8 @@ class FixedCallbackBuilder extends React.Component {
     this.state = {
       configurableParameterSelected: '',
       allParamsFromDefinition: [],
-      allParamsObject: {}
+      allParamsObject: {},
+      addCustomHeaderDialogVisible: false
     }
   }
 
@@ -257,7 +258,7 @@ class FixedCallbackBuilder extends React.Component {
   }
 
   handleAddHeaderClick = (event) => {
-    this.addHeaderItem(event.item.props.children);
+    this.addHeaderItem(event.item.props.eventKey);
   };
 
   headerItemsMenu = () => {
@@ -266,7 +267,7 @@ class FixedCallbackBuilder extends React.Component {
     })
     const menuItems = headerParams.map((item, key) => {
       return (
-        <Menu.Item key={key}>{item.name}</Menu.Item>
+        <Menu.Item key={item.name}>{item.name}</Menu.Item>
       )
     })
     return (
@@ -325,6 +326,44 @@ class FixedCallbackBuilder extends React.Component {
   }
 
   render() {
+
+    const addCustomHeaderDialogContent = (
+      <>
+      <Row>
+        <Col span={24}>
+          <Input
+            placeholder="Enter name"
+            type="text"
+            value={this.state.newCustomHeaderName}
+            onChange={(e) => { this.setState({newCustomHeaderName: e.target.value })}}
+          />
+        </Col>
+      </Row>
+      <Row className="mt-2">
+        <Col span={24}>
+          <Button
+              type="primary"
+              onClick={ () => {
+                this.addHeaderItem(this.state.newCustomHeaderName)
+                this.setState({addCustomHeaderDialogVisible: false})
+              }}
+            >
+              Add
+          </Button>
+          <Button
+              className="ml-2"
+              type="default"
+              danger
+              onClick={ () => {
+                this.setState({addCustomHeaderDialogVisible: false})
+              }}
+            >
+              Cancel
+          </Button>
+        </Col>
+      </Row>
+      </>
+    )
 
     const content = (
       <>
@@ -403,6 +442,20 @@ class FixedCallbackBuilder extends React.Component {
                         >
                           Add All Headers
                         </Button>
+                        <Popover
+                          content={addCustomHeaderDialogContent}
+                          title="Enter name for the header"
+                          trigger="click"
+                          visible={this.state.addCustomHeaderDialogVisible}
+                          onVisibleChange={ (visible) => this.setState({addCustomHeaderDialogVisible: true})}
+                        >
+                          <Button
+                              color="warning"
+                              size="sm"
+                            >
+                              Add Custom Header
+                          </Button>
+                        </Popover>
                       </Col>
                     </Row>
                 </Col>
@@ -513,13 +566,14 @@ class HeaderInputComponent extends React.Component {
               value={this.props.name}
               onChange={this.handleNameChange}
               disabled={false}
+              readOnly={true}
             />
           </Tooltip>
         </Col>
 
         <Col span={12} className="pl-2">
           <Input
-            placeholder="Name"
+            placeholder="Value"
             type="text"
             defaultValue={this.props.value}
             value={this.props.value}
