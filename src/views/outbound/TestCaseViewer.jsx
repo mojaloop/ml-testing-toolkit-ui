@@ -114,7 +114,7 @@ class TestCaseViewer extends React.Component {
 
   handleTestCaseRename = (newTestCaseName) => {
     this.props.testCase.name = newTestCaseName
-    this.props.onRename()
+    this.props.onRename(newTestCaseName)
   }
 
   onTestCaseRequestsSortEnd = ({oldIndex, newIndex}) => {
@@ -215,6 +215,20 @@ class TestCaseViewer extends React.Component {
       )
     })
 
+    const testCaseRenaming = (
+      <Title 
+        level={4}
+        editable={{
+          tooltip: 'click to edit test case name',
+          onChange: (newTestCaseName) => {
+            if (this.props.testCase.name !== newTestCaseName) {
+              this.handleTestCaseRename(newTestCaseName)
+            }
+          }
+        }}
+      >{this.props.testCase.name}</Title>
+    )
+
     return (
       <>
         <Row>
@@ -225,18 +239,7 @@ class TestCaseViewer extends React.Component {
             ? (
               <Row>
                 <Col span={24}>
-                  <Title 
-                    level={4}
-                    editable={{
-                      tooltip: 'click to edit test case name',
-                      onChange: (newTitle) => {
-                        if (this.props.testCase.name !== newTitle) {
-                          this.props.testCase.name = newTitle
-                          this.props.onChange()
-                        }
-                      }
-                    }}
-                  >{this.props.testCase.name}</Title>
+                  {testCaseRenaming}
                 </Col>
               </Row>
             )
@@ -284,18 +287,7 @@ class TestCaseViewer extends React.Component {
                     </table>
                   )
                   : 
-                  <Title 
-                    level={4}
-                    editable={{
-                      tooltip: 'click to edit test case name',
-                      onChange: (newTitle) => {
-                        if (this.props.testCase.name !== newTitle) {
-                          this.props.testCase.name = newTitle
-                          this.props.onChange()
-                        }
-                      }
-                    }}
-                  >{this.props.testCase.name}</Title>
+                  testCaseRenaming
                 }
               </Col>
               <Col span={8}>
