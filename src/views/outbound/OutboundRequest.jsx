@@ -611,6 +611,16 @@ class OutboundRequest extends React.Component {
     }
   }
 
+  handleTestCaseRename = (testCaseIndex, newTitle) => {
+    const fileSelected = this.getSingleFileSelected()
+    if(fileSelected) {
+      fileSelected.content.test_cases[testCaseIndex].name = newTitle
+      this.autoSaveFolderData(this.state.folderData)
+      this.forceUpdate()
+    } else {
+      message.error('ERROR: no file selected or multiple files are selected');
+    }
+  }
 
   getTestCaseItems = () => {
     if (this.state.template.test_cases) {
@@ -626,7 +636,7 @@ class OutboundRequest extends React.Component {
                 onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
                 onDelete={() => { this.handleTestCaseDelete(testCaseIndex) } }
                 onDuplicate={() => { this.handleTestCaseDuplicate(testCaseIndex) } }
-                onRename={this.handleTestCaseChange}
+                onRename={(newTestCaseName) => { this.handleTestCaseRename(testCaseIndex, newTestCaseName) }}
                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex) }}
                 
