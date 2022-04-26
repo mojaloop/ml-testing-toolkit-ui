@@ -74,9 +74,10 @@ class TestCaseViewer extends React.Component {
                 <td className="align-text-top" width='25px'>
                     <Switch 
                       size="small"
-                      checked={item.disabled ? true : false}
+                      checked={item.disabled ? false : true}
                       className="mt-1"
-                      onChange={(disabled) => {
+                      onChange={(enabled) => {
+                        const disabled = !enabled
                         this.handleDisableRequests(disabled, index)
                       }} 
                     />
@@ -259,9 +260,10 @@ class TestCaseViewer extends React.Component {
       >
         <Switch 
           size="small"
-          checked={this.props.testCase.requests.every(request => request.disabled)}
+          checked={this.props.testCase.requests.every(request => request.disabled ? false : true)}
           className="mr-2"
-          onChange={(disableAllRequests) => {
+          onChange={(enableAllRequests) => {
+            const disableAllRequests = !enableAllRequests
             this.handleDisableRequests(disableAllRequests)
           }} 
         />

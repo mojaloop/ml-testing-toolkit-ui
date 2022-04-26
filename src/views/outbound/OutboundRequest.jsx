@@ -628,17 +628,16 @@ class OutboundRequest extends React.Component {
     if(fileSelected) {
       if (isUndefined(testCaseIndex)) {
         for (let i = 0; i < fileSelected.content.test_cases.length; i++) {
-          const testCase = fileSelected.content.test_cases[i];
-          testCase.breakOnError = breakOnError
+          fileSelected.content.test_cases[i].breakOnError = breakOnError
         }
       } else {
-        fileSelected.content.test_cases[testCaseIndex].breakOnError = breakOnError  
+        fileSelected.content.test_cases[testCaseIndex].breakOnError = breakOnError
       }
       this.autoSaveFolderData(this.state.folderData)
       this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
     } else {
-      message.error('ERROR: no file selected or multiple files are selected');
+      message.error('ERROR: multiple files are selected');
     }
   }
 
@@ -646,9 +645,9 @@ class OutboundRequest extends React.Component {
     const fileSelected = this.getSingleFileSelected()
     if(fileSelected) {
       if (isUndefined(requestIndex)) {
-        fileSelected.content.test_cases[testCaseIndex].requests.forEach(request => {
-          request.disabled = disabled
-        })
+        for (let i = 0; i < fileSelected.content.test_cases[testCaseIndex].requests.length; i++) {
+          fileSelected.content.test_cases[testCaseIndex].requests[i].disabled = disabled  
+        }
       } else {
         fileSelected.content.test_cases[testCaseIndex].requests[requestIndex].disabled = disabled  
       }
@@ -656,7 +655,7 @@ class OutboundRequest extends React.Component {
       this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
     } else {
-      message.error('ERROR: no file selected or multiple files are selected');
+      message.error('ERROR: multiple files are selected');
     }
   }
 

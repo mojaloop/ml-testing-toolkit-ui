@@ -27,7 +27,7 @@ import _ from 'lodash';
 
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix, Typography, Alert } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions ,Collapse, Card, Button, Radio, Affix, Typography, Alert, Switch } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
 import { JsonEditor as Editor } from 'jsoneditor-react';
@@ -615,7 +615,7 @@ class TestCaseEditor extends React.Component {
 
   getRequestGeneratorItems = (startIndex, endIndex) => {
     if (this.props.testCase.requests) {
-      return this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
+      return this.props.testCase.requests.slice(startIndex, endIndex).map((item, index) => {
         const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions ? item.status.testResult.passedCount + '/' + item.tests.assertions.length : ''
         let testStatusColor = TTKColors.assertionFailed
         if (item.status && item.status.progressStatus == 'SKIPPED') {
@@ -636,6 +636,21 @@ class TestCaseEditor extends React.Component {
             <Tabs defaultActiveKey='1'>
               <TabPane tab={'Request'} key="1">
                 <>
+                  <Card size="small" title={'Enabled'} className="mb-2">
+                    <Switch 
+                      size="default"
+                      checked={item.disabled ? false : true}
+                      className="mt-1"
+                      onChange={(enabled) => {
+                        const disabled = !enabled
+                        console.log(startIndex)
+                        console.log(index)
+                        console.log(disabled)
+                        this.props.testCase.requests[startIndex + index].disabled = disabled
+                        this.forceUpdate()
+                      }} 
+                    />
+                  </Card>
                   <Card size="small" title={'Meta Data'} className="mb-2">
                     <MetadataEditor
                       values={item.meta}
@@ -951,7 +966,7 @@ class TestCaseEditor extends React.Component {
     if (this.props.testCase.requests) {
       const stepItems = this.props.testCase.requests.slice(startIndex, endIndex).map(item => {
         return (
-          <Step status={item.status ? item.status.state : null} title={item.method} subTitle={item.operationPath} description={item.description} icon={<RightCircleOutlined />} />
+          <Step status={item.status ? item.status.state : null} title={item.method} subTitle={item.operationPath} description={item.description} icon={<RightCircleOutlined />} disabled={item.disabled} />
         )
       })
       const spanCol = stepItems.length < 3 ? stepItems.length * 8 : 24

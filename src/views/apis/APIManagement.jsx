@@ -25,6 +25,7 @@ import React from "react";
 import { getConfig } from '../../utils/getConfig'
 import axios from 'axios';
 import APIDocViewer from './APIDocViewer'
+import APIMappings from './APIMappings'
 
 import { Select, Row, Col, Table, Button, Modal, Upload, message, Card, Typography, Input, Tag, Radio, Spin } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
@@ -293,6 +294,7 @@ class APIManagement extends React.Component {
     newAPIDialogEnabled: false,
     selectedApiIndex: null,
     apiDocViewerVisible: false,
+    apiMappingsVisible: false,
     isLoading: false
   }
 
@@ -396,6 +398,24 @@ class APIManagement extends React.Component {
         >
           <APIDocViewer specUrl={this.getSelectedVersionURL()} />
         </Modal>
+
+        <Modal
+          title='Mapping'
+          style={{ top: 20 }}
+          className="p-3"
+          width='90%'
+          destroyOnClose
+          footer={null}
+          visible={this.state.apiMappingsVisible}
+          onCancel={ e => {
+            this.setState({apiMappingsVisible: false})
+          }}
+        >
+          <APIMappings
+            apiVersion={this.state.apiVersions[this.state.selectedApiIndex]}
+            openApiDefinition={this.getOpenApiDefinition}
+          />
+        </Modal>
         <Spin size="large" spinning={this.state.isLoading}>
         {/* Page content */}
           <Row className="mt--7 mb-4">
@@ -423,13 +443,23 @@ class APIManagement extends React.Component {
                     className="ml-2"
                     type="primary"
                     shape="round"
-                    info
                     onClick={ e => {
                       this.setState({apiDocViewerVisible: true})
                     }}
                     disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex])}
                   >
                     API Documentation
+                  </Button>
+                  <Button
+                    className="ml-2"
+                    type="primary"
+                    shape="round"
+                    onClick={ e => {
+                      this.setState({apiMappingsVisible: true})
+                    }}
+                    disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex] && (this.state.apiVersions[this.state.selectedApiIndex].asynchronous ? true : false))}
+                  >
+                    Edit Mapping
                   </Button>
                 </Col>
               </Row>
