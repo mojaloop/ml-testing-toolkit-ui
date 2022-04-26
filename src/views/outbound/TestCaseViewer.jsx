@@ -24,7 +24,7 @@
 import React from "react";
 import _ from 'lodash';
 
-import { Row, Col, Steps, Tag, Dropdown, Menu, message, Input, Collapse, Card, Button , Typography } from 'antd';
+import { Row, Col, Steps, Tag, Dropdown, Menu, message, Input, Collapse, Card, Button , Typography, Switch, Checkbox } from 'antd';
 import { MoreOutlined, DoubleRightOutlined } from '@ant-design/icons';
 import MetadataEditor from "./MetadataEditor";
 
@@ -60,7 +60,7 @@ class TestCaseViewer extends React.Component {
 
   getTestCaseItems = () => {
     if (this.props.testCase.requests) {
-      const requestRows = this.props.testCase.requests.map(item => {
+      const requestRows = this.props.testCase.requests.map((item, index) => {
         if (item.method && item.operationPath) {
           const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : ''
           let testStatusColor = TTKColors.assertionFailed
@@ -72,10 +72,25 @@ class TestCaseViewer extends React.Component {
           return (
               <tr>
                 <td className="align-text-top" width='25px'>
-                    <DoubleRightOutlined style={{ fontSize: '20px', color: '#08c' }} />
+                    <Switch 
+                      size="small"
+                      checked={item.disabled ? false : true}
+                      className="mt-1"
+                      onChange={(enabled) => {
+                        const disabled = !enabled
+                        this.handleDisableRequests(disabled, index)
+                      }} 
+                    />
                 </td>
                 <td>
-                  <Title level={5}>{item.method.toUpperCase()+' '+item.operationPath}</Title> <Text>{item.description}</Text>
+                  <Row>
+                    <Col>
+                      <Title level={5}>{item.method.toUpperCase()+' '+item.operationPath}</Title> 
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Text>{item.description}</Text>
+                  </Row>
                 </td>
                 <td className='text-right align-top'>
                   {
@@ -115,6 +130,22 @@ class TestCaseViewer extends React.Component {
   handleTestCaseRename = (newTestCaseName) => {
     this.props.testCase.name = newTestCaseName
     this.props.onRename(newTestCaseName)
+  }
+
+  handleBreakTestCaseOnError = (breakOnError) => {
+    this.props.testCase.breakOnError = breakOnError
+    this.props.onBreakTestCaseOnError(breakOnError)
+  }
+
+  handleDisableRequests = (disabled, requestIndex) => {
+    if (_.isUndefined(requestIndex)) {
+      this.props.testCase.requests.forEach(request => {
+        request.disabled = disabled
+      })
+    } else {
+      this.props.testCase.requests[requestIndex].disabled = disabled
+    }
+    this.props.onDisableRequests(disabled, requestIndex)
   }
 
   onTestCaseRequestsSortEnd = ({oldIndex, newIndex}) => {
@@ -226,7 +257,18 @@ class TestCaseViewer extends React.Component {
             }
           }
         }}
-      >{this.props.testCase.name}</Title>
+      >
+        <Switch 
+          size="small"
+          checked={this.props.testCase.requests.every(request => request.disabled ? false : true)}
+          className="mr-2"
+          onChange={(enableAllRequests) => {
+            const disableAllRequests = !enableAllRequests
+            this.handleDisableRequests(disableAllRequests)
+          }} 
+        />
+        {this.props.testCase.name}
+      </Title>
     )
 
     return (
@@ -303,6 +345,13 @@ class TestCaseViewer extends React.Component {
                 >
                   Edit
                 </Button>
+                <Checkbox
+                  className="ml-2 mt-1 float-right"
+                  onClick={(e) => {this.handleBreakTestCaseOnError(e.target.checked)}}
+                  checked={this.props.testCase.breakOnError ? true : false}
+                >
+                  Break test case on error
+                </Checkbox>
                 {
                   this.state.testCaseRequestsReorderingEnabled && (this.props.testCase.requests && this.props.testCase.requests.length > 0)
                   ? (

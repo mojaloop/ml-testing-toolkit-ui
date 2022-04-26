@@ -26,7 +26,7 @@ import React from "react";
 import socketIOClient from "socket.io-client";
 import mermaid from 'mermaid'
 import { getServerConfig } from '../../utils/getConfig'
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio} from 'antd';
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio, Switch} from 'antd';
 import { WarningTwoTone, DeleteTwoTone, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import axios from 'axios';
@@ -47,6 +47,7 @@ import { extendObservable, trace } from "mobx";
 
 import { TTKColors } from '../../utils/styleHelpers'
 import { LocalDB } from '../../services/localDB/LocalDB';
+import { isUndefined } from "lodash";
 
 let ipcRenderer = null
 
@@ -622,6 +623,42 @@ class OutboundRequest extends React.Component {
     }
   }
 
+  handleBreakOnErrorChange = (breakOnError, testCaseIndex) => {
+    const fileSelected = this.getSingleFileSelected()
+    if(fileSelected) {
+      if (isUndefined(testCaseIndex)) {
+        for (let i = 0; i < fileSelected.content.test_cases.length; i++) {
+          fileSelected.content.test_cases[i].breakOnError = breakOnError
+        }
+      } else {
+        fileSelected.content.test_cases[testCaseIndex].breakOnError = breakOnError
+      }
+      this.autoSaveFolderData(this.state.folderData)
+      this.regenerateTemplate(this.state.additionalData)
+      this.forceUpdate()
+    } else {
+      message.error('ERROR: multiple files are selected');
+    }
+  }
+
+  handleDisableRequests = (disabled, testCaseIndex, requestIndex) => {
+    const fileSelected = this.getSingleFileSelected()
+    if(fileSelected) {
+      if (isUndefined(requestIndex)) {
+        for (let i = 0; i < fileSelected.content.test_cases[testCaseIndex].requests.length; i++) {
+          fileSelected.content.test_cases[testCaseIndex].requests[i].disabled = disabled  
+        }
+      } else {
+        fileSelected.content.test_cases[testCaseIndex].requests[requestIndex].disabled = disabled  
+      }
+      this.autoSaveFolderData(this.state.folderData)
+      this.regenerateTemplate(this.state.additionalData)
+      this.forceUpdate()
+    } else {
+      message.error('ERROR: multiple files are selected');
+    }
+  }
+
   getTestCaseItems = () => {
     if (this.state.template.test_cases) {
       return this.state.template.test_cases.map((testCase, testCaseIndex) => {
@@ -639,7 +676,8 @@ class OutboundRequest extends React.Component {
                 onRename={(newTestCaseName) => { this.handleTestCaseRename(testCaseIndex, newTestCaseName) }}
                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex) }}
-                
+                onBreakTestCaseOnError={(breakTestCaseOnError) => { this.handleBreakOnErrorChange(breakTestCaseOnError, testCaseIndex) }}
+                onDisableRequests={(disabled, requestIndex) => { this.handleDisableRequests(disabled, testCaseIndex, requestIndex) }}
               />
             </Col>
           </Row>
@@ -1130,6 +1168,19 @@ class OutboundRequest extends React.Component {
                                 </>
                                 :
                                 null
+                            }
+                            {
+                              this.state.template.test_cases ? (
+                                <Checkbox
+                                  className="ml-2 mt-1 float-right"
+                                  onClick={(e) => {
+                                    this.handleBreakOnErrorChange(e.target.checked)
+                                  }}
+                                  checked={this.state.template.test_cases.every(testCase => testCase.breakOnError)}
+                                >
+                                  Break test run on error
+                                </Checkbox>
+                              ) : null
                             }
                           </Col>
                         </Row>
