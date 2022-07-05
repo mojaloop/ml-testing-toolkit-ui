@@ -64,7 +64,7 @@
     "jsoneditor-react": "^3.0.1",
     "jszip": "^3.7.1",
     "lodash": "^4.17.21",
-    "mermaid": "^8.8.2",
+    "mermaid": "^9.1.2",
     "mobx": "^6.0.3",
     "moment": "^2.29.1",
     "react": "^17.0.1",
