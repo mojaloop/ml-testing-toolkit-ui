@@ -25,7 +25,7 @@ import React from "react";
 import { getConfig } from '../../utils/getConfig'
 import axios from 'axios';
 import APIDocViewer from './APIDocViewer'
-import APIMappings from './APIMappings'
+import APIEditor from './APIEditor'
 
 import { Select, Row, Col, Table, Button, Modal, Upload, message, Card, Typography, Input, Tag, Radio, Spin } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
@@ -294,7 +294,7 @@ class APIManagement extends React.Component {
     newAPIDialogEnabled: false,
     selectedApiIndex: null,
     apiDocViewerVisible: false,
-    apiMappingsVisible: false,
+    apiEditorVisible: false,
     isLoading: false
   }
 
@@ -319,6 +319,11 @@ class APIManagement extends React.Component {
     this.setState({newAPIDialogEnabled: false})
   }
 
+  handleApiUpdated = () => {
+    this.refreshApiVersions()
+    this.setState({apiEditorVisible: false})
+  }
+
   handleDeleteAPI = async () => {
     const res = await axios.delete(this.getSelectedVersionURL())
     this.refreshApiVersions()
@@ -334,6 +339,8 @@ class APIManagement extends React.Component {
       return ''
     }
   }
+
+
 
   render() {
     const rowSelection = {
@@ -356,14 +363,40 @@ class APIManagement extends React.Component {
         title: 'Type',
         dataIndex: 'type',
       },
+      {
+        title: 'Options',
+        dataIndex: 'options',
+        key: 'options',
+        render: (options) => (
+          <>
+            {options.map(option => (
+              <Row className='mb-2'>
+                <Col>
+                  <Tag color="blue" key={option}>
+                    {option}
+                  </Tag>
+                </Col>
+              </Row>
+            ))}
+          </>
+        ),
+      }
     ];
 
     const data = this.state.apiVersions.map((item, index) => {
+      const optionsStrArray = []
+      if (item.hostnames && item.hostnames.length > 0) {
+        optionsStrArray.push(`hostnames: ${item.hostnames.join(',')}`)
+      }
+      if (item.prefix) {
+        optionsStrArray.push(`prefix: ${item.prefix}`)
+      }
       return {
         key: index,
         name: item.type + (item.caption ? ' ' + item.caption : ''),
         version: item.majorVersion + '.' + item.minorVersion,
-        type: item.asynchronous? 'Async' : 'Sync'
+        type: item.asynchronous? 'Async' : 'Sync',
+        options: optionsStrArray
       }
     })
 
@@ -400,20 +433,21 @@ class APIManagement extends React.Component {
         </Modal>
 
         <Modal
-          title='Mapping'
+          title='API Editor'
           style={{ top: 20 }}
           className="p-3"
-          width='90%'
+          width='60%'
           destroyOnClose
           footer={null}
-          visible={this.state.apiMappingsVisible}
+          visible={this.state.apiEditorVisible}
           onCancel={ e => {
-            this.setState({apiMappingsVisible: false})
+            this.setState({apiEditorVisible: false})
           }}
         >
-          <APIMappings
+          <APIEditor
             apiVersion={this.state.apiVersions[this.state.selectedApiIndex]}
             openApiDefinition={this.getOpenApiDefinition}
+            onUpdated={this.handleApiUpdated}
           />
         </Modal>
         <Spin size="large" spinning={this.state.isLoading}>
@@ -455,11 +489,11 @@ class APIManagement extends React.Component {
                     type="primary"
                     shape="round"
                     onClick={ e => {
-                      this.setState({apiMappingsVisible: true})
+                      this.setState({apiEditorVisible: true})
                     }}
-                    disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex] && (this.state.apiVersions[this.state.selectedApiIndex].asynchronous ? true : false))}
+                    disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex])}
                   >
-                    Edit Mapping
+                    Edit
                   </Button>
                 </Col>
               </Row>
