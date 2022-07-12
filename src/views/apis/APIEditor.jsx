@@ -18,7 +18,7 @@
  * Gates Foundation
 
  * ModusBox
- * Georgi Logodazhki <georgi.logodazhki@modusbox.com> (Original Author)
+ * Vijay Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
 import React from "react";
