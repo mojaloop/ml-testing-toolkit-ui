@@ -21,120 +21,120 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react'
+import React from 'react';
 
-import { Card, Tag, Typography } from 'antd'
-import { DoubleRightOutlined, QuestionOutlined, DoubleLeftOutlined } from '@ant-design/icons'
+import { Card, Tag, Typography } from 'antd';
+import { DoubleRightOutlined, QuestionOutlined, DoubleLeftOutlined } from '@ant-design/icons';
 
-const { Title } = Typography
+const { Title } = Typography;
 
 class RuleViewer extends React.Component {
-  render () {
-    const inputRule = this.props.rule
-    if (!inputRule.event.params) {
-      inputRule.event.params = {}
-    }
-    const resource = {}
-    let conditions = []
-    try {
-      const pathCondition = inputRule.conditions.all.find(item => {
-        if (item.fact === 'operationPath') {
-          return true
-        } else {
-          return false
+    render() {
+        const inputRule = this.props.rule;
+        if(!inputRule.event.params) {
+            inputRule.event.params = {};
         }
-      })
-      if (pathCondition) {
-        resource.path = pathCondition.value
-      }
-      const methodCondition = inputRule.conditions.all.find(item => {
-        if (item.fact === 'method') {
-          return true
-        } else {
-          return false
-        }
-      })
-      if (methodCondition) {
-        resource.method = methodCondition.value
-      }
-
-      conditions = inputRule.conditions.all.filter(item => {
-        if (item.fact === 'method' || item.fact === 'operationPath') {
-          return false
-        } else {
-          return true
-        }
-      })
-    } catch (err) {}
-
-    const getItemValueString = (itemValue) => {
-      if (Array.isArray(itemValue)) {
-        return itemValue.toString()
-      } else {
-        return itemValue
-      }
-    }
-
-    const conditionItems = conditions.map(item => {
-      return (
-        <>
-          <Card size='small' className='mt-1'>
-            <Tag color='cyan'>{item.fact}.{item.path}</Tag>
-            <Tag>{item.operator}</Tag>
-            <Tag color='blue'>{getItemValueString(item.value)}</Tag>
-          </Card>
-        </>
-      )
-    })
-    return (
-      <>
-        <table width='100%' cellPadding='5px'>
-          <tbody>
-            <tr>
-              <td className='align-text-top' width='25px'>
-                <DoubleRightOutlined style={{ fontSize: '20px', color: '#08c' }} />
-              </td>
-              <td>
-                <Title level={4}>{resource.method.toUpperCase() + ' ' + resource.path}</Title>
-              </td>
-            </tr>
-            {
-              conditions.length > 0
-                ? (
-                  <tr>
-                    <td className='align-text-top'>
-                      <QuestionOutlined style={{ fontSize: '20px', color: '#08c' }} />
-                    </td>
-                    <td>
-                      <Title level={4}>Conditions</Title>
-                      {conditionItems}
-                    </td>
-                  </tr>
-                  )
-                : null
-            }
-            <tr>
-              <td className='align-text-top'>
-                <DoubleLeftOutlined style={{ fontSize: '20px', color: '#08c' }} />
-              </td>
-              <td>
-                <Title level={4}>Event</Title>
-                {
-                  Object.entries(inputRule.event.params).length > 0
-                    ? (
-                      <Card size='small' className='mt-4' title={inputRule.event.type}>
-                        <pre>{JSON.stringify(inputRule.event.params, null, 2)}</pre>
-                      </Card>
-                      )
-                    : inputRule.event.type
+        const resource = {};
+        let conditions = [];
+        try {
+            const pathCondition = inputRule.conditions.all.find(item => {
+                if(item.fact === 'operationPath') {
+                    return true;
+                } else {
+                    return false;
                 }
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </>
-    )
-  }
+            });
+            if(pathCondition) {
+                resource.path = pathCondition.value;
+            }
+            const methodCondition = inputRule.conditions.all.find(item => {
+                if(item.fact === 'method') {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            if(methodCondition) {
+                resource.method = methodCondition.value;
+            }
+
+            conditions = inputRule.conditions.all.filter(item => {
+                if(item.fact === 'method' || item.fact === 'operationPath') {
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+        } catch (err) {}
+
+        const getItemValueString = itemValue => {
+            if(Array.isArray(itemValue)) {
+                return itemValue.toString();
+            } else {
+                return itemValue;
+            }
+        };
+
+        const conditionItems = conditions.map(item => {
+            return (
+                <>
+                    <Card size='small' className='mt-1'>
+                        <Tag color='cyan'>{item.fact}.{item.path}</Tag>
+                        <Tag>{item.operator}</Tag>
+                        <Tag color='blue'>{getItemValueString(item.value)}</Tag>
+                    </Card>
+                </>
+            );
+        });
+        return (
+            <>
+                <table width='100%' cellPadding='5px'>
+                    <tbody>
+                        <tr>
+                            <td className='align-text-top' width='25px'>
+                                <DoubleRightOutlined style={{ fontSize: '20px', color: '#08c' }} />
+                            </td>
+                            <td>
+                                <Title level={4}>{resource.method.toUpperCase() + ' ' + resource.path}</Title>
+                            </td>
+                        </tr>
+                        {
+                            conditions.length > 0
+                                ? (
+                                    <tr>
+                                        <td className='align-text-top'>
+                                            <QuestionOutlined style={{ fontSize: '20px', color: '#08c' }} />
+                                        </td>
+                                        <td>
+                                            <Title level={4}>Conditions</Title>
+                                            {conditionItems}
+                                        </td>
+                                    </tr>
+                                )
+                                : null
+                        }
+                        <tr>
+                            <td className='align-text-top'>
+                                <DoubleLeftOutlined style={{ fontSize: '20px', color: '#08c' }} />
+                            </td>
+                            <td>
+                                <Title level={4}>Event</Title>
+                                {
+                                    Object.entries(inputRule.event.params).length > 0
+                                        ? (
+                                            <Card size='small' className='mt-4' title={inputRule.event.type}>
+                                                <pre>{JSON.stringify(inputRule.event.params, null, 2)}</pre>
+                                            </Card>
+                                        )
+                                        : inputRule.event.type
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </>
+        );
+    }
 }
 
-export default RuleViewer
+export default RuleViewer;

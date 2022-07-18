@@ -21,119 +21,119 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react'
-import { Row, Col, Menu, Typography, Spin, Result } from 'antd'
-const { Text, Title } = Typography
+import React from 'react';
+import { Row, Col, Typography, Result } from 'antd';
+const { Title } = Typography;
 
 class PayeeMobile extends React.Component {
-  state = {
-    receivedAmount: null,
-    payeeReceiveAmount: null,
-    payerComplexName: null,
-    stage: null
-  }
+    state = {
+        receivedAmount: null,
+        payeeReceiveAmount: null,
+        payerComplexName: null,
+        stage: null,
+    };
 
-  componentDidMount = async () => {
-  }
+    componentDidMount = async () => {
+    };
 
-  resetState = () => {
-    this.setState({ receivedAmount: null, payeeReceiveAmount: null, payerComplexName: null, stage: null })
-  }
+    resetState = () => {
+        this.setState({ receivedAmount: null, payeeReceiveAmount: null, payerComplexName: null, stage: null });
+    };
 
-  handleNotificationEvents = (event) => {
-    switch (event.type) {
-      case 'payeeGetParties':
-      {
-        this.resetState()
-        break
-      }
-      // case 'payeeGetPartiesResponse':
-      // {
-      //   break
-      // }
-      // case 'payeePutParties':
-      // {
-      //   break
-      // }
-      // case 'payeePutPartiesResponse':
-      // {
-      //   break
-      // }
-      case 'payeePostQuotes':
-      {
-        this.setState({ payerComplexName: event.data.requestBody && event.data.requestBody.payer && event.data.requestBody.payer.personalInfo && event.data.requestBody.payer.personalInfo.complexName })
-        break
-      }
-      // case 'payeePostQuotesResponse':
-      // {
-      //   break
-      // }
-      case 'payeePutQuotes':
-      {
-        this.setState({ payeeReceiveAmount: event.data.requestBody && event.data.requestBody.payeeReceiveAmount })
-        break
-      }
-      // case 'payeePutQuotesResponse':
-      // {
-      //   break
-      // }
-      case 'payeePostTransfers':
-      {
-        // this.setState({receivedAmount: event.data.requestBody && event.data.requestBody.amount && event.data.requestBody.amount.amount})
-        this.setState({ receivedAmount: this.state.payeeReceiveAmount })
-        break
-      }
-      // case 'payeePostTransfersResponse':
-      // {
-      //   break
-      // }
-      case 'payeePutTransfers':
-      {
-        if (event.data.requestBody && event.data.requestBody.transferState === 'COMMITTED') {
-          this.setState({ stage: 'putTransfers' })
-        }
-        break
-      }
+    handleNotificationEvents = event => {
+        switch (event.type) {
+            case 'payeeGetParties':
+            {
+                this.resetState();
+                break;
+            }
+            // case 'payeeGetPartiesResponse':
+            // {
+            //   break
+            // }
+            // case 'payeePutParties':
+            // {
+            //   break
+            // }
+            // case 'payeePutPartiesResponse':
+            // {
+            //   break
+            // }
+            case 'payeePostQuotes':
+            {
+                this.setState({ payerComplexName: event.data.requestBody && event.data.requestBody.payer && event.data.requestBody.payer.personalInfo && event.data.requestBody.payer.personalInfo.complexName });
+                break;
+            }
+            // case 'payeePostQuotesResponse':
+            // {
+            //   break
+            // }
+            case 'payeePutQuotes':
+            {
+                this.setState({ payeeReceiveAmount: event.data.requestBody && event.data.requestBody.payeeReceiveAmount });
+                break;
+            }
+            // case 'payeePutQuotesResponse':
+            // {
+            //   break
+            // }
+            case 'payeePostTransfers':
+            {
+                // this.setState({receivedAmount: event.data.requestBody && event.data.requestBody.amount && event.data.requestBody.amount.amount})
+                this.setState({ receivedAmount: this.state.payeeReceiveAmount });
+                break;
+            }
+            // case 'payeePostTransfersResponse':
+            // {
+            //   break
+            // }
+            case 'payeePutTransfers':
+            {
+                if(event.data.requestBody && event.data.requestBody.transferState === 'COMMITTED') {
+                    this.setState({ stage: 'putTransfers' });
+                }
+                break;
+            }
       // case 'payeePutTransfersResponse':
       // {
       //   break
       // }
-    }
-  }
+        }
+    };
 
-  getStageData = () => {
-    switch (this.state.stage) {
-      case 'putTransfers':
-        return (
-          <Row className='mt-2'>
-            <Col span={24} className='text-center'>
-              <Result
-                status='success'
-                title={'Received ' + this.state.receivedAmount.amount + ' ' + this.state.receivedAmount.currency}
-                subTitle={'from ' + this.state.payerComplexName.firstName}
-              />
-            </Col>
-          </Row>
-        )
-      default:
-        return (
-          <Row className='mt-4'>
-            <Col span={24} className='text-center'>
-              <Title level={3}>Welcome</Title>
-            </Col>
-          </Row>
-        )
-    }
-  }
+    getStageData = () => {
+        switch (this.state.stage) {
+            case 'putTransfers':
+                return (
+                    <Row className='mt-2'>
+                        <Col span={24} className='text-center'>
+                            <Result
+                                status='success'
+                                title={'Received ' + this.state.receivedAmount.amount + ' ' + this.state.receivedAmount.currency}
+                                subTitle={'from ' + this.state.payerComplexName.firstName}
+                            />
+                        </Col>
+                    </Row>
+                );
+            default:
+                return (
+                    <Row className='mt-4'>
+                        <Col span={24} className='text-center'>
+                            <Title level={3}>Welcome</Title>
+                        </Col>
+                    </Row>
+                );
+        }
+    };
 
-  render () {
-    return (
-      <>
-        <Row className='mt-4' />
-        {this.getStageData()}
-      </>
-    )
-  }
+    render() {
+        return (
+            <>
+                <Row className='mt-4' />
+                {this.getStageData()}
+            </>
+        );
+    }
 }
 
-export default PayeeMobile
+export default PayeeMobile;

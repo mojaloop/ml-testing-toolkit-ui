@@ -21,38 +21,38 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react'
-import { RedocStandalone } from 'redoc'
-import { Row, Col } from 'antd'
+import React from 'react';
+import { RedocStandalone } from 'redoc';
+import { Row, Col } from 'antd';
 
 class APIDocViewer extends React.Component {
-  componentDidMount = async () => {
-  }
+    componentDidMount = async () => {
+    };
 
-  render () {
-    return (
-      <>
-        {/* Page content */}
-        <Row className='mt--7 mb-4'>
-          <Col span={24}>
-            {
-                this.props.specUrl
-                  ? (
-                    <RedocStandalone
-                      specUrl={this.props.specUrl}
-                      options={{
-                        nativeScrollbars: true,
-                        theme: { colors: { primary: { main: '#dd5522' } } }
-                      }}
-                    />
-                    )
-                  : null
-              }
-          </Col>
-        </Row>
-      </>
-    )
-  }
+    render() {
+        return (
+            <>
+                {/* Page content */}
+                <Row className='mt--7 mb-4'>
+                    <Col span={24}>
+                        {
+                            this.props.specUrl
+                                ? (
+                                    <RedocStandalone
+                                        specUrl={this.props.specUrl}
+                                        options={{
+                                            nativeScrollbars: true,
+                                            theme: { colors: { primary: { main: '#dd5522' } } },
+                                        }}
+                                    />
+                                )
+                                : null
+                        }
+                    </Col>
+                </Row>
+            </>
+        );
+    }
 }
 
-export default APIDocViewer
+export default APIDocViewer;

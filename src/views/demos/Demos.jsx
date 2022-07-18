@@ -21,58 +21,58 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react'
-import { Row, Col } from 'antd'
+import React from 'react';
+import { Row, Col } from 'antd';
 
 class Demos extends React.Component {
-  render () {
-    return (
-      <>
-        <Row className='my-4'>
-          <Col span={24}>
-            <ul>
-              <li>
-                <a
-                  href='/mobilesimulator'
-                  target='_blank'
-                >
+    render() {
+        return (
+            <>
+                <Row className='my-4'>
+                    <Col span={24}>
+                        <ul>
+                            <li>
+                                <a
+                                    href='/mobilesimulator'
+                                    target='_blank'
+                                >
                   Mobile Simulator
-                </a>
-              </li>
-            </ul>
-          </Col>
-        </Row>
-        <Row className='my-4'>
-          <Col span={24}>
-            <ul>
-              <li>
-                <a
-                  href='/payeemobile'
-                  target='_blank'
-                >
+                                </a>
+                            </li>
+                        </ul>
+                    </Col>
+                </Row>
+                <Row className='my-4'>
+                    <Col span={24}>
+                        <ul>
+                            <li>
+                                <a
+                                    href='/payeemobile'
+                                    target='_blank'
+                                >
                   Payee App Simulator
-                </a>
-              </li>
-            </ul>
-          </Col>
-        </Row>
-        <Row className='my-4'>
-          <Col span={24}>
-            <ul>
-              <li>
-                <a
-                  href='/demotestrunner'
-                  target='_blank'
-                >
+                                </a>
+                            </li>
+                        </ul>
+                    </Col>
+                </Row>
+                <Row className='my-4'>
+                    <Col span={24}>
+                        <ul>
+                            <li>
+                                <a
+                                    href='/demotestrunner'
+                                    target='_blank'
+                                >
                   Test Runner (Demo friendly)
-                </a>
-              </li>
-            </ul>
-          </Col>
-        </Row>
-      </>
-    )
-  }
+                                </a>
+                            </li>
+                        </ul>
+                    </Col>
+                </Row>
+            </>
+        );
+    }
 }
 
-export default Demos
+export default Demos;

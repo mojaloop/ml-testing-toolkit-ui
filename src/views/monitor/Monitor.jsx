@@ -21,89 +21,93 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react'
-import socketIOClient from 'socket.io-client'
-import { getConfig } from '../../utils/getConfig'
-import axios from 'axios'
+import React from 'react';
+import socketIOClient from 'socket.io-client';
+import { getConfig } from '../../utils/getConfig';
+import axios from 'axios';
 
-import { Tabs } from 'antd'
+import { Tabs } from 'antd';
 
-import ActivityLog from './ActivityLog'
-import SequenceDiagram from './SequenceDiagram'
+import ActivityLog from './ActivityLog';
+import SequenceDiagram from './SequenceDiagram';
 
-const { TabPane } = Tabs
+const { TabPane } = Tabs;
 
 class Monitor extends React.Component {
-  newState = {
-    timeline: {
-      outbound: {
-        socket: null,
-        socketTopic: 'newOutboundLog'
-      },
-      inbound: {
-        socket: null,
-        socketTopic: 'newLog'
-      }
-    }
-  }
+    newState = {
+        timeline: {
+            outbound: {
+                socket: null,
+                socketTopic: 'newOutboundLog',
+            },
+            inbound: {
+                socket: null,
+                socketTopic: 'newLog',
+            },
+        },
+    };
 
-  constructor () {
-    super()
-    this.activityLogRef = React.createRef()
-    this.sequenceDiagramRef = React.createRef()
-    this.state = JSON.parse(JSON.stringify(this.newState))
-  }
+    constructor() {
+        super();
+        this.activityLogRef = React.createRef();
+        this.sequenceDiagramRef = React.createRef();
+        this.state = JSON.parse(JSON.stringify(this.newState));
+    }
 
-  componentWillUnmount = () => {
-    if (this.state.timeline.inbound.socket) {
-      this.state.timeline.inbound.socket.disconnect()
-    }
-    if (this.state.timeline.outbound.socket) {
-      this.state.timeline.outbound.socket.disconnect()
-    }
-  }
-
-  componentDidMount = async () => {
-    const { apiBaseUrl } = getConfig()
-    if (getConfig().isAuthEnabled) {
-      const storedLogs = await axios.get(`${apiBaseUrl}/api/history/logs`)
-      storedLogs.data.forEach(log => {
-        this.activityLogRef.current && this.activityLogRef.current.appendLog(log)
-        this.sequenceDiagramRef.current && this.sequenceDiagramRef.current.appendLog(log)
-      })
-    }
-    for (const logType of Object.keys(this.state.timeline)) {
-      const item = this.state.timeline[logType]
-      item.socket = socketIOClient(apiBaseUrl)
-      if (getConfig().isAuthEnabled) {
-        const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
-        if (dfspId) {
-          item.socketTopic = `${item.socketTopic}/${dfspId}`
+    componentWillUnmount = () => {
+        if(this.state.timeline.inbound.socket) {
+            this.state.timeline.inbound.socket.disconnect();
         }
-      }
+        if(this.state.timeline.outbound.socket) {
+            this.state.timeline.outbound.socket.disconnect();
+        }
+    };
 
-      item.socket.on(item.socketTopic, log => {
-        this.activityLogRef.current && this.activityLogRef.current.appendLog(log)
-        this.sequenceDiagramRef.current && this.sequenceDiagramRef.current.appendLog(log)
-        this.forceUpdate()
-      })
+    componentDidMount = async () => {
+        const { apiBaseUrl } = getConfig();
+        if(getConfig().isAuthEnabled) {
+            const storedLogs = await axios.get(`${apiBaseUrl}/api/history/logs`);
+            storedLogs.data.forEach(log => {
+                if(this.activityLogRef.current)
+                    this.activityLogRef.current.appendLog(log);
+                if(this.sequenceDiagramRef.current)
+                    this.sequenceDiagramRef.current.appendLog(log);
+            });
+        }
+        for(const logType of Object.keys(this.state.timeline)) {
+            const item = this.state.timeline[logType];
+            item.socket = socketIOClient(apiBaseUrl);
+            if(getConfig().isAuthEnabled) {
+                const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID');
+                if(dfspId) {
+                    item.socketTopic = `${item.socketTopic}/${dfspId}`;
+                }
+            }
+
+            item.socket.on(item.socketTopic, log => {
+                if(this.activityLogRef.current)
+                    this.activityLogRef.current.appendLog(log);
+                if(this.sequenceDiagramRef.current)
+                    this.sequenceDiagramRef.current.appendLog(log);
+                this.forceUpdate();
+            });
+        }
+        this.forceUpdate();
+    };
+
+    render() {
+        return (
+            <Tabs type='card' defaultActiveKey='1'>
+                <TabPane tab='Activity Log' key='1' forceRender>
+                    <ActivityLog ref={this.activityLogRef} />
+                </TabPane>
+                <TabPane tab='Sequence Diagram' key='2' forceRender>
+                    <SequenceDiagram ref={this.sequenceDiagramRef} />
+                </TabPane>
+            </Tabs>
+
+        );
     }
-    this.forceUpdate()
-  }
-
-  render () {
-    return (
-      <Tabs type='card' defaultActiveKey='1'>
-        <TabPane tab='Activity Log' key='1' forceRender>
-          <ActivityLog ref={this.activityLogRef} />
-        </TabPane>
-        <TabPane tab='Sequence Diagram' key='2' forceRender>
-          <SequenceDiagram ref={this.sequenceDiagramRef} />
-        </TabPane>
-      </Tabs>
-
-    )
-  }
 }
 
-export default Monitor
+export default Monitor;

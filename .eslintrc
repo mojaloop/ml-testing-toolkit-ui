@@ -58,15 +58,7 @@
         { "SwitchCase": 1 }
       ],
       "react/jsx-filename-extension": [0, { "extensions": [".js", ".jsx"] }],
-      "max-len": [
-        "warn",
-        {
-          "code": 120,
-          "ignoreStrings": true,
-          "ignoreTemplateLiterals": true,
-          "ignoreComments": true
-        }
-      ],
+      "max-len": "off",
       "no-plusplus": [
         "error",
         {
@@ -99,6 +91,8 @@
           "ts": "never",
           "json": "ignore"
         }
-      ]
+      ],
+      "@typescript-eslint/no-use-before-define": "off",
+      "@typescript-eslint/no-shadow": "off"
     }
   }

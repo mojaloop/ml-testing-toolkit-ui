@@ -1,0 +1,6 @@
+reject: [
+  # TODO: Incompatibility issues found with the TTK backend if we update socket.io client
+  "socket.io-client"
+  # TODO: Npm install is failing if we try to upgrade react
+  # "react",
+]

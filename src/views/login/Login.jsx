@@ -21,107 +21,107 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react'
+import React from 'react';
 
-import { withRouter, Redirect } from 'react-router-dom'
-import { message, Button, Form, Input, Row, Col, Card, Layout } from 'antd'
-import { getConfig } from '../../utils/getConfig'
+import { withRouter } from 'react-router-dom';
+import axios from 'axios';
+import { message, Button, Form, Input, Row, Col, Card, Layout } from 'antd';
+import { getConfig } from '../../utils/getConfig';
 
-import PlainNavbar from '../../components/Navbars/PlainNavbar'
+import PlainNavbar from '../../components/Navbars/PlainNavbar';
 
-const { Content } = Layout
-const axios = require('axios').default
+const { Content } = Layout;
 
 class Login extends React.Component {
-  onFinish = async (formValues) => {
-    console.log(formValues)
-    try {
-      const { apiBaseUrl } = getConfig()
-      axios.defaults.withCredentials = true
-      const res = await axios.post(apiBaseUrl + '/api/oauth2/login/', {
-        username: formValues.username,
-        password: formValues.password
-      }, { headers: { 'Content-Type': 'application/json' } })
-      if (res.status === 200) {
-        this.props.handleLogin(res.data.token.payload)
-        message.success({ content: 'login successful', key: 'login', duration: 1 })
-        this.props.history.push('/admin/index')
-        return
-      }
-    } catch (err) {}
-    message.error({ content: 'login failed', key: 'login', duration: 3 })
-  }
+    onFinish = async formValues => {
+        console.log(formValues);
+        try {
+            const { apiBaseUrl } = getConfig();
+            axios.defaults.withCredentials = true;
+            const res = await axios.post(apiBaseUrl + '/api/oauth2/login/', {
+                username: formValues.username,
+                password: formValues.password,
+            }, { headers: { 'Content-Type': 'application/json' } });
+            if(res.status === 200) {
+                this.props.handleLogin(res.data.token.payload);
+                message.success({ content: 'login successful', key: 'login', duration: 1 });
+                this.props.history.push('/admin/index');
+                return;
+            }
+        } catch (err) {}
+        message.error({ content: 'login failed', key: 'login', duration: 3 });
+    };
 
-  onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo)
-  }
+    onFinishFailed = errorInfo => {
+        console.log('Failed:', errorInfo);
+    };
 
-  render () {
-    return (
-      <Layout style={{ backgroundColor: '#ffffff' }}>
-        <PlainNavbar />
-        <Content>
-          <Row style={{ marginTop: '250px' }}>
-            <Col colspan={24} className='mx-auto'>
-              <Card className='shadow ml-4 mr-4 mt-n5 align-middle p-4' style={{ width: '500px' }}>
-                <Form
-                  name='basic'
-                  labelCol={{
-                    span: 8
-                  }}
-                  wrapperCol={{
-                    span: 16
-                  }}
-                  initialValues={{
-                  // remember: true,
-                  }}
-                  onFinish={this.onFinish}
-                  onFinishFailed={this.onFinishFailed}
-                >
-                  <Form.Item
-                    label='Username'
-                    name='username'
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please input your username!'
-                      }
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
+    render() {
+        return (
+            <Layout style={{ backgroundColor: '#ffffff' }}>
+                <PlainNavbar />
+                <Content>
+                    <Row style={{ marginTop: '250px' }}>
+                        <Col colspan={24} className='mx-auto'>
+                            <Card className='shadow ml-4 mr-4 mt-n5 align-middle p-4' style={{ width: '500px' }}>
+                                <Form
+                                    name='basic'
+                                    labelCol={{
+                                        span: 8,
+                                    }}
+                                    wrapperCol={{
+                                        span: 16,
+                                    }}
+                                    initialValues={{
+                                        // remember: true,
+                                    }}
+                                    onFinish={this.onFinish}
+                                    onFinishFailed={this.onFinishFailed}
+                                >
+                                    <Form.Item
+                                        label='Username'
+                                        name='username'
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Please input your username!',
+                                            },
+                                        ]}
+                                    >
+                                        <Input />
+                                    </Form.Item>
 
-                  <Form.Item
-                    label='Password'
-                    name='password'
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please input your password!'
-                      }
-                    ]}
-                  >
-                    <Input.Password />
-                  </Form.Item>
+                                    <Form.Item
+                                        label='Password'
+                                        name='password'
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Please input your password!',
+                                            },
+                                        ]}
+                                    >
+                                        <Input.Password />
+                                    </Form.Item>
 
-                  <Form.Item
-                    wrapperCol={{
-                      offset: 8,
-                      span: 16
-                    }}
-                  >
-                    <Button type='primary' htmlType='submit'>
+                                    <Form.Item
+                                        wrapperCol={{
+                                            offset: 8,
+                                            span: 16,
+                                        }}
+                                    >
+                                        <Button type='primary' htmlType='submit'>
                       Submit
-                    </Button>
-                  </Form.Item>
-                </Form>
-              </Card>
-            </Col>
-          </Row>
-        </Content>
-      </Layout>
-    )
-  }
+                                        </Button>
+                                    </Form.Item>
+                                </Form>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Content>
+            </Layout>
+        );
+    }
 }
 
-export default withRouter(Login)
+export default withRouter(Login);

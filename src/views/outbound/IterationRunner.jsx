@@ -22,230 +22,230 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react'
+import React from 'react';
 
-import { Row, Col, Typography, Button, message, Table, Progress, InputNumber, Tag } from 'antd'
-import FileDownload from 'js-file-download'
+import { Row, Col, Typography, Button, message, Table, Progress, InputNumber, Tag } from 'antd';
+import FileDownload from 'js-file-download';
 
 // import { RightCircleOutlined, CodeFilled, HistoryOutlined } from '@ant-design/icons';
-import axios from 'axios'
-import { getConfig } from '../../utils/getConfig'
-import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
+import axios from 'axios';
+import { getConfig } from '../../utils/getConfig';
+import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 
-const { Text } = Typography
+const { Text } = Typography;
 
 class IterationNumberInput extends React.Component {
-  render () {
-    return (
-      <Row>
-        <Col span={24}>
+    render() {
+        return (
+            <Row>
+                <Col span={24}>
           Iteration Count
-          <InputNumber
-            min={10}
-            max={200}
-            step={10}
-            style={{ margin: '0 16px' }}
-            value={this.props.count}
-            onChange={this.props.onChange}
-          />
-        </Col>
-      </Row>
-    )
-  }
+                    <InputNumber
+                        min={10}
+                        max={200}
+                        step={10}
+                        style={{ margin: '0 16px' }}
+                        value={this.props.count}
+                        onChange={this.props.onChange}
+                    />
+                </Col>
+            </Row>
+        );
+    }
 }
 
 class IterationRunner extends React.Component {
-  constructor () {
-    super()
-    this.state = {
-      totalIterations: 100,
-      iterationsResult: [],
-      iterationsDone: 0,
-      runtimeDurationDone: 0,
-      isTableLoading: false,
-      totalReport: null,
-      totalRuntimeDuration: null
+    constructor() {
+        super();
+        this.state = {
+            totalIterations: 100,
+            iterationsResult: [],
+            iterationsDone: 0,
+            runtimeDurationDone: 0,
+            isTableLoading: false,
+            totalReport: null,
+            totalRuntimeDuration: null,
+        };
     }
-  }
 
-  componentWillUnmount = () => {
-  }
+    componentWillUnmount = () => {
+    };
 
-  componentDidMount = () => {
+    componentDidMount = () => {
 
-  }
+    };
 
-  handleIterationCountChange = (count) => {
-    this.setState({ iterationsDone: 0, totalIterations: count })
-  }
+    handleIterationCountChange = count => {
+        this.setState({ iterationsDone: 0, totalIterations: count });
+    };
 
-  handleIncomingProgress (progress) {
-    if (progress.status === 'ITERATION_PROGRESS') {
-      this.state.iterationsResult.push(progress.iterationStatus)
-      this.state.runtimeDurationDone += progress.iterationStatus.runDurationMs
-      this.state.iterationsDone++
-      this.forceUpdate()
-      // console.log(progress.iterationStatus)
-    } else if (progress.status === 'ITERATIONS_FINISHED') {
-      this.setState({ isTableLoading: false, totalReport: progress.totalReport, totalRuntimeDuration: progress.totalRunDurationMs })
-      message.success({ content: 'Finished', key: 'iterationsProgress' })
-    } else if (progress.status === 'ITERATIONS_TERMINATED') {
-      this.setState({ isTableLoading: false })
-      message.error({ content: 'Terminated', key: 'iterationsProgress' })
-    }
-  }
-
-  handleStartExecutionClick = async (template = null) => {
-    // Reset the values
-    this.state.iterationsDone = 0
-    this.state.runtimeDurationDone = 0
-    this.state.iterationsResult = []
-    this.state.totalRuntimeDuration = null
-
-    this.state.isTableLoading = true
-    const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix()
-    this.state.currentEndToEndId = TraceHeaderUtils.generateEndToEndId()
-    const traceId = traceIdPrefix + this.props.sessionId + this.state.currentEndToEndId
-
-    // const outboundRequestID = Math.random().toString(36).substring(7);
-    message.loading({ content: 'Starting iterations...', key: 'iterationsProgress' })
-    const { apiBaseUrl } = getConfig()
-    const params = {
-      iterationCount: this.state.totalIterations
-    }
-    await axios.post(apiBaseUrl + '/api/outbound/template_iterations/' + traceId, this.props.template, { params, headers: { 'Content-Type': 'application/json' } })
-
-    this.state.sendingOutboundRequestID = traceId
-    message.loading({ content: 'Executing the test cases...', key: 'iterationsProgress', duration: 10 })
-
-    this.forceUpdate()
-  }
-
-  handleDownloadReport = async (iterationNumber) => {
-    const testReport = this.state.totalReport && this.state.totalReport.iterations[iterationNumber]
-
-    message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 })
-    const { apiBaseUrl } = getConfig()
-    const reportFormat = 'html'
-    const response = await axios.post(apiBaseUrl + '/api/reports/testcase/' + reportFormat, testReport, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
-    let downloadFilename = 'test.' + reportFormat
-    if (response.headers['content-disposition']) {
-      const disposition = response.headers['content-disposition']
-      if (disposition && disposition.indexOf('attachment') !== -1) {
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-        const matches = filenameRegex.exec(disposition)
-        if (matches != null && matches[1]) {
-          downloadFilename = matches[1].replace(/['"]/g, '')
+    handleIncomingProgress(progress) {
+        if(progress.status === 'ITERATION_PROGRESS') {
+            this.state.iterationsResult.push(progress.iterationStatus);
+            this.state.runtimeDurationDone += progress.iterationStatus.runDurationMs;
+            this.state.iterationsDone += 1;
+            this.forceUpdate();
+            // console.log(progress.iterationStatus)
+        } else if(progress.status === 'ITERATIONS_FINISHED') {
+            this.setState({ isTableLoading: false, totalReport: progress.totalReport, totalRuntimeDuration: progress.totalRunDurationMs });
+            message.success({ content: 'Finished', key: 'iterationsProgress' });
+        } else if(progress.status === 'ITERATIONS_TERMINATED') {
+            this.setState({ isTableLoading: false });
+            message.error({ content: 'Terminated', key: 'iterationsProgress' });
         }
-      }
     }
-    FileDownload(response.data, downloadFilename)
-    message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 })
-  }
 
-  render () {
-    const columns = [
-      {
-        title: 'Iteration No.',
-        dataIndex: 'iterationNumber'
-      },
-      {
-        title: 'Pass Percentage',
-        dataIndex: 'passPercentage'
-      },
-      {
-        title: 'Runtime Duration (ms)',
-        dataIndex: 'runtimeDuration'
-      },
-      {
-        title: 'Report',
-        dataIndex: 'downloadReport'
-      }
-    ]
+    handleStartExecutionClick = async (template = null) => {
+        // Reset the values
+        this.state.iterationsDone = 0;
+        this.state.runtimeDurationDone = 0;
+        this.state.iterationsResult = [];
+        this.state.totalRuntimeDuration = null;
 
-    const data = this.state.iterationsResult.map((item, index) => {
-      return {
-        key: index,
-        iterationNumber: item.iterationNumber,
-        passPercentage: (
-          <>
-            <Text>{item.totalPassedAssertions + '/' + item.totalAssertions + ' (' + Math.round(item.totalPassedAssertions * 100 / item.totalAssertions) + '%)'}</Text>
-            {item.totalPassedAssertions === item.totalAssertions ? (<Tag className='ml-2' color='success'>PASSED</Tag>) : (<Tag className='ml-2' color='error'>FAILED</Tag>)}
-          </>),
-        runtimeDuration: item.runDurationMs,
-        downloadReport: this.state.totalReport
-          ? (
-            <Button
-              onClick={(e) => { this.handleDownloadReport(item.iterationNumber) }}
-            >Report
-            </Button>
-            )
-          : null
-      }
-    })
+        this.state.isTableLoading = true;
+        const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix();
+        this.state.currentEndToEndId = TraceHeaderUtils.generateEndToEndId();
+        const traceId = traceIdPrefix + this.props.sessionId + this.state.currentEndToEndId;
 
-    return (
-      <>
-        <Row>
-          <Col span={8}>
-            <IterationNumberInput
-              count={this.state.totalIterations}
-              onChange={this.handleIterationCountChange}
-            />
-          </Col>
-          <Col span={8}>
+        // const outboundRequestID = Math.random().toString(36).substring(7);
+        message.loading({ content: 'Starting iterations...', key: 'iterationsProgress' });
+        const { apiBaseUrl } = getConfig();
+        const params = {
+            iterationCount: this.state.totalIterations,
+        };
+        await axios.post(apiBaseUrl + '/api/outbound/template_iterations/' + traceId, this.props.template, { params, headers: { 'Content-Type': 'application/json' } });
+
+        this.state.sendingOutboundRequestID = traceId;
+        message.loading({ content: 'Executing the test cases...', key: 'iterationsProgress', duration: 10 });
+
+        this.forceUpdate();
+    };
+
+    handleDownloadReport = async iterationNumber => {
+        const testReport = this.state.totalReport && this.state.totalReport.iterations[iterationNumber];
+
+        message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
+        const { apiBaseUrl } = getConfig();
+        const reportFormat = 'html';
+        const response = await axios.post(apiBaseUrl + '/api/reports/testcase/' + reportFormat, testReport, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' });
+        let downloadFilename = 'test.' + reportFormat;
+        if(response.headers['content-disposition']) {
+            const disposition = response.headers['content-disposition'];
+            if(disposition && disposition.indexOf('attachment') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if(matches != null && matches[1]) {
+                    downloadFilename = matches[1].replace(/['"]/g, '');
+                }
+            }
+        }
+        FileDownload(response.data, downloadFilename);
+        message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 });
+    };
+
+    render() {
+        const columns = [
             {
-          this.state.iterationsDone > 0
-            ? (
-              <>
-                <Progress percent={Math.round(this.state.iterationsDone * 100 / this.state.totalIterations)} width={50} />
-                {/* <Title level={4}>{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</Title> */}
-              </>
-              )
-            : null
-        }
-          </Col>
-          <Col span={8}>
-            <Button
-              className='float-right'
-              type='primary'
-              danger
-              onClick={this.handleStartExecutionClick}
-            >
+                title: 'Iteration No.',
+                dataIndex: 'iterationNumber',
+            },
+            {
+                title: 'Pass Percentage',
+                dataIndex: 'passPercentage',
+            },
+            {
+                title: 'Runtime Duration (ms)',
+                dataIndex: 'runtimeDuration',
+            },
+            {
+                title: 'Report',
+                dataIndex: 'downloadReport',
+            },
+        ];
+
+        const data = this.state.iterationsResult.map((item, index) => {
+            return {
+                key: index,
+                iterationNumber: item.iterationNumber,
+                passPercentage: (
+                    <>
+                        <Text>{item.totalPassedAssertions + '/' + item.totalAssertions + ' (' + Math.round(item.totalPassedAssertions * 100 / item.totalAssertions) + '%)'}</Text>
+                        {item.totalPassedAssertions === item.totalAssertions ? (<Tag className='ml-2' color='success'>PASSED</Tag>) : (<Tag className='ml-2' color='error'>FAILED</Tag>)}
+                    </>),
+                runtimeDuration: item.runDurationMs,
+                downloadReport: this.state.totalReport
+                    ? (
+                        <Button
+                            onClick={e => { this.handleDownloadReport(item.iterationNumber); }}
+                        >Report
+                        </Button>
+                    )
+                    : null,
+            };
+        });
+
+        return (
+            <>
+                <Row>
+                    <Col span={8}>
+                        <IterationNumberInput
+                            count={this.state.totalIterations}
+                            onChange={this.handleIterationCountChange}
+                        />
+                    </Col>
+                    <Col span={8}>
+                        {
+                            this.state.iterationsDone > 0
+                                ? (
+                                    <>
+                                        <Progress percent={Math.round(this.state.iterationsDone * 100 / this.state.totalIterations)} width={50} />
+                                        {/* <Title level={4}>{this.state.totalPassedCount} / {this.state.totalAssertionsCount}</Title> */}
+                                    </>
+                                )
+                                : null
+                        }
+                    </Col>
+                    <Col span={8}>
+                        <Button
+                            className='float-right'
+                            type='primary'
+                            danger
+                            onClick={this.handleStartExecutionClick}
+                        >
               Start Execution
-            </Button>
-          </Col>
-        </Row>
-        <Row className='mt-2'>
-          <Col span={24}>
-            <Table
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-              scroll={{ y: 540 }}
-              loading={this.state.isTableLoading}
-              footer={(pageData) => {
-                return (
-                  <>
-                    <Row>
-                      <Col span={8}><Text strong>Iterations Done: {this.state.iterationsDone}</Text></Col>
-                      <Col span={8}><Text strong>Average Runtime Duration: {Math.round(this.state.runtimeDurationDone / this.state.iterationsDone)}</Text></Col>
-                      {
-                      this.state.totalRuntimeDuration
-                        ? <Col span={8}><Text strong>Total Runtime Duration: {this.state.totalRuntimeDuration}</Text></Col>
-                        : null
-                    }
-                    </Row>
-                  </>
-                )
-              }}
-            />
-            {/* { getHorizontalGroups() } */}
-          </Col>
-        </Row>
-      </>
-    )
-  }
+                        </Button>
+                    </Col>
+                </Row>
+                <Row className='mt-2'>
+                    <Col span={24}>
+                        <Table
+                            columns={columns}
+                            dataSource={data}
+                            pagination={false}
+                            scroll={{ y: 540 }}
+                            loading={this.state.isTableLoading}
+                            footer={pageData => {
+                                return (
+                                    <>
+                                        <Row>
+                                            <Col span={8}><Text strong>Iterations Done: {this.state.iterationsDone}</Text></Col>
+                                            <Col span={8}><Text strong>Average Runtime Duration: {Math.round(this.state.runtimeDurationDone / this.state.iterationsDone)}</Text></Col>
+                                            {
+                                                this.state.totalRuntimeDuration
+                                                    ? <Col span={8}><Text strong>Total Runtime Duration: {this.state.totalRuntimeDuration}</Text></Col>
+                                                    : null
+                                            }
+                                        </Row>
+                                    </>
+                                );
+                            }}
+                        />
+                        {/* { getHorizontalGroups() } */}
+                    </Col>
+                </Row>
+            </>
+        );
+    }
 }
 
-export default IterationRunner
+export default IterationRunner;
