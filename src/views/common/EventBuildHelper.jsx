@@ -21,34 +21,33 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import _ from 'lodash';
-import { Select, Row, Col, Button, Input, Tooltip, Popover, Checkbox, Typography } from 'antd';
-import 'antd/dist/antd.css';
-import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
+import React from 'react'
+import _ from 'lodash'
+import { Select, Row, Col, Button, Input, Tooltip, Popover, Checkbox, Typography } from 'antd'
+import 'antd/dist/antd.css'
+import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx'
 import { FixedCallbackBuilder } from '../rules/EventBuilder'
 
-import 'jsoneditor-react/es/editor.min.css';
-import 'brace/mode/json';
-import 'brace/theme/github';
-import 'brace/theme/tomorrow_night_blue';
+import 'jsoneditor-react/es/editor.min.css'
+import 'brace/mode/json'
+import 'brace/theme/github'
+import 'brace/theme/tomorrow_night_blue'
 
-const { Option } = Select;
+const { Option } = Select
 
 export class ConfigurableParameter extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       mode: null,
-      factData: null,
+      factData: null
     }
 
     // Set Modes Array
-    this.modes[0]='Request Path Parameter'
-    this.modes[1]='Request Body Parameter'
-    this.modes[2]='Request Header Parameter'
-    this.modes[3]='Negotiated Content Type'
+    this.modes[0] = 'Request Path Parameter'
+    this.modes[1] = 'Request Body Parameter'
+    this.modes[2] = 'Request Header Parameter'
+    this.modes[3] = 'Negotiated Content Type'
   }
 
   modes = []
@@ -65,8 +64,8 @@ export class ConfigurableParameter extends React.Component {
   }
 
   handleModeChange = async (mode) => {
-    var factData = null
-    switch(mode) {
+    let factData = null
+    switch (mode) {
       case 0:
         factData = (new FactDataGenerator()).getPathParametersFactData(this.props.rootParameters)
         break
@@ -79,12 +78,12 @@ export class ConfigurableParameter extends React.Component {
       default:
         factData = null
     }
-    await this.setState( {mode: mode, factData: factData} )
+    await this.setState({ mode, factData })
     this.updateChanges()
   }
 
   getValueComponent = () => {
-    switch(this.state.mode) {
+    switch (this.state.mode) {
       case 0:
       case 1:
       case 2:
@@ -101,11 +100,11 @@ export class ConfigurableParameter extends React.Component {
   handleFactTypeSelect = async (value) => {
     try {
       const selectedValueObject = JSON.parse(value)
-      await this.setState( {selectedFactType:  selectedValueObject} )
+      await this.setState({ selectedFactType: selectedValueObject })
       this.props.condition.fact = selectedValueObject.name
       this.props.onConditionChange()
       this.updateFactData()
-    } catch(err) {}
+    } catch (err) {}
   }
 
   handleFactSelect = (value, factObject) => {
@@ -118,7 +117,7 @@ export class ConfigurableParameter extends React.Component {
     if (!this.inputValue) {
       this.inputValue = ''
     }
-    switch(this.state.mode) {
+    switch (this.state.mode) {
       case 0:
         finalValue = '{$request.params.' + this.inputValue + '}'
         break
@@ -135,7 +134,6 @@ export class ConfigurableParameter extends React.Component {
         finalValue = this.inputValue
     }
 
-
     this.props.onChange(finalValue)
   }
 
@@ -144,13 +142,12 @@ export class ConfigurableParameter extends React.Component {
     this.updateChanges()
   }
 
-  render() {
-
+  render () {
     return (
       <Row>
         <Col>
           <Select
-            placeholder="Please Select"
+            placeholder='Please Select'
             style={{ width: 200 }}
             value={this.modes[this.state.mode]}
             onSelect={this.handleModeChange}
@@ -167,14 +164,14 @@ export class ConfigurableParameter extends React.Component {
 }
 
 export class HeaderInputComponent extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       name: '',
       value: ''
     }
   }
+
   inputValue = null
 
   componentDidMount = () => {
@@ -189,11 +186,13 @@ export class HeaderInputComponent extends React.Component {
     // this.setState({name: event.target.value})
     this.props.onChange(this.props.itemKey, event.target.value, this.props.value)
   }
+
   handleAddConfigParam = (newValue) => {
     this.inputValue = newValue
     // this.setState({value: event.target.value})
     this.props.onChange(this.props.itemKey, this.props.name, this.inputValue)
   }
+
   handleValueChange = (event) => {
     this.inputValue = event.target.value
     // this.setState({value: event.target.value})
@@ -204,9 +203,7 @@ export class HeaderInputComponent extends React.Component {
     this.props.onDelete(this.props.itemKey)
   }
 
-
-  render() {
-
+  render () {
     const content = (
       <ConfigurableParameter
         name={this.props.name}
@@ -217,57 +214,55 @@ export class HeaderInputComponent extends React.Component {
       />
     )
 
-
     return (
       <>
-      <Row>
-        <Col span={8}>
-          <Tooltip placement="topLeft" title={this.props.description}>
+        <Row>
+          <Col span={8}>
+            <Tooltip placement='topLeft' title={this.props.description}>
+              <Input
+                placeholder='Name'
+                type='text'
+                defaultValue={this.props.name}
+                value={this.props.name}
+                onChange={this.handleNameChange}
+                disabled={false}
+                readOnly
+              />
+            </Tooltip>
+          </Col>
+
+          <Col span={12} className='pl-2'>
             <Input
-              placeholder="Name"
-              type="text"
-              defaultValue={this.props.name}
-              value={this.props.name}
-              onChange={this.handleNameChange}
+              placeholder='Value'
+              type='text'
+              defaultValue={this.props.value}
+              value={this.props.value}
+              onChange={this.handleValueChange}
               disabled={false}
-              readOnly={true}
             />
-          </Tooltip>
-        </Col>
+            <Popover className='mt-1' content={content} title='Select a Configurable Parameter' trigger='click'>
+              <Button type='dashed'>Add Configurable Params</Button>
+            </Popover>
 
-        <Col span={12} className="pl-2">
-          <Input
-            placeholder="Value"
-            type="text"
-            defaultValue={this.props.value}
-            value={this.props.value}
-            onChange={this.handleValueChange}
-            disabled={false}
-          />
-          <Popover className="mt-1" content={content} title="Select a Configurable Parameter" trigger="click">
-            <Button type="dashed">Add Configurable Params</Button>
-          </Popover>
-
-        </Col>
-        <Col span={4} className="pl-2">
-          <Button
-            type="primary"
-            danger
-            key={this.props.name}
-            onClick={this.handleDelete}
-          >
-            Delete
-          </Button>
-        </Col>
-      </Row>
+          </Col>
+          <Col span={4} className='pl-2'>
+            <Button
+              type='primary'
+              danger
+              key={this.props.name}
+              onClick={this.handleDelete}
+            >
+              Delete
+            </Button>
+          </Col>
+        </Row>
       </>
     )
   }
 }
 
 export class MockBuilder extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       overrideChecked: false
@@ -277,14 +272,13 @@ export class MockBuilder extends React.Component {
   componentDidMount = () => {
     if (this.props.eventParams) {
       if (this.props.eventParams.headers || this.props.eventParams.body) {
-        this.setState({overrideChecked: true})
+        this.setState({ overrideChecked: true })
       }
     }
-
   }
 
   handleOverrideChecked = (event) => {
-    this.setState({overrideChecked: event.target.checked})
+    this.setState({ overrideChecked: event.target.checked })
     if (!event.target.checked) {
       this.handleOverrideValuesChange({})
     }
@@ -299,28 +293,29 @@ export class MockBuilder extends React.Component {
   render () {
     return (
       <>
-      <Row>
-        <Col span={24}>
-          <Checkbox checked={this.state.overrideChecked} onChange={this.handleOverrideChecked}>Override some parameters</Checkbox>
-        </Col>
-      </Row>
-      { this.state.overrideChecked?
-            <Row className='mt-3'>
+        <Row>
+          <Col span={24}>
+            <Checkbox checked={this.state.overrideChecked} onChange={this.handleOverrideChecked}>Override some parameters</Checkbox>
+          </Col>
+        </Row>
+        {this.state.overrideChecked
+          ? <Row className='mt-3'>
             <Col span={24}>
-            { this.props.mockType === 'callback' ? (
-              <FixedCallbackBuilder
-              eventParams={this.props.eventParams}
-              resourceDefinition={this.props.resourceDefinition}
-              rootParameters = {this.props.rootParameters}
-              callbackDefinition={this.props.callbackDefinition}
-              callbackRootParameters={this.props.callbackRootParameters}
-              callbackObject={this.props.callbackObject}
-            />
-            ): null }
+              {this.props.mockType === 'callback'
+                ? (
+                  <FixedCallbackBuilder
+                    eventParams={this.props.eventParams}
+                    resourceDefinition={this.props.resourceDefinition}
+                    rootParameters={this.props.rootParameters}
+                    callbackDefinition={this.props.callbackDefinition}
+                    callbackRootParameters={this.props.callbackRootParameters}
+                    callbackObject={this.props.callbackObject}
+                  />
+                  )
+                : null}
             </Col>
-          </Row>
-        : null
-      }
+            </Row>
+          : null}
 
       </>
     )

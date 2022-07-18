@@ -21,15 +21,15 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 import { Layout, Row, Col, Typography, Card } from 'antd'
 
-import logo from '../../assets/img/mojaloop.png';
-const { Header } = Layout;
-const { Title } = Typography;
+import logo from '../../assets/img/mojaloop.png'
+const { Header } = Layout
+const { Title } = Typography
 
 class PlainNavbar extends React.Component {
-  render() {
+  render () {
     return (
       <>
         <Header
@@ -50,26 +50,26 @@ class PlainNavbar extends React.Component {
             }}
           >
             <Row>
-              <Col span={4}></Col>
-              <Col span={16} className="text-center">
-              <img
-                alt="Mojaloop"
-                className="img-fluid"
-                src={logo}
-              />
+              <Col span={4} />
+              <Col span={16} className='text-center'>
+                <img
+                  alt='Mojaloop'
+                  className='img-fluid'
+                  src={logo}
+                />
               </Col>
-              <Col span={4}></Col>
+              <Col span={4} />
             </Row>
             <Row>
-              <Col span={24} className="text-center">
+              <Col span={24} className='text-center'>
                 <Title level={4} style={{ color: '#293e5d' }}>Testing Toolkit</Title>
               </Col>
             </Row>
           </Card>
         </Header>
       </>
-    );
+    )
   }
 }
 
-export default PlainNavbar;
+export default PlainNavbar

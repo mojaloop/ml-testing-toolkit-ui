@@ -21,22 +21,21 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 
-import { Row, Col, Card, Button } from 'antd';
+import { Row, Col, Card, Button } from 'antd'
 import mermaid from 'mermaid'
 
 class TestDiagram extends React.Component {
-
-  newState =  {
+  newState = {
     logs: [],
     lastLogTime: null,
     sequenceItems: [],
     seqSteps: ''
   }
 
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = JSON.parse(JSON.stringify(this.newState))
   }
 
@@ -48,6 +47,7 @@ class TestDiagram extends React.Component {
     this.state.seqSteps = ''
     this.refreshSequenceDiagram()
   }
+
   addSequence = async (source, destination, message, options = { dashed: false, erroneous: false, activation: { mode: null, peer: null } }) => {
     const dashedStyle = options.dashed ? '-' : ''
     this.state.seqSteps += `${source}-${dashedStyle}>>${destination}: ${message}\n`
@@ -63,10 +63,12 @@ class TestDiagram extends React.Component {
     }
     this.refreshSequenceDiagram()
   }
+
   addNoteOver = async (source, destination, message) => {
     this.state.seqSteps += `Note over ${source},${destination}: ${message}\n`
     this.refreshSequenceDiagram()
   }
+
   addCustomSequence = async (seqText) => {
     this.state.seqSteps += seqText + '\n'
     this.refreshSequenceDiagram()
@@ -123,13 +125,13 @@ class TestDiagram extends React.Component {
           }
           </Col>
         </Row> */}
-        <Row style={{'min-height': '200px'}}>
+        <Row style={{ 'min-height': '200px' }}>
           <Col className='text-center' span={24}>
             <div
               ref={div => {
                 this.seqDiagContainer = div
               }}
-            ></div>
+            />
           </Col>
         </Row>
       </>
@@ -137,4 +139,4 @@ class TestDiagram extends React.Component {
   }
 }
 
-export default TestDiagram;
+export default TestDiagram

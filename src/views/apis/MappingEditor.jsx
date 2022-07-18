@@ -21,52 +21,51 @@
  * Georgi Logodazhki <georgi.logodazhki@modusbox.com>
  --------------
  ******/
-import React from "react";
-import _, { isEmpty } from "lodash"
-import { Select, Row, Col, Button, Typography, Input, Tabs, Tag, Popover, Descriptions, Radio} from 'antd';
-import 'jsoneditor-react/es/editor.min.css';
-import 'brace/mode/json';
-import 'brace/theme/github';
-import 'brace/theme/tomorrow_night_blue';
-import '../rules/fixAce.css';
+import React from 'react'
+import _, { isEmpty } from 'lodash'
+import { Select, Row, Col, Button, Typography, Input, Tabs, Tag, Popover, Descriptions, Radio } from 'antd'
+import 'jsoneditor-react/es/editor.min.css'
+import 'brace/mode/json'
+import 'brace/theme/github'
+import 'brace/theme/tomorrow_night_blue'
+import '../rules/fixAce.css'
 import EventBuilder from '../rules/EventBuilder'
 
-const { Option } = Select;
-const { Title } = Typography;
+const { Option } = Select
+const { Title } = Typography
 
 class ResourceSelector extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       disabled: false
     }
   }
+
   resourceOptions = []
 
   componentDidMount = () => {
 
   }
 
-
   getResourceOptions = () => {
     this.resourceOptions = []
     if (this.props.value && this.props.value.path && this.props.value.method) {
-      let itemKey = JSON.stringify({
+      const itemKey = JSON.stringify({
         method: this.props.value.method,
         path: this.props.value.path
       })
       this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{itemKey.method} {itemKey.path}</Option>)
-    } else if(this.props.openApiDefinition) {
+    } else if (this.props.openApiDefinition) {
       if (this.props.mappingType) {
-        for ( let pathKey in this.props.openApiDefinition.paths ) {
-          for ( let methodKey in this.props.openApiDefinition.paths[pathKey]) {
-            let itemKey = JSON.stringify({
+        for (const pathKey in this.props.openApiDefinition.paths) {
+          for (const methodKey in this.props.openApiDefinition.paths[pathKey]) {
+            const itemKey = JSON.stringify({
               method: methodKey,
               path: pathKey
             })
             if (methodKey === 'put' && (pathKey.startsWith(this.props.selectedResource.path))) {
-              switch(this.props.mappingType) {
+              switch (this.props.mappingType) {
                 case 'successCallback':
                   if (!pathKey.endsWith('/error')) {
                     this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
@@ -91,9 +90,9 @@ class ResourceSelector extends React.Component {
                 if (this.props.callbackMap && this.props.callbackMap[path] && this.props.callbackMap[path][method]) {
 
                 } else {
-                  let itemKey = JSON.stringify({
-                    method: method,
-                    path: path
+                  const itemKey = JSON.stringify({
+                    method,
+                    path
                   })
                   this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{method} {path}</Option>)
                 }
@@ -110,35 +109,34 @@ class ResourceSelector extends React.Component {
 
   getResourceValue = () => {
     const value = (this.props.value && this.props.value.method && this.props.value.path) ? (this.props.value.method + ' ' + this.props.value.path) : null
-    this.state.disabled = value ? true : false
+    this.state.disabled = !!value
     return value
   }
 
-  render() {
-
+  render () {
     const resourceSelectHandler = (eventKey) => {
       this.props.onSelect(JSON.parse(eventKey), this.props.mappingType || 'successCallback')
     }
 
-    return(
+    return (
       <>
-      <Select onChange={resourceSelectHandler}
-        disabled={this.state.disabled}
-        style={{ width: 300 }}
-        placeholder="Select a resource"
-        value={this.getResourceValue()}
-      >
-      {this.getResourceOptions()}
-      </Select>
+        <Select
+          onChange={resourceSelectHandler}
+          disabled={this.state.disabled}
+          style={{ width: 300 }}
+          placeholder='Select a resource'
+          value={this.getResourceValue()}
+        >
+          {this.getResourceOptions()}
+        </Select>
       </>
     )
   }
 }
 
 class MappingEditor extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       mode: null,
       description: '',
@@ -149,26 +147,26 @@ class MappingEditor extends React.Component {
       configurableParameterSelected: '',
       selectedCallbackResource: {},
       event: {
-        'successCallback': {
+        successCallback: {
           params: {}
         },
-        'errorCallback': {
+        errorCallback: {
           params: {}
         }
       }
-    };
+    }
   }
 
   componentDidMount = () => {
     const selectedResource = JSON.parse(JSON.stringify(this.props.selectedResource))
-    
+
     const mapping = this.props.mapping
 
     const description = this.props.description || ''
 
     const fspid = selectedResource.data.fspid
 
-    this.setState({selectedResource, mapping, description, fspid})
+    this.setState({ selectedResource, mapping, description, fspid })
   }
 
   getEvent = (callbackType) => {
@@ -184,11 +182,11 @@ class MappingEditor extends React.Component {
 
     switch (callbackType) {
       case 'successCallback': {
-        event.type = "FIXED_CALLBACK"
+        event.type = 'FIXED_CALLBACK'
         break
       }
       case 'errorCallback': {
-        event.type = "FIXED_ERROR_CALLBACK"
+        event.type = 'FIXED_ERROR_CALLBACK'
         break
       }
       default:
@@ -212,7 +210,7 @@ class MappingEditor extends React.Component {
   handleEventChange = (event, mappingType) => {
     this.state.event[mappingType] = event
     this.forceUpdate()
-  };
+  }
 
   handleSave = () => {
     this.state.selectedResource.data.fspid = this.state.fspid
@@ -236,7 +234,7 @@ class MappingEditor extends React.Component {
         errorCallback: {}
       }
     }
-    this.setState({selectedResource})
+    this.setState({ selectedResource })
     this.forceUpdate()
   }
 
@@ -254,8 +252,9 @@ class MappingEditor extends React.Component {
     }
     return null
   }
+
   getRootParameters = () => {
-    var rootParams = []
+    let rootParams = []
     if (this.state.selectedResource && this.state.selectedResource.path && this.props.openApiDefinition) {
       rootParams = this.props.openApiDefinition.paths[this.state.selectedResource.path].parameters
     }
@@ -273,107 +272,111 @@ class MappingEditor extends React.Component {
     try {
       const callbackObj = this.state.selectedResource.data[callbackType]
       return this.props.openApiDefinition.paths[callbackObj.path].parameters
-    } catch(err) {
+    } catch (err) {
       return []
     }
   }
+
   getCallbackDefinition = (callbackType) => {
     try {
       const callbackObj = this.state.selectedResource.data[callbackType]
       return this.props.openApiDefinition.paths[callbackObj.path][callbackObj.method]
-    } catch(err) {
+    } catch (err) {
       return {}
     }
   }
 
-
-  render() {
+  render () {
     return (
       <>
         <Row>
           <Col span={24}>
-              <Row className="bg-white border-0 align-items-center">
-                <Col span={16} className="text-center">
-                  <table>
-                    <tbody>
+            <Row className='bg-white border-0 align-items-center'>
+              <Col span={16} className='text-center'>
+                <table>
+                  <tbody>
                     <tr>
                       <td align='right'><b>Resource:</b></td>
                       <td>
                         <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.resourceSelectHandler} />
                       </td>
                     </tr>
-                    </tbody>
-                  </table>
-                </Col>
-                <Col span={8}>
-                  <Button
-                    className="float-right"
-                    type="primary"
-                    onClick={this.handleSave}
-                  >
-                    Save
-                  </Button>
-                </Col>
-              </Row>
-              <Row className="bg-white border-0 align-items-center">
-                <Col span={24}>
-                  <table>
-                    <tbody>
+                  </tbody>
+                </table>
+              </Col>
+              <Col span={8}>
+                <Button
+                  className='float-right'
+                  type='primary'
+                  onClick={this.handleSave}
+                >
+                  Save
+                </Button>
+              </Col>
+            </Row>
+            <Row className='bg-white border-0 align-items-center'>
+              <Col span={24}>
+                <table>
+                  <tbody>
                     <tr>
                       <td align='right'><b>FSPID:</b></td>
                       <td>
-                      <Input 
-                        className="float-left"
-                        placeholder="Value" 
-                        value={this.state.fspid}
-                        onChange={(e) => {
-                          this.setState({fspid: e.target.value})
-                        }}  />
+                        <Input
+                          className='float-left'
+                          placeholder='Value'
+                          value={this.state.fspid}
+                          onChange={(e) => {
+                            this.setState({ fspid: e.target.value })
+                          }}
+                        />
                       </td>
                     </tr>
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-              {
-                (this.state.selectedResource) ? (
-                  <Row className="mt-2">
-                    <Col span={24}>
-                      {
-                        (this.props.mode === 'callback' && this.state.selectedResource.data.successCallback) ? (
-                          <Tabs defaultActiveKey='successCallback' >
-                            <Tabs.TabPane tab="Success Callback" key="successCallback">
-                              <Title level={4} className="text-muted mb-4">
-                                Success Callback
-                              </Title>
-                              <div className="pl-4">
-                                <table>
-                                  <tbody>
-                                  <tr>
-                                    <td align='right'><b>Callback Resource:</b></td>
-                                    <td>
-                                      <ResourceSelector value={this.state.selectedResource.data['successCallback']} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.callbackResourceSelectHandler} mappingType='successCallback' selectedResource={this.state.selectedResource}/>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td align='right'><b>Path Pattern:</b></td>
-                                    <td>
-                                    <Input 
-                                      className="float-left"
-                                      placeholder="pathPattern" 
-                                      value={this.state.selectedResource.data['successCallback'].pathPattern}
-                                      onChange={(e) => {
-                                        this.state.selectedResource.data['successCallback'].pathPattern = e.target.value
-                                        this.forceUpdate()
-                                      }}  />
-                                    </td>
-                                  </tr>
-                                  </tbody>
-                                </table>
-                                <EventBuilder
+                  </tbody>
+                </table>
+              </Col>
+            </Row>
+            {
+                (this.state.selectedResource)
+                  ? (
+                    <Row className='mt-2'>
+                      <Col span={24}>
+                        {
+                        (this.props.mode === 'callback' && this.state.selectedResource.data.successCallback)
+                          ? (
+                            <Tabs defaultActiveKey='successCallback'>
+                              <Tabs.TabPane tab='Success Callback' key='successCallback'>
+                                <Title level={4} className='text-muted mb-4'>
+                                  Success Callback
+                                </Title>
+                                <div className='pl-4'>
+                                  <table>
+                                    <tbody>
+                                      <tr>
+                                        <td align='right'><b>Callback Resource:</b></td>
+                                        <td>
+                                          <ResourceSelector value={this.state.selectedResource.data.successCallback} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.callbackResourceSelectHandler} mappingType='successCallback' selectedResource={this.state.selectedResource} />
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td align='right'><b>Path Pattern:</b></td>
+                                        <td>
+                                          <Input
+                  className='float-left'
+                  placeholder='pathPattern'
+                  value={this.state.selectedResource.data.successCallback.pathPattern}
+                  onChange={(e) => {
+                                            this.state.selectedResource.data.successCallback.pathPattern = e.target.value
+                                            this.forceUpdate()
+                                          }}
+                />
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                  <EventBuilder
                                     event={this.getEvent('successCallback')}
-                                    disableEventSelect={true}
-                                    onChange={(event) => {this.handleEventChange(event, 'successCallback')}}
+                                    disableEventSelect
+                                    onChange={(event) => { this.handleEventChange(event, 'successCallback') }}
                                     resource={this.state.selectedResource}
                                     resourceDefinition={this.getResourceDefinition()}
                                     rootParameters={this.getRootParameters()}
@@ -381,64 +384,67 @@ class MappingEditor extends React.Component {
                                     callbackRootParameters={this.getCallbackRootParameters('successCallback')}
                                     callbackObject={this.getResourceMappingByType('successCallback')}
                                     mode='callback'
-                                    isMappingEditor={true}
+                                    isMappingEditor
                                   />
-                              </div>
-                            </Tabs.TabPane>
-                            <Tabs.TabPane tab="Error Callback" key="errorCallback">
-                              <Title level={4} className="text-muted mb-4">
-                                Error Callback
-                              </Title>
-                              <div className="pl-4">
-                                <table>
-                                  <tbody>
-                                  <tr>
-                                    <td align='right'><b>Callback Resource:</b></td>
-                                    <td>
-                                      <ResourceSelector value={this.state.selectedResource.data['errorCallback']} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.callbackResourceSelectHandler} mappingType='errorCallback' selectedResource={this.state.selectedResource} />
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td align='right'><b>Path Pattern:</b></td>
-                                    <td>
-                                    <Input 
-                                      className="float-left"
-                                      placeholder="pathPattern" 
-                                      value={this.state.selectedResource.data['errorCallback'].pathPattern}
-                                      onChange={(e) => {
-                                        this.state.selectedResource.data['errorCallback'].pathPattern = e.target.value
-                                        this.forceUpdate()
-                                      }}  />
-                                    </td>
-                                  </tr>
-                                  </tbody>
-                                </table>
-                                <EventBuilder
-                                  event={this.getEvent('errorCallback')}
-                                  onChange={(event) => {this.handleEventChange(event, 'errorCallback')}}
-                                  resource={this.state.selectedResource}
-                                  resourceDefinition={this.getResourceDefinition()}
-                                  rootParameters={this.getRootParameters()}
-                                  callbackDefinition={this.getCallbackDefinition('errorCallback')}
-                                  callbackRootParameters={this.getCallbackRootParameters('errorCallback')}
-                                  callbackObject={this.getResourceMappingByType('errorCallback')}
-                                  mode='validation'
-                                  isMappingEditor={true}
-                                />
-                              </div>
-                            </Tabs.TabPane>
-                          </Tabs>
-                        ) : null 
+                                </div>
+                              </Tabs.TabPane>
+                              <Tabs.TabPane tab='Error Callback' key='errorCallback'>
+                                <Title level={4} className='text-muted mb-4'>
+                                  Error Callback
+                                </Title>
+                                <div className='pl-4'>
+                                  <table>
+                                    <tbody>
+                                      <tr>
+                                        <td align='right'><b>Callback Resource:</b></td>
+                                        <td>
+                                          <ResourceSelector value={this.state.selectedResource.data.errorCallback} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.callbackResourceSelectHandler} mappingType='errorCallback' selectedResource={this.state.selectedResource} />
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td align='right'><b>Path Pattern:</b></td>
+                                        <td>
+                                          <Input
+                  className='float-left'
+                  placeholder='pathPattern'
+                  value={this.state.selectedResource.data.errorCallback.pathPattern}
+                  onChange={(e) => {
+                                            this.state.selectedResource.data.errorCallback.pathPattern = e.target.value
+                                            this.forceUpdate()
+                                          }}
+                />
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                  <EventBuilder
+                                    event={this.getEvent('errorCallback')}
+                                    onChange={(event) => { this.handleEventChange(event, 'errorCallback') }}
+                                    resource={this.state.selectedResource}
+                                    resourceDefinition={this.getResourceDefinition()}
+                                    rootParameters={this.getRootParameters()}
+                                    callbackDefinition={this.getCallbackDefinition('errorCallback')}
+                                    callbackRootParameters={this.getCallbackRootParameters('errorCallback')}
+                                    callbackObject={this.getResourceMappingByType('errorCallback')}
+                                    mode='validation'
+                                    isMappingEditor
+                                  />
+                                </div>
+                              </Tabs.TabPane>
+                            </Tabs>
+                            )
+                          : null
                       }
-                    </Col>
-                  </Row>
-                ) : null
+                      </Col>
+                    </Row>
+                    )
+                  : null
               }
           </Col>
         </Row>
       </>
-    );
+    )
   }
 }
 
-export default MappingEditor;
+export default MappingEditor

@@ -21,18 +21,18 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 import { getConfig } from '../../utils/getConfig'
-import axios from 'axios';
+import axios from 'axios'
 import APIDocViewer from './APIDocViewer'
 import APIEditor from './APIEditor'
 
-import { Select, Row, Col, Table, Button, Modal, Upload, message, Card, Typography, Input, Tag, Radio, Spin } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
+import { Select, Row, Col, Table, Button, Modal, Upload, message, Card, Typography, Input, Tag, Radio, Spin } from 'antd'
+import { InboxOutlined } from '@ant-design/icons'
 
-const { Dragger } = Upload;
-const { Option } = Select;
-const { Text } = Typography;
+const { Dragger } = Upload
+const { Option } = Select
+const { Text } = Typography
 
 class AddNewAPI extends React.Component {
   state = {
@@ -45,6 +45,7 @@ class AddNewAPI extends React.Component {
     newApiAsynchronous: null,
     isLoading: false
   }
+
   apiBaseUrl = null
 
   constructor () {
@@ -54,9 +55,9 @@ class AddNewAPI extends React.Component {
   }
 
   validateApiFile = async () => {
-    const data = new FormData() 
+    const data = new FormData()
     data.append('file', this.state.selectedFile)
-    const url = this.apiBaseUrl + "/api/openapi/validate_definition";
+    const url = this.apiBaseUrl + '/api/openapi/validate_definition'
     const res = await axios.post(url, data, {
       headers: {
         'content-type': 'multipart/form-data'
@@ -66,23 +67,23 @@ class AddNewAPI extends React.Component {
   }
 
   addApiFile = async () => {
-    this.setState({isLoading: true})
-    const data = new FormData() 
+    this.setState({ isLoading: true })
+    const data = new FormData()
     data.append('file', this.state.selectedFile)
     data.append('name', this.state.newApiName)
     data.append('version', this.state.newApiVersion)
     data.append('asynchronous', this.state.newApiAsynchronous)
     try {
-      const url = this.apiBaseUrl + "/api/openapi/definition";
+      const url = this.apiBaseUrl + '/api/openapi/definition'
       const res = await axios.post(url, data, {
         headers: {
           'content-type': 'multipart/form-data'
         }
       })
-      this.setState({isLoading: false})
+      this.setState({ isLoading: false })
       this.props.onAdded()
       return res.data
-    } catch(err) {
+    } catch (err) {
       if (err.response && err.response.data) {
         if (err.response.data.errors) {
           message.error(err.response.data.errors.join(', '))
@@ -92,30 +93,30 @@ class AddNewAPI extends React.Component {
       } else {
         message.error(err.message)
       }
-      this.setState({isLoading: false})
+      this.setState({ isLoading: false })
     }
   }
 
   handleFileImport = async (infoObject) => {
     this.state.selectedFile = infoObject.file
     try {
-      this.setState({isLoading: true})
+      this.setState({ isLoading: true })
       const validationResult = await this.validateApiFile()
       const newApiName = this.state.selectedFile && this.state.selectedFile.name && this.state.selectedFile.name.split('.')[0]
       const newApiVersion = validationResult && validationResult.apiDefinition && validationResult.apiDefinition.info && validationResult.apiDefinition.info.version
       const newApiAsynchronous = 'false'
-      this.setState({validatedApiDefinition: validationResult.apiDefinition, validationError: null, newApiName, newApiVersion, newApiAsynchronous, isLoading: false })
-    } catch(err) {
+      this.setState({ validatedApiDefinition: validationResult.apiDefinition, validationError: null, newApiName, newApiVersion, newApiAsynchronous, isLoading: false })
+    } catch (err) {
       infoObject.onError('Validation Error')
-      this.setState({validatedApiDefinition: null, selectedFile: null, validationError: err.response.data, isLoading: false})
+      this.setState({ validatedApiDefinition: null, selectedFile: null, validationError: err.response.data, isLoading: false })
     }
   }
 
   getApiMethodItems = (resourceItem) => {
     return Object.keys(resourceItem).map(item => {
-      if(item !== 'parameters') {
+      if (item !== 'parameters') {
         const params = {}
-        switch(item) {
+        switch (item) {
           case 'get':
             params.color = 'blue'
             break
@@ -131,9 +132,8 @@ class AddNewAPI extends React.Component {
           case 'update':
             params.color = 'gold'
             break
-
         }
-        return <Tag {...params} >{item}</Tag>
+        return <Tag {...params}>{item}</Tag>
       } else {
         return null
       }
@@ -141,25 +141,25 @@ class AddNewAPI extends React.Component {
   }
 
   getApiResourceItems = () => {
-    if(this.state.validatedApiDefinition && this.state.validatedApiDefinition.paths) {
+    if (this.state.validatedApiDefinition && this.state.validatedApiDefinition.paths) {
       const columns = [
         {
           title: 'Resource',
-          dataIndex: 'resource',
+          dataIndex: 'resource'
         },
         {
           title: 'Methods',
-          dataIndex: 'methods',
+          dataIndex: 'methods'
         }
-      ];
-  
-      const data = Object.keys(this.state.validatedApiDefinition.paths).map((item,index) => {
+      ]
+
+      const data = Object.keys(this.state.validatedApiDefinition.paths).map((item, index) => {
         return {
           key: index,
           resource: item,
           methods: (
             <>
-            {this.getApiMethodItems(this.state.validatedApiDefinition.paths[item])}
+              {this.getApiMethodItems(this.state.validatedApiDefinition.paths[item])}
             </>
           )
         }
@@ -176,113 +176,113 @@ class AddNewAPI extends React.Component {
       return null
     }
   }
-  
 
-  render() {
+  render () {
     return (
       <>
-      <Spin size="large" spinning={this.state.isLoading}>
-      <Dragger
-        name='spec_file'
-        multiple={false}
-        accept=".yaml,.yml"
-        showUploadList={false}
-        action={this.apiBaseUrl + "/api/openapi/definition"}
-        customRequest={this.handleFileImport}
-        onChange={(info) => {
-          const { status } = info.file;
-          if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-          }
-          if (status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully.`);
-          } else if (status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-          }
-        }}
-      >
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">Click or drag file to this area to upload</p>
-        <p className="ant-upload-hint">
-          Swagger / OpenAPI files in YAML format are supported
-        </p>
-      </Dragger>
-      {
+        <Spin size='large' spinning={this.state.isLoading}>
+          <Dragger
+            name='spec_file'
+            multiple={false}
+            accept='.yaml,.yml'
+            showUploadList={false}
+            action={this.apiBaseUrl + '/api/openapi/definition'}
+            customRequest={this.handleFileImport}
+            onChange={(info) => {
+              const { status } = info.file
+              if (status !== 'uploading') {
+                console.log(info.file, info.fileList)
+              }
+              if (status === 'done') {
+                message.success(`${info.file.name} file uploaded successfully.`)
+              } else if (status === 'error') {
+                message.error(`${info.file.name} file upload failed.`)
+              }
+            }}
+          >
+            <p className='ant-upload-drag-icon'>
+              <InboxOutlined />
+            </p>
+            <p className='ant-upload-text'>Click or drag file to this area to upload</p>
+            <p className='ant-upload-hint'>
+              Swagger / OpenAPI files in YAML format are supported
+            </p>
+          </Dragger>
+          {
         this.state.validatedApiDefinition && this.state.validatedApiDefinition.info
-        ? (
-          <Card className="p-2">
-            <Row>
-              <Col span={24}>
-                <Text strong>{this.state.validatedApiDefinition.info.title}</Text>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={12}>
-                <Text strong>Name:</Text>
-              </Col>
-              <Col span={12}>
-                <Input
-                  value={this.state.newApiName}
-                  onChange={e => this.setState({newApiName: e.target.value})}
-                />
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={12}>
-                <Text strong>Version:</Text>
-              </Col>
-              <Col span={12}>
-                <Input
-                  value={this.state.newApiVersion}
-                  onChange={e => this.setState({newApiVersion: e.target.value})}
-                />
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={12}>
-                <Text strong>Asynchronous:</Text>
-              </Col>
-              <Col span={12}>
-                <Radio.Group
-                  value={this.state.newApiAsynchronous}
-                  onChange={e => this.setState({newApiAsynchronous: e.target.value})}
-                >
-                  <Radio value={'true'}>Yes</Radio>
-                  <Radio value={'false'}>No</Radio>
-                </Radio.Group>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={24}>
-              { this.getApiResourceItems() }
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={24}>
-                <Button className="float-right" type="primary" danger
-                  onClick={this.addApiFile}
-                >
-                  Upload
-                </Button>
-              </Col>
-            </Row>
-          </Card>
-        )
-        : this.state.validationError && this.state.validationError.message
           ? (
-            <Card>
+            <Card className='p-2'>
               <Row>
                 <Col span={24}>
-                  <Text><pre>{this.state.validationError.message}</pre></Text>
+                  <Text strong>{this.state.validatedApiDefinition.info.title}</Text>
+                </Col>
+              </Row>
+              <Row className='mt-2'>
+                <Col span={12}>
+                  <Text strong>Name:</Text>
+                </Col>
+                <Col span={12}>
+                  <Input
+                    value={this.state.newApiName}
+                    onChange={e => this.setState({ newApiName: e.target.value })}
+                  />
+                </Col>
+              </Row>
+              <Row className='mt-2'>
+                <Col span={12}>
+                  <Text strong>Version:</Text>
+                </Col>
+                <Col span={12}>
+                  <Input
+                    value={this.state.newApiVersion}
+                    onChange={e => this.setState({ newApiVersion: e.target.value })}
+                  />
+                </Col>
+              </Row>
+              <Row className='mt-2'>
+                <Col span={12}>
+                  <Text strong>Asynchronous:</Text>
+                </Col>
+                <Col span={12}>
+                  <Radio.Group
+                    value={this.state.newApiAsynchronous}
+                    onChange={e => this.setState({ newApiAsynchronous: e.target.value })}
+                  >
+                    <Radio value='true'>Yes</Radio>
+                    <Radio value='false'>No</Radio>
+                  </Radio.Group>
+                </Col>
+              </Row>
+              <Row className='mt-2'>
+                <Col span={24}>
+                  {this.getApiResourceItems()}
+                </Col>
+              </Row>
+              <Row className='mt-2'>
+                <Col span={24}>
+                  <Button
+                    className='float-right' type='primary' danger
+                    onClick={this.addApiFile}
+                  >
+                    Upload
+                  </Button>
                 </Col>
               </Row>
             </Card>
-          )
-          : null
+            )
+          : this.state.validationError && this.state.validationError.message
+            ? (
+              <Card>
+                <Row>
+                  <Col span={24}>
+                    <Text><pre>{this.state.validationError.message}</pre></Text>
+                  </Col>
+                </Row>
+              </Card>
+              )
+            : null
       }
-      </Spin>
+        </Spin>
       </>
     )
   }
@@ -300,7 +300,7 @@ class APIManagement extends React.Component {
 
   getApiVersions = async () => {
     const { apiBaseUrl } = getConfig()
-    const response = await axios.get(apiBaseUrl + "/api/openapi/api_versions")
+    const response = await axios.get(apiBaseUrl + '/api/openapi/api_versions')
     return response.data
   }
 
@@ -309,19 +309,19 @@ class APIManagement extends React.Component {
   }
 
   refreshApiVersions = async () => {
-    this.setState({isLoading: true})
+    this.setState({ isLoading: true })
     const apiVersions = await this.getApiVersions()
     this.setState({ apiVersions, selectedApiIndex: null, isLoading: false })
   }
 
   handleApiAdded = () => {
     this.refreshApiVersions()
-    this.setState({newAPIDialogEnabled: false})
+    this.setState({ newAPIDialogEnabled: false })
   }
 
   handleApiUpdated = () => {
     this.refreshApiVersions()
-    this.setState({apiEditorVisible: false})
+    this.setState({ apiEditorVisible: false })
   }
 
   handleDeleteAPI = async () => {
@@ -333,19 +333,17 @@ class APIManagement extends React.Component {
   getSelectedVersionURL = () => {
     const { apiBaseUrl } = getConfig()
     if (this.state.selectedApiIndex !== null) {
-      const url = apiBaseUrl + '/api/openapi/definition/' +  this.state.apiVersions[this.state.selectedApiIndex].type + '/' + this.state.apiVersions[this.state.selectedApiIndex].majorVersion + '.' + this.state.apiVersions[this.state.selectedApiIndex].minorVersion
+      const url = apiBaseUrl + '/api/openapi/definition/' + this.state.apiVersions[this.state.selectedApiIndex].type + '/' + this.state.apiVersions[this.state.selectedApiIndex].majorVersion + '.' + this.state.apiVersions[this.state.selectedApiIndex].minorVersion
       return url
     } else {
       return ''
     }
   }
 
-
-
-  render() {
+  render () {
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
-        this.setState({selectedApiIndex: selectedRowKeys[0]})
+        this.setState({ selectedApiIndex: selectedRowKeys[0] })
       },
       selectedRowKeys: [this.state.selectedApiIndex]
     }
@@ -353,15 +351,15 @@ class APIManagement extends React.Component {
     const columns = [
       {
         title: 'API Name',
-        dataIndex: 'name',
+        dataIndex: 'name'
       },
       {
         title: 'Version',
-        dataIndex: 'version',
+        dataIndex: 'version'
       },
       {
         title: 'Type',
-        dataIndex: 'type',
+        dataIndex: 'type'
       },
       {
         title: 'Options',
@@ -372,16 +370,16 @@ class APIManagement extends React.Component {
             {options.map(option => (
               <Row className='mb-2'>
                 <Col>
-                  <Tag color="blue" key={option}>
+                  <Tag color='blue' key={option}>
                     {option}
                   </Tag>
                 </Col>
               </Row>
             ))}
           </>
-        ),
+        )
       }
-    ];
+    ]
 
     const data = this.state.apiVersions.map((item, index) => {
       const optionsStrArray = []
@@ -395,7 +393,7 @@ class APIManagement extends React.Component {
         key: index,
         name: item.type + (item.caption ? ' ' + item.caption : ''),
         version: item.majorVersion + '.' + item.minorVersion,
-        type: item.asynchronous? 'Async' : 'Sync',
+        type: item.asynchronous ? 'Async' : 'Sync',
         options: optionsStrArray
       }
     })
@@ -404,12 +402,12 @@ class APIManagement extends React.Component {
       <>
         <Modal
           title='New API'
-          className="w-50 p-3"
+          className='w-50 p-3'
           destroyOnClose
           footer={null}
           visible={this.state.newAPIDialogEnabled}
-          onCancel={ e => {
-            this.setState({newAPIDialogEnabled: false})
+          onCancel={e => {
+            this.setState({ newAPIDialogEnabled: false })
           }}
         >
           <AddNewAPI
@@ -420,13 +418,13 @@ class APIManagement extends React.Component {
         <Modal
           title='API Documentation'
           style={{ top: 20 }}
-          className="p-3"
+          className='p-3'
           width='90%'
           destroyOnClose
           footer={null}
           visible={this.state.apiDocViewerVisible}
-          onCancel={ e => {
-            this.setState({apiDocViewerVisible: false})
+          onCancel={e => {
+            this.setState({ apiDocViewerVisible: false })
           }}
         >
           <APIDocViewer specUrl={this.getSelectedVersionURL()} />
@@ -435,13 +433,13 @@ class APIManagement extends React.Component {
         <Modal
           title='API Editor'
           style={{ top: 20 }}
-          className="p-3"
+          className='p-3'
           width='60%'
           destroyOnClose
           footer={null}
           visible={this.state.apiEditorVisible}
-          onCancel={ e => {
-            this.setState({apiEditorVisible: false})
+          onCancel={e => {
+            this.setState({ apiEditorVisible: false })
           }}
         >
           <APIEditor
@@ -450,23 +448,23 @@ class APIManagement extends React.Component {
             onUpdated={this.handleApiUpdated}
           />
         </Modal>
-        <Spin size="large" spinning={this.state.isLoading}>
-        {/* Page content */}
-          <Row className="mt--7 mb-4">
+        <Spin size='large' spinning={this.state.isLoading}>
+          {/* Page content */}
+          <Row className='mt--7 mb-4'>
             <Col span={24}>
               <Row>
                 <Col span={24}>
                   <Button
-                    className="float-right"
-                    type="primary"
+                    className='float-right'
+                    type='primary'
                     onClick={() => {
-                      this.setState({newAPIDialogEnabled: true})
+                      this.setState({ newAPIDialogEnabled: true })
                     }}
                   >
                     Add new API
                   </Button>
                   <Button
-                    type="primary"
+                    type='primary'
                     danger
                     onClick={this.handleDeleteAPI}
                     disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex] && this.state.apiVersions[this.state.selectedApiIndex].additionalApi)}
@@ -474,22 +472,22 @@ class APIManagement extends React.Component {
                     Delete API
                   </Button>
                   <Button
-                    className="ml-2"
-                    type="primary"
-                    shape="round"
-                    onClick={ e => {
-                      this.setState({apiDocViewerVisible: true})
+                    className='ml-2'
+                    type='primary'
+                    shape='round'
+                    onClick={e => {
+                      this.setState({ apiDocViewerVisible: true })
                     }}
                     disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex])}
                   >
                     API Documentation
                   </Button>
                   <Button
-                    className="ml-2"
-                    type="primary"
-                    shape="round"
-                    onClick={ e => {
-                      this.setState({apiEditorVisible: true})
+                    className='ml-2'
+                    type='primary'
+                    shape='round'
+                    onClick={e => {
+                      this.setState({ apiEditorVisible: true })
                     }}
                     disabled={!(this.state.apiVersions && this.state.apiVersions[this.state.selectedApiIndex])}
                   >
@@ -497,12 +495,12 @@ class APIManagement extends React.Component {
                   </Button>
                 </Col>
               </Row>
-              <Row className="mt-2">
+              <Row className='mt-2'>
                 <Col span={24}>
                   <Table
                     rowSelection={{
                       type: 'radio',
-                      ...rowSelection,
+                      ...rowSelection
                     }}
                     columns={columns}
                     dataSource={data}
@@ -514,8 +512,8 @@ class APIManagement extends React.Component {
           </Row>
         </Spin>
       </>
-    );
+    )
   }
 }
 
-export default APIManagement;
+export default APIManagement

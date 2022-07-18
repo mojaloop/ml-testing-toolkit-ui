@@ -22,36 +22,35 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import _ from 'lodash';
+import React from 'react'
+import _ from 'lodash'
 
-import axios from 'axios';
-import { Select, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch, Button, Typography } from 'antd';
-import 'antd/dist/antd.css';
-import { DeleteTwoTone } from '@ant-design/icons';
+import axios from 'axios'
+import { Select, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch, Button, Typography } from 'antd'
+import 'antd/dist/antd.css'
+import { DeleteTwoTone } from '@ant-design/icons'
 
 // import './index.css';
-import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
-import ace from 'brace';
-import 'brace/mode/json';
-import 'brace/theme/github';
-import 'brace/theme/tomorrow_night_blue';
-import Ajv from 'ajv';
-import JsonEditor from "./JsonEditor.jsx";
+import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx'
+import { JsonEditor as Editor } from 'jsoneditor-react'
+import 'jsoneditor-react/es/editor.min.css'
+import ace from 'brace'
+import 'brace/mode/json'
+import 'brace/theme/github'
+import 'brace/theme/tomorrow_night_blue'
+import Ajv from 'ajv'
+import JsonEditor from './JsonEditor.jsx'
 
 const parseCurl = require('../../utils/curlParser').default
 
-const ajv = new Ajv({allErrors: true});
+const ajv = new Ajv({ allErrors: true })
 
-const { Option } = Select;
-const { TextArea } = Input;
-const { Text } = Typography;
+const { Option } = Select
+const { TextArea } = Input
+const { Text } = Typography
 
 class ConfigurableParameter extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       paramType: null,
@@ -60,11 +59,11 @@ class ConfigurableParameter extends React.Component {
     }
 
     // Set paramTypes Array
-    this.paramTypes[0]='Input Values'
-    this.paramTypes[1]='Previous Request'
-    this.paramTypes[2]='Previous Response'
-    this.paramTypes[3]='Function'
-    this.paramTypes[4]='Environment'
+    this.paramTypes[0] = 'Input Values'
+    this.paramTypes[1] = 'Previous Request'
+    this.paramTypes[2] = 'Previous Response'
+    this.paramTypes[3] = 'Function'
+    this.paramTypes[4] = 'Environment'
   }
 
   paramTypes = []
@@ -99,7 +98,7 @@ class ConfigurableParameter extends React.Component {
   //   this.updateChanges()
   // }
   handleParamTypeChange = async (paramType) => {
-    this.setState( {paramType: paramType, factData: null, selectedValueComponent: null} )
+    this.setState({ paramType, factData: null, selectedValueComponent: null })
   }
 
   // getValueComponent = () => {
@@ -125,31 +124,30 @@ class ConfigurableParameter extends React.Component {
     } else {
       return null
     }
-
   }
 
   getValueComponent = () => {
-    switch(this.state.paramType) {
+    switch (this.state.paramType) {
       case 0:
-        let inputOptionItems = []
-        for (let item in this.props.inputValues) {
+        const inputOptionItems = []
+        for (const item in this.props.inputValues) {
           inputOptionItems.push(
             <Option key={item} value={item}>{item}</Option>
           )
         }
         return (
           <>
-          <Select
-            placeholder="Please Select"
-            style={{ width: 200 }}
-            value={this.state.selectedValueComponent}
-            onChange={(value) => {
-              this.state.selectedValueComponent = value
-              this.handleParamSelect('{$inputs.'+value+'}')
-            }}
-          >
-            {inputOptionItems}
-          </Select>
+            <Select
+              placeholder='Please Select'
+              style={{ width: 200 }}
+              value={this.state.selectedValueComponent}
+              onChange={(value) => {
+                this.state.selectedValueComponent = value
+                this.handleParamSelect('{$inputs.' + value + '}')
+              }}
+            >
+              {inputOptionItems}
+            </Select>
           </>
         )
         break
@@ -163,41 +161,41 @@ class ConfigurableParameter extends React.Component {
         })
         return (
           <>
-          <Select
-            placeholder="Please Select"
-            style={{ width: 200 }}
-            value={this.state.selectedValueComponent}
-            onChange={(requestId) => {
-              const request = this.props.allRequests.find(item => item.id === requestId)
-              let resourceDefinition = null
-              let rootParams = null
-              if (this.state.paramType === 1) {
-                resourceDefinition = this.props.openApiDefinition.paths[request.operationPath][request.method]
-                rootParams = this.props.openApiDefinition.paths[request.operationPath].parameters
-              } else {
-                const callbackObj = this.props.callbackMap[request.operationPath][request.method]['successCallback']
-                resourceDefinition = this.props.openApiDefinition.paths[callbackObj.path][callbackObj.method]
-                rootParams = this.props.openApiDefinition.paths[callbackObj.path].parameters
-              }
-              const bodyFactData = (new FactDataGenerator()).getBodyFactData(resourceDefinition)
-              const headerFactData = (new FactDataGenerator()).getHeadersFactData(resourceDefinition, rootParams)
-              const factData = {
-                properties: {
-                  body: bodyFactData,
-                  headers: { type: 'object', ...headerFactData }
+            <Select
+              placeholder='Please Select'
+              style={{ width: 200 }}
+              value={this.state.selectedValueComponent}
+              onChange={(requestId) => {
+                const request = this.props.allRequests.find(item => item.id === requestId)
+                let resourceDefinition = null
+                let rootParams = null
+                if (this.state.paramType === 1) {
+                  resourceDefinition = this.props.openApiDefinition.paths[request.operationPath][request.method]
+                  rootParams = this.props.openApiDefinition.paths[request.operationPath].parameters
+                } else {
+                  const callbackObj = this.props.callbackMap[request.operationPath][request.method].successCallback
+                  resourceDefinition = this.props.openApiDefinition.paths[callbackObj.path][callbackObj.method]
+                  rootParams = this.props.openApiDefinition.paths[callbackObj.path].parameters
                 }
-              }
-              this.setState({selectedValueComponent: requestId, factData})
-            }}
-          >
-            {requestSelectionOptionItems}
-          </Select>
+                const bodyFactData = (new FactDataGenerator()).getBodyFactData(resourceDefinition)
+                const headerFactData = (new FactDataGenerator()).getHeadersFactData(resourceDefinition, rootParams)
+                const factData = {
+                  properties: {
+                    body: bodyFactData,
+                    headers: { type: 'object', ...headerFactData }
+                  }
+                }
+                this.setState({ selectedValueComponent: requestId, factData })
+              }}
+            >
+              {requestSelectionOptionItems}
+            </Select>
           </>
         )
         break
       case 3:
         // TODO: Get the function list and type of functions from backend. Include another subtype to select
-        let functionList = {
+        const functionList = {
           generateUUID: {
             description: 'Generates unique id'
           },
@@ -205,40 +203,40 @@ class ConfigurableParameter extends React.Component {
             description: 'Get current date and time'
           }
         }
-        let functionOptionItems = []
-        for (let item in functionList) {
+        const functionOptionItems = []
+        for (const item in functionList) {
           functionOptionItems.push(
             <Option key={item} value={item}>{item}</Option>
           )
         }
         return (
           <>
-          <Select
-            placeholder="Please Select"
-            style={{ width: 200 }}
-            value={this.state.selectedValueComponent}
-            onChange={(value) => {
-              this.state.selectedValueComponent = value
-              this.handleParamSelect('{$function.generic.'+value+'}')
-            }}
-          >
-            {functionOptionItems}
-          </Select>
+            <Select
+              placeholder='Please Select'
+              style={{ width: 200 }}
+              value={this.state.selectedValueComponent}
+              onChange={(value) => {
+                this.state.selectedValueComponent = value
+                this.handleParamSelect('{$function.generic.' + value + '}')
+              }}
+            >
+              {functionOptionItems}
+            </Select>
           </>
         )
         break
       case 4:
         return (
           <>
-          <Input
-            placeholder="Enter environment variable name"
-            style={{ width: 200 }}
-            value={this.state.selectedValueComponent}
-            onChange={(e) => {
-              this.state.selectedValueComponent = e.target.value
-              this.handleParamSelect('{$environment.'+e.target.value+'}')
-            }}
-          />
+            <Input
+              placeholder='Enter environment variable name'
+              style={{ width: 200 }}
+              value={this.state.selectedValueComponent}
+              onChange={(e) => {
+                this.state.selectedValueComponent = e.target.value
+                this.handleParamSelect('{$environment.' + e.target.value + '}')
+              }}
+            />
           </>
         )
         break
@@ -254,16 +252,16 @@ class ConfigurableParameter extends React.Component {
   handleFactTypeSelect = async (value) => {
     try {
       const selectedValueObject = JSON.parse(value)
-      await this.setState( {selectedFactType:  selectedValueObject} )
+      await this.setState({ selectedFactType: selectedValueObject })
       this.props.condition.fact = selectedValueObject.name
       this.props.onConditionChange()
       this.updateFactData()
-    } catch(err) {}
+    } catch (err) {}
   }
 
   handleFactSelect = (value, factObject) => {
     this.inputValue = value
-    this.handleParamSelect('{$prev.'+this.state.selectedValueComponent+'.'+(this.state.paramType===1?'request':'callback')+'.'+value+'}')
+    this.handleParamSelect('{$prev.' + this.state.selectedValueComponent + '.' + (this.state.paramType === 1 ? 'request' : 'callback') + '.' + value + '}')
     // this.updateChanges()
   }
 
@@ -272,7 +270,7 @@ class ConfigurableParameter extends React.Component {
     if (!this.inputValue) {
       this.inputValue = ''
     }
-    switch(this.state.paramType) {
+    switch (this.state.paramType) {
       case 0:
         finalValue = '{$request.params.' + this.inputValue + '}'
         break
@@ -289,7 +287,6 @@ class ConfigurableParameter extends React.Component {
         finalValue = this.inputValue
     }
 
-
     this.props.onChange(finalValue)
   }
 
@@ -298,13 +295,12 @@ class ConfigurableParameter extends React.Component {
     this.updateChanges()
   }
 
-  render() {
-
+  render () {
     return (
       <Row>
         <Col>
           <Select
-            placeholder="Please Select"
+            placeholder='Please Select'
             style={{ width: 200 }}
             value={this.paramTypes[this.state.paramType]}
             onSelect={this.handleParamTypeChange}
@@ -324,30 +320,29 @@ class ConfigurableParameter extends React.Component {
 }
 
 class PathBuilder extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       params: {}
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.state.params = { ...this.props.request.params }
   }
 
   handleValueChange = async (name, value) => {
-    let params = this.state.params
+    const params = this.state.params
     params[name] = value
     this.props.request.params = params
-    await this.setState({params})
+    await this.setState({ params })
     this.updatePath()
   }
 
   updatePath = () => {
     let operationPath = this.props.request.operationPath
-    for (let k in this.state.params) {
-      operationPath = operationPath.replace('{'+k+'}', this.state.params[k])
+    for (const k in this.state.params) {
+      operationPath = operationPath.replace('{' + k + '}', this.state.params[k])
     }
     this.props.request.path = operationPath
     this.props.onChange()
@@ -357,10 +352,10 @@ class PathBuilder extends React.Component {
     // TODO: read the path parameters from resource parameters also
     // Currently only rootParameters are considered
     let allParameters = []
-    if(this.props.rootParameters) {
+    if (this.props.rootParameters) {
       allParameters = allParameters.concat(this.props.rootParameters)
     }
-    if(this.props.resourceDefinition && this.props.resourceDefinition.parameters) {
+    if (this.props.resourceDefinition && this.props.resourceDefinition.parameters) {
       allParameters = allParameters.concat(this.props.resourceDefinition.parameters)
     }
     if (!allParameters) {
@@ -369,26 +364,26 @@ class PathBuilder extends React.Component {
     const pathItems = allParameters.filter(item => {
       return item.in === 'path'
     })
-    if (pathItems.length<=0) {
+    if (pathItems.length <= 0) {
       return null
     }
     return (
-      <Row className="mb-2">
+      <Row className='mb-2'>
         <Col span={24}>
-          <Card size="small" title="Path Parameters">
+          <Card size='small' title='Path Parameters'>
             <Row>
               <Col span={24}>
                 {(
                   pathItems.map(item => {
                     return (
-                      <Row className="mb-2" key={item.name}>
+                      <Row className='mb-2' key={item.name}>
                         <Col span={8}>
                           <Text strong>
                             {item.name}
                           </Text>
                         </Col>
                         <Col span={16}>
-                          { this.getValueInput(item) }
+                          {this.getValueInput(item)}
                         </Col>
                       </Row>
                     )
@@ -400,22 +395,21 @@ class PathBuilder extends React.Component {
         </Col>
       </Row>
     )
-
   }
 
   getValueInput = (pathParam) => {
     if (!this.props.request.params) {
       this.props.request.params = {}
     }
-    if(!this.props.request.params[pathParam.name]) {
+    if (!this.props.request.params[pathParam.name]) {
       this.props.request.params[pathParam.name] = ''
     }
     const pathValue = this.props.request.params[pathParam.name]
     let dynamicPathValue = null
-    //Check if the path value is a configurable input parameter
+    // Check if the path value is a configurable input parameter
     if (pathValue.startsWith('{$inputs.')) {
       // Find the parameter name
-      const paramName = pathValue.slice(9,pathValue.length-1)
+      const paramName = pathValue.slice(9, pathValue.length - 1)
       // if (this.props.inputValues)
       const temp = _.get(this.props.inputValues, paramName)
       if (temp) {
@@ -424,56 +418,56 @@ class PathBuilder extends React.Component {
         )
       }
     }
-    if(pathParam.schema && pathParam.schema.enum) {
+    if (pathParam.schema && pathParam.schema.enum) {
       return (
         <>
-        <Select
-          onChange={(value) => this.handleValueChange(pathParam.name, value)}
-          value={this.props.request.params[pathParam.name]}
-          style={{width:"100%"}}
-        >
-        { pathParam.schema.enum.map(item => {
-          return (
-            <Option key={item} value={item}>{item}</Option>
-          )
-        })}
-        </Select>
-        {dynamicPathValue}
+          <Select
+            onChange={(value) => this.handleValueChange(pathParam.name, value)}
+            value={this.props.request.params[pathParam.name]}
+            style={{ width: '100%' }}
+          >
+            {pathParam.schema.enum.map(item => {
+              return (
+                <Option key={item} value={item}>{item}</Option>
+              )
+            })}
+          </Select>
+          {dynamicPathValue}
         </>
       )
     } else {
       return (
         <>
-          <Input placeholder="Value" value={this.props.request.params[pathParam.name]}
-          onChange={(e) => this.handleValueChange(pathParam.name, e.target.value)}  />
+          <Input
+            placeholder='Value' value={this.props.request.params[pathParam.name]}
+            onChange={(e) => this.handleValueChange(pathParam.name, e.target.value)}
+          />
           {dynamicPathValue}
         </>
       )
     }
   }
 
-  render() {
-
+  render () {
     return (
       <>
-      { this.getPathItems() }
+        {this.getPathItems()}
       </>
     )
   }
 }
 
 class OptionsBuilder extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       overrideCheckboxSelected: false
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     if (this.props.request.url) {
-      this.setState({overrideCheckboxSelected: true})
+      this.setState({ overrideCheckboxSelected: true })
     }
     // this.state.params = { ...this.props.request.params }
   }
@@ -483,13 +477,12 @@ class OptionsBuilder extends React.Component {
     this.props.onChange()
   }
 
-  render() {
-
+  render () {
     let dynamicPathValue = null
-    //Check if the path value is a configurable input parameter
+    // Check if the path value is a configurable input parameter
     if (this.props.request.url && this.props.request.url.startsWith('{$inputs.')) {
       // Find the parameter name
-      const paramName = this.props.request.url.slice(9,this.props.request.url.length-1)
+      const paramName = this.props.request.url.slice(9, this.props.request.url.length - 1)
       const temp = _.get(this.props.inputValues, paramName)
       if (temp) {
         dynamicPathValue = (
@@ -500,108 +493,108 @@ class OptionsBuilder extends React.Component {
 
     return (
       <>
-      <Row className="mb-2">
-        <Col span={24}>
-          <Card size="small" title="Options">
-            <Row className="mt-2">
-              <Col span={24}>
-                <Checkbox
-                  checked={this.state.overrideCheckboxSelected}
-                  onChange={(e) => {
-                    this.handleUrlChange(null)
-                    this.setState({overrideCheckboxSelected: e.target.checked})
-                  }}
-                />
-                <Text strong className="ml-2">
-                  Override with Custom URL
-                </Text>
-              </Col>
-            </Row>
-            {
-              this.state.overrideCheckboxSelected
-              ? (
-                <Row className="mt-2">
-                  <Col span={8}>
-                    <Text strong>
-                      Enter Base URL
-                    </Text>
-                  </Col>
-                  <Col span={16}>
-                    <Input
-                      placeholder="URL" value={this.props.request.url}
-                      onChange={(e) => this.handleUrlChange(e.target.value)}
-                    />
-                    {dynamicPathValue}
-                  </Col>
-                </Row>
-              )
-              : null
-            }
-            <Row className="mt-2">
-              <Col span={24}>
-                <Checkbox
-                  checked={this.props.request.ignoreCallbacks}
-                  onChange={(e) => {
-                    this.props.request.ignoreCallbacks = e.target.checked
-                    this.props.onChange()
-                  }}
-                />
-                <Text strong className="ml-2">
-                  Ignore Callbacks
-                </Text>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={24}>
-                <Checkbox
-                  checked={this.state.delayCheckboxSelected || this.props.request.delay}
-                  onChange={(e) => {
-                    if (!e.target.checked) {
-                      delete this.props.request.delay
-                    } else {
-                      this.props.request.delay = "0"
-                    }
-                    this.props.onChange()
-                    this.setState({delayCheckboxSelected: e.target.checked})
-                  }}
-                />
-                <Text strong className="ml-2">
-                  Use delay
-                </Text>
-              </Col>
+        <Row className='mb-2'>
+          <Col span={24}>
+            <Card size='small' title='Options'>
+              <Row className='mt-2'>
+                <Col span={24}>
+                  <Checkbox
+                    checked={this.state.overrideCheckboxSelected}
+                    onChange={(e) => {
+                      this.handleUrlChange(null)
+                      this.setState({ overrideCheckboxSelected: e.target.checked })
+                    }}
+                  />
+                  <Text strong className='ml-2'>
+                    Override with Custom URL
+                  </Text>
+                </Col>
+              </Row>
               {
-                  this.state.delayCheckboxSelected || this.props.request.delay
-                  ? (
-                    <Row className="mt-2">
-                      <Col span={8}>
-                        <Text strong>
-                          Enter Delay in milliseconds
-                        </Text>
-                      </Col>
-                      <Col span={16}>
-                        <Input
-                          placeholder="delay" value={this.props.request.delay}
-                          onChange={(e) => {
-                            this.props.request.delay = e.target.value
-                            this.props.onChange()
-                          }}
-                        />
-                      </Col>
-                    </Row>
+              this.state.overrideCheckboxSelected
+                ? (
+                  <Row className='mt-2'>
+                    <Col span={8}>
+                      <Text strong>
+                        Enter Base URL
+                      </Text>
+                    </Col>
+                    <Col span={16}>
+                      <Input
+                        placeholder='URL' value={this.props.request.url}
+                        onChange={(e) => this.handleUrlChange(e.target.value)}
+                      />
+                      {dynamicPathValue}
+                    </Col>
+                  </Row>
                   )
-                  : null
+                : null
+            }
+              <Row className='mt-2'>
+                <Col span={24}>
+                  <Checkbox
+                    checked={this.props.request.ignoreCallbacks}
+                    onChange={(e) => {
+                      this.props.request.ignoreCallbacks = e.target.checked
+                      this.props.onChange()
+                    }}
+                  />
+                  <Text strong className='ml-2'>
+                    Ignore Callbacks
+                  </Text>
+                </Col>
+              </Row>
+              <Row className='mt-2'>
+                <Col span={24}>
+                  <Checkbox
+                    checked={this.state.delayCheckboxSelected || this.props.request.delay}
+                    onChange={(e) => {
+                      if (!e.target.checked) {
+                        delete this.props.request.delay
+                      } else {
+                        this.props.request.delay = '0'
+                      }
+                      this.props.onChange()
+                      this.setState({ delayCheckboxSelected: e.target.checked })
+                    }}
+                  />
+                  <Text strong className='ml-2'>
+                    Use delay
+                  </Text>
+                </Col>
+                {
+                  this.state.delayCheckboxSelected || this.props.request.delay
+                    ? (
+                      <Row className='mt-2'>
+                        <Col span={8}>
+                          <Text strong>
+                            Enter Delay in milliseconds
+                          </Text>
+                        </Col>
+                        <Col span={16}>
+                          <Input
+                            placeholder='delay' value={this.props.request.delay}
+                            onChange={(e) => {
+                              this.props.request.delay = e.target.value
+                              this.props.onChange()
+                            }}
+                          />
+                        </Col>
+                      </Row>
+                      )
+                    : null
                 }
-            </Row>
-          </Card>
-        </Col>
-      </Row>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
       </>
     )
   }
 }
 
 class QueryParamsBuilder extends React.Component {
-  constructor() {
+  constructor () {
     super()
     this.state = {
       addQueryParamDialogVisible: false,
@@ -614,13 +607,15 @@ class QueryParamsBuilder extends React.Component {
     if (!this.props.request.queryParams) {
       this.props.request.queryParams = {}
     }
-    this.props.request.queryParams[itemName] = this.props.request.queryParams[itemName] ? this.props.request.queryParams[itemName] : ""
+    this.props.request.queryParams[itemName] = this.props.request.queryParams[itemName] ? this.props.request.queryParams[itemName] : ''
     this.updateChanges()
   }
+
   handleQueryParamChange = (key, name, value) => {
     this.props.request.queryParams[name] = value
     this.updateChanges()
   }
+
   handleQueryParamDelete = async (name) => {
     delete this.props.request.queryParams[name]
     this.updateChanges()
@@ -637,10 +632,10 @@ class QueryParamsBuilder extends React.Component {
 
   getQueryParamItems = () => {
     // console.log(this.props.resourceDefinition)
-    let paramItems = []
-    let k=0
+    const paramItems = []
+    let k = 0
     if (this.props.request) {
-      for( let paramName in this.props.request.queryParams ) {
+      for (const paramName in this.props.request.queryParams) {
         const item = {
           name: paramName,
           value: this.props.request.queryParams[paramName]
@@ -661,96 +656,94 @@ class QueryParamsBuilder extends React.Component {
       }
     }
     return paramItems
-
   }
 
-  render() {
-
+  render () {
     const addQueryParamDialogContent = (
       <>
-      <Input
-        placeholder="Enter name"
-        type="text"
-        value={this.state.newQueryParamName}
-        onChange={(e) => { this.setState({newQueryParamName: e.target.value })}}
-      />
-      <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
-          onClick={ () => {
+        <Input
+          placeholder='Enter name'
+          type='text'
+          value={this.state.newQueryParamName}
+          onChange={(e) => { this.setState({ newQueryParamName: e.target.value }) }}
+        />
+        <Button
+          className='text-right mt-2'
+          color='success'
+          href='#pablo'
+          onClick={() => {
             this.addQueryParamItem(this.state.newQueryParamName)
-            this.setState({addQueryParamDialogVisible: false})
+            this.setState({ addQueryParamDialogVisible: false })
           }}
-          size="sm"
+          size='sm'
         >
           Add
-      </Button>
+        </Button>
       </>
     )
 
     return (
       <>
-        <Row className="mb-2">
+        <Row className='mb-2'>
           <Col span={24}>
-            <Card size="small" title="Query Parameters">
+            <Card size='small' title='Query Parameters'>
               <Row>
                 <Col span={12}>
                   {
                     !this.state.queryParamRawEditorEnable
-                    ? <Popover
-                        content={addQueryParamDialogContent}
-                        title="Enter name for the parameter"
-                        trigger="click"
-                        visible={this.state.addQueryParamDialogVisible}
-                        onVisibleChange={ (visible) => this.setState({addQueryParamDialogVisible: true})}
-                      >
+                      ? <Popover
+                          content={addQueryParamDialogContent}
+                          title='Enter name for the parameter'
+                          trigger='click'
+                          visible={this.state.addQueryParamDialogVisible}
+                          onVisibleChange={(visible) => this.setState({ addQueryParamDialogVisible: true })}
+                        >
                         <Button
-                          type="primary"
+                          type='primary'
                         >
                           Add Param
                         </Button>
-                      </Popover>
-                    : null
+                        </Popover>
+                      : null
                   }
                 </Col>
-                <Col span={12} className="text-right">
-                  <strong>Raw Editor</strong> <Switch checked={this.state.queryParamRawEditorEnable} onChange={(checked) => { this.setState({queryParamRawEditorEnable: checked}) }} />
+                <Col span={12} className='text-right'>
+                  <strong>Raw Editor</strong> <Switch checked={this.state.queryParamRawEditorEnable} onChange={(checked) => { this.setState({ queryParamRawEditorEnable: checked }) }} />
                 </Col>
               </Row>
-              <Row className="mt-2">
+              <Row className='mt-2'>
                 <Col span={24}>
                   {
                     this.state.queryParamRawEditorEnable
-                    ? (
-                      <div>
-                        <Row>
-                          <Col span={24} className="text-left mt-4">
-                            <JsonEditor
-                              value={ this.props.request.queryParams || {} }
-                              onChange={this.handleRawQueryParamsChange}
-                            />
-                          </Col>
-                        </Row>
-                      </div>
-                    )
-                    : (
-                      <>
-                      <Row>
-                        <Col span={8}>
-                          <Text strong>
-                            Name
-                          </Text>
-                        </Col>
-                        <Col span={8}>
-                          <Text strong>
-                            Value
-                          </Text>
-                        </Col>
-                      </Row>
-                      {this.getQueryParamItems()}
-                      </>
-                    )
+                      ? (
+                        <div>
+                          <Row>
+                            <Col span={24} className='text-left mt-4'>
+                              <JsonEditor
+                                value={this.props.request.queryParams || {}}
+                                onChange={this.handleRawQueryParamsChange}
+                              />
+                            </Col>
+                          </Row>
+                        </div>
+                        )
+                      : (
+                        <>
+                          <Row>
+                            <Col span={8}>
+                              <Text strong>
+                                Name
+                              </Text>
+                            </Col>
+                            <Col span={8}>
+                              <Text strong>
+                                Value
+                              </Text>
+                            </Col>
+                          </Row>
+                          {this.getQueryParamItems()}
+                        </>
+                        )
                   }
                 </Col>
               </Row>
@@ -762,16 +755,15 @@ class QueryParamsBuilder extends React.Component {
   }
 }
 
-
 class QueryParamsInputComponent extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       name: '',
       value: ''
     }
   }
+
   inputValue = null
 
   componentDidMount = () => {
@@ -784,10 +776,10 @@ class QueryParamsInputComponent extends React.Component {
 
   getDynamicValue = () => {
     let dynamicValue = null
-    //Check if the path value is a configurable input parameter
+    // Check if the path value is a configurable input parameter
     if (this.inputValue && this.inputValue.startsWith('{$inputs.')) {
       // Find the parameter name
-      const paramName = this.inputValue.slice(9,this.inputValue.length-1)
+      const paramName = this.inputValue.slice(9, this.inputValue.length - 1)
       // if (this.props.inputValues)
       const temp = _.get(this.props.inputValues, paramName)
       if (temp) {
@@ -803,6 +795,7 @@ class QueryParamsInputComponent extends React.Component {
     // this.setState({name: event.target.value})
     this.props.onChange(this.props.itemKey, event.target.value, this.props.value)
   }
+
   handleValueChange = (event) => {
     this.inputValue = event.target.value
     // console.log(event.target.value)
@@ -814,52 +807,52 @@ class QueryParamsInputComponent extends React.Component {
     this.props.onDelete(this.props.itemKey)
   }
 
-
-  render() {
+  render () {
     return (
       <>
-      <Row className="mb-2" gutter={16}>
-        <Col span={8}>
-          <Tooltip placement="topLeft" title={this.props.description}>
-            <Input
-              className="form-control-alternative"
-              placeholder="Name"
-              type="text"
-              defaultValue={this.props.name}
-              value={this.props.name}
-              onChange={this.handleNameChange}
-              disabled={false}
-              readOnly={true}
-            />
-          </Tooltip>
-        </Col>
+        <Row className='mb-2' gutter={16}>
+          <Col span={8}>
+            <Tooltip placement='topLeft' title={this.props.description}>
+              <Input
+                className='form-control-alternative'
+                placeholder='Name'
+                type='text'
+                defaultValue={this.props.name}
+                value={this.props.name}
+                onChange={this.handleNameChange}
+                disabled={false}
+                readOnly
+              />
+            </Tooltip>
+          </Col>
 
-        <Col span={14}>
-          <Input
-            className="form-control-alternative"
-            placeholder="Value"
-            type="text"
-            defaultValue={this.props.value}
-            value={this.props.value}
-            onChange={this.handleValueChange}
-            disabled={false}
-          />
-          {this.getDynamicValue()}
-        </Col>
-        <Col span={2}>
-          <DeleteTwoTone twoToneColor="#eb2f96"
-            key={this.props.name}
-            onClick={this.handleDelete}
-          />
-        </Col>
-      </Row>
+          <Col span={14}>
+            <Input
+              className='form-control-alternative'
+              placeholder='Value'
+              type='text'
+              defaultValue={this.props.value}
+              value={this.props.value}
+              onChange={this.handleValueChange}
+              disabled={false}
+            />
+            {this.getDynamicValue()}
+          </Col>
+          <Col span={2}>
+            <DeleteTwoTone
+              twoToneColor='#eb2f96'
+              key={this.props.name}
+              onClick={this.handleDelete}
+            />
+          </Col>
+        </Row>
       </>
     )
   }
 }
 
 class HeaderBodyBuilder extends React.Component {
-  constructor() {
+  constructor () {
     super()
     this.bodyEditorRef = React.createRef()
     this.state = {
@@ -887,13 +880,13 @@ class HeaderBodyBuilder extends React.Component {
       allParamsFromDefinition = allParamsFromDefinition.concat(this.props.resourceDefinition.parameters)
     }
 
-    let allParamsObject = {}
-    for (let k in allParamsFromDefinition) {
+    const allParamsObject = {}
+    for (const k in allParamsFromDefinition) {
       allParamsObject[allParamsFromDefinition[k].name] = {
         description: allParamsFromDefinition[k].description
       }
     }
-    this.setState({allParamsFromDefinition, allParamsObject})
+    this.setState({ allParamsFromDefinition, allParamsObject })
   }
 
   componentDidUpdate = () => {
@@ -904,16 +897,14 @@ class HeaderBodyBuilder extends React.Component {
     // console.log(this.props.resourceDefinition)
   }
 
-
-  addHeaderItemsFromDefinition = async (onlyRequired=false) => {
+  addHeaderItemsFromDefinition = async (onlyRequired = false) => {
     this.state.allParamsFromDefinition.forEach((param) => {
-      if (param.in==='header') {
+      if (param.in === 'header') {
         if (!onlyRequired || param.required) {
           if (!this.props.request.headers) {
             this.props.request.headers = {}
             this.props.request.headers[param.name] = ''
-          }
-          else if (!this.props.request.headers[param.name]) {
+          } else if (!this.props.request.headers[param.name]) {
             this.props.request.headers[param.name] = ''
           }
         }
@@ -926,13 +917,15 @@ class HeaderBodyBuilder extends React.Component {
     if (!this.props.request.headers) {
       this.props.request.headers = {}
     }
-    this.props.request.headers[itemName] = this.props.request.headers[itemName] ? this.props.request.headers[itemName] : ""
+    this.props.request.headers[itemName] = this.props.request.headers[itemName] ? this.props.request.headers[itemName] : ''
     this.updateChanges()
   }
+
   handleHeaderItemChange = (key, name, value) => {
     this.props.request.headers[name] = value
     this.updateChanges()
   }
+
   handleHeaderItemDelete = async (name) => {
     delete this.props.request.headers[name]
     this.updateChanges()
@@ -945,8 +938,8 @@ class HeaderBodyBuilder extends React.Component {
   }
 
   handleAddHeaderClick = (event) => {
-    this.addHeaderItem(event.item.props.eventKey);
-  };
+    this.addHeaderItem(event.item.props.eventKey)
+  }
 
   handleRawHeadersChange = (newHeaders) => {
     this.props.request.headers = newHeaders
@@ -974,17 +967,17 @@ class HeaderBodyBuilder extends React.Component {
   }
 
   updateBodyChanges = () => {
-    if (this.bodyEditorRef.jsonEditor &&  this.props.request.body) {
+    if (this.bodyEditorRef.jsonEditor && this.props.request.body) {
       this.bodyEditorRef.jsonEditor.update(this.props.request.body)
     }
   }
 
   getHeaderItems = () => {
     // console.log(this.props.resourceDefinition)
-    let headerItems = []
-    let k=0
+    const headerItems = []
+    let k = 0
     if (this.props.request) {
-      for( let headerName in this.props.request.headers ) {
+      for (const headerName in this.props.request.headers) {
         const item = {
           name: headerName,
           value: this.props.request.headers[headerName]
@@ -996,7 +989,7 @@ class HeaderBodyBuilder extends React.Component {
             itemKey={item.name}
             name={item.name}
             value={item.value}
-            description={this.state.allParamsObject[item.name]? this.state.allParamsObject[item.name].description: null} rootParameters={this.props.rootParameters}
+            description={this.state.allParamsObject[item.name] ? this.state.allParamsObject[item.name].description : null} rootParameters={this.props.rootParameters}
             resourceDefinition={this.props.resourceDefinition}
             onChange={this.handleHeaderItemChange}
             onDelete={this.handleHeaderItemDelete}
@@ -1006,18 +999,16 @@ class HeaderBodyBuilder extends React.Component {
       }
     }
     return headerItems
-
   }
 
   handleAddConfigParam = (newValue) => {
-    this.setState({configurableParameterSelected: newValue})
+    this.setState({ configurableParameterSelected: newValue })
   }
-
 
   handlePopulateSampleBodyClick = async () => {
     // const newBody = (new FactDataGenerator()).getBodySample(this.props.resourceDefinition)
     const newBody = await (new FactDataGenerator()).generateSample(this.bodySchema)
-    if(newBody) {
+    if (newBody) {
       // if(this.props.callbackObject && this.props.callbackObject.bodyOverride) {
       //   _.merge(newBody, this.props.callbackObject.bodyOverride)
       // }
@@ -1029,75 +1020,75 @@ class HeaderBodyBuilder extends React.Component {
 
   handleConfigParamCopyToClipboard = () => {
     navigator.clipboard.writeText(this.state.configurableParameterSelected)
-    message.success('Copied to clipboard');
+    message.success('Copied to clipboard')
   }
 
-  render() {
+  render () {
     const content = (
       <>
-      <Row>
-        <Col span={24}>
-          <ConfigurableParameter
-            onChange={this.handleAddConfigParam}
-            rootParameters={this.props.rootParameters}
-            resourceDefinition={this.props.resourceDefinition}
-            openApiDefinition={this.props.openApiDefinition}
-            callbackMap={this.props.callbackMap}
-            inputValues={this.props.inputValues}
-            allRequests={this.props.allRequests}
-          />
-        </Col>
-      </Row>
-      {
-        this.state.configurableParameterSelected ?
-        (
-          <Row className="mt-4 text-center">
-            <Col span={24}>
-              Click below to copy <br/>
-              <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
-            </Col>
-          </Row>
-        )
-        : null
+        <Row>
+          <Col span={24}>
+            <ConfigurableParameter
+              onChange={this.handleAddConfigParam}
+              rootParameters={this.props.rootParameters}
+              resourceDefinition={this.props.resourceDefinition}
+              openApiDefinition={this.props.openApiDefinition}
+              callbackMap={this.props.callbackMap}
+              inputValues={this.props.inputValues}
+              allRequests={this.props.allRequests}
+            />
+          </Col>
+        </Row>
+        {
+        this.state.configurableParameterSelected
+          ? (
+            <Row className='mt-4 text-center'>
+              <Col span={24}>
+                Click below to copy <br />
+                <Tag color='geekblue'><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
+              </Col>
+            </Row>
+            )
+          : null
       }
       </>
     )
 
     const addCustomHeaderDialogContent = (
       <>
-      <Row>
-        <Col span={24}>
-          <Input
-            placeholder="Enter name"
-            type="text"
-            value={this.state.newCustomHeaderName}
-            onChange={(e) => { this.setState({newCustomHeaderName: e.target.value })}}
-          />
-        </Col>
-      </Row>
-      <Row className="mt-2">
-        <Col span={24}>
-          <Button
-              type="primary"
-              onClick={ () => {
+        <Row>
+          <Col span={24}>
+            <Input
+              placeholder='Enter name'
+              type='text'
+              value={this.state.newCustomHeaderName}
+              onChange={(e) => { this.setState({ newCustomHeaderName: e.target.value }) }}
+            />
+          </Col>
+        </Row>
+        <Row className='mt-2'>
+          <Col span={24}>
+            <Button
+              type='primary'
+              onClick={() => {
                 this.addHeaderItem(this.state.newCustomHeaderName)
-                this.setState({addCustomHeaderDialogVisible: false})
+                this.setState({ addCustomHeaderDialogVisible: false })
               }}
             >
               Add
-          </Button>
-          <Button
-              className="ml-2"
-              type="default"
+            </Button>
+            <Button
+              className='ml-2'
+              type='default'
               danger
-              onClick={ () => {
-                this.setState({addCustomHeaderDialogVisible: false})
+              onClick={() => {
+                this.setState({ addCustomHeaderDialogVisible: false })
               }}
             >
               Cancel
-          </Button>
-        </Col>
-      </Row>
+            </Button>
+          </Col>
+        </Row>
       </>
     )
 
@@ -1105,95 +1096,95 @@ class HeaderBodyBuilder extends React.Component {
       <>
         <Row>
           <Col span={24}>
-            <Card size="small" title="Headers">
+            <Card size='small' title='Headers'>
               <Row>
                 <Col span={12}>
-                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                    <Button type="dashed">Add Configurable Params</Button>
+                  <Popover content={content} title='Select a Configurable Parameter' trigger='click'>
+                    <Button type='dashed'>Add Configurable Params</Button>
                   </Popover>
                 </Col>
-                <Col span={12} className="text-right">
-                  <strong>Raw Editor</strong> <Switch checked={this.state.headersRawEditorEnable} onChange={(checked) => { this.setState({headersRawEditorEnable: checked}) }} />
+                <Col span={12} className='text-right'>
+                  <strong>Raw Editor</strong> <Switch checked={this.state.headersRawEditorEnable} onChange={(checked) => { this.setState({ headersRawEditorEnable: checked }) }} />
                 </Col>
               </Row>
-              <Row className="mt-2">
+              <Row className='mt-2'>
                 <Col span={24}>
                   {
                     this.state.headersRawEditorEnable
-                    ? (
-                      <div>
-                        <Row>
-                          <Col span={24} className="text-left mt-4">
-                            <JsonEditor
-                              value={ this.props.request.headers || {}}
-                              onChange={this.handleRawHeadersChange}
-                            />
-                          </Col>
-                        </Row>
-                      </div>
-                    )
-                    : (
-                      <>
-                      <Row className="mb-2">
-                        <Col span={8}>
-                          <Text strong>
-                            Name
-                          </Text>
-                        </Col>
-                        <Col span={8}>
-                          <Text strong>
-                            Value
-                          </Text>
-                        </Col>
-                      </Row>
-                      {this.getHeaderItems()}
-                      <Row>
-                        <Col span={24}>
-                          <Dropdown overlay={this.headerItemsMenu()}>
-                          <Button
-                            type="primary"
-                            onClick={e => e.preventDefault()}
-                          >
-                            Add Header
-                          </Button>
-                          </Dropdown>
-                          <Button
-                            className="ml-2 float-right"
-                            type="default"
-                            danger
-                            onClick={() => this.addHeaderItemsFromDefinition(true)}
-                          >
-                            Add Required Headers
-                          </Button>
-                        </Col>
-                      </Row>
-                      <Row className="mt-2">
-                        <Col span={24}>
-                          <Button
-                            className="float-right"
-                            type="default"
-                            onClick={() => this.addHeaderItemsFromDefinition(false)}
-                          >
-                            Add All Headers
-                          </Button>
-                          <Popover
-                            content={addCustomHeaderDialogContent}
-                            title="Enter name for the header"
-                            trigger="click"
-                            visible={this.state.addCustomHeaderDialogVisible}
-                            onVisibleChange={ (visible) => this.setState({addCustomHeaderDialogVisible: true})}
-                          >
-                            <Button
-                                color="warning"
-                                size="sm"
+                      ? (
+                        <div>
+                          <Row>
+                            <Col span={24} className='text-left mt-4'>
+                              <JsonEditor
+                                value={this.props.request.headers || {}}
+                                onChange={this.handleRawHeadersChange}
+                              />
+                            </Col>
+                          </Row>
+                        </div>
+                        )
+                      : (
+                        <>
+                          <Row className='mb-2'>
+                            <Col span={8}>
+                              <Text strong>
+                                Name
+                              </Text>
+                            </Col>
+                            <Col span={8}>
+                              <Text strong>
+                                Value
+                              </Text>
+                            </Col>
+                          </Row>
+                          {this.getHeaderItems()}
+                          <Row>
+                            <Col span={24}>
+                              <Dropdown overlay={this.headerItemsMenu()}>
+                                <Button
+                                  type='primary'
+                                  onClick={e => e.preventDefault()}
+                                >
+                                  Add Header
+                                </Button>
+                              </Dropdown>
+                              <Button
+                                className='ml-2 float-right'
+                                type='default'
+                                danger
+                                onClick={() => this.addHeaderItemsFromDefinition(true)}
                               >
-                                Add Custom Header
-                            </Button>
-                          </Popover>
-                        </Col>
-                      </Row>
-                      </>
-                    )
+                                Add Required Headers
+                              </Button>
+                            </Col>
+                          </Row>
+                          <Row className='mt-2'>
+                            <Col span={24}>
+                              <Button
+                                className='float-right'
+                                type='default'
+                                onClick={() => this.addHeaderItemsFromDefinition(false)}
+                              >
+                                Add All Headers
+                              </Button>
+                              <Popover
+                                content={addCustomHeaderDialogContent}
+                                title='Enter name for the header'
+                                trigger='click'
+                                visible={this.state.addCustomHeaderDialogVisible}
+                                onVisibleChange={(visible) => this.setState({ addCustomHeaderDialogVisible: true })}
+                              >
+                                <Button
+                                  color='warning'
+                                  size='sm'
+                                >
+                                  Add Custom Header
+                                </Button>
+                              </Popover>
+                            </Col>
+                          </Row>
+                        </>
+                        )
                   }
                 </Col>
               </Row>
@@ -1202,53 +1193,52 @@ class HeaderBodyBuilder extends React.Component {
         </Row>
         {
           this.props.resourceDefinition && this.props.resourceDefinition.requestBody
-          ? (
-            <Row className='mt-2'>
-              <Col span={24}>
-                <Card size="small" title="Body">
-                  <Row className='mb-2'>
-                    <Col span={12}>
-                      <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                        <Button type="dashed">Add Configurable Params</Button>
-                      </Popover>
-                    </Col>
-                    <Col span={12} style={{textAlign: 'right'}}>
-                      <Button type="default" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
-                    </Col>
-                  </Row>
-                  <Row >
-                    <Col span={24}>
-                      <JsonEditor
-                        ref={editor => {
-                          this.bodyEditorRef = editor
-                        }}
-                        value={ this.props.request.body? this.props.request.body : {} }
-                        onChange={this.handleBodyChange}
-                        schema={this.bodySchema}
-                      />
-                    </Col>
-                  </Row>
-                </Card>
-              </Col>
-            </Row>
-          )
-          : null
+            ? (
+              <Row className='mt-2'>
+                <Col span={24}>
+                  <Card size='small' title='Body'>
+                    <Row className='mb-2'>
+                      <Col span={12}>
+                        <Popover content={content} title='Select a Configurable Parameter' trigger='click'>
+                          <Button type='dashed'>Add Configurable Params</Button>
+                        </Popover>
+                      </Col>
+                      <Col span={12} style={{ textAlign: 'right' }}>
+                        <Button type='default' onClick={this.handlePopulateSampleBodyClick}>Populate with sample body</Button>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col span={24}>
+                        <JsonEditor
+                          ref={editor => {
+                            this.bodyEditorRef = editor
+                          }}
+                          value={this.props.request.body ? this.props.request.body : {}}
+                          onChange={this.handleBodyChange}
+                          schema={this.bodySchema}
+                        />
+                      </Col>
+                    </Row>
+                  </Card>
+                </Col>
+              </Row>
+              )
+            : null
         }
       </>
     )
   }
 }
 
-
 class HeaderInputComponent extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       name: '',
       value: ''
     }
   }
+
   inputValue = null
 
   componentDidMount = () => {
@@ -1261,10 +1251,10 @@ class HeaderInputComponent extends React.Component {
 
   getDynamicValue = () => {
     let dynamicValue = null
-    //Check if the path value is a configurable input parameter
+    // Check if the path value is a configurable input parameter
     if (this.inputValue && this.inputValue.startsWith('{$inputs.')) {
       // Find the parameter name
-      const paramName = this.inputValue.slice(9,this.inputValue.length-1)
+      const paramName = this.inputValue.slice(9, this.inputValue.length - 1)
       // if (this.props.inputValues)
       const temp = _.get(this.props.inputValues, paramName)
       if (temp) {
@@ -1280,6 +1270,7 @@ class HeaderInputComponent extends React.Component {
     // this.setState({name: event.target.value})
     this.props.onChange(this.props.itemKey, event.target.value, this.props.value)
   }
+
   handleValueChange = (event) => {
     this.inputValue = event.target.value
     // console.log(event.target.value)
@@ -1291,52 +1282,52 @@ class HeaderInputComponent extends React.Component {
     this.props.onDelete(this.props.itemKey)
   }
 
-
-  render() {
+  render () {
     return (
       <>
-      <Row className="mb-2" gutter={16}>
-        <Col span={8}>
-          <Tooltip placement="topLeft" title={this.props.description}>
-            <Input
-              className="form-control-alternative"
-              placeholder="Name"
-              type="text"
-              defaultValue={this.props.name}
-              value={this.props.name}
-              onChange={this.handleNameChange}
-              disabled={false}
-              readOnly={true}
-            />
-          </Tooltip>
-        </Col>
+        <Row className='mb-2' gutter={16}>
+          <Col span={8}>
+            <Tooltip placement='topLeft' title={this.props.description}>
+              <Input
+                className='form-control-alternative'
+                placeholder='Name'
+                type='text'
+                defaultValue={this.props.name}
+                value={this.props.name}
+                onChange={this.handleNameChange}
+                disabled={false}
+                readOnly
+              />
+            </Tooltip>
+          </Col>
 
-        <Col span={14}>
-          <Input
-            className="form-control-alternative"
-            placeholder="Value"
-            type="text"
-            defaultValue={this.props.value}
-            value={this.props.value}
-            onChange={this.handleValueChange}
-            disabled={false}
-          />
-          {this.getDynamicValue()}
-        </Col>
-        <Col span={2}>
-          <DeleteTwoTone twoToneColor="#eb2f96"
-            key={this.props.name}
-            onClick={this.handleDelete}
-          />
-        </Col>
-      </Row>
+          <Col span={14}>
+            <Input
+              className='form-control-alternative'
+              placeholder='Value'
+              type='text'
+              defaultValue={this.props.value}
+              value={this.props.value}
+              onChange={this.handleValueChange}
+              disabled={false}
+            />
+            {this.getDynamicValue()}
+          </Col>
+          <Col span={2}>
+            <DeleteTwoTone
+              twoToneColor='#eb2f96'
+              key={this.props.name}
+              onClick={this.handleDelete}
+            />
+          </Col>
+        </Row>
       </>
     )
   }
 }
 
 class CurlImporter extends React.Component {
-  constructor() {
+  constructor () {
     super()
     this.state = {
       importCurlCommandDialogVisible: false,
@@ -1347,76 +1338,77 @@ class CurlImporter extends React.Component {
 
   handleImportClick = () => {
     try {
-      const decodedCurl = parseCurl(this.state.curlCommand);
+      const decodedCurl = parseCurl(this.state.curlCommand)
       this.props.request.headers = JSON.parse(JSON.stringify(decodedCurl.headers))
       if (this.props.resourceDefinition && this.props.resourceDefinition.requestBody) {
         this.props.request.body = JSON.parse(JSON.stringify(decodedCurl.body))
       }
-      this.setState({importCurlCommandDialogVisible: false})
+      this.setState({ importCurlCommandDialogVisible: false })
       this.props.onChange()
-    } catch(err) {
-      this.setState({displayErrorMessage: 'Wrong CURL syntax: Parsing Error'})
+    } catch (err) {
+      this.setState({ displayErrorMessage: 'Wrong CURL syntax: Parsing Error' })
     }
   }
-  render () {
 
+  render () {
     const importCurlCommandDialogContent = (
       <>
-      <Row>
-      <Col>
-        <TextArea rows={8}
-          placeholder="Enter name"
-          size="large"
-          type="text"
-          value={this.state.curlCommand}
-          onChange={(e) => { this.setState({curlCommand: e.target.value })}}
-        />
-      </Col>
-      </Row>
-      <Row>
-      <Col>
-        <Button
-            className="text-right mt-2"
-            color="success"
-            href="#pablo"
-            onClick={this.handleImportClick}
-            size="sm"
-          >
-            Import
-        </Button>
-        <Button
-            className="text-right mt-2"
-            color="danger"
-            href="#pablo"
-            onClick={() => {
-              this.setState({importCurlCommandDialogVisible: false})
-            }}
-            size="sm"
-          >
-            Cancel
-        </Button>
-      </Col>
-      </Row>
-      <Row>
-        <Col>
-          {this.state.displayErrorMessage}
-        </Col>
-      </Row>
+        <Row>
+          <Col>
+            <TextArea
+              rows={8}
+              placeholder='Enter name'
+              size='large'
+              type='text'
+              value={this.state.curlCommand}
+              onChange={(e) => { this.setState({ curlCommand: e.target.value }) }}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Button
+              className='text-right mt-2'
+              color='success'
+              href='#pablo'
+              onClick={this.handleImportClick}
+              size='sm'
+            >
+              Import
+            </Button>
+            <Button
+              className='text-right mt-2'
+              color='danger'
+              href='#pablo'
+              onClick={() => {
+                this.setState({ importCurlCommandDialogVisible: false })
+              }}
+              size='sm'
+            >
+              Cancel
+            </Button>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            {this.state.displayErrorMessage}
+          </Col>
+        </Row>
       </>
     )
 
     return (
       <Popover
         content={importCurlCommandDialogContent}
-        title="Paste the CURL command here"
-        trigger="click"
+        title='Paste the CURL command here'
+        trigger='click'
         visible={this.state.importCurlCommandDialogVisible}
-        onVisibleChange={ (visible) => this.setState({importCurlCommandDialogVisible: true})}
+        onVisibleChange={(visible) => this.setState({ importCurlCommandDialogVisible: true })}
       >
         <Button
-          className="mt-2 mb-2 mr-2"
-          color="info"
-          size="sm"
+          className='mt-2 mb-2 mr-2'
+          color='info'
+          size='sm'
         >
           Import Curl
         </Button>
@@ -1426,10 +1418,8 @@ class CurlImporter extends React.Component {
   }
 }
 
-
 class RequestBuilder extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.headerBodyBuilderRef = React.createRef()
     this.state = {
@@ -1458,62 +1448,62 @@ class RequestBuilder extends React.Component {
   render () {
     return (
       <>
-      <div>
-        <Row className='mt-2'>
-          <Col span={24}>
-          {
+        <div>
+          <Row className='mt-2'>
+            <Col span={24}>
+              {
             this.props.resource
-            ? (
-              <>
-              <CurlImporter
-                request={this.props.request}
-                onChange={this.handleRequestChange}
-                resourceDefinition={this.props.resourceDefinition}
-              />
-              <OptionsBuilder
-                request={this.props.request}
-                inputValues={this.props.inputValues}
-                onChange={this.handleRequestChange}
-              />
-              <PathBuilder
-                request={this.props.request}
-                inputValues={this.props.inputValues}
-                onChange={this.handleRequestChange}
-                resourceDefinition={this.props.resourceDefinition}
-                rootParameters = {this.props.rootParameters}
-              />
-              <QueryParamsBuilder
-                request={this.props.request}
-                inputValues={this.props.inputValues}
-                allRequests={this.props.allRequests}
-                onChange={this.handleRequestChange}
-                resourceDefinition={this.props.resourceDefinition}
-                rootParameters = {this.props.rootParameters}
-                openApiDefinition={this.props.openApiDefinition}
-                callbackMap={this.props.callbackMap}
-              />
-              <HeaderBodyBuilder
-                ref={this.headerBodyBuilderRef}
-                request={this.props.request}
-                inputValues={this.props.inputValues}
-                allRequests={this.props.allRequests}
-                onChange={this.handleRequestChange}
-                resourceDefinition={this.props.resourceDefinition}
-                rootParameters = {this.props.rootParameters}
-                openApiDefinition={this.props.openApiDefinition}
-                callbackMap={this.props.callbackMap}
-              />
-              </>
-            )
-            : null
+              ? (
+                <>
+                  <CurlImporter
+                    request={this.props.request}
+                    onChange={this.handleRequestChange}
+                    resourceDefinition={this.props.resourceDefinition}
+                  />
+                  <OptionsBuilder
+                    request={this.props.request}
+                    inputValues={this.props.inputValues}
+                    onChange={this.handleRequestChange}
+                  />
+                  <PathBuilder
+                    request={this.props.request}
+                    inputValues={this.props.inputValues}
+                    onChange={this.handleRequestChange}
+                    resourceDefinition={this.props.resourceDefinition}
+                    rootParameters={this.props.rootParameters}
+                  />
+                  <QueryParamsBuilder
+                    request={this.props.request}
+                    inputValues={this.props.inputValues}
+                    allRequests={this.props.allRequests}
+                    onChange={this.handleRequestChange}
+                    resourceDefinition={this.props.resourceDefinition}
+                    rootParameters={this.props.rootParameters}
+                    openApiDefinition={this.props.openApiDefinition}
+                    callbackMap={this.props.callbackMap}
+                  />
+                  <HeaderBodyBuilder
+                    ref={this.headerBodyBuilderRef}
+                    request={this.props.request}
+                    inputValues={this.props.inputValues}
+                    allRequests={this.props.allRequests}
+                    onChange={this.handleRequestChange}
+                    resourceDefinition={this.props.resourceDefinition}
+                    rootParameters={this.props.rootParameters}
+                    openApiDefinition={this.props.openApiDefinition}
+                    callbackMap={this.props.callbackMap}
+                  />
+                </>
+                )
+              : null
           }
 
-          </Col>
-        </Row>
-      </div>
+            </Col>
+          </Row>
+        </div>
       </>
     )
   }
 }
 
-export default RequestBuilder;
+export default RequestBuilder

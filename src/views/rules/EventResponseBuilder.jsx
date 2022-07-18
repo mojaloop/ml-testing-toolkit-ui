@@ -21,40 +21,39 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import _ from 'lodash';
-import axios from 'axios';
-import { Select, Row, Col, Button, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Typography } from 'antd';
-import 'antd/dist/antd.css';
-import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
+import React from 'react'
+import _ from 'lodash'
+import axios from 'axios'
+import { Select, Row, Col, Button, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Typography } from 'antd'
+import 'antd/dist/antd.css'
+import { FactDataGenerator, FactSelect } from './BuilderTools.jsx'
 
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
-import ace from 'brace';
-import 'brace/mode/json';
-import 'brace/theme/github';
-import 'brace/theme/tomorrow_night_blue';
-import Ajv from 'ajv';
-const ajv = new Ajv({allErrors: true});
+import { JsonEditor as Editor } from 'jsoneditor-react'
+import 'jsoneditor-react/es/editor.min.css'
+import ace from 'brace'
+import 'brace/mode/json'
+import 'brace/theme/github'
+import 'brace/theme/tomorrow_night_blue'
+import Ajv from 'ajv'
+const ajv = new Ajv({ allErrors: true })
 
-const { Option } = Select;
-const { Text } = Typography;
+const { Option } = Select
+const { Text } = Typography
 
 class ConfigurableParameter extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       mode: null,
-      factData: null,
+      factData: null
     }
 
     // Set Modes Array
-    this.modes[0]='Request Path Parameter'
-    this.modes[1]='Request Body Parameter'
-    this.modes[2]='Request Header Parameter'
-    this.modes[3]='Negotiated Content Type'
-    this.modes[4]='Request Query Parameter'
+    this.modes[0] = 'Request Path Parameter'
+    this.modes[1] = 'Request Body Parameter'
+    this.modes[2] = 'Request Header Parameter'
+    this.modes[3] = 'Negotiated Content Type'
+    this.modes[4] = 'Request Query Parameter'
   }
 
   modes = []
@@ -71,15 +70,15 @@ class ConfigurableParameter extends React.Component {
   }
 
   handleModeChange = async (mode) => {
-    var factData = null
+    let factData = null
     let allParameters = []
-    if(this.props.rootParameters) {
+    if (this.props.rootParameters) {
       allParameters = allParameters.concat(this.props.rootParameters)
     }
-    if(this.props.resourceDefinition.parameters) {
+    if (this.props.resourceDefinition.parameters) {
       allParameters = allParameters.concat(this.props.resourceDefinition.parameters)
     }
-    switch(mode) {
+    switch (mode) {
       case 0:
         factData = (new FactDataGenerator()).getPathParametersFactData(allParameters)
         break
@@ -95,12 +94,12 @@ class ConfigurableParameter extends React.Component {
       default:
         factData = null
     }
-    await this.setState( {mode: mode, factData: factData} )
+    await this.setState({ mode, factData })
     this.updateChanges()
   }
 
   getValueComponent = () => {
-    switch(this.state.mode) {
+    switch (this.state.mode) {
       case 0:
       case 1:
       case 2:
@@ -118,11 +117,11 @@ class ConfigurableParameter extends React.Component {
   handleFactTypeSelect = async (value) => {
     try {
       const selectedValueObject = JSON.parse(value)
-      await this.setState( {selectedFactType:  selectedValueObject} )
+      await this.setState({ selectedFactType: selectedValueObject })
       this.props.condition.fact = selectedValueObject.name
       this.props.onConditionChange()
       this.updateFactData()
-    } catch(err) {}
+    } catch (err) {}
   }
 
   handleFactSelect = (value, factObject) => {
@@ -135,7 +134,7 @@ class ConfigurableParameter extends React.Component {
     if (!this.inputValue) {
       this.inputValue = ''
     }
-    switch(this.state.mode) {
+    switch (this.state.mode) {
       case 0:
         finalValue = '{$request.params.' + this.inputValue + '}'
         break
@@ -155,7 +154,6 @@ class ConfigurableParameter extends React.Component {
         finalValue = this.inputValue
     }
 
-
     this.props.onChange(finalValue)
   }
 
@@ -164,34 +162,33 @@ class ConfigurableParameter extends React.Component {
     this.updateChanges()
   }
 
-  render() {
-
+  render () {
     return (
       <>
-      <Row>
-        <Col span={24}>
-          <Select
-            placeholder="Please Select"
-            style={{ width: 200 }}
-            value={this.modes[this.state.mode]}
-            onSelect={this.handleModeChange}
-          >
-            {this.getModeMenu()}
-          </Select>
-        </Col>
-      </Row>
-      <Row>
-        <Col span={24} className="mt-2">
-          {this.getValueComponent()}
-        </Col>
-      </Row>
+        <Row>
+          <Col span={24}>
+            <Select
+              placeholder='Please Select'
+              style={{ width: 200 }}
+              value={this.modes[this.state.mode]}
+              onSelect={this.handleModeChange}
+            >
+              {this.getModeMenu()}
+            </Select>
+          </Col>
+        </Row>
+        <Row>
+          <Col span={24} className='mt-2'>
+            {this.getValueComponent()}
+          </Col>
+        </Row>
       </>
     )
   }
 }
 
 class FixedCallbackBuilder extends React.Component {
-  constructor() {
+  constructor () {
     super()
     this.state = {
       configurableParameterSelected: '',
@@ -222,8 +219,8 @@ class FixedCallbackBuilder extends React.Component {
   updateBodyAndHeadersSchemaForResponseCode = () => {
     this.bodySchema = (new FactDataGenerator()).getSelectedResponseBodySchema(this.props.responses, this.props.eventParams.statusCode)
     const allHeadersObject = (new FactDataGenerator()).getSelectedResponseHeaders(this.props.responses, this.props.eventParams.statusCode)
-    let allHeadersArray = []
-    for (let k in allHeadersObject) {
+    const allHeadersArray = []
+    for (const k in allHeadersObject) {
       allHeadersArray.push({
         name: k,
         ...allHeadersObject[k]
@@ -233,14 +230,13 @@ class FixedCallbackBuilder extends React.Component {
     this.allHeadersObject = allHeadersObject
   }
 
-  addHeaderItemsFromDefinition = async (onlyRequired=false) => {
+  addHeaderItemsFromDefinition = async (onlyRequired = false) => {
     this.allHeadersArray.forEach((param) => {
       if (!onlyRequired || param.required) {
         if (!this.props.eventParams.headers) {
           this.props.eventParams.headers = {}
           this.props.eventParams.headers[param.name] = ''
-        }
-        else if (!this.props.eventParams.headers[param.name]) {
+        } else if (!this.props.eventParams.headers[param.name]) {
           this.props.eventParams.headers[param.name] = ''
         }
       }
@@ -252,13 +248,15 @@ class FixedCallbackBuilder extends React.Component {
     if (!this.props.eventParams.headers) {
       this.props.eventParams.headers = {}
     }
-    this.props.eventParams.headers[itemName] = this.props.eventParams.headers[itemName] ? this.props.eventParams.headers[itemName] : ""
+    this.props.eventParams.headers[itemName] = this.props.eventParams.headers[itemName] ? this.props.eventParams.headers[itemName] : ''
     this.updateChanges()
   }
+
   handleHeaderItemChange = (key, name, value) => {
     this.props.eventParams.headers[name] = value
     this.updateChanges()
   }
+
   handleHeaderItemDelete = async (name) => {
     delete this.props.eventParams.headers[name]
     this.updateChanges()
@@ -271,8 +269,8 @@ class FixedCallbackBuilder extends React.Component {
   }
 
   handleAddHeaderClick = (event) => {
-    this.addHeaderItem(event.item.props.eventKey);
-  };
+    this.addHeaderItem(event.item.props.eventKey)
+  }
 
   headerItemsMenu = () => {
     const menuItems = this.allHeadersArray.map((item, key) => {
@@ -296,34 +294,32 @@ class FixedCallbackBuilder extends React.Component {
   }
 
   getHeaderItems = () => {
-    let headerItems = []
-    let k=0
+    const headerItems = []
+    let k = 0
     if (this.props.eventParams) {
-      for( let headerName in this.props.eventParams.headers ) {
+      for (const headerName in this.props.eventParams.headers) {
         const item = {
           name: headerName,
           value: this.props.eventParams.headers[headerName]
         }
         const key = k++
         headerItems.push(
-          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.allHeadersObject[item.name]? this.allHeadersObject[item.name].description: null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
+          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.allHeadersObject[item.name] ? this.allHeadersObject[item.name].description : null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
         )
       }
     }
     return headerItems
-
   }
 
   handleAddConfigParam = (newValue) => {
-    this.setState({configurableParameterSelected: newValue})
+    this.setState({ configurableParameterSelected: newValue })
   }
-
 
   handlePopulateSampleBodyClick = async () => {
     // const newBody = (new FactDataGenerator()).getBodySample(this.props.callbackDefinition)
     const newBody = await (new FactDataGenerator()).generateSample(this.bodySchema)
-    if(newBody) {
-      if(this.props.callbackObject && this.props.callbackObject.bodyOverride) {
+    if (newBody) {
+      if (this.props.callbackObject && this.props.callbackObject.bodyOverride) {
         _.merge(newBody, this.props.callbackObject.bodyOverride)
       }
       this.props.eventParams.body = newBody
@@ -334,70 +330,69 @@ class FixedCallbackBuilder extends React.Component {
 
   handleConfigParamCopyToClipboard = () => {
     navigator.clipboard.writeText(this.state.configurableParameterSelected)
-    message.success('Copied to clipboard');
+    message.success('Copied to clipboard')
   }
 
-  render() {
-
+  render () {
     const addCustomHeaderDialogContent = (
       <>
-      <Row>
-        <Col span={24}>
-          <Input
-            placeholder="Enter name"
-            type="text"
-            value={this.state.newCustomHeaderName}
-            onChange={(e) => { this.setState({newCustomHeaderName: e.target.value })}}
-          />
-        </Col>
-      </Row>
-      <Row className="mt-2">
-        <Col span={24}>
-          <Button
-              type="primary"
-              onClick={ () => {
+        <Row>
+          <Col span={24}>
+            <Input
+              placeholder='Enter name'
+              type='text'
+              value={this.state.newCustomHeaderName}
+              onChange={(e) => { this.setState({ newCustomHeaderName: e.target.value }) }}
+            />
+          </Col>
+        </Row>
+        <Row className='mt-2'>
+          <Col span={24}>
+            <Button
+              type='primary'
+              onClick={() => {
                 this.addHeaderItem(this.state.newCustomHeaderName)
-                this.setState({addCustomHeaderDialogVisible: false})
+                this.setState({ addCustomHeaderDialogVisible: false })
               }}
             >
               Add
-          </Button>
-          <Button
-              className="ml-2"
-              type="default"
+            </Button>
+            <Button
+              className='ml-2'
+              type='default'
               danger
-              onClick={ () => {
-                this.setState({addCustomHeaderDialogVisible: false})
+              onClick={() => {
+                this.setState({ addCustomHeaderDialogVisible: false })
               }}
             >
               Cancel
-          </Button>
-        </Col>
-      </Row>
+            </Button>
+          </Col>
+        </Row>
       </>
     )
 
     const content = (
       <>
-      <Row>
-        <Col span={24}>
-          <ConfigurableParameter
-            onChange={this.handleAddConfigParam}
-            rootParameters={this.props.rootParameters}
-            resourceDefinition={this.props.resourceDefinition}
-          />
-        </Col>
-      </Row>
-      {
-        this.state.configurableParameterSelected ?
-        (
-          <Row className="mt-4 text-center">
-            <Col span={24}>
-              <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
-            </Col>
-          </Row>
-        )
-        : null
+        <Row>
+          <Col span={24}>
+            <ConfigurableParameter
+              onChange={this.handleAddConfigParam}
+              rootParameters={this.props.rootParameters}
+              resourceDefinition={this.props.resourceDefinition}
+            />
+          </Col>
+        </Row>
+        {
+        this.state.configurableParameterSelected
+          ? (
+            <Row className='mt-4 text-center'>
+              <Col span={24}>
+                <Tag color='geekblue'><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
+              </Col>
+            </Row>
+            )
+          : null
       }
       </>
     )
@@ -406,70 +401,70 @@ class FixedCallbackBuilder extends React.Component {
       <>
         <Row>
           <Col span={24}>
-            <Card size="small" title="Headers">
+            <Card size='small' title='Headers'>
               <Row>
                 <Col span={24}>
-                    <Row>
-                      <Col span={8}>
-                        <label
-                          className="form-control-label"
-                          htmlFor="input-city"
+                  <Row>
+                    <Col span={8}>
+                      <label
+                        className='form-control-label'
+                        htmlFor='input-city'
+                      >
+                        Name
+                      </label>
+                    </Col>
+                    <Col span={8}>
+                      <label
+                        className='form-control-label'
+                        htmlFor='input-city'
+                      >
+                        Value
+                      </label>
+                    </Col>
+                  </Row>
+                  {this.getHeaderItems()}
+                  <Row className='mt-2'>
+                    <Col span={24}>
+                      <Dropdown overlay={this.headerItemsMenu()}>
+                        <Button
+                          type='primary'
+                          onClick={e => e.preventDefault()}
                         >
-                          Name
-                        </label>
-                      </Col>
-                      <Col span={8}>
-                        <label
-                          className="form-control-label"
-                          htmlFor="input-city"
-                        >
-                          Value
-                        </label>
-                      </Col>
-                    </Row>
-                    { this.getHeaderItems() }
-                    <Row className="mt-2">
-                      <Col span={24}>
-                        <Dropdown overlay={this.headerItemsMenu()}>
-                          <Button
-                            type="primary"
-                            onClick={e => e.preventDefault()}
-                          >
-                            Add Header
-                          </Button>
+                          Add Header
+                        </Button>
 
-                        </Dropdown>
+                      </Dropdown>
+                      <Button
+                        className='ml-2'
+                        type='default'
+                        danger
+                        onClick={() => this.addHeaderItemsFromDefinition(true)}
+                      >
+                        Add Required Headers
+                      </Button>
+                      <Button
+                        className='ml-2'
+                        type='default'
+                        onClick={() => this.addHeaderItemsFromDefinition(false)}
+                      >
+                        Add All Headers
+                      </Button>
+                      <Popover
+                        content={addCustomHeaderDialogContent}
+                        title='Enter name for the header'
+                        trigger='click'
+                        visible={this.state.addCustomHeaderDialogVisible}
+                        onVisibleChange={(visible) => this.setState({ addCustomHeaderDialogVisible: true })}
+                      >
                         <Button
-                          className="ml-2"
-                          type="default"
-                          danger
-                          onClick={() => this.addHeaderItemsFromDefinition(true)}
+                          color='warning'
+                          size='sm'
                         >
-                          Add Required Headers
+                          Add Custom Header
                         </Button>
-                        <Button
-                          className="ml-2"
-                          type="default"
-                          onClick={() => this.addHeaderItemsFromDefinition(false)}
-                        >
-                          Add All Headers
-                        </Button>
-                        <Popover
-                            content={addCustomHeaderDialogContent}
-                            title="Enter name for the header"
-                            trigger="click"
-                            visible={this.state.addCustomHeaderDialogVisible}
-                            onVisibleChange={ (visible) => this.setState({addCustomHeaderDialogVisible: true})}
-                          >
-                            <Button
-                                color="warning"
-                                size="sm"
-                              >
-                                Add Custom Header
-                            </Button>
-                          </Popover>
-                      </Col>
-                    </Row>
+                      </Popover>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
             </Card>
@@ -477,24 +472,24 @@ class FixedCallbackBuilder extends React.Component {
         </Row>
         <Row className='mt-2'>
           <Col span={24}>
-            <Card size="small" title="Body">
+            <Card size='small' title='Body'>
               <Row className='mb-2'>
                 <Col span={24}>
-                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                    <Button color="secondary" size="sm">Add Configurable Params</Button>
+                  <Popover content={content} title='Select a Configurable Parameter' trigger='click'>
+                    <Button color='secondary' size='sm'>Add Configurable Params</Button>
                   </Popover>
-                  <Button className="ml-2" type="default" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
+                  <Button className='ml-2' type='default' onClick={this.handlePopulateSampleBodyClick}>Populate with sample body</Button>
                 </Col>
               </Row>
-              <Row >
+              <Row>
                 <Col span={24}>
                   <Editor
-                    ref="bodyEditor"
-                    value={ this.props.eventParams.body? this.props.eventParams.body : {} }
+                    ref='bodyEditor'
+                    value={this.props.eventParams.body ? this.props.eventParams.body : {}}
                     ace={ace}
                     ajv={ajv}
-                    theme="ace/theme/tomorrow_night_blue"
-                    mode="code"
+                    theme='ace/theme/tomorrow_night_blue'
+                    mode='code'
                     search={false}
                     statusBar={false}
                     navigationBar={false}
@@ -512,16 +507,15 @@ class FixedCallbackBuilder extends React.Component {
   }
 }
 
-
 class HeaderInputComponent extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       name: '',
       value: ''
     }
   }
+
   inputValue = null
 
   componentDidMount = () => {
@@ -536,11 +530,13 @@ class HeaderInputComponent extends React.Component {
     // this.setState({name: event.target.value})
     this.props.onChange(this.props.itemKey, event.target.value, this.props.value)
   }
+
   handleAddConfigParam = (newValue) => {
     this.inputValue = newValue
     // this.setState({value: event.target.value})
     this.props.onChange(this.props.itemKey, this.props.name, this.inputValue)
   }
+
   handleValueChange = (event) => {
     this.inputValue = event.target.value
     // console.log(event.target.value)
@@ -552,9 +548,7 @@ class HeaderInputComponent extends React.Component {
     this.props.onDelete(this.props.itemKey)
   }
 
-
-  render() {
-
+  render () {
     const content = (
       <ConfigurableParameter
         name={this.props.name}
@@ -565,57 +559,55 @@ class HeaderInputComponent extends React.Component {
       />
     )
 
-
     return (
       <>
-      <Row>
-        <Col span={8}>
-          <Tooltip placement="topLeft" title={this.props.description}>
+        <Row>
+          <Col span={8}>
+            <Tooltip placement='topLeft' title={this.props.description}>
+              <Input
+                placeholder='Name'
+                type='text'
+                defaultValue={this.props.name}
+                value={this.props.name}
+                onChange={this.handleNameChange}
+                disabled={false}
+                readOnly
+              />
+            </Tooltip>
+          </Col>
+
+          <Col span={12} className='pl-2'>
             <Input
-              placeholder="Name"
-              type="text"
-              defaultValue={this.props.name}
-              value={this.props.name}
-              onChange={this.handleNameChange}
+              placeholder='Value'
+              type='text'
+              defaultValue={this.props.value}
+              value={this.props.value}
+              onChange={this.handleValueChange}
               disabled={false}
-              readOnly={true}
             />
-          </Tooltip>
-        </Col>
+            <Popover className='mt-1' content={content} title='Select a Configurable Parameter' trigger='click'>
+              <Button type='dashed'>Add Configurable Params</Button>
+            </Popover>
 
-        <Col span={12} className="pl-2">
-          <Input
-            placeholder="Value"
-            type="text"
-            defaultValue={this.props.value}
-            value={this.props.value}
-            onChange={this.handleValueChange}
-            disabled={false}
-          />
-          <Popover className="mt-1" content={content} title="Select a Configurable Parameter" trigger="click">
-            <Button type="dashed">Add Configurable Params</Button>
-          </Popover>
-
-        </Col>
-        <Col span={4} className="pl-2">
-          <Button
-            type="primary"
-            danger
-            key={this.props.name}
-            onClick={this.handleDelete}
-          >
-            Delete
-          </Button>
-        </Col>
-      </Row>
+          </Col>
+          <Col span={4} className='pl-2'>
+            <Button
+              type='primary'
+              danger
+              key={this.props.name}
+              onClick={this.handleDelete}
+            >
+              Delete
+            </Button>
+          </Col>
+        </Row>
       </>
     )
   }
 }
 
 class MockCallbackBuilder extends React.Component {
-
-  constructor() {
+  constructor () {
     super()
     this.state = {
       overrideChecked: false
@@ -625,14 +617,13 @@ class MockCallbackBuilder extends React.Component {
   componentDidMount = () => {
     if (this.props.eventParams) {
       if (this.props.eventParams.headers || this.props.eventParams.body) {
-        this.setState({overrideChecked: true})
+        this.setState({ overrideChecked: true })
       }
     }
-
   }
 
   handleOverrideChecked = (event) => {
-    this.setState({overrideChecked: event.target.checked})
+    this.setState({ overrideChecked: event.target.checked })
     if (!event.target.checked) {
       this.handleOverrideValuesChange({})
     }
@@ -649,27 +640,26 @@ class MockCallbackBuilder extends React.Component {
   render () {
     return (
       <>
-      <Row>
-        <Col span={24}>
-          <Checkbox checked={this.state.overrideChecked} onChange={this.handleOverrideChecked}>Override some parameters</Checkbox>
-        </Col>
-      </Row>
-      { this.state.overrideChecked?
-            <Row className='mt-3'>
+        <Row>
+          <Col span={24}>
+            <Checkbox checked={this.state.overrideChecked} onChange={this.handleOverrideChecked}>Override some parameters</Checkbox>
+          </Col>
+        </Row>
+        {this.state.overrideChecked
+          ? <Row className='mt-3'>
             <Col span={24}>
               <FixedCallbackBuilder
                 eventParams={this.props.eventParams}
                 onChange={this.handleOverrideValuesChange}
                 resourceDefinition={this.props.resourceDefinition}
-                rootParameters = {this.props.rootParameters}
+                rootParameters={this.props.rootParameters}
                 responses={this.props.responses}
                 callbackRootParameters={this.props.callbackRootParameters}
                 resourceObject={this.props.resourceObject}
               />
             </Col>
-          </Row>
-        : null
-      }
+            </Row>
+          : null}
 
       </>
     )
@@ -677,17 +667,17 @@ class MockCallbackBuilder extends React.Component {
 }
 
 class ParamsBuilder extends React.Component {
-
   componentDidMount = () => {
     if (this.props.eventParams && !this.props.eventParams.statusCode) {
       this.props.eventParams.statusCode = (new FactDataGenerator()).pickSuccessCodeFromResponsesObject(this.props.responses)
       this.forceUpdate()
     }
   }
+
   getResponseItems = () => {
-    let responseItems = []
-    for(let k in this.props.responses) {
-      if(k != 'default') {
+    const responseItems = []
+    for (const k in this.props.responses) {
+      if (k != 'default') {
         const item = this.props.responses[k]
         responseItems.push(<Option key={k} value={k}>{k}</Option>)
       }
@@ -700,49 +690,48 @@ class ParamsBuilder extends React.Component {
     this.forceUpdate()
   }
 
-  render() {
+  render () {
     if (this.props.eventType === 'FIXED_RESPONSE' || this.props.eventType === 'FIXED_ERROR_RESPONSE') {
       return (
         <>
-        <Row className="mt-2">
-          <Col span={24}>
-            <Row>
-              <Col><Text>Response Code</Text></Col>
-              <Col className="pl-2">
-                <Select
-                  value={this.props.eventParams.statusCode}
-                  onChange={this.handleResponseSelect}
-                  placeholder="Select a Rsponse Code"
-                >
-                  {this.getResponseItems()}
-                </Select>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Row className='mt-2'>
-        <Col span={24}>
-        <FixedCallbackBuilder
-          eventParams={this.props.eventParams}
-          onChange={this.props.onChange}
-          resourceDefinition={this.props.resourceDefinition}
-          rootParameters = {this.props.rootParameters}
-          responses={this.props.responses}
-          callbackRootParameters={this.props.callbackRootParameters}
-          resourceObject={this.props.resourceObject}
-        />
-        </Col>
-        </Row>
+          <Row className='mt-2'>
+            <Col span={24}>
+              <Row>
+                <Col><Text>Response Code</Text></Col>
+                <Col className='pl-2'>
+                  <Select
+                    value={this.props.eventParams.statusCode}
+                    onChange={this.handleResponseSelect}
+                    placeholder='Select a Rsponse Code'
+                  >
+                    {this.getResponseItems()}
+                  </Select>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+          <Row className='mt-2'>
+            <Col span={24}>
+              <FixedCallbackBuilder
+                eventParams={this.props.eventParams}
+                onChange={this.props.onChange}
+                resourceDefinition={this.props.resourceDefinition}
+                rootParameters={this.props.rootParameters}
+                responses={this.props.responses}
+                callbackRootParameters={this.props.callbackRootParameters}
+                resourceObject={this.props.resourceObject}
+              />
+            </Col>
+          </Row>
         </>
       )
-    }
-    else if (this.props.eventType === 'MOCK_RESPONSE' || this.props.eventType === 'MOCK_ERROR_RESPONSE') {
+    } else if (this.props.eventType === 'MOCK_RESPONSE' || this.props.eventType === 'MOCK_ERROR_RESPONSE') {
       return (
         <MockCallbackBuilder
           eventParams={this.props.eventParams}
           onChange={this.props.onChange}
           resourceDefinition={this.props.resourceDefinition}
-          rootParameters = {this.props.rootParameters}
+          rootParameters={this.props.rootParameters}
           responses={this.props.responses}
           callbackRootParameters={this.props.callbackRootParameters}
           resourceObject={this.props.resourceObject}
@@ -755,12 +744,11 @@ class ParamsBuilder extends React.Component {
 }
 
 class EventResponseBuilder extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       selectedResource: null
-    };
+    }
   }
 
   // componentDidMount = () => {
@@ -828,16 +816,16 @@ class EventResponseBuilder extends React.Component {
     this.handleEventChange()
   }
 
-  render() {
-
+  render () {
     return (
       <>
         <Row>
           <Col span={24}>
             <Row>
               <Col><Text>Delay in milliseconds</Text></Col>
-              <Col className="pl-2">
-                <Input placeholder="0" value={this.props.event.params.delay} onChange={(e) => {
+              <Col className='pl-2'>
+                <Input
+                  placeholder='0' value={this.props.event.params.delay} onChange={(e) => {
                     const newValue = parseInt(e.target.value)
                     this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue
                     this.handleEventChange()
@@ -847,16 +835,16 @@ class EventResponseBuilder extends React.Component {
             </Row>
           </Col>
         </Row>
-        <Row className="mt-2">
+        <Row className='mt-2'>
           <Col span={24}>
             <Row>
               <Col><Text>Event Type</Text></Col>
-              <Col className="pl-2">
+              <Col className='pl-2'>
                 <Select
                   value={this.props.event.type}
                   onChange={this.handleEventTypeSelect}
-                  disabled={(this.props.resource? false : true)}
-                  placeholder="Select Event Type"
+                  disabled={(!this.props.resource)}
+                  placeholder='Select Event Type'
                 >
                   {this.getEventTypes()}
                 </Select>
@@ -869,14 +857,14 @@ class EventResponseBuilder extends React.Component {
           eventParams={this.props.event.params}
           onChange={this.handleParamsChange}
           resourceDefinition={this.props.resourceDefinition}
-          rootParameters = {this.props.rootParameters}
+          rootParameters={this.props.rootParameters}
           responses={this.props.responses}
           callbackRootParameters={this.props.callbackRootParameters}
           resourceObject={this.props.resourceObject}
         />
       </>
-    );
+    )
   }
 }
 
-export default EventResponseBuilder;
+export default EventResponseBuilder

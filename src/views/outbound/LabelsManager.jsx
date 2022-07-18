@@ -21,10 +21,9 @@
  * Georgi Logodazhki <georgi.logodazhki@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Select, Tag } from 'antd';
-import 'antd/dist/antd.css';
-
+import React from 'react'
+import { Select, Tag } from 'antd'
+import 'antd/dist/antd.css'
 
 class LabelsManager extends React.Component {
   constructor () {
@@ -47,7 +46,7 @@ class LabelsManager extends React.Component {
       this.setState({
         labelsMapping: this.props.labelsManager.mapping
       })
-      this.handleSelectionLabelsChanged({selectedLabels: this.props.labelsManager.selectedLabels})
+      this.handleSelectionLabelsChanged({ selectedLabels: this.props.labelsManager.selectedLabels })
     }
   }
 
@@ -89,51 +88,51 @@ class LabelsManager extends React.Component {
       labels = labels.filter(label => !selectedLabels.includes(label.name))
     }
 
-    return labels.map(label => { return {
-      label: label.name + " - " + label.description,
-      value: label.name
-    }})
+    return labels.map(label => {
+      return {
+        label: label.name + ' - ' + label.description,
+        value: label.name
+      }
+    })
   }
 
-  getLabelByName = (labelName => {
+  getLabelByName = labelName => {
     return this.props.labelsManager.labels.filter(label => label.name === labelName)
-  })
+  }
 
-
-  render() {
-    
+  render () {
     return (
-      <Select 
-          mode="multiple"
-          placeholder="Select Labels"
-          value={this.props.labelsManager.selectedLabels}
-          tagRender={(props) => {
-            const label = this.props.labelsManager.labels.find(label => label.name === props.value)
-            if (label) {
-              return (
-                <Tag 
-                  color={label.color}
-                  onMouseDown={event => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                  }}
-                  closable={props.closable}
-                  onClose={props.onClose}
-                  style={{ marginRight: 3 }}
-                >
-                  {label.name}
-                </Tag>
-              )
-            }
-          }}
-          onChange={selectedLabels => {
-            this.handleSelectionLabelsChanged({selectedLabels})
-          }}
-          options={this.getLabelsOptions([...this.props.labelsManager.labels], this.props.labelsManager.selectedLabels)}
-          style={{width:'100%'}}
-        />
+      <Select
+        mode='multiple'
+        placeholder='Select Labels'
+        value={this.props.labelsManager.selectedLabels}
+        tagRender={(props) => {
+          const label = this.props.labelsManager.labels.find(label => label.name === props.value)
+          if (label) {
+            return (
+              <Tag
+                color={label.color}
+                onMouseDown={event => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                }}
+                closable={props.closable}
+                onClose={props.onClose}
+                style={{ marginRight: 3 }}
+              >
+                {label.name}
+              </Tag>
+            )
+          }
+        }}
+        onChange={selectedLabels => {
+          this.handleSelectionLabelsChanged({ selectedLabels })
+        }}
+        options={this.getLabelsOptions([...this.props.labelsManager.labels], this.props.labelsManager.selectedLabels)}
+        style={{ width: '100%' }}
+      />
     )
   }
 }
 
-export default LabelsManager;
+export default LabelsManager

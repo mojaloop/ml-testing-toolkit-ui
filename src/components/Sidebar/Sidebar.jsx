@@ -21,59 +21,64 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { NavLink as NavLinkRRD, Link } from "react-router-dom";
+import React from 'react'
+import { NavLink as NavLinkRRD, Link } from 'react-router-dom'
 
 import { Layout, Row, Col, Menu, Typography } from 'antd'
-import logo from '../../assets/img/mojaloop.png';
+import logo from '../../assets/img/mojaloop.png'
 
-const { Text, Title } = Typography;
-const { Sider } = Layout;
+const { Text, Title } = Typography
+const { Sider } = Layout
 
-
-var ps;
+let ps
 
 class Sidebar extends React.Component {
   state = {
     collapseOpen: false
-  };
-  constructor(props) {
-    super(props);
-    this.activeRoute.bind(this);
   }
+
+  constructor (props) {
+    super(props)
+    this.activeRoute.bind(this)
+  }
+
   // verifies if routeName is the one active (in browser input)
-  activeRoute(routeName) {
-    return this.props.location.pathname.indexOf(routeName) > -1 ? "active" : "";
+  activeRoute (routeName) {
+    return this.props.location.pathname.indexOf(routeName) > -1 ? 'active' : ''
   }
+
   // toggles collapse between opened and closed (true/false)
   toggleCollapse = () => {
     this.setState({
       collapseOpen: !this.state.collapseOpen
-    });
-  };
+    })
+  }
+
   // closes the collapse
   closeCollapse = () => {
     this.setState({
       collapseOpen: false
-    });
-  };
+    })
+  }
+
   // creates the links that appear in the left menu / Sidebar
   createLinks = routes => {
     return routes.map((prop, key) => {
       return (
         <Menu.Item key={key} icon={prop.icon}>
           <Link
-            className="d-none d-lg-inline-block"
+            className='d-none d-lg-inline-block'
             to={prop.layout + prop.path}
           >
             {prop.name}<br /> {prop.subTitle}
           </Link>
         </Menu.Item>
-      );
-    });
-  };
-  render() {
-    const { routes } = this.props;
+      )
+    })
+  }
+
+  render () {
+    const { routes } = this.props
 
     return (
       <Sider
@@ -83,30 +88,31 @@ class Sidebar extends React.Component {
           background: '#fff'
         }}
       >
-        <Row className="pt-0">
-          <Col span={4}></Col>
-          <Col span={16} className="text-center">
-          <img
-            alt="Mojaloop"
-            className="img-fluid"
-            src={logo}
-          />
+        <Row className='pt-0'>
+          <Col span={4} />
+          <Col span={16} className='text-center'>
+            <img
+              alt='Mojaloop'
+              className='img-fluid'
+              src={logo}
+            />
           </Col>
-          <Col span={4}></Col>
+          <Col span={4} />
         </Row>
         <Row>
-          <Col span={24} className="text-center">
+          <Col span={24} className='text-center'>
             <Title level={4} style={{ color: '#293e5d' }}>Testing Toolkit</Title>
           </Col>
         </Row>
-        <Menu className="mt-4" mode="inline"
+        <Menu
+          className='mt-4' mode='inline'
           selectedKeys={[this.state.current]}
         >
           {this.createLinks(routes)}
         </Menu>
       </Sider>
-    );
+    )
   }
 }
 
-export default Sidebar;
+export default Sidebar

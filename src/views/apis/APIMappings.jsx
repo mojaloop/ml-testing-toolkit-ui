@@ -21,42 +21,41 @@
  * Georgi Logodazhki <georgi.logodazhki@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 
-import { Select, Menu, Collapse, Modal, message, Card, Row, Col, Button, Typography } from 'antd'; 
-import 'antd/dist/antd.css';
+import { Select, Menu, Collapse, Modal, message, Card, Row, Col, Button, Typography } from 'antd'
+import 'antd/dist/antd.css'
 
-import axios from 'axios';
+import axios from 'axios'
 import MappingEditor from './MappingEditor'
 import MappingViewer from './MappingViewer'
 import { getConfig } from '../../utils/getConfig'
 
-const { Panel } = Collapse;
+const { Panel } = Collapse
 
 class APIMappings extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       asynchronous: false,
       mapping: {},
       selectedResource: null
-    };
+    }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.componentSetState()
-  }  
+  }
 
   componentSetState = async () => {
-    const asynchronous = this.props.apiVersion.asynchronous ? true : false
+    const asynchronous = !!this.props.apiVersion.asynchronous
     const mode = asynchronous ? 'callback' : 'response'
     const { apiBaseUrl } = getConfig()
-    const mappingUrl = apiBaseUrl + '/api/openapi/' + mode +'_map/' +  this.props.apiVersion.type + '/' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion
+    const mappingUrl = apiBaseUrl + '/api/openapi/' + mode + '_map/' + this.props.apiVersion.type + '/' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion
     const mapping = await this.getData(mappingUrl, {})
-    const apiDefinitionUrl = apiBaseUrl + '/api/openapi/definition/' +  this.props.apiVersion.type + '/' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion
+    const apiDefinitionUrl = apiBaseUrl + '/api/openapi/definition/' + this.props.apiVersion.type + '/' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion
     const openApiDefinition = await this.getData(apiDefinitionUrl, {})
-    this.setState(  { mode, mappingUrl, mapping, openApiDefinition } )
+    this.setState({ mode, mappingUrl, mapping, openApiDefinition })
   }
 
   getData = async (url, defaultValue) => {
@@ -71,10 +70,10 @@ class APIMappings extends React.Component {
   }
 
   updateMapping = async (updatedMapping) => {
-    message.loading({ content: 'Saving the mapping...', key: 'saveProgress' });
+    message.loading({ content: 'Saving the mapping...', key: 'saveProgress' })
     await axios.put(this.state.mappingUrl, updatedMapping, { headers: { 'Content-Type': 'application/json' } })
-    this.setState({selectedResource: null, mapping: updatedMapping})
-    message.success({ content: 'Saved', key: 'saveProgress', duration: 2 });
+    this.setState({ selectedResource: null, mapping: updatedMapping })
+    message.success({ content: 'Saved', key: 'saveProgress', duration: 2 })
   }
 
   getMappingsFileContentItems = () => {
@@ -86,7 +85,7 @@ class APIMappings extends React.Component {
         return (
           <Panel header={method + ' ' + path} key={method + ' ' + path}>
             <Row>
-              <Col span={24} style={{textAlign: 'right'}}>
+              <Col span={24} style={{ textAlign: 'right' }}>
                 <Button
                   onClick={() => {
                     this.setState({ selectedResource })
@@ -95,8 +94,8 @@ class APIMappings extends React.Component {
                   Edit
                 </Button>
                 <Button
-                  className="ml-2"
-                  type="primary"
+                  className='ml-2'
+                  type='primary'
                   danger
                   onClick={async () => {
                     const updatedMapping = this.state.mapping
@@ -109,15 +108,15 @@ class APIMappings extends React.Component {
               </Col>
             </Row>
             {
-              this.state.mapping[path][method] ?
-              <Row>
-                <Col span={24}>
-                  <MappingViewer 
-                    selectedResource={selectedResource}
-                  />
-                </Col>
-              </Row>
-              : null
+              this.state.mapping[path][method]
+                ? <Row>
+                  <Col span={24}>
+                    <MappingViewer
+                      selectedResource={selectedResource}
+                    />
+                  </Col>
+                </Row>
+                : null
             }
           </Panel>
         )
@@ -125,74 +124,76 @@ class APIMappings extends React.Component {
     })
   }
 
-  render() {
-
+  render () {
     return (
       <>
-          <Modal
-            centered
-            destroyOnClose
-            forceRender={false}
-            title="Mapping Builder"
-            className="w-50 p-3"
-            visible={(this.state.selectedResource) ? true : false}
-            footer={null}
-            onCancel={() => {
-              this.setState({selectedResource: null})
+        <Modal
+          centered
+          destroyOnClose
+          forceRender={false}
+          title='Mapping Builder'
+          className='w-50 p-3'
+          visible={!!(this.state.selectedResource)}
+          footer={null}
+          onCancel={() => {
+            this.setState({ selectedResource: null })
+          }}
+          maskClosable={false}
+        >
+          <MappingEditor
+            selectedResource={this.state.selectedResource}
+            apiVersion={this.props.apiVersion}
+            openApiDefinition={this.state.openApiDefinition}
+            mapping={this.state.mapping}
+            onSave={async (resource) => {
+              const updatedMapping = this.state.mapping
+              if (!updatedMapping[resource.path]) {
+                updatedMapping[resource.path] = {}
+              }
+              if (!updatedMapping[resource.path][resource.method]) {
+                updatedMapping[resource.path][resource.method] = {}
+              }
+              updatedMapping[resource.path][resource.method] = resource.data
+              await this.updateMapping(updatedMapping)
             }}
-            maskClosable={false}
-          >
-            <MappingEditor
-              selectedResource={this.state.selectedResource}
-              apiVersion={this.props.apiVersion}
-              openApiDefinition={this.state.openApiDefinition}
-              mapping={this.state.mapping}
-              onSave={async (resource) => {
-                const updatedMapping = this.state.mapping
-                if (!updatedMapping[resource.path]) {
-                  updatedMapping[resource.path] = {}
-                }
-                if (!updatedMapping[resource.path][resource.method]) {
-                  updatedMapping[resource.path][resource.method] = {}
-                }
-                updatedMapping[resource.path][resource.method] = resource.data
-                await this.updateMapping(updatedMapping)
-              }}
-              mode={this.state.mode}
-            />
-          </Modal>
+            mode={this.state.mode}
+          />
+        </Modal>
 
-          <Row>
-            <Col span={24}> 
-              <Card>
-                <Row className="align-items-center">
-                  <Col span={12}>
-                  </Col>
-                  <Col span={12}>
-                    <Button
-                      className="float-right"
-                      type="primary"
-                      onClick={() => {
-                        this.setState({selectedResource: { data: {
-                          fspip: '',
-                          successCallback: null,
-                          errorCallback: null
-                        }}})
-                      }}
-                    >
-                      Add a new Mapping
-                    </Button>
-                  </Col>
-                </Row>
-                <Collapse>
-                  {this.getMappingsFileContentItems()}
-                </Collapse>
-              </Card>
-            </Col>
-          </Row>
+        <Row>
+          <Col span={24}>
+            <Card>
+              <Row className='align-items-center'>
+                <Col span={12} />
+                <Col span={12}>
+                  <Button
+                    className='float-right'
+                    type='primary'
+                    onClick={() => {
+                      this.setState({
+                        selectedResource: {
+                          data: {
+                            fspip: '',
+                            successCallback: null,
+                            errorCallback: null
+                          }
+                        }
+                      })
+                    }}
+                  >
+                    Add a new Mapping
+                  </Button>
+                </Col>
+              </Row>
+              <Collapse>
+                {this.getMappingsFileContentItems()}
+              </Collapse>
+            </Card>
+          </Col>
+        </Row>
       </>
-    );
+    )
   }
 }
 
-export default APIMappings;
+export default APIMappings

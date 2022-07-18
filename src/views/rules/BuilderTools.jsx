@@ -21,17 +21,17 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import axios from 'axios';
-import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd';
-import 'antd/dist/antd.css';
-import jsf from 'json-schema-faker';
-import _ from 'lodash';
+import React from 'react'
+import axios from 'axios'
+import { Select, TreeSelect, Input, Tooltip, Tag } from 'antd'
+import 'antd/dist/antd.css'
+import jsf from 'json-schema-faker'
+import _ from 'lodash'
 // import './index.css';
-import Ajv from 'ajv';
-const ajv = new Ajv({allErrors: true});
+import Ajv from 'ajv'
+const ajv = new Ajv({ allErrors: true })
 
-const { Option } = Select;
+const { Option } = Select
 
 jsf.option({
   alwaysFakeOptionals: true,
@@ -56,7 +56,7 @@ export class FactSelect extends React.Component {
       value: undefined,
       treeData: [],
       factData: null
-    };
+    }
   }
 
   componentDidMount = () => {
@@ -67,98 +67,93 @@ export class FactSelect extends React.Component {
     if (this.state.factData !== this.props.factData) {
       let factTreeData = []
       if (this.props.factData) {
-        factTreeData = this.getNodeFacts(this.props.factData);
+        factTreeData = this.getNodeFacts(this.props.factData)
       }
 
-      let value = undefined
+      let value
       if (this.props.value) {
         value = this.props.value
         const selectedFact = this.findValueInFactData(value, this.props.factData)
         this.props.onSelect(value, selectedFact)
       }
 
-      this.setState({treeData: factTreeData, factData: this.props.factData, value})
+      this.setState({ treeData: factTreeData, factData: this.props.factData, value })
     }
   }
 
   findValueInFactData = (value, factData) => {
-    
     const valueArr = value.split('.')
     let tFactData = this.props.factData
-    
-    for(let i=0; i<valueArr.length; i++) {
-      const factTreeData = this.getNodeFacts(tFactData);
+
+    for (let i = 0; i < valueArr.length; i++) {
+      const factTreeData = this.getNodeFacts(tFactData)
       const tFact = factTreeData.find(item => {
         return item.value === valueArr[i]
       })
-      if(!tFact) {
+      if (!tFact) {
         return null
       }
       tFactData = tFact.nodeObject
     }
     return tFactData
-
   }
 
-  getNodeFacts = (nodeData, parentId=0, valuePrefix='') => {
+  getNodeFacts = (nodeData, parentId = 0, valuePrefix = '') => {
     const nodeSchema = _getSchema(nodeData)
-    let factTreeData = [];
-    for (let property in nodeSchema.properties) {
-      let isLeaf = true;
-      const fact = _getSchema(nodeSchema.properties[property]);
+    const factTreeData = []
+    for (const property in nodeSchema.properties) {
+      let isLeaf = true
+      const fact = _getSchema(nodeSchema.properties[property])
       if (fact.type === 'object') {
-        isLeaf = false;
+        isLeaf = false
       }
-      let random = Math.random()
-      .toString(36)
-      .substring(2, 6);
-      factTreeData.push({ id: random, pId: parentId, value: valuePrefix + property, nodeObject: fact, title: property, isLeaf, disabled: !isLeaf && !this.props.enableNodesSelection });
+      const random = Math.random()
+        .toString(36)
+        .substring(2, 6)
+      factTreeData.push({ id: random, pId: parentId, value: valuePrefix + property, nodeObject: fact, title: property, isLeaf, disabled: !isLeaf && !this.props.enableNodesSelection })
     }
-    return factTreeData;
+    return factTreeData
   }
 
   onLoadData = treeNode =>
     new Promise(resolve => {
-      const { id, nodeObject, value } = treeNode.props;
+      const { id, nodeObject, value } = treeNode.props
       setImmediate(() => {
         this.setState({
-          treeData: this.state.treeData.concat(this.getNodeFacts(nodeObject, id, value + '.')),
-        });
-        resolve();
-      });
-    });
+          treeData: this.state.treeData.concat(this.getNodeFacts(nodeObject, id, value + '.'))
+        })
+        resolve()
+      })
+    })
 
   onChange = (value, label, extra) => {
-    this.setState({ value });
+    this.setState({ value })
     this.props.onSelect(value, extra.triggerNode.props.nodeObject)
-  };
+  }
 
-
-
-  render() {
-    const { treeData } = this.state;
+  render () {
+    const { treeData } = this.state
     return (
       <TreeSelect
         treeDataSimpleMode
         style={{ width: '100%', minWidth: '200px' }}
         value={this.state.value}
         dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-        placeholder="Please select"
+        placeholder='Please select'
         onChange={this.onChange}
         loadData={this.onLoadData}
         treeData={treeData}
       />
-    );
+    )
   }
 }
 
 export class FactDataGenerator {
-
   getBodyFactData = (resourceDefinition) => {
     let bodySchema = {}
     try {
       bodySchema = _getSchema(resourceDefinition.requestBody.content['application/json'].schema)
-    } catch(err) {
+    } catch (err) {
     }
     return bodySchema
   }
@@ -167,18 +162,18 @@ export class FactDataGenerator {
     let bodySample = null
     try {
       bodySample = resourceDefinition['x-examples']['application/json']
-    } catch(err) {
+    } catch (err) {
     }
     return bodySample
   }
 
   getHeadersFactData = (resourceDefinition, rootParameters) => {
     // Convert header array in openapi file to object like requestBody
-    let headerSchema = {
+    const headerSchema = {
       properties: {}
     }
     let totalParameters
-    if(rootParameters) {
+    if (rootParameters) {
       totalParameters = [...rootParameters]
     } else {
       totalParameters = []
@@ -189,14 +184,14 @@ export class FactDataGenerator {
           headerSchema.properties[item.name] = _getSchema(item.schema)
         }
       })
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     }
     return headerSchema
   }
 
   getCustomFactData = (inputArr) => {
-    let customSchema = {
+    const customSchema = {
       properties: {}
     }
     try {
@@ -205,7 +200,7 @@ export class FactDataGenerator {
           type: 'string'
         }
       })
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     }
     return customSchema
@@ -213,7 +208,7 @@ export class FactDataGenerator {
 
   getPathParametersFactData = (parameters) => {
     // Convert path parameters array in openapi file to object like requestBody
-    let pathParametersSchema = {
+    const pathParametersSchema = {
       properties: {}
     }
     try {
@@ -222,7 +217,7 @@ export class FactDataGenerator {
           pathParametersSchema.properties[item.name] = _getSchema(item.schema)
         }
       })
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     }
     return pathParametersSchema
@@ -230,7 +225,7 @@ export class FactDataGenerator {
 
   getQueryParametersFactData = (parameters) => {
     // Convert path parameters array in openapi file to object like requestBody
-    let queryParametersSchema = {
+    const queryParametersSchema = {
       properties: {}
     }
     try {
@@ -239,7 +234,7 @@ export class FactDataGenerator {
           queryParametersSchema.properties[item.name] = _getSchema(item.schema)
         }
       })
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     }
     return queryParametersSchema
@@ -247,13 +242,13 @@ export class FactDataGenerator {
 
   getErrorResponseFactData = (resourceDefinition) => {
     let errorCode
-    for (let responseCode in resourceDefinition.responses) {
-      if(responseCode > 299) {
+    for (const responseCode in resourceDefinition.responses) {
+      if (responseCode > 299) {
         errorCode = responseCode
         break
       }
     }
-    if(errorCode) {
+    if (errorCode) {
       try {
         return {
           type: 'object',
@@ -261,7 +256,7 @@ export class FactDataGenerator {
             body: _getSchema(resourceDefinition.responses[errorCode].content['application/json'].schema)
           }
         }
-      } catch(err) {
+      } catch (err) {
         return null
       }
     } else {
@@ -269,12 +264,11 @@ export class FactDataGenerator {
     }
   }
 
-
   getSelectedResponseBodySchema = (responses, statusCode) => {
     let bodySchema = {}
     try {
       bodySchema = _getSchema(responses[statusCode].content['application/json'].schema)
-    } catch(err) {
+    } catch (err) {
     }
     return bodySchema
   }
@@ -284,20 +278,20 @@ export class FactDataGenerator {
     try {
       const successCode = this.pickSuccessCodeFromResponsesObject(responses)
       headers = responses[successCode].headers
-    } catch(err) {
+    } catch (err) {
     }
     return headers
   }
 
   pickSuccessCodeFromResponsesObject = (responses) => {
     let successCode
-    for (let responseCode in responses) {
-      if(responseCode >= 200 && responseCode <=299) {
+    for (const responseCode in responses) {
+      if (responseCode >= 200 && responseCode <= 299) {
         successCode = responseCode
         break
       }
     }
-    if(successCode) {
+    if (successCode) {
       return successCode
     } else {
       return 'default'
@@ -305,9 +299,7 @@ export class FactDataGenerator {
   }
 
   generateSample = async (schema) => {
-    const sample = await jsf.resolve(schema,)
+    const sample = await jsf.resolve(schema)
     return sample
   }
 }
-
-

@@ -21,107 +21,106 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import RulesResponse from "./views/rules/RulesResponse.jsx";
-import RulesValidation from "./views/rules/RulesValidation.jsx";
-import RulesCallback from "./views/rules/RulesCallback.jsx";
+import RulesResponse from './views/rules/RulesResponse.jsx';
+import RulesValidation from './views/rules/RulesValidation.jsx';
+import RulesCallback from './views/rules/RulesCallback.jsx';
 // import RulesForward from "./views/rules/RulesForward.jsx";
-import OutboundRequest from "./views/outbound/OutboundRequest.jsx";
-import Monitor from "./views/monitor/Monitor.jsx";
-import Dashboard from "./views/dashboard/Dashboard.jsx";
-import Settings from "./views/settings/Settings.jsx";
-import APIManagement from "./views/apis/APIManagement.jsx";
-import Demos from "./views/demos/Demos.jsx";
+import OutboundRequest from './views/outbound/OutboundRequest.jsx';
+import Monitor from './views/monitor/Monitor.jsx';
+import Dashboard from './views/dashboard/Dashboard.jsx';
+import Settings from './views/settings/Settings.jsx';
+import APIManagement from './views/apis/APIManagement.jsx';
+import Demos from './views/demos/Demos.jsx';
 
 import {
-  DashboardOutlined,
-  MonitorOutlined,
-  FileDoneOutlined,
-  ReadOutlined,
-  ApiOutlined,
-  SettingOutlined,
-  FileSyncOutlined,
-  FileSearchOutlined,
-  SendOutlined,
-  ExperimentOutlined
+    DashboardOutlined,
+    MonitorOutlined,
+    FileDoneOutlined,
+    ApiOutlined,
+    SettingOutlined,
+    FileSyncOutlined,
+    FileSearchOutlined,
+    SendOutlined,
+    ExperimentOutlined,
 } from '@ant-design/icons';
 
-var routes = [
-  {
-    path: "/index",
-    name: "Dashboard",
-    icon: <DashboardOutlined />,
-    component: Dashboard,
-    layout: "/admin"
-  },
-  {
-    path: "/monitoring",
-    name: "Monitoring",
-    icon: <MonitorOutlined />,
-    component: Monitor,
-    layout: "/admin"
-  },
-  {
-    path: "/rules_response",
-    name: "Sync Response Rules",
-    icon: <FileSyncOutlined />,
-    component: RulesResponse,
-    layout: "/admin"
-  },
-  {
-    path: "/rules_validation",
-    name: "Validation Rules",
-    icon: <FileSearchOutlined />,
-    component: RulesValidation,
-    layout: "/admin"
-  },
-  // {
-  //   path: "/rules_forward",
-  //   name: "Forward Rules",
-  //   icon: <UnorderedListOutlined />,
-  //   component: RulesForward,
-  //   layout: "/admin"
-  // },
-  {
-    path: "/rules_callback",
-    name: "Callback Rules",
-    icon: <FileDoneOutlined />,
-    component: RulesCallback,
-    layout: "/admin"
-  },
-  {
-    path: "/outbound_request",
-    name: "Test Runner",
-    icon: <SendOutlined />,
-    component: OutboundRequest,
-    layout: "/admin"
-  },
-  {
-    path: "/settings",
-    name: "Settings",
-    icon: <SettingOutlined />,
-    component: Settings,
-    layout: "/admin"
-  },
-  // {
-  //   path: "/apidocs",
-  //   name: "API Documentation",
-  //   icon: <ReadOutlined />,
-  //   component: APIDocs,
-  //   layout: "/admin"
-  // },
-  {
-    path: "/apimgmt",
-    name: "API Management",
-    icon: <ApiOutlined />,
-    component: APIManagement,
-    layout: "/admin"
-  },
-  {
-    path: "/demo",
-    name: "Demos",
-    icon: <ExperimentOutlined />,
-    component: Demos,
-    layout: "/admin"
-  },
+const routes = [
+    {
+        path: '/index',
+        name: 'Dashboard',
+        icon: <DashboardOutlined />,
+        component: Dashboard,
+        layout: '/admin',
+    },
+    {
+        path: '/monitoring',
+        name: 'Monitoring',
+        icon: <MonitorOutlined />,
+        component: Monitor,
+        layout: '/admin',
+    },
+    {
+        path: '/rules_response',
+        name: 'Sync Response Rules',
+        icon: <FileSyncOutlined />,
+        component: RulesResponse,
+        layout: '/admin',
+    },
+    {
+        path: '/rules_validation',
+        name: 'Validation Rules',
+        icon: <FileSearchOutlined />,
+        component: RulesValidation,
+        layout: '/admin',
+    },
+    // {
+    //   path: "/rules_forward",
+    //   name: "Forward Rules",
+    //   icon: <UnorderedListOutlined />,
+    //   component: RulesForward,
+    //   layout: "/admin"
+    // },
+    {
+        path: '/rules_callback',
+        name: 'Callback Rules',
+        icon: <FileDoneOutlined />,
+        component: RulesCallback,
+        layout: '/admin',
+    },
+    {
+        path: '/outbound_request',
+        name: 'Test Runner',
+        icon: <SendOutlined />,
+        component: OutboundRequest,
+        layout: '/admin',
+    },
+    {
+        path: '/settings',
+        name: 'Settings',
+        icon: <SettingOutlined />,
+        component: Settings,
+        layout: '/admin',
+    },
+    // {
+    //   path: "/apidocs",
+    //   name: "API Documentation",
+    //   icon: <ReadOutlined />,
+    //   component: APIDocs,
+    //   layout: "/admin"
+    // },
+    {
+        path: '/apimgmt',
+        name: 'API Management',
+        icon: <ApiOutlined />,
+        component: APIManagement,
+        layout: '/admin',
+    },
+    {
+        path: '/demo',
+        name: 'Demos',
+        icon: <ExperimentOutlined />,
+        component: Demos,
+        layout: '/admin',
+    },
 ];
 export default routes;

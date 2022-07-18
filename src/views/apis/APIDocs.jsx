@@ -21,13 +21,13 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 import { getConfig } from '../../utils/getConfig'
 import APIDocViewer from './APIDocViewer'
-import axios from 'axios';
-import { Select, Row, Col, Card } from 'antd';
+import axios from 'axios'
+import { Select, Row, Col, Card } from 'antd'
 
-const { Option } = Select;
+const { Option } = Select
 
 class APIDocs extends React.Component {
   state = {
@@ -37,9 +37,10 @@ class APIDocs extends React.Component {
 
   getApiVersions = async () => {
     const { apiBaseUrl } = getConfig()
-    const response = await axios.get(apiBaseUrl + "/api/openapi/api_versions")
+    const response = await axios.get(apiBaseUrl + '/api/openapi/api_versions')
     return response.data
   }
+
   getApiVersionOptions = () => {
     this.apiVersionOptions = this.state.apiVersions.map((item, index) => {
       return (
@@ -50,7 +51,7 @@ class APIDocs extends React.Component {
   }
 
   getApiVersionValue = () => {
-    if(this.state.selectedVersion) {
+    if (this.state.selectedVersion) {
       return JSON.stringify(this.state.selectedVersion)
     } else {
       return null
@@ -76,43 +77,44 @@ class APIDocs extends React.Component {
     }
   }
 
-  render() {
+  render () {
     return (
       <>
         {/* Page content */}
-          <Row className="mt--7 mb-4">
-            <Col span={24}>
-              <Row>
-                <Col span={24}>
-                <Select onChange={this.handleApiVersionSelect}
-                  disabled={(this.props.value? true : false)}
+        <Row className='mt--7 mb-4'>
+          <Col span={24}>
+            <Row>
+              <Col span={24}>
+                <Select
+                  onChange={this.handleApiVersionSelect}
+                  disabled={(!!this.props.value)}
                   style={{ width: 300 }}
-                  className="float-right"
-                  placeholder="Select an API"
+                  className='float-right'
+                  placeholder='Select an API'
                   value={this.getApiVersionValue()}
                 >
-                {this.getApiVersionOptions()}
+                  {this.getApiVersionOptions()}
                 </Select>
               </Col>
-              </Row>
-              <Row>
+            </Row>
+            <Row>
               <Col span={24}>
-              {
+                {
                 this.state.selectedVersion
-                ? (
-                  <APIDocViewer
-                    specUrl={this.getSelectedVersionURL()}
-                  />
-                )
-                : null
+                  ? (
+                    <APIDocViewer
+                      specUrl={this.getSelectedVersionURL()}
+                    />
+                    )
+                  : null
               }
               </Col>
-              </Row>
-            </Col>
-          </Row>
+            </Row>
+          </Col>
+        </Row>
       </>
-    );
+    )
   }
 }
 
-export default APIDocs;
+export default APIDocs

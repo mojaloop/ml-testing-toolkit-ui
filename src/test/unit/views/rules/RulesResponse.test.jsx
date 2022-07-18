@@ -9,14 +9,14 @@ import ResponseRulesService from '../../../../services/rules/response'
 Enzyme.configure({ adapter: new Adapter() })
 Enzyme.configure({ disableLifecycleMethods: true })
 
-const { shallow, render, mount } =Enzyme
+const { shallow, render, mount } = Enzyme
 
 // Mock the Json Editor third party component used
 jest.mock('jsoneditor-react', () => {
-  return function DummyJsonEditor(props) {
+  return function DummyJsonEditor (props) {
     return (
       <div>
-       Dummy JSON Editor 
+        Dummy JSON Editor
       </div>
     )
   }
@@ -142,7 +142,7 @@ describe('RulesResponse', () => {
     it('Should fetch the response files and display them', async done => {
       await wrapper.instance().getResponseRulesFiles()
       expect(ResponseRulesService.prototype.fetchResponseRulesFiles).toHaveBeenCalledTimes(1)
-      expect(wrapper.containsMatchingElement(<Menu.Item key='default.json'><Icon type="check" />default.json</Menu.Item>)).toEqual(true)
+      expect(wrapper.containsMatchingElement(<Menu.Item key='default.json'><Icon type='check' />default.json</Menu.Item>)).toEqual(true)
       expect(wrapper.containsMatchingElement(<Menu.Item key='test.json'>test.json</Menu.Item>)).toEqual(true)
 
       process.nextTick(() => {

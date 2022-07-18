@@ -21,13 +21,11 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Image } from 'antd';
+import React from 'react'
+import { Image } from 'antd'
 import { getConfig } from '../../../utils/getConfig'
 
-
 class BrandIcon extends React.Component {
-
   state = {
     image: null
   }
@@ -38,21 +36,21 @@ class BrandIcon extends React.Component {
     this.state.image = payeeAppSimulatorBrandConfig.icon
   }
 
-  render() {
+  render () {
     return (
       <>
-      {
+        {
         this.state.image
-        ? (
-          <Image
-            width={this.props.width || '150px'}
-            src={this.state.image}
-          />
-        )
-        : null
+          ? (
+            <Image
+              width={this.props.width || '150px'}
+              src={this.state.image}
+            />
+            )
+          : null
       }
       </>
-    );
+    )
   }
 }
 

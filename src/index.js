@@ -22,97 +22,92 @@
  --------------
  ******/
 import React, { useState } from 'react';
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
 
-import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
-import AdminLayout from "./layouts/Admin.jsx";
-import { getConfig } from './utils/getConfig'
+import AdminLayout from './layouts/Admin.jsx';
+import { getConfig } from './utils/getConfig';
 
 import './index.css';
 import 'antd/dist/antd.css';
 
 import Login from './views/login/Login.jsx';
-import MobileSimulator from "./views/demos/MobileSimulator/MobileSimulator.jsx";
-import PayeeAppSimulator from "./views/demos/PayeeAppSimulator/PayeeApp";
-import PayeeMobileSimulator from "./views/demos/PayeeAppSimulator/PayeeMobile";
-import DemoTestRunner from "./views/demos/DemoTestRunner/DemoTestRunner.jsx";
+import MobileSimulator from './views/demos/MobileSimulator/MobileSimulator.jsx';
+import PayeeAppSimulator from './views/demos/PayeeAppSimulator/PayeeApp';
+import PayeeMobileSimulator from './views/demos/PayeeAppSimulator/PayeeMobile';
+import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
 
-
-const axios = require('axios').default
+import axios from 'axios';
 
 function App() {
+    const { isAuthEnabled } = getConfig();
 
-  const { isAuthEnabled } = getConfig()
-
-  const isLoggedIn = () => {
-    if (!isAuthEnabled) {
-      return true
-    }
-    if (!axios.defaults.withCredentials) {
-      axios.defaults.withCredentials = true
-    }
-    const expAt = localStorage.getItem('JWT_COOKIE_EXP_AT')
-    if (expAt) {
-      const currentTime = Date.now() / 1000
-      if (currentTime + 60 < +expAt) {
-        setTimeout(() => handleLogout(), (expAt - 60 - currentTime) * 1000);
-        return true
-      } else {
-        localStorage.clear()
-      }
-    } 
-    return false
-  }
-
-  const [user, setUser] = useState(isLoggedIn());
-
-  const handleLogin = (token) => {
-    localStorage.setItem('JWT_COOKIE_EXP_AT', token.iat + token.maxAge)
-    localStorage.setItem('JWT_COOKIE_DFSP_ID', token.dfspId)
-    setUser(true)
-  }
-
-  const handleLogout = () => {
-    localStorage.clear()
-    setUser(false)
-  }
-
-  return (
-    <Router>
-        {
-          isAuthEnabled
-          ?
-            user
-            ?
-            <Switch>
-              <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
-              <Route path="/admin" render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
-              <Redirect from='/' to='/admin/index' />
-            </Switch>
-            :
-            <Switch>
-              <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
-              <Redirect to='/login' />
-            </Switch>
-          :          
-          <Switch>
-            <Route path="/admin" render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
-            <Route exact path='/mobilesimulator' render={props => <MobileSimulator {...props} />} />
-            <Route exact path='/payeeapp' render={props => <PayeeAppSimulator {...props} />} />
-            <Route exact path='/payeemobile' render={props => <PayeeMobileSimulator {...props} />} />
-            <Route exact path='/demotestrunner' render={props => <DemoTestRunner {...props} />} />
-            <Redirect from='/' to='/admin/index' />
-          </Switch>
+    const isLoggedIn = () => {
+        if(!isAuthEnabled) {
+            return true;
         }
-    </Router>
-  )
+        if(!axios.defaults.withCredentials) {
+            axios.defaults.withCredentials = true;
+        }
+        const expAt = localStorage.getItem('JWT_COOKIE_EXP_AT');
+        if(expAt) {
+            const currentTime = Date.now() / 1000;
+            if(currentTime + 60 < +expAt) {
+                // eslint-disable-next-line @typescript-eslint/no-use-before-define
+                setTimeout(() => handleLogout(), (expAt - 60 - currentTime) * 1000);
+                return true;
+            } else {
+                localStorage.clear();
+            }
+        }
+        return false;
+    };
+
+    const [user, setUser] = useState(isLoggedIn());
+
+    const handleLogin = token => {
+        localStorage.setItem('JWT_COOKIE_EXP_AT', token.iat + token.maxAge);
+        localStorage.setItem('JWT_COOKIE_DFSP_ID', token.dfspId);
+        setUser(true);
+    };
+
+    const handleLogout = () => {
+        localStorage.clear();
+        setUser(false);
+    };
+
+    return (
+        <Router>
+            {
+                isAuthEnabled
+                    ? user
+                        ? <Switch>
+                            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
+                            <Route path='/admin' render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
+                            <Redirect from='/' to='/admin/index' />
+                        </Switch>
+                        : <Switch>
+                            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
+                            <Redirect to='/login' />
+                        </Switch>
+                    : <Switch>
+                        <Route path='/admin' render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
+                        <Route exact path='/mobilesimulator' render={props => <MobileSimulator {...props} />} />
+                        <Route exact path='/payeeapp' render={props => <PayeeAppSimulator {...props} />} />
+                        <Route exact path='/payeemobile' render={props => <PayeeMobileSimulator {...props} />} />
+                        <Route exact path='/demotestrunner' render={props => <DemoTestRunner {...props} />} />
+                        <Redirect from='/' to='/admin/index' />
+                    </Switch>
+            }
+        </Router>
+    );
 }
 
 ReactDOM.render(
-  <App/>,
-  document.getElementById("root")
+    <App />,
+    document.getElementById('root'),
 );
 
 // If you want to start measuring performance in your app, pass a function

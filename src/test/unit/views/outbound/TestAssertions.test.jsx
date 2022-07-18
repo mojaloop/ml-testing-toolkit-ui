@@ -9,20 +9,18 @@ const { Option } = Select
 Enzyme.configure({ adapter: new Adapter() })
 Enzyme.configure({ disableLifecycleMethods: true })
 
-const { shallow, render, mount } =Enzyme
-
+const { shallow, render, mount } = Enzyme
 
 // Mock the Json Editor third party component used
 jest.mock('jsoneditor-react', () => {
-  return function DummyJsonEditor(props) {
+  return function DummyJsonEditor (props) {
     return (
       <div>
-       Dummy JSON Editor 
+        Dummy JSON Editor
       </div>
     )
   }
 })
-
 
 describe('TestAssertions', () => {
   describe('ConfigurableParameter', () => {
@@ -178,7 +176,7 @@ describe('TestAssertions', () => {
     })
     it('Should call onSave', async done => {
       await wrapper.instance().handleOnSave()
-      const { fact, operator, value} = wrapper.state()
+      const { fact, operator, value } = wrapper.state()
       const assertionLine = 'expect(' + fact + ').' + operator + '(' + value + ')'
       expect(mockOnSaveHandler).toHaveBeenCalledWith(assertionLine)
       process.nextTick(() => {
@@ -188,7 +186,7 @@ describe('TestAssertions', () => {
   })
 
   describe('TestAssertions', () => {
-    const request={
+    const request = {
       tests: {
         assertions: [
           {
@@ -210,8 +208,8 @@ describe('TestAssertions', () => {
         }
       }
     }
-    const allRequests={}
-    const inputValues={}
+    const allRequests = {}
+    const inputValues = {}
 
     const mockOnChangeHandler = jest.fn()
     const mockOnDeleteHandler = jest.fn()

@@ -21,12 +21,12 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Row, Col, Typography, notification, Statistic, Card, Table, Tag, Layout, Form, Input, Button, message } from 'antd';
+import React from 'react'
+import { Row, Col, Typography, notification, Statistic, Card, Table, Tag, Layout, Form, Input, Button, message } from 'antd'
 
-import { CheckOutlined } from '@ant-design/icons';
+import { CheckOutlined } from '@ant-design/icons'
 
-import axios from 'axios';
+import axios from 'axios'
 
 import NotificationService from '../../../services/demos/PayeeAppSimulator/payeeNotifications'
 import { getConfig } from '../../../utils/getConfig'
@@ -55,7 +55,7 @@ class PayeeMobile extends React.Component {
           this.forceUpdate()
           this.initStuff()
         }
-      } catch(err) {}
+      } catch (err) {}
     }
   }
 
@@ -70,8 +70,8 @@ class PayeeMobile extends React.Component {
       const environmentRes = await axios.get(`${apiBaseUrl}/api/objectstore/inboundEnvironment`)
       if (environmentRes.status == 200) {
         const partyData = environmentRes.data && environmentRes.data.partyData && environmentRes.data.partyData[partyIdType + '/' + partyIdValue]
-        if(partyData) {
-          this.setState({balance: partyData.balance, transactionHistory: partyData.transactionHistory.reverse()})
+        if (partyData) {
+          this.setState({ balance: partyData.balance, transactionHistory: partyData.transactionHistory.reverse() })
         }
       }
     }
@@ -88,14 +88,14 @@ class PayeeMobile extends React.Component {
   }
 
   resetState = () => {
-    this.setState({receivedAmount: null, payeeReceiveAmount: null, payerComplexName: null, stage: null})
+    this.setState({ receivedAmount: null, payeeReceiveAmount: null, payerComplexName: null, stage: null })
   }
 
   handleNotificationEvents = (event) => {
     console.log(event)
     const amountStr = event.transaction.amount + ' ' + event.transaction.currency
-    const payerInfo = `${event.transaction.from.idValue}` + (event.transaction.from.displayName? ` (${event.transaction.from.displayName})` : '')
-    this.setState({balance: event.newBalance, balanceCurrency: event.transaction.currency, transactionHistory: event.transactionHistory.reverse()})
+    const payerInfo = `${event.transaction.from.idValue}` + (event.transaction.from.displayName ? ` (${event.transaction.from.displayName})` : '')
+    this.setState({ balance: event.newBalance, balanceCurrency: event.transaction.currency, transactionHistory: event.transactionHistory.reverse() })
     this.openNotification(`Received amount ${amountStr}`, `from ${payerInfo}`)
   }
 
@@ -106,9 +106,9 @@ class PayeeMobile extends React.Component {
       duration: 6,
       placement: 'topLeft',
       ...this.props.notificationProperties,
-      icon: <CheckOutlined style={{ color: '#10e98e' }} />,
-    });
-  };
+      icon: <CheckOutlined style={{ color: '#10e98e' }} />
+    })
+  }
 
   getTransactionHistory = () => {
     const columns = [
@@ -125,27 +125,27 @@ class PayeeMobile extends React.Component {
         render: from => {
           return (
             <>
-            <Text>{from.displayName}</Text>&nbsp;
-            <Tag color='geekblue' key={from.idValue}>
-              {from.idValue}
-            </Tag>
+              <Text>{from.displayName}</Text>&nbsp;
+              <Tag color='geekblue' key={from.idValue}>
+                {from.idValue}
+              </Tag>
             </>
-          );
+          )
         }
       },
       {
         title: 'Amount',
         key: 'amount',
         dataIndex: 'amount',
-        render: (amount,record) => {
+        render: (amount, record) => {
           return (
             <Text strong key={amount}>
               {amount} {record.currency}
             </Text>
-          );
+          )
         }
       }
-    ];
+    ]
     return (
       <Table columns={columns} dataSource={this.state.transactionHistory} />
     )
@@ -153,7 +153,7 @@ class PayeeMobile extends React.Component {
 
   handleLogout = () => {
     localStorage.clear()
-    this.setState({party: {}})
+    this.setState({ party: {} })
     this.cleanupStuff()
   }
 
@@ -184,51 +184,51 @@ class PayeeMobile extends React.Component {
     console.log('Failed:', errorInfo)
   }
 
-  render() {
+  render () {
     return (
       this.state.party?.idValue
-      ? (
-        <>
-          <Row className='mt-3'>
-            <Col span={12}>
-              <span className='ml-3'>
-                <BrandIcon width='100px' className='float-center' />
-              </span>
-            </Col>
-            <Col span={12}>
-              <span className='float-right mr-3 mt-2'>
-                <Row>
-                  <Col span={24}>
-                    <Button
-                      className='float-right'
-                      onClick={this.handleLogout}
-                    >
-                      Logout
-                    </Button>
-                  </Col>
-                </Row>
-                <Row className='mt-2'>
-                  <Col span={24}>
-                    <Text className='float-right' type='secondary' strong>{this.state.party.idValue}</Text>
-                  </Col>
-                </Row>
-              </span>
-            </Col>
-          </Row>
-          <Row style={{marginTop: 30}}></Row>
-          <Row className='mt-4'>
-            <Col span={24} className='text-center'>
-              <Title level={3}>Welcome {this.state.party.displayName}</Title>
-            </Col>
-          </Row>
-          <Row className='mt-4'>
-            <Col span={24} className='text-center'>
-              <Card className='shadow'>
-                {
+        ? (
+          <>
+            <Row className='mt-3'>
+              <Col span={12}>
+                <span className='ml-3'>
+                  <BrandIcon width='100px' className='float-center' />
+                </span>
+              </Col>
+              <Col span={12}>
+                <span className='float-right mr-3 mt-2'>
+                  <Row>
+                    <Col span={24}>
+                      <Button
+                        className='float-right'
+                        onClick={this.handleLogout}
+                      >
+                        Logout
+                      </Button>
+                    </Col>
+                  </Row>
+                  <Row className='mt-2'>
+                    <Col span={24}>
+                      <Text className='float-right' type='secondary' strong>{this.state.party.idValue}</Text>
+                    </Col>
+                  </Row>
+                </span>
+              </Col>
+            </Row>
+            <Row style={{ marginTop: 30 }} />
+            <Row className='mt-4'>
+              <Col span={24} className='text-center'>
+                <Title level={3}>Welcome {this.state.party.displayName}</Title>
+              </Col>
+            </Row>
+            <Row className='mt-4'>
+              <Col span={24} className='text-center'>
+                <Card className='shadow'>
+                  {
                   Object.keys(this.state.balance).map(currency => {
                     return (
                       <Statistic
-                        title="Account Balance"
+                        title='Account Balance'
                         value={this.state.balance[currency]}
                         precision={0}
                         valueStyle={{ color: '#3f8600' }}
@@ -238,86 +238,86 @@ class PayeeMobile extends React.Component {
                   })
                 }
 
-              </Card>
-            </Col>
-          </Row>
-          <Row className='mt-4'>
-            <Col span={24} className='text-center'>
-              { this.getTransactionHistory() }
-            </Col>
-          </Row>
-        </>
-      )
-      : (
-        <Layout style={{backgroundColor: '#ffffff', height: '100%'}}>
-          <Layout.Content>
-            <Row style={{marginTop: '100px', textAlign: 'center'}}>
-              <Col span={24}>
-                <BrandIcon width='150px' className='float-center' />
-              </Col>
-            </Row>
-            <Row style={{marginTop: '100px'}}>
-              <Col colspan={24} className='mx-auto'>
-                <Card className='shadow ml-1 mr-1 mt-n5 align-middle p-2' style={{width: '100%'}}>
-                <Form
-                  name="basic"
-                  labelCol={{
-                    span: 8,
-                  }}
-                  wrapperCol={{
-                    span: 16,
-                  }}
-                  initialValues={{
-                    // remember: false,
-                  }}
-                  onFinish={(this.handleLogin)}
-                  onFinishFailed={this.onLoginFailed}
-                >
-                  <Form.Item
-                    label="Username"
-                    name="username"
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please input your username!',
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Password"
-                    name="password"
-                    rules={[
-                      {
-                        required: false,
-                        message: 'Please input your password!',
-                      },
-                    ]}
-                  >
-                    <Input.Password />
-                  </Form.Item>
-
-                  <Form.Item
-                    wrapperCol={{
-                      offset: 8,
-                      span: 16,
-                    }}
-                  >
-                    <Button type="primary" htmlType="submit">
-                      Login
-                    </Button>
-                  </Form.Item>
-                </Form>
                 </Card>
               </Col>
             </Row>
-          </Layout.Content>
-        </Layout>
-      )
-    );
+            <Row className='mt-4'>
+              <Col span={24} className='text-center'>
+                {this.getTransactionHistory()}
+              </Col>
+            </Row>
+          </>
+          )
+        : (
+          <Layout style={{ backgroundColor: '#ffffff', height: '100%' }}>
+            <Layout.Content>
+              <Row style={{ marginTop: '100px', textAlign: 'center' }}>
+                <Col span={24}>
+                  <BrandIcon width='150px' className='float-center' />
+                </Col>
+              </Row>
+              <Row style={{ marginTop: '100px' }}>
+                <Col colspan={24} className='mx-auto'>
+                  <Card className='shadow ml-1 mr-1 mt-n5 align-middle p-2' style={{ width: '100%' }}>
+                    <Form
+                      name='basic'
+                      labelCol={{
+                        span: 8
+                      }}
+                      wrapperCol={{
+                        span: 16
+                      }}
+                      initialValues={{
+                        // remember: false,
+                      }}
+                      onFinish={(this.handleLogin)}
+                      onFinishFailed={this.onLoginFailed}
+                    >
+                      <Form.Item
+                        label='Username'
+                        name='username'
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please input your username!'
+                          }
+                        ]}
+                      >
+                        <Input />
+                      </Form.Item>
+
+                      <Form.Item
+                        label='Password'
+                        name='password'
+                        rules={[
+                          {
+                            required: false,
+                            message: 'Please input your password!'
+                          }
+                        ]}
+                      >
+                        <Input.Password />
+                      </Form.Item>
+
+                      <Form.Item
+                        wrapperCol={{
+                          offset: 8,
+                          span: 16
+                        }}
+                      >
+                        <Button type='primary' htmlType='submit'>
+                          Login
+                      </Button>
+                      </Form.Item>
+                    </Form>
+                  </Card>
+                </Col>
+              </Row>
+            </Layout.Content>
+          </Layout>
+          )
+    )
   }
 }
 
-export default PayeeMobile;
+export default PayeeMobile

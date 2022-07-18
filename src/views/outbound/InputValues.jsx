@@ -22,24 +22,24 @@
  --------------
  ******/
 
-import React from "react";
-import { Input, Row, Col, Descriptions, message, Popover, Button, Card, Checkbox, Radio, Typography } from 'antd';
-import { DeleteTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
+import React from 'react'
+import { Input, Row, Col, Descriptions, message, Popover, Button, Card, Checkbox, Radio, Typography } from 'antd'
+import { DeleteTwoTone } from '@ant-design/icons'
+import 'antd/dist/antd.css'
 
-const {Text, Title} = Typography
+const { Text, Title } = Typography
 
 class InputValues extends React.Component {
-
   state = {
     addInputValueDialogVisible: false,
     newInputValueName: '',
     newInputValueType: 'string'
-  };
+  }
 
   handleDeleteClick = (inputValueName) => {
     this.props.onDelete(inputValueName)
   }
+
   getInputItemType = (inputValueName) => {
     if (typeof this.props.values[inputValueName] === 'boolean') {
       return (
@@ -66,27 +66,28 @@ class InputValues extends React.Component {
   }
 
   getInputItems = () => {
-    let inputItems = []
-    let i = 0
-    for (let inputValueName in this.props.values) {
+    const inputItems = []
+    const i = 0
+    for (const inputValueName in this.props.values) {
       inputItems.push(
-          <Row className='mb-2' key={inputValueName}>
-            <Col span={12}>
-              <Text>{inputValueName}</Text>
-            </Col>
-            <Col span={12}>
-              <Row gutter={8}>
-                <Col span={23}>
-                  {this.getInputItemType(inputValueName)}
-                </Col>
-                <Col span={1}>
-                  <DeleteTwoTone key={inputValueName} type="delete" theme="filled"
-                    onClick={() => this.handleDeleteClick(inputValueName)}
-                  />
-                </Col>
-              </Row>
-            </Col>
-          </Row>
+        <Row className='mb-2' key={inputValueName}>
+          <Col span={12}>
+            <Text>{inputValueName}</Text>
+          </Col>
+          <Col span={12}>
+            <Row gutter={8}>
+              <Col span={23}>
+                {this.getInputItemType(inputValueName)}
+              </Col>
+              <Col span={1}>
+                <DeleteTwoTone
+                  key={inputValueName} type='delete' theme='filled'
+                  onClick={() => this.handleDeleteClick(inputValueName)}
+                />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       )
     }
     return inputItems
@@ -95,7 +96,7 @@ class InputValues extends React.Component {
   handleAddInputValue = (inputValueName) => {
     // Check if the input value name already exists
     if (this.props.values && this.props.values.hasOwnProperty(inputValueName)) {
-      message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 });
+      message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 })
     } else {
       // Save the input value
       let newValue = ''
@@ -109,17 +110,16 @@ class InputValues extends React.Component {
     }
   }
 
-
-  render() {
+  render () {
     const addInputValueDialogContent = (
       <>
         <Input
-          placeholder="Input Value Name"
-          type="text"
+          placeholder='Input Value Name'
+          type='text'
           value={this.state.newInputValueName}
           onChange={(e) => { this.setState({ newInputValueName: e.target.value }) }}
           onKeyDown={(e) => {
-            if (e.key === "Escape") {
+            if (e.key === 'Escape') {
               this.setState({ addInputValueDialogVisible: false })
             }
           }}
@@ -128,9 +128,10 @@ class InputValues extends React.Component {
             this.setState({ addInputValueDialogVisible: false })
           }}
         />
-        <Radio.Group onChange={(e) => {
-          this.setState({ newInputValueType: e.target.value })
-        }}
+        <Radio.Group
+          onChange={(e) => {
+            this.setState({ newInputValueType: e.target.value })
+          }}
           value={this.state.newInputValueType}
         >
           <Radio value='string'>String</Radio>
@@ -138,17 +139,17 @@ class InputValues extends React.Component {
           <Radio value='boolean'>Boolean</Radio>
         </Radio.Group>
         <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
+          className='text-right mt-2'
+          color='success'
+          href='#pablo'
           onClick={() => {
             this.handleAddInputValue(this.state.newInputValueName)
             this.setState({ addInputValueDialogVisible: false })
           }}
-          size="sm"
+          size='sm'
         >
           Add
-      </Button>
+        </Button>
       </>
     )
 
@@ -156,21 +157,21 @@ class InputValues extends React.Component {
       <>
         <Row gutter={16}>
           <Col span={24}>
-            <Card className="bg-white shadow" size='default'>
+            <Card className='bg-white shadow' size='default'>
               <Row className='mb-2'>
                 <Col span={24}>
                   <Popover
                     content={addInputValueDialogContent}
-                    title="Enter a new name"
-                    trigger="click"
+                    title='Enter a new name'
+                    trigger='click'
                     zIndex={1101}
                     visible={this.state.addInputValueDialogVisible}
                     onVisibleChange={(visible) => this.setState({ addInputValueDialogVisible: visible })}
                   >
                     <Button
-                      className="text-right float-right"
-                      color="primary"
-                      size="sm"
+                      className='text-right float-right'
+                      color='primary'
+                      size='sm'
                     >
                       Add Input Value
                     </Button>
@@ -186,4 +187,4 @@ class InputValues extends React.Component {
   }
 }
 
-export default InputValues;
+export default InputValues

@@ -21,14 +21,13 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 
-import { Row, Col, Card, Button } from 'antd';
+import { Row, Col, Card, Button } from 'antd'
 import mermaid from 'mermaid'
 
 class SequenceDiagram extends React.Component {
-
-  newState =  {
+  newState = {
     logs: [],
     lastLogTime: null,
     sequenceItems: []
@@ -40,30 +39,29 @@ class SequenceDiagram extends React.Component {
 
   timeToRefresh = 1 * 60 * 1000
 
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = JSON.parse(JSON.stringify(this.newState))
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.initDiagram()
   }
 
   appendLog = (log) => {
-
     // Check for the time of last log and clear the old data
-    var datetime = new Date( this.state.lastLogTime ).getTime();
-    var now = new Date( log.logTime ).getTime();
-    if ( (now - datetime) > this.timeToRefresh ) {
+    const datetime = new Date(this.state.lastLogTime).getTime()
+    const now = new Date(log.logTime).getTime()
+    if ((now - datetime) > this.timeToRefresh) {
       this.state.sequenceItems = []
     }
 
-    this.state.lastLogTime = log.logTime 
+    this.state.lastLogTime = log.logTime
 
     // this.state.logs.push(log)
 
-    if (log.notificationType === "newLog") {
-      if(log.messageType === 'request') {
+    if (log.notificationType === 'newLog') {
+      if (log.messageType === 'request') {
         this.state.sequenceItems.push({
           logTime: log.logTime,
           isError: (log.verbosity === 'error'),
@@ -72,7 +70,7 @@ class SequenceDiagram extends React.Component {
           path: log.resource.path,
           title: log.resource.method + ' ' + log.resource.path
         })
-      } else if(log.messageType === 'response') {
+      } else if (log.messageType === 'response') {
         this.state.sequenceItems.push({
           logTime: log.logTime,
           isError: (log.verbosity === 'error'),
@@ -82,8 +80,8 @@ class SequenceDiagram extends React.Component {
           title: log.additionalData.response.status + ' ' + (log.additionalData.response.statusText ? log.additionalData.response.statusText : '')
         })
       }
-    } else if (log.notificationType === "newOutboundLog") {
-      if (log.message.startsWith("Sending request") || log.message.startsWith("Request:")) {
+    } else if (log.notificationType === 'newOutboundLog') {
+      if (log.message.startsWith('Sending request') || log.message.startsWith('Request:')) {
         this.state.sequenceItems.push({
           logTime: log.logTime,
           isError: (log.verbosity === 'error'),
@@ -93,7 +91,7 @@ class SequenceDiagram extends React.Component {
           title: log.resource.method + ' ' + log.resource.path
         })
       }
-      if (log.message.startsWith("Received response") || log.message.startsWith("Response:")) {
+      if (log.message.startsWith('Received response') || log.message.startsWith('Response:')) {
         this.state.sequenceItems.push({
           logTime: log.logTime,
           isError: (log.verbosity === 'error'),
@@ -108,22 +106,22 @@ class SequenceDiagram extends React.Component {
   }
 
   refreshSequenceDiagram = async () => {
-    this.state.sequenceItems.sort(function(a,b){
-      return new Date(a.logTime) - new Date(b.logTime);
-    });
+    this.state.sequenceItems.sort(function (a, b) {
+      return new Date(a.logTime) - new Date(b.logTime)
+    })
     let seqSteps = this.getDiagramHeaders()
     const rowCount = this.state.sequenceItems.length
-    for (let i=0; i<rowCount; i++) {
-      if ( this.state.sequenceItems[i].type === 'outboundRequest' ) {
+    for (let i = 0; i < rowCount; i++) {
+      if (this.state.sequenceItems[i].type === 'outboundRequest') {
         seqSteps += `${this.ttkPeerName}->>${this.outboundPeerName}: [HTTP REQ] ` + this.state.sequenceItems[i].title + '\n'
       }
-      if ( this.state.sequenceItems[i].type === 'outboundResponse' ) {
+      if (this.state.sequenceItems[i].type === 'outboundResponse') {
         seqSteps += `${this.outboundPeerName}--` + (this.state.sequenceItems[i].isError ? 'x' : '>>') + `${this.ttkPeerName}: [HTTP RESP] ` + this.state.sequenceItems[i].title + '\n'
       }
-      if ( this.state.sequenceItems[i].type === 'inboundRequest' ) {
+      if (this.state.sequenceItems[i].type === 'inboundRequest') {
         seqSteps += `${this.inboundPeerName}->>${this.ttkPeerName}: [HTTP REQ] ${this.state.sequenceItems[i].title}\n`
       }
-      if ( this.state.sequenceItems[i].type === 'inboundResponse' ) {
+      if (this.state.sequenceItems[i].type === 'inboundResponse') {
         seqSteps += `${this.ttkPeerName}--` + (this.state.sequenceItems[i].isError ? 'x' : '>>') + `${this.inboundPeerName}: [HTTP RESP] ` + this.state.sequenceItems[i].title + '\n'
       }
     }
@@ -166,29 +164,29 @@ class SequenceDiagram extends React.Component {
       <>
         <Row>
           <Col span={24}>
-          {
+            {
             this.state.sequenceItems.length > 0
-            ? (
-              <Button
-                className="float-right"
-                type="primary"
-                danger
-                onClick={this.handleClearLogs}
-              >
-                Clear
-              </Button>
-            )
-            : null
+              ? (
+                <Button
+                  className='float-right'
+                  type='primary'
+                  danger
+                  onClick={this.handleClearLogs}
+                >
+                  Clear
+                </Button>
+                )
+              : null
           }
           </Col>
         </Row>
-        <Row style={{'min-height': '200px'}}>
+        <Row style={{ 'min-height': '200px' }}>
           <Col className='text-center' span={24}>
             <div
-            ref={div => {
-              this.seqDiagContainer = div
-            }}
-            ></div>
+              ref={div => {
+                this.seqDiagContainer = div
+              }}
+            />
           </Col>
         </Row>
       </>
@@ -196,4 +194,4 @@ class SequenceDiagram extends React.Component {
   }
 }
 
-export default SequenceDiagram;
+export default SequenceDiagram

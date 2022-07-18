@@ -21,8 +21,8 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Row, Col, Typography, Button, Table, Tag, Progress, InputNumber } from 'antd';
+import React from 'react'
+import { Row, Col, Typography, Button, Table, Tag, Progress, InputNumber } from 'antd'
 const { Text } = Typography
 
 class Settings extends React.Component {
@@ -38,14 +38,14 @@ class Settings extends React.Component {
   }
 
   componentDidMount = async () => {
-    this.setState({payerFspTransferExpirationOffsetSec: this.props.outboundService.getCustomParams().payerFspTransferExpirationOffset / 1000})
+    this.setState({ payerFspTransferExpirationOffsetSec: this.props.outboundService.getCustomParams().payerFspTransferExpirationOffset / 1000 })
   }
 
   handleTestCaseProgressUpdate = (data) => {
     const progress = data.progress
-    if (progress.status === "SUCCESS" || progress.status === "ERROR") {
+    if (progress.status === 'SUCCESS' || progress.status === 'ERROR') {
       if (this.state.progressSteps[data.testCaseName]) {
-        this.state.progressSteps[data.testCaseName].passedCount++ 
+        this.state.progressSteps[data.testCaseName].passedCount++
       } else {
         this.state.progressSteps[data.testCaseName] = {
           passedCount: 1,
@@ -57,7 +57,7 @@ class Settings extends React.Component {
   }
 
   handleNotificationEvents = (event) => {
-    switch(event.type) {
+    switch (event.type) {
       case 'testCaseProgress':
       {
         if (event.data && event.data.progress) {
@@ -67,92 +67,92 @@ class Settings extends React.Component {
       }
       case 'testCaseFinished':
       {
-        this.setState({provisioningInProgress: false, provisioningStatus: 'Completed'})
+        this.setState({ provisioningInProgress: false, provisioningStatus: 'Completed' })
         break
       }
       case 'testCaseTerminated':
       {
-        this.setState({provisioningInProgress: false, provisioningStatus: 'Terminated'})
+        this.setState({ provisioningInProgress: false, provisioningStatus: 'Terminated' })
         break
       }
     }
   }
 
   handleStartProvisioning = async (idNumber) => {
-    this.setState({provisioningInProgress: true, provisioningStatus: '', progressSteps: {}})
+    this.setState({ provisioningInProgress: true, provisioningStatus: '', progressSteps: {} })
     const resp = await this.props.outboundService.startProvisioning()
   }
 
-  render() {
+  render () {
     const columns = [
       {
         title: 'Name',
-        dataIndex: 'stepName',
+        dataIndex: 'stepName'
       },
       {
         title: 'Status',
-        dataIndex: 'passCount',
-      },
-    ];
+        dataIndex: 'passCount'
+      }
+    ]
 
-    const progressStepData = Object.entries(this.state.progressSteps).map((step,index) => {
+    const progressStepData = Object.entries(this.state.progressSteps).map((step, index) => {
       return {
         key: index,
         stepName: step[0],
         passCount: (
           <>
-          <Progress percent={Math.round(step[1].passedCount*100/step[1].totalCount)} width={50} />
-          { step[1].passedCount===step[1].totalCount? (<Tag className='ml-2' color="success">DONE</Tag>) : null }
+            <Progress percent={Math.round(step[1].passedCount * 100 / step[1].totalCount)} width={50} />
+            {step[1].passedCount === step[1].totalCount ? (<Tag className='ml-2' color='success'>DONE</Tag>) : null}
           </>)
       }
     })
 
     return (
       <>
-      <Row className='mt-4 ml-2'>
-        <Col span={24}>
-          <Text strong>Payer Transfer Expiry:</Text>
-          <InputNumber
-            className='ml-4'
-            value={this.state.payerFspTransferExpirationOffsetSec}
-            onChange={(newNumber) => {
-              this.setState({payerFspTransferExpirationOffsetSec: newNumber})
-              this.props.outboundService.setCustomParams({payerFspTransferExpirationOffset: newNumber * 1000})
-            }}
-          />
-          <Text className='ml-2'>Seconds</Text>
-        </Col>
-      </Row>
-      <Row className='mt-4 ml-2'>
-        <Col span={24}>
-          <Button
-            onClick={this.handleStartProvisioning}
-            loading={this.state.provisioningInProgress}
-          >
-            Start Provisioning
-          </Button>
-        </Col>
-      </Row>
-      <Row className='mt-4 ml-2'>
-        <Col span={24}>
-          <Table
-            columns={columns}
-            dataSource={progressStepData}
-            pagination={false}
-            scroll={{ y: 540 }}
-            loading={this.state.provisioningInProgress}
-            footer={(pageData) => {
-              return (
-                <Text strong>{this.state.provisioningStatus}</Text>
-              );
-            }}
-          />
-        </Col>
-      </Row>
+        <Row className='mt-4 ml-2'>
+          <Col span={24}>
+            <Text strong>Payer Transfer Expiry:</Text>
+            <InputNumber
+              className='ml-4'
+              value={this.state.payerFspTransferExpirationOffsetSec}
+              onChange={(newNumber) => {
+                this.setState({ payerFspTransferExpirationOffsetSec: newNumber })
+                this.props.outboundService.setCustomParams({ payerFspTransferExpirationOffset: newNumber * 1000 })
+              }}
+            />
+            <Text className='ml-2'>Seconds</Text>
+          </Col>
+        </Row>
+        <Row className='mt-4 ml-2'>
+          <Col span={24}>
+            <Button
+              onClick={this.handleStartProvisioning}
+              loading={this.state.provisioningInProgress}
+            >
+              Start Provisioning
+            </Button>
+          </Col>
+        </Row>
+        <Row className='mt-4 ml-2'>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={progressStepData}
+              pagination={false}
+              scroll={{ y: 540 }}
+              loading={this.state.provisioningInProgress}
+              footer={(pageData) => {
+                return (
+                  <Text strong>{this.state.provisioningStatus}</Text>
+                )
+              }}
+            />
+          </Col>
+        </Row>
       </>
 
-    );
+    )
   }
 }
 
-export default Settings;
+export default Settings

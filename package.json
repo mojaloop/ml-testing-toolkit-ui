@@ -16,21 +16,27 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test:react": "react-scripts test",
     "eject": "react-scripts eject",
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
     "compile-sass": "node-sass src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.css",
     "minify-sass": "node-sass src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.min.css --output-style compressed",
     "map-sass": "node-sass src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.css --source-map true",
+    "lint": "npx eslint --ext .js,.ts src --color",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "npm run test:react",
+    "test:unit": "jest --testMatch '**/test/unit/**/*.test.js'",
+    "test:int": "jest --reporters=default --reporters=jest-junit --testMatch '**/test/integration/**/*.test.js'",
+    "test:coverage": "jest --coverage --coverageThreshold='{}' --testMatch '**/test/unit/**/*.test.js'",
+    "test:coverage-check": "jest --coverage --testMatch '**/test/unit/**/*.test.js'",
+    "test:junit": "jest --reporters=default --reporters=jest-junit --testMatch '**/test/unit/**/*.test.js'",
     "audit:resolve": "SHELL=sh resolve-audit",
     "audit:check": "SHELL=sh check-audit",
+    "dep:check": "npx ncu -e 2",
+    "dep:update": "npx ncu -u",
+    "release": "npx standard-version --no-verify --releaseCommitMessageFormat 'chore(release): {{currentTag}} [skip ci]'",
+    "snapshot": "npx standard-version --no-verify --skip.changelog --prerelease snapshot --releaseCommitMessageFormat 'chore(snapshot): {{currentTag}}'",
     "electron": "electron electron"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -45,6 +51,7 @@
     ]
   },
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
     "@mojaloop/ml-testing-toolkit-shared-lib": "^12.2.0",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
@@ -84,7 +91,10 @@
     "@types/react": "16.8.7",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.3",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
     "npm-audit-resolver": "^2.2.1",
+    "standard-version": "^9.5.0",
     "typescript": "3.3.3333"
   },
   "jest": {

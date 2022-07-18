@@ -21,8 +21,8 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Row, Col, Menu, Typography, Spin, Result } from 'antd';
+import React from 'react'
+import { Row, Col, Menu, Typography, Spin, Result } from 'antd'
 const { Text, Title } = Typography
 
 class PayeeMobile extends React.Component {
@@ -37,11 +37,11 @@ class PayeeMobile extends React.Component {
   }
 
   resetState = () => {
-    this.setState({receivedAmount: null, payeeReceiveAmount: null, payerComplexName: null, stage: null})
+    this.setState({ receivedAmount: null, payeeReceiveAmount: null, payerComplexName: null, stage: null })
   }
 
   handleNotificationEvents = (event) => {
-    switch(event.type) {
+    switch (event.type) {
       case 'payeeGetParties':
       {
         this.resetState()
@@ -61,7 +61,7 @@ class PayeeMobile extends React.Component {
       // }
       case 'payeePostQuotes':
       {
-        this.setState({payerComplexName: event.data.requestBody && event.data.requestBody.payer && event.data.requestBody.payer.personalInfo && event.data.requestBody.payer.personalInfo.complexName})
+        this.setState({ payerComplexName: event.data.requestBody && event.data.requestBody.payer && event.data.requestBody.payer.personalInfo && event.data.requestBody.payer.personalInfo.complexName })
         break
       }
       // case 'payeePostQuotesResponse':
@@ -70,7 +70,7 @@ class PayeeMobile extends React.Component {
       // }
       case 'payeePutQuotes':
       {
-        this.setState({payeeReceiveAmount: event.data.requestBody && event.data.requestBody.payeeReceiveAmount})
+        this.setState({ payeeReceiveAmount: event.data.requestBody && event.data.requestBody.payeeReceiveAmount })
         break
       }
       // case 'payeePutQuotesResponse':
@@ -80,7 +80,7 @@ class PayeeMobile extends React.Component {
       case 'payeePostTransfers':
       {
         // this.setState({receivedAmount: event.data.requestBody && event.data.requestBody.amount && event.data.requestBody.amount.amount})
-        this.setState({receivedAmount: this.state.payeeReceiveAmount})
+        this.setState({ receivedAmount: this.state.payeeReceiveAmount })
         break
       }
       // case 'payeePostTransfersResponse':
@@ -90,7 +90,7 @@ class PayeeMobile extends React.Component {
       case 'payeePutTransfers':
       {
         if (event.data.requestBody && event.data.requestBody.transferState === 'COMMITTED') {
-          this.setState({stage: 'putTransfers'})
+          this.setState({ stage: 'putTransfers' })
         }
         break
       }
@@ -102,13 +102,13 @@ class PayeeMobile extends React.Component {
   }
 
   getStageData = () => {
-    switch(this.state.stage) {
+    switch (this.state.stage) {
       case 'putTransfers':
         return (
           <Row className='mt-2'>
             <Col span={24} className='text-center'>
               <Result
-                status="success"
+                status='success'
                 title={'Received ' + this.state.receivedAmount.amount + ' ' + this.state.receivedAmount.currency}
                 subTitle={'from ' + this.state.payerComplexName.firstName}
               />
@@ -126,14 +126,14 @@ class PayeeMobile extends React.Component {
     }
   }
 
-  render() {
+  render () {
     return (
       <>
         <Row className='mt-4' />
-        { this.getStageData() }
+        {this.getStageData()}
       </>
-    );
+    )
   }
 }
 
-export default PayeeMobile;
+export default PayeeMobile

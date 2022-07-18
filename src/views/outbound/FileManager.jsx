@@ -21,45 +21,44 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import _ from 'lodash';
-import { Button, Popconfirm, Row, Col, message, Popover } from 'antd';
-import FolderBrowser from "./FolderBrowser.jsx";
+import React from 'react'
+import _ from 'lodash'
+import { Button, Popconfirm, Row, Col, message, Popover } from 'antd'
+import FolderBrowser from './FolderBrowser.jsx'
 import { FolderParser } from '@mojaloop/ml-testing-toolkit-shared-lib'
-import { DownloadOutlined, DownOutlined } from '@ant-design/icons';
+import { DownloadOutlined, DownOutlined } from '@ant-design/icons'
 import GitHubBrowser from './GitHubBrowser'
 
-import JSZip from "jszip"
+import JSZip from 'jszip'
 const MASTERFILE_NAME = 'master.json'
 
-function readFileAsync(file) {
+function readFileAsync (file) {
   return new Promise((resolve, reject) => {
-    let reader = new FileReader();
+    const reader = new FileReader()
 
     reader.onload = () => {
-      resolve(reader.result);
-    };
+      resolve(reader.result)
+    }
 
-    reader.onerror = reject;
+    reader.onerror = reject
 
-    reader.readAsText(file);
+    reader.readAsText(file)
   })
 }
 
-function buildFileSelector( multi = false, directory = false ){
-  const fileSelector = document.createElement('input');
-  fileSelector.setAttribute('type', 'file');
+function buildFileSelector (multi = false, directory = false) {
+  const fileSelector = document.createElement('input')
+  fileSelector.setAttribute('type', 'file')
   if (multi) {
-    fileSelector.setAttribute('multiple', 'multiple');
+    fileSelector.setAttribute('multiple', 'multiple')
   }
   if (directory) {
-    fileSelector.setAttribute('webkitdirectory', '');
+    fileSelector.setAttribute('webkitdirectory', '')
   }
-  return fileSelector;
+  return fileSelector
 }
 
 class FileManager extends React.Component {
-
   state = {
     importFromGitHubDialogVisible: false
   }
@@ -73,17 +72,17 @@ class FileManager extends React.Component {
           }
           this.updateFoldersAndFiles(actionData.data)
         } else if (actionData.action === 'savingStatusStart') {
-          message.loading({ content: 'Saving files...', key: 'saveFolderDataProgress' });
+          message.loading({ content: 'Saving files...', key: 'saveFolderDataProgress' })
         } else if (actionData.action === 'savingStatusError') {
-          message.error({ content: actionData.message, key: 'saveFolderDataProgress' });
+          message.error({ content: actionData.message, key: 'saveFolderDataProgress' })
         } else if (actionData.action === 'savingStatusSuccess') {
-          message.success({ content: 'Saved', key: 'saveFolderDataProgress' });
+          message.success({ content: 'Saved', key: 'saveFolderDataProgress' })
         }
       })
     }
 
-    this.collectionFolderSelector = buildFileSelector(false, true);
-    this.collectionFolderSelector.addEventListener ('input', async (e) => {
+    this.collectionFolderSelector = buildFileSelector(false, true)
+    this.collectionFolderSelector.addEventListener('input', async (e) => {
       if (e.target.files && e.target.files.length > 0) {
         await this.handleLocalFileOrFolderImportCollection(e.target.files)
       }
@@ -91,8 +90,8 @@ class FileManager extends React.Component {
       this.collectionFolderSelector.value = null
     })
 
-    this.collectionFileSelector = buildFileSelector(true, false);
-    this.collectionFileSelector.addEventListener ('input', async (e) => {
+    this.collectionFileSelector = buildFileSelector(true, false)
+    this.collectionFileSelector.addEventListener('input', async (e) => {
       if (e.target.files && e.target.files.length > 0) {
         await this.handleLocalFileOrFolderImportCollection(e.target.files)
       }
@@ -123,7 +122,7 @@ class FileManager extends React.Component {
     const sourceTitle = parentNode[index].title
     const newBaseTitle = parentNode[index].title + '_copy'
     let newTitle = newBaseTitle
-    for (let i=0; i<parentNode.length; i++) {
+    for (let i = 0; i < parentNode.length; i++) {
       newTitle = newBaseTitle + i
       if (!parentNode.find(item => item.title === newTitle)) {
         break
@@ -133,12 +132,12 @@ class FileManager extends React.Component {
   }
 
   updateKeysRecursively = (node, newName, prefix) => {
-    const reminderKey = node.key.replace(prefix + '/' , '')
+    const reminderKey = node.key.replace(prefix + '/', '')
     const keyArr = reminderKey.split('/')
     keyArr[0] = newName
     node.key = prefix + '/' + keyArr.join('/')
     if (!node.isLeaf) {
-      for (let i=0; i<node.children.length; i++) {
+      for (let i = 0; i < node.children.length; i++) {
         this.updateKeysRecursively(node.children[i], newName, prefix)
       }
     }
@@ -147,7 +146,7 @@ class FileManager extends React.Component {
   resetKeysRecursively = (node, prefix) => {
     node.key = prefix + '/' + node.title
     if (!node.isLeaf) {
-      for (let i=0; i<node.children.length; i++) {
+      for (let i = 0; i < node.children.length; i++) {
         this.resetKeysRecursively(node.children[i], node.key)
       }
     }
@@ -157,7 +156,7 @@ class FileManager extends React.Component {
     const foundNodeIndex = parentNode.findIndex(item => item.title === locationArray[0])
     if (locationArray.length === 1) {
       // Delete the file or folder
-      parentNode.splice(foundNodeIndex,1)
+      parentNode.splice(foundNodeIndex, 1)
     } else {
       // console.log(locationArray, parentNode)
       this.deleteNodeAtLocation(parentNode[foundNodeIndex].children, locationArray.slice(1))
@@ -167,7 +166,7 @@ class FileManager extends React.Component {
   deleteNodeAtPosition = (parentNode, posArray) => {
     if (posArray.length === 1) {
       // Delete the file or folder
-      parentNode.splice(posArray[0],1)
+      parentNode.splice(posArray[0], 1)
     } else {
       this.deleteNodeAtPosition(parentNode[posArray[0]].children, posArray.slice(1))
     }
@@ -247,30 +246,30 @@ class FileManager extends React.Component {
   }
 
   handleLocalFileOrFolderImportCollection = async (fileList) => {
-    message.loading({ content: 'Reading the selected files...', key: 'importFileProgress' });
-    var importFolderRawData = []
-    for (var i = 0; i < fileList.length; i++) {
+    message.loading({ content: 'Reading the selected files...', key: 'importFileProgress' })
+    const importFolderRawData = []
+    for (let i = 0; i < fileList.length; i++) {
       const file_to_read = fileList.item(i)
       if (file_to_read.name.endsWith('.json')) {
-        const fileRead = new FileReader();
+        const fileRead = new FileReader()
         try {
           const content = await readFileAsync(file_to_read)
-          const fileContent = JSON.parse(content);
+          const fileContent = JSON.parse(content)
           importFolderRawData.push({
             name: file_to_read.name,
-            path: file_to_read.webkitRelativePath? file_to_read.webkitRelativePath : file_to_read.name,
+            path: file_to_read.webkitRelativePath ? file_to_read.webkitRelativePath : file_to_read.name,
             size: file_to_read.size,
             modified: file_to_read.lastModified,
             content: fileContent
           })
-        } catch(err) {
-          message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
-          break;
+        } catch (err) {
+          message.error({ content: err.message, key: 'importFileProgress', duration: 2 })
+          break
         }
       }
     }
     this.updateFoldersAndFiles(importFolderRawData)
-    message.success({ content: 'Files imported', key: 'importFileProgress', duration: 2 });
+    message.success({ content: 'Files imported', key: 'importFileProgress', duration: 2 })
   }
 
   handleSelectionChanged = async (selectedFiles) => {
@@ -287,10 +286,10 @@ class FileManager extends React.Component {
     const newItem = {
       key: fileLocation + '/' + fileOrFolderName,
       title: fileOrFolderName,
-      isLeaf: isFolder? false : true,
+      isLeaf: !isFolder,
       extraInfo: { type: isFolder ? 'folder' : 'file' },
-      content: isFolder? null : {},
-      children: isFolder? [] : null
+      content: isFolder ? null : {},
+      children: isFolder ? [] : null
     }
     nodeFound.children.push(newItem)
     const newFolderData = [...this.props.folderData]
@@ -359,15 +358,14 @@ class FileManager extends React.Component {
   }
 
   download = (content, fileName, contentType) => {
-    var a = document.createElement("a");
-    var file = new Blob([content], {type: contentType});
-    a.href = URL.createObjectURL(file);
-    a.download = fileName;
-    a.click();
+    const a = document.createElement('a')
+    const file = new Blob([content], { type: contentType })
+    a.href = URL.createObjectURL(file)
+    a.download = fileName
+    a.click()
   }
 
   handleExportFolder = async () => {
-  
     const generateMasterFile = (nodesArray) => {
       const nodesOrder = nodesArray.map(item => {
         return {
@@ -382,9 +380,9 @@ class FileManager extends React.Component {
 
     const removeStatusInfo = (templateContent) => {
       if (templateContent.test_cases) {
-        for(let i = 0; i < templateContent.test_cases.length; i++) {
+        for (let i = 0; i < templateContent.test_cases.length; i++) {
           if (templateContent.test_cases[i].requests) {
-            for(let j = 0; j < templateContent.test_cases[i].requests.length; j++) {
+            for (let j = 0; j < templateContent.test_cases[i].requests.length; j++) {
               if (templateContent.test_cases[i].requests[j].status) {
                 delete templateContent.test_cases[i].requests[j].status
               }
@@ -398,32 +396,32 @@ class FileManager extends React.Component {
       // Add master file
       if (nodeChildren.length > 1) {
         const masterFileContent = generateMasterFile(nodeChildren)
-        zipHandler.file(MASTERFILE_NAME, JSON.stringify(masterFileContent,null,2));
+        zipHandler.file(MASTERFILE_NAME, JSON.stringify(masterFileContent, null, 2))
       }
 
-      for (let i=0; i<nodeChildren.length; i++) {
+      for (let i = 0; i < nodeChildren.length; i++) {
         if (nodeChildren[i].isLeaf && nodeChildren[i].extraInfo.type === 'file') {
-          const templateContent = nodeChildren[i].content;
+          const templateContent = nodeChildren[i].content
           removeStatusInfo(templateContent)
-          zipHandler.file(nodeChildren[i].title, JSON.stringify(templateContent,null,2));
+          zipHandler.file(nodeChildren[i].title, JSON.stringify(templateContent, null, 2))
         } else {
           if (nodeChildren[i].children) {
-            const folderHandler = zipHandler.folder(nodeChildren[i].title);
+            const folderHandler = zipHandler.folder(nodeChildren[i].title)
             addFilesToZipHandler(nodeChildren[i].children, folderHandler)
           }
         }
       }
     }
-  
+
     try {
-      const zip = new JSZip();
+      const zip = new JSZip()
       addFilesToZipHandler(this.props.folderData, zip)
-      const content = await zip.generateAsync({type:"blob"})
+      const content = await zip.generateAsync({ type: 'blob' })
       // Form a name for the file to download
       const downloadFileName = this.props.folderData.map(item => item.title).join('-') + '-' + (new Date().toISOString()) + '.zip'
       this.download(content, downloadFileName, 'application/zip')
-    } catch(err){
-      message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+    } catch (err) {
+      message.error({ content: err.message, key: 'importFileProgress', duration: 2 })
     }
   }
 
@@ -432,8 +430,8 @@ class FileManager extends React.Component {
       {
         key: 'new-folder',
         title: 'new-folder',
-        children:[],
-        extraInfo: {type: 'folder'}
+        children: [],
+        extraInfo: { type: 'folder' }
       }
     ]
     this.props.onChange(newFolderData, [])
@@ -443,24 +441,23 @@ class FileManager extends React.Component {
     // TODO: Continue to fix this
     const newFolderData = [...this.props.folderData, ...importedFolderData]
     this.props.onChange(newFolderData, [])
-    this.setState({importFromGitHubDialogVisible: false})
+    this.setState({ importFromGitHubDialogVisible: false })
   }
 
-  render() {
-    
+  render () {
     return (
       <>
         <Row>
           <Col span={24}>
             <Popconfirm
-              title="All the changes you did for the existing test cases will be deleted. Are you sure?"
+              title='All the changes you did for the existing test cases will be deleted. Are you sure?'
               onConfirm={this.handleStartNewFolder}
-              okText="Yes"
-              okButtonProps={{type: 'danger'}}
-              cancelText="No"
+              okText='Yes'
+              okButtonProps={{ type: 'danger' }}
+              cancelText='No'
             >
               <Button
-                type="primary"
+                type='primary'
                 danger
               >
                 Create a new folder
@@ -470,96 +467,98 @@ class FileManager extends React.Component {
         </Row>
         {
           this.props.ipcRenderer
-          ? (
-            <Row className="mt-2">
-              <Col span={24}>
-              <Button
-                type="primary"
-                onClick={() => {
-                  this.props.ipcRenderer.send('mainAction', JSON.stringify({ action: 'openFolder' }))
-                }}
-              >Open Folder</Button>
-              <Button
-                type="primary"
-                className="float-right"
-                danger
-                onClick={() => {
-                  const nativeFilePath = localStorage.getItem('nativeFilePath')
-                  this.props.ipcRenderer.send('mainAction', JSON.stringify({ action: 'saveFolderData', data: this.props.folderData, nativeFilePath }))
-                }}
-              >Save</Button>
-              </Col>
-            </Row>
-          )
-          : (
-            <>
-            <Row className="mt-2">
-              <Col span={24}>
-                <Popover
-                  content={
-                    <div style={{width: '500px'}}>
-                      <GitHubBrowser
-                        onDownload={this.handleGitHubDownload}
-                      />
-                    </div>
-                  }
-                  title="Select Files / Folders"
-                  trigger="click"
-                  visible={this.state.importFromGitHubDialogVisible}
-                  onVisibleChange={(visible) => {
-                    // if (visible) {
-                    //   this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name })
-                    // }
-                    this.setState({ importFromGitHubDialogVisible: visible })
-                  }}
-                >
+            ? (
+              <Row className='mt-2'>
+                <Col span={24}>
                   <Button
-                    className='ml-2 float-right'
-                    type="primary"
-                    shape="round"
-                    danger
-                  >
-                    Import from Github <DownOutlined />
+                    type='primary'
+                    onClick={() => {
+                      this.props.ipcRenderer.send('mainAction', JSON.stringify({ action: 'openFolder' }))
+                    }}
+                  >Open Folder
                   </Button>
-                </Popover>
-              </Col>
-            </Row>
-            <Row className="mt-2">
-              <Col span={24}>
-                <Button
-                  type="default"
-                  onClick={ e => {
-                    e.preventDefault();
-                    this.collectionFileSelector.click();
-                  }}
-                >
-                  Import File
-                </Button>
-                <Button
-                  className='ml-2'
-                  size="default"
-                  onClick={ e => {
-                    e.preventDefault();
-                    this.collectionFolderSelector.click();
-                  }}
-                >
-                  Import Folder
-                </Button>
-                <Button
-                  type="primary"
-                  className="ml-2"
-                  size="default"
-                  onClick={ e => {
-                    e.preventDefault();
-                    this.handleExportFolder()
-                  }}
-                >
-                  Download as Zip file
-                </Button>
-              </Col>
-            </Row>
-            </>
-          )
+                  <Button
+                    type='primary'
+                    className='float-right'
+                    danger
+                    onClick={() => {
+                      const nativeFilePath = localStorage.getItem('nativeFilePath')
+                      this.props.ipcRenderer.send('mainAction', JSON.stringify({ action: 'saveFolderData', data: this.props.folderData, nativeFilePath }))
+                    }}
+                  >Save
+                  </Button>
+                </Col>
+              </Row>
+              )
+            : (
+              <>
+                <Row className='mt-2'>
+                  <Col span={24}>
+                    <Popover
+                      content={
+                        <div style={{ width: '500px' }}>
+                          <GitHubBrowser
+                            onDownload={this.handleGitHubDownload}
+                          />
+                        </div>
+                  }
+                      title='Select Files / Folders'
+                      trigger='click'
+                      visible={this.state.importFromGitHubDialogVisible}
+                      onVisibleChange={(visible) => {
+                        // if (visible) {
+                        //   this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name })
+                        // }
+                        this.setState({ importFromGitHubDialogVisible: visible })
+                      }}
+                    >
+                      <Button
+                        className='ml-2 float-right'
+                        type='primary'
+                        shape='round'
+                        danger
+                      >
+                        Import from Github <DownOutlined />
+                      </Button>
+                    </Popover>
+                  </Col>
+                </Row>
+                <Row className='mt-2'>
+                  <Col span={24}>
+                    <Button
+                      type='default'
+                      onClick={e => {
+                        e.preventDefault()
+                        this.collectionFileSelector.click()
+                      }}
+                    >
+                      Import File
+                    </Button>
+                    <Button
+                      className='ml-2'
+                      size='default'
+                      onClick={e => {
+                        e.preventDefault()
+                        this.collectionFolderSelector.click()
+                      }}
+                    >
+                      Import Folder
+                    </Button>
+                    <Button
+                      type='primary'
+                      className='ml-2'
+                      size='default'
+                      onClick={e => {
+                        e.preventDefault()
+                        this.handleExportFolder()
+                      }}
+                    >
+                      Download as Zip file
+                    </Button>
+                  </Col>
+                </Row>
+              </>
+              )
         }
         <Row className='mt-2'>
           <Col>
@@ -567,7 +566,7 @@ class FileManager extends React.Component {
               folderData={this.props.folderData}
               selectedFiles={this.props.selectedFiles}
               labelsManager={this.props.labelsManager}
-              onSelect = {this.handleSelectionChanged}
+              onSelect={this.handleSelectionChanged}
               onOrderChange={this.handleOrderChange}
               onAddFileOrFolder={this.handleAddFileOrFolder}
               onDeleteFileOrFolder={this.handleDeleteFileOrFolder}
@@ -584,4 +583,4 @@ class FileManager extends React.Component {
   }
 }
 
-export default FileManager;
+export default FileManager

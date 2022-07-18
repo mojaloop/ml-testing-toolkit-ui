@@ -21,16 +21,15 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 
-import { Tag, Timeline, Card, Table, Row, Col, Button, Typography, Collapse } from 'antd';
-import { ClockCircleOutlined } from '@ant-design/icons';
+import { Tag, Timeline, Card, Table, Row, Col, Button, Typography, Collapse } from 'antd'
+import { ClockCircleOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
-const { Panel } = Collapse;
+const { Panel } = Collapse
 
 class TimelineItem extends React.Component {
-
   render () {
     const log = this.props.logs[0]
     const info = this.props.info
@@ -40,38 +39,38 @@ class TimelineItem extends React.Component {
     ]
     return (
       <>
-        <Tag color={info.erroneous ? "#f50" : "#2db7f5"}>{log.logTime}</Tag>
+        <Tag color={info.erroneous ? '#f50' : '#2db7f5'}>{log.logTime}</Tag>
         <Collapse className='mt-2'>
-          <Panel header={<Text strong>{info.name}</Text>} key="1" className='text-left'>
+          <Panel header={<Text strong>{info.name}</Text>} key='1' className='text-left'>
             <Table
               columns={columns}
               pagination={false}
               expandable={{
                 expandedRowRender: log => (
                   <>
-                  <Row>
-                    <Text strong>{log.logTime}</Text>
-                  </Row>
-                  <Row>
-                    
+                    <Row>
+                      <Text strong>{log.logTime}</Text>
+                    </Row>
+                    <Row>
+
                       <Text
-                        copyable = {
+                        copyable={
                           {
-                            text: JSON.stringify(log.additionalData,null,2)
+                            text: JSON.stringify(log.additionalData, null, 2)
                           }
                         }
                       >
                         <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
-                          {JSON.stringify(log.additionalData,null,2)}
+                          {JSON.stringify(log.additionalData, null, 2)}
                         </pre>
-                        
+
                       </Text>
-                  </Row>
+                    </Row>
                   </>
                 ),
-                rowExpandable: log => (log.additionalData && Object.keys(log.additionalData).length !== 0),
+                rowExpandable: log => (log.additionalData && Object.keys(log.additionalData).length !== 0)
               }}
-              dataSource={this.props.logs.map((logItem, index) => {return {...logItem, key: index}})}
+              dataSource={this.props.logs.map((logItem, index) => { return { ...logItem, key: index } })}
             />
           </Panel>
         </Collapse>
@@ -80,20 +79,20 @@ class TimelineItem extends React.Component {
   }
 }
 class TimelineSet extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       logsVisible: false
     }
   }
+
   expandChange = (event) => {
-    event.dataItem.expanded = !event.dataItem.expanded;
-    this.forceUpdate();
+    event.dataItem.expanded = !event.dataItem.expanded
+    this.forceUpdate()
   }
 
   toggleLogsVisibility = () => {
-      this.setState({logsVisible: !this.state.logsVisible})
+    this.setState({ logsVisible: !this.state.logsVisible })
   }
 
   getTimelineItems = () => {
@@ -104,10 +103,9 @@ class TimelineSet extends React.Component {
         )
       } else {
         return (
-          <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '16px' }} />} color="red"><br /><br /></Timeline.Item>
+          <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '16px' }} />} color='red'><br /><br /></Timeline.Item>
         )
       }
-
     })
   }
 
@@ -118,19 +116,19 @@ class TimelineSet extends React.Component {
     if (this.props.logSetObj.secondaryItemsArr.length > 1) {
       return (
         <>
-          <Tag color={logSetObj.erroneous ? "#f50" : "#2db7f5"} onClick={this.toggleLogsVisibility}>{logSetObj.logTime}</Tag>
+          <Tag color={logSetObj.erroneous ? '#f50' : '#2db7f5'} onClick={this.toggleLogsVisibility}>{logSetObj.logTime}</Tag>
           <b>{logSetObj.name}</b>
           <br />
           {
             this.state.logsVisible
-            ? (
+              ? (
                 <Card>
                   <Timeline reverse={false}>
                     {this.getTimelineItems()}
                   </Timeline>
                 </Card>
-            )
-            : null
+                )
+              : null
           }
         </>
       )
@@ -148,32 +146,30 @@ class TimelineSet extends React.Component {
 }
 
 class ActivityLog extends React.Component {
-
-  newState =  {
+  newState = {
     logs: [],
     incomingItemsObj: {},
     incomingItemsArr: []
   }
 
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = JSON.parse(JSON.stringify(this.newState))
   }
-  
+
   appendLog = (log) => {
     this.state.logs.push(log)
     let primaryGroupId = 'misc'
-    if(log.uniqueId) {
+    if (log.uniqueId) {
       primaryGroupId = log.uniqueId
     }
     // Disabling grouping by traceID temporarily, need to refactor this functionality to sync with the new inbound and outbound logs structure
     // if(log.traceID) {
     //   primaryGroupId = log.traceID
     // }
-    
 
     // Group by unique ID
-    if(!this.state.incomingItemsObj.hasOwnProperty(primaryGroupId)) {
+    if (!this.state.incomingItemsObj.hasOwnProperty(primaryGroupId)) {
       this.state.incomingItemsObj[primaryGroupId] = {
         name: '',
         erroneous: false,
@@ -181,13 +177,13 @@ class ActivityLog extends React.Component {
         secondaryItemsArr: [],
         secondaryItemsObj: {}
       }
-      
+
       this.state.incomingItemsArr.push(primaryGroupId)
     }
     let primaryName = ''
 
     const secondaryGroupId = log.uniqueId
-    if(!this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj.hasOwnProperty(secondaryGroupId)) {  
+    if (!this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj.hasOwnProperty(secondaryGroupId)) {
       this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId] = []
       let name = log.message
       if (log.resource) {
@@ -199,17 +195,17 @@ class ActivityLog extends React.Component {
     }
 
     this.state.incomingItemsObj[primaryGroupId].name += primaryName + ' '
-    
+
     // If the verbosity of the log is error, set the entire group as erroneous
     if (log.verbosity === 'error') {
       // Find the group in incomingItemsArr array
       this.state.incomingItemsObj[primaryGroupId].erroneous = true
       // Find the group in secondaryItemsArr array
-      const secondaryItemIndex = this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.findIndex(item => item? (item.id === secondaryGroupId) : false)
+      const secondaryItemIndex = this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr.findIndex(item => item ? (item.id === secondaryGroupId) : false)
       this.state.incomingItemsObj[primaryGroupId].secondaryItemsArr[secondaryItemIndex].erroneous = true
     }
 
-    this.state.incomingItemsObj[primaryGroupId].position = log.notificationType === "newLog" ? "right" : "left"
+    this.state.incomingItemsObj[primaryGroupId].position = log.notificationType === 'newLog' ? 'right' : 'left'
 
     this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId].push(log)
   }
@@ -224,7 +220,7 @@ class ActivityLog extends React.Component {
         )
       } else {
         return (
-          <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '16px' }} />} color="red"><br /><br /></Timeline.Item>
+          <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '16px' }} />} color='red'><br /><br /></Timeline.Item>
         )
       }
     })
@@ -237,30 +233,30 @@ class ActivityLog extends React.Component {
   render () {
     return (
       <>
-      <Row>
-        <Col span={8} className="text-right" ><span className="font-weight-bold">Inbound Requests</span></Col>
-        <Col span={8} className="text-center" ><span className="font-weight-bold">|</span></Col>
-        <Col span={8} className="text-left"><span className="font-weight-bold">Outbound Requests</span>
-        <Button
-          className="float-right"
-          type="primary"
-          danger
-          onClick={this.handleClearLogs}
-        >
-          Clear
-        </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col span={24}>
-          <Timeline mode="alternate" reverse={true} pending="Monitoring..." >
-            {this.getTimelineSets()}
-          </Timeline>
-        </Col>
-      </Row>
+        <Row>
+          <Col span={8} className='text-right'><span className='font-weight-bold'>Inbound Requests</span></Col>
+          <Col span={8} className='text-center'><span className='font-weight-bold'>|</span></Col>
+          <Col span={8} className='text-left'><span className='font-weight-bold'>Outbound Requests</span>
+            <Button
+              className='float-right'
+              type='primary'
+              danger
+              onClick={this.handleClearLogs}
+            >
+              Clear
+            </Button>
+          </Col>
+        </Row>
+        <Row>
+          <Col span={24}>
+            <Timeline mode='alternate' reverse pending='Monitoring...'>
+              {this.getTimelineSets()}
+            </Timeline>
+          </Col>
+        </Row>
       </>
     )
   }
 }
 
-export default ActivityLog;
+export default ActivityLog

@@ -21,17 +21,16 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 
-import { Row, Col } from 'antd';
+import { Row, Col } from 'antd'
 
 class Dashboard extends React.Component {
-
   render () {
     return (
       <>
 
-        <Row style={{'min-height': '200px'}}>
+        <Row style={{ 'min-height': '200px' }}>
           <Col className='text-center' span={24}>
             <h4><br /><br /><br />Welcome to Testing Toolkit</h4>
           </Col>
@@ -41,4 +40,4 @@ class Dashboard extends React.Component {
   }
 }
 
-export default Dashboard;
+export default Dashboard

@@ -21,27 +21,26 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { getConfig } from '../../utils/getConfig'
-import axios from 'axios';
-import { LocalDB } from '../../services/localDB/LocalDB';
+import React from 'react'
+import { getConfig, getUserConfig } from '../../utils/getConfig'
+import axios from 'axios'
+import { LocalDB } from '../../services/localDB/LocalDB'
 import InputValues from './InputValues'
-import { getUserConfig } from '../../utils/getConfig'
 
-import { Select, Row, Col, Table, Button, Upload, message, Card, Typography, Input, Tag, Radio, Dropdown, Menu, Collapse, Popover } from 'antd';
-import { InboxOutlined, DownOutlined, FileOutlined } from '@ant-design/icons';
+import { Select, Row, Col, Table, Button, Upload, message, Card, Typography, Input, Tag, Radio, Dropdown, Menu, Collapse, Popover } from 'antd'
+import { InboxOutlined, DownOutlined, FileOutlined } from '@ant-design/icons'
 
-const { Dragger } = Upload;
-const { Option } = Select;
-const { Text } = Typography;
-const { Panel } = Collapse;
+const { Dragger } = Upload
+const { Option } = Select
+const { Text } = Typography
+const { Panel } = Collapse
 
-function download(content, fileName, contentType) {
-  var a = document.createElement("a");
-  var file = new Blob([content], { type: contentType });
-  a.href = URL.createObjectURL(file);
-  a.download = fileName;
-  a.click();
+function download (content, fileName, contentType) {
+  const a = document.createElement('a')
+  const file = new Blob([content], { type: contentType })
+  a.href = URL.createObjectURL(file)
+  a.download = fileName
+  a.click()
 }
 
 class EnvironmentManager extends React.Component {
@@ -64,7 +63,7 @@ class EnvironmentManager extends React.Component {
   }
 
   getServerEnvironments = async () => {
-    const response = await axios.get(this.apiBaseUrl + `/api/samples/list/environments`)
+    const response = await axios.get(this.apiBaseUrl + '/api/samples/list/environments')
     return response.data && response.data.body
   }
 
@@ -75,8 +74,8 @@ class EnvironmentManager extends React.Component {
     await this.refreshServerEnvironments()
     await this.refreshLocalEnvironments()
     await this.invokeAutoEnvironmentDowloader()
-    this.environmentFileSelector = document.createElement('input');
-    this.environmentFileSelector.setAttribute('type', 'file');
+    this.environmentFileSelector = document.createElement('input')
+    this.environmentFileSelector.setAttribute('type', 'file')
     this.environmentFileSelector.addEventListener('input', (e) => {
       if (e.target.files) {
         this.handleImportEnvironmentFile(e.target.files[0])
@@ -113,24 +112,24 @@ class EnvironmentManager extends React.Component {
 
   refreshLocalEnvironments = async () => {
     const storedEnvironmentFilesRaw = await LocalDB.getItem('environmentFiles')
-    if(storedEnvironmentFilesRaw) {
+    if (storedEnvironmentFilesRaw) {
       try {
         await this.setState({ localEnvironments: JSON.parse(storedEnvironmentFilesRaw) })
       } catch (err) { }
     }
     const storedEnvironmentSelectedIndex = await LocalDB.getItem('environmentFilesSelectedIndex')
-    if(storedEnvironmentSelectedIndex && storedEnvironmentSelectedIndex >= 0) {
+    if (storedEnvironmentSelectedIndex && storedEnvironmentSelectedIndex >= 0) {
       this.changeSelectedEnvironmentIndex(+storedEnvironmentSelectedIndex)
     } else {
-      await this.setState({environmentOptionsVisible: true})
+      await this.setState({ environmentOptionsVisible: true })
     }
   }
 
   invokeAutoEnvironmentDowloader = async () => {
-    if(this.state.selectedEnvironmentIndex === null) {
+    if (this.state.selectedEnvironmentIndex === null) {
       const foundK8sEnv = this.state.serverEnvironments.findIndex(item => item.name.endsWith(this.DEFAULT_ENVIRONMENT_FILE_NAME))
-      if(foundK8sEnv >= 0) {
-        this.handleServerEnvironmentImport(foundK8sEnv) 
+      if (foundK8sEnv >= 0) {
+        this.handleServerEnvironmentImport(foundK8sEnv)
       }
     }
   }
@@ -146,14 +145,14 @@ class EnvironmentManager extends React.Component {
   }
 
   handleServerEnvironmentImport = async (key) => {
-    if(this.state.serverEnvironments[key]) {
+    if (this.state.serverEnvironments[key]) {
       const environmentFileName = this.state.serverEnvironments[key].name
       const resp = await axios.get(this.apiBaseUrl + '/api/samples/load', {
         params: {
           environment: environmentFileName
         }
       })
-      if(resp.data && resp.data.body && resp.data.body.inputValues) {
+      if (resp.data && resp.data.body && resp.data.body.inputValues) {
         this.addLocalEnvironment(environmentFileName, resp.data.body.inputValues)
         this.changeSelectedEnvironmentIndex(this.state.localEnvironments.length - 1)
       }
@@ -163,7 +162,7 @@ class EnvironmentManager extends React.Component {
   addLocalEnvironment = (environmentFileName, inputValues) => {
     this.state.localEnvironments.push({
       name: environmentFileName,
-      inputValues: inputValues
+      inputValues
     })
     this.autoSave = true
     this.forceUpdate()
@@ -177,7 +176,7 @@ class EnvironmentManager extends React.Component {
   }
 
   handleDuplicateEnvironment = (key) => {
-    const envCopy  = JSON.parse(JSON.stringify(this.state.localEnvironments[key]))
+    const envCopy = JSON.parse(JSON.stringify(this.state.localEnvironments[key]))
     this.state.localEnvironments.push(envCopy)
     this.changeSelectedEnvironmentIndex(this.state.localEnvironments.length - 1)
     this.autoSave = true
@@ -185,7 +184,7 @@ class EnvironmentManager extends React.Component {
   }
 
   handleRenameEnvironment = (newName) => {
-    if(this.state.localEnvironments[this.state.selectedEnvironmentIndex]) {
+    if (this.state.localEnvironments[this.state.selectedEnvironmentIndex]) {
       this.state.localEnvironments[this.state.selectedEnvironmentIndex].name = newName
       this.autoSave = true
       this.forceUpdate()
@@ -196,27 +195,27 @@ class EnvironmentManager extends React.Component {
     const contentObj = {
       inputValues: this.state.localEnvironments[key].inputValues
     }
-    download(JSON.stringify(contentObj, null, 2), this.state.localEnvironments[key].name, 'text/plain');
+    download(JSON.stringify(contentObj, null, 2), this.state.localEnvironments[key].name, 'text/plain')
   }
 
   handleImportEnvironmentFile = (file_to_read) => {
-    message.loading({ content: 'Reading the file...', key: 'importFileProgress' });
-    var fileRead = new FileReader();
+    message.loading({ content: 'Reading the file...', key: 'importFileProgress' })
+    const fileRead = new FileReader()
     fileRead.onload = (e) => {
-      var content = e.target.result;
+      const content = e.target.result
       try {
-        var templateContent = JSON.parse(content);
+        const templateContent = JSON.parse(content)
         if (templateContent.inputValues) {
           this.addLocalEnvironment(file_to_read.name, templateContent.inputValues)
-          message.success({ content: 'Environment Loaded', key: 'importFileProgress', duration: 2 });
+          message.success({ content: 'Environment Loaded', key: 'importFileProgress', duration: 2 })
         } else {
-          message.error({ content: 'Input Values not found in the file', key: 'importFileProgress', duration: 2 });
+          message.error({ content: 'Input Values not found in the file', key: 'importFileProgress', duration: 2 })
         }
       } catch (err) {
-        message.error({ content: err.message, key: 'importFileProgress', duration: 2 });
+        message.error({ content: err.message, key: 'importFileProgress', duration: 2 })
       }
-    };
-    fileRead.readAsText(file_to_read);
+    }
+    fileRead.readAsText(file_to_read)
   }
 
   handleInputValuesChange = (name, value) => {
@@ -236,7 +235,7 @@ class EnvironmentManager extends React.Component {
   changeSelectedEnvironmentIndex = (newIndex) => {
     this.state.selectedEnvironmentIndex = newIndex
     this.autoSave = true
-    this.setState({selectedEnvironmentIndex: newIndex})
+    this.setState({ selectedEnvironmentIndex: newIndex })
     this.notifyChangeEnvironment()
   }
 
@@ -246,8 +245,7 @@ class EnvironmentManager extends React.Component {
     }
   }
 
-
-  render() {
+  render () {
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         this.changeSelectedEnvironmentIndex(selectedRowKeys[0])
@@ -258,13 +256,13 @@ class EnvironmentManager extends React.Component {
     const columns = [
       {
         title: 'Name',
-        dataIndex: 'name',
+        dataIndex: 'name'
       },
       {
         title: '# of Values',
-        dataIndex: 'valuesCount',
-      },
-    ];
+        dataIndex: 'valuesCount'
+      }
+    ]
 
     const data = this.state.localEnvironments.map((item, index) => {
       return {
@@ -274,7 +272,7 @@ class EnvironmentManager extends React.Component {
       }
     })
 
-    const getMenuItems = () => { 
+    const getMenuItems = () => {
       return this.state.serverEnvironments.map((item, index) => {
         return (
           <Menu.Item key={index} icon={<FileOutlined />}>
@@ -292,19 +290,18 @@ class EnvironmentManager extends React.Component {
       </Menu>
     )
 
-
     const getRenameDialogContent = () => {
       return (
         <>
           <Row>
             <Col>
               <Input
-                placeholder="File name"
-                type="text"
+                placeholder='File name'
+                type='text'
                 value={this.state.renameEnvironmentNewName}
                 onChange={(e) => { this.setState({ renameEnvironmentNewName: e.target.value }) }}
                 onKeyDown={(e) => {
-                  if (e.key === "Escape") {
+                  if (e.key === 'Escape') {
                     this.setState({ renameEnvironementDialogVisible: false })
                   }
                 }}
@@ -319,158 +316,153 @@ class EnvironmentManager extends React.Component {
           <Row>
             <Col>
               <Button
-                className="text-right mt-2"
-                color="success"
-                href="#pablo"
+                className='text-right mt-2'
+                color='success'
+                href='#pablo'
                 onClick={() => {
                   this.handleRenameEnvironment(this.state.renameEnvironmentNewName)
                   this.setState({ renameEnvironementDialogVisible: false })
                 }}
-                size="sm"
+                size='sm'
               >
                 Save
-            </Button>
+              </Button>
             </Col>
           </Row>
         </>
       )
     }
 
-
     return (
       <>
         {/* Page content */}
-          <Row className="mt--7 mb-4">
-            <Col span={24}>
-              <Collapse
-                activeKey={this.state.environmentOptionsVisible ? ['1'] : []}
-                onChange={(key) => {
-                  this.setState({environmentOptionsVisible: (key[0] == 1)})
-                }}
-              >
-                <Panel header={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].name : 'Choose environment'} key="1">
-                  <Row>
-                    <Col span={24}>
-                      <Button
-                        type="default"
-                        info
-                        onClick={e => {
-                          e.preventDefault();
-                          this.environmentFileSelector.click();
-                        }}
-                      >
-                        Import File
-                      </Button>
-                      <Button
-                        className="ml-2"
-                        type="primary"
-                        onClick={() => {
-                            this.handleDownloadEnvironment(this.state.selectedEnvironmentIndex)
-                          } 
+        <Row className='mt--7 mb-4'>
+          <Col span={24}>
+            <Collapse
+              activeKey={this.state.environmentOptionsVisible ? ['1'] : []}
+              onChange={(key) => {
+                this.setState({ environmentOptionsVisible: (key[0] == 1) })
+              }}
+            >
+              <Panel header={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].name : 'Choose environment'} key='1'>
+                <Row>
+                  <Col span={24}>
+                    <Button
+                      type='default'
+                      info
+                      onClick={e => {
+                        e.preventDefault()
+                        this.environmentFileSelector.click()
+                      }}
+                    >
+                      Import File
+                    </Button>
+                    <Button
+                      className='ml-2'
+                      type='primary'
+                      onClick={() => {
+                        this.handleDownloadEnvironment(this.state.selectedEnvironmentIndex)
+                      }}
+                      disabled={this.state.selectedEnvironmentIndex === null}
+                    >
+                      Download
+                    </Button>
+                    <Dropdown
+                      className='ml-2 float-right'
+                      zIndex={1101}
+                      overlay={menu}
+                      trigger={['click']}
+                      onVisibleChange={(visible) => {
+                        if (visible) {
+                          this.handleImportServer()
                         }
-                        disabled={this.state.selectedEnvironmentIndex === null}
-                      >
-                        Download
-                      </Button>
-                      <Dropdown
-                        className="ml-2 float-right"
-                        zIndex={1101}
-                        overlay={menu}
-                        trigger={['click']}
-                        onVisibleChange={(visible) => {
-                            if (visible) {
-                              this.handleImportServer()
-                            }
-                          }
-                        }
-                      >
-                        <Button
-                          type="primary"
-                          shape="round"
-                          danger
-                        >
-                          Import from Server <DownOutlined />
-                        </Button>
-                      </Dropdown>
-                    </Col>
-                  </Row>
-                  <Row className='mt-2'>
-                    <Col span={24}>
+                      }}
+                    >
                       <Button
-                        type="primary"
+                        type='primary'
+                        shape='round'
                         danger
-                        onClick={() => {
-                            this.handleDeleteEnvironment(this.state.selectedEnvironmentIndex)
-                            this.changeSelectedEnvironmentIndex(null)
-                          } 
-                        }
-                        disabled={this.state.selectedEnvironmentIndex === null}
                       >
-                        Delete
+                        Import from Server <DownOutlined />
                       </Button>
+                    </Dropdown>
+                  </Col>
+                </Row>
+                <Row className='mt-2'>
+                  <Col span={24}>
+                    <Button
+                      type='primary'
+                      danger
+                      onClick={() => {
+                        this.handleDeleteEnvironment(this.state.selectedEnvironmentIndex)
+                        this.changeSelectedEnvironmentIndex(null)
+                      }}
+                      disabled={this.state.selectedEnvironmentIndex === null}
+                    >
+                      Delete
+                    </Button>
+                    <Button
+                      className='ml-2'
+                      type='dashed'
+                      onClick={() => {
+                        this.handleDuplicateEnvironment(this.state.selectedEnvironmentIndex)
+                      }}
+                      disabled={this.state.selectedEnvironmentIndex === null}
+                    >
+                      Duplicate
+                    </Button>
+                    <Popover
+                      content={getRenameDialogContent()}
+                      title='Enter new name'
+                      trigger='click'
+                      visible={this.state.renameEnvironementDialogVisible}
+                      zIndex={1101}
+                      onVisibleChange={(visible) => {
+                        if (visible) {
+                          this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name })
+                        }
+                        this.setState({ renameEnvironementDialogVisible: visible })
+                      }}
+                    >
                       <Button
                         className='ml-2'
-                        type="dashed"
-                        onClick={() => {
-                            this.handleDuplicateEnvironment(this.state.selectedEnvironmentIndex)
-                          } 
-                        }
+                        type='default'
                         disabled={this.state.selectedEnvironmentIndex === null}
                       >
-                        Duplicate
+                        Rename
                       </Button>
-                      <Popover
-                        content={getRenameDialogContent()}
-                        title="Enter new name"
-                        trigger="click"
-                        visible={this.state.renameEnvironementDialogVisible}
-                        zIndex={1101}
-                        onVisibleChange={(visible) => {
-                          if (visible) {
-                            this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name })
-                          }
-                          this.setState({ renameEnvironementDialogVisible: visible })
-                        }}
-                      >
-                        <Button
-                          className='ml-2'
-                          type="default"
-                          disabled={this.state.selectedEnvironmentIndex === null}
-                        >
-                          Rename
-                        </Button>
-                      </Popover>
-                    </Col>
-                  </Row>
-                  <Row className="mt-2">
-                    <Col span={24}>
-                      <Table
-                        rowSelection={{
-                          type: 'radio',
-                          ...rowSelection,
-                        }}
-                        columns={columns}
-                        dataSource={data}
-                        pagination={false}
-                      />
-                    </Col>
-                  </Row>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={24}>
-              {
+                    </Popover>
+                  </Col>
+                </Row>
+                <Row className='mt-2'>
+                  <Col span={24}>
+                    <Table
+                      rowSelection={{
+                        type: 'radio',
+                        ...rowSelection
+                      }}
+                      columns={columns}
+                      dataSource={data}
+                      pagination={false}
+                    />
+                  </Col>
+                </Row>
+              </Panel>
+            </Collapse>
+          </Col>
+        </Row>
+        <Row>
+          <Col span={24}>
+            {
                 this.state.localEnvironments[this.state.selectedEnvironmentIndex]
-                ? <InputValues values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues : {} } onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
-                : null
+                  ? <InputValues values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues : {}} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
+                  : null
               }
-            </Col>
-          </Row>
+          </Col>
+        </Row>
       </>
-    );
+    )
   }
 }
 
-export default EnvironmentManager;
+export default EnvironmentManager

@@ -22,23 +22,23 @@
  --------------
  ******/
 
-import React from "react";
-import { Input, Row, Col, Descriptions, message, Popover, Button, Card, Checkbox, Radio, Typography } from 'antd';
-import { EditTwoTone, SaveTwoTone, CloseSquareTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
+import React from 'react'
+import { Input, Row, Col, Descriptions, message, Popover, Button, Card, Checkbox, Radio, Typography } from 'antd'
+import { EditTwoTone, SaveTwoTone, CloseSquareTwoTone } from '@ant-design/icons'
+import 'antd/dist/antd.css'
 
-const {Text, Title} = Typography
+const { Text, Title } = Typography
 
-const { TextArea } = Input;
+const { TextArea } = Input
 
 class MetadataItem extends React.Component {
   state = {
     editMode: false,
     itemValue: null
-  };
+  }
 
   componentDidMount = () => {
-    this.setState({itemValue: this.props.value})
+    this.setState({ itemValue: this.props.value })
   }
 
   handleValueChange = () => {
@@ -46,19 +46,19 @@ class MetadataItem extends React.Component {
   }
 
   getMetadataItemType = () => {
-    if(this.state.editMode) {
+    if (this.state.editMode) {
       if (typeof this.props.value === 'boolean') {
         return (
           <Checkbox
             checked={this.state.itemValue}
-            onChange={(e) => this.setState({itemValue: e.target.check})}
+            onChange={(e) => this.setState({ itemValue: e.target.check })}
           />
         )
       } else if (typeof this.props.value === 'number') {
         return (
           <Input
             value={this.state.itemValue}
-            onChange={(e) => this.setState({itemValue: +e.target.value})}
+            onChange={(e) => this.setState({ itemValue: +e.target.value })}
           />
         )
       } else {
@@ -66,7 +66,7 @@ class MetadataItem extends React.Component {
           <TextArea
             rows={5}
             value={this.state.itemValue}
-            onChange={(e) => this.setState({itemValue: e.target.value})}
+            onChange={(e) => this.setState({ itemValue: e.target.value })}
           />
         )
       }
@@ -77,66 +77,64 @@ class MetadataItem extends React.Component {
     }
   }
 
-  render() {
+  render () {
     return (
       <>
-      <Row>
-        <Col span={24}>
-          <Text className='mr-2' strong>{this.props.name}</Text>
-          {
+        <Row>
+          <Col span={24}>
+            <Text className='mr-2' strong>{this.props.name}</Text>
+            {
             this.state.editMode
-            ? (
-              <>
-              <SaveTwoTone
-                style={{ fontSize: '20px' }}
-                onClick={() => {
-                  this.setState({editMode: false})
-                  this.handleValueChange()
-                }}
-              />
-              <CloseSquareTwoTone
-                style={{ fontSize: '20px' }}
-                className='mr-1'
-                onClick={() => {
-                  this.setState({editMode: false})
-                }}
-              />
-              </>
-            )
-            : (
-              <EditTwoTone
-                style={{ fontSize: '20px' }}
-                onClick={() => {
-                  this.setState({editMode: true, itemValue: this.props.value})
-                }}
-              />
-            )
+              ? (
+                <>
+                  <SaveTwoTone
+                    style={{ fontSize: '20px' }}
+                    onClick={() => {
+                      this.setState({ editMode: false })
+                      this.handleValueChange()
+                    }}
+                  />
+                  <CloseSquareTwoTone
+                    style={{ fontSize: '20px' }}
+                    className='mr-1'
+                    onClick={() => {
+                      this.setState({ editMode: false })
+                    }}
+                  />
+                </>
+                )
+              : (
+                <EditTwoTone
+                  style={{ fontSize: '20px' }}
+                  onClick={() => {
+                    this.setState({ editMode: true, itemValue: this.props.value })
+                  }}
+                />
+                )
           }
 
-        </Col>
-      </Row>
-      <Row className='mt-2 mb-2'>
-        <Col span={24}>
-          {this.getMetadataItemType()}
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+        <Row className='mt-2 mb-2'>
+          <Col span={24}>
+            {this.getMetadataItemType()}
+          </Col>
+        </Row>
       </>
     )
   }
-
 }
 
 class MetadataEditor extends React.Component {
-
   handleItemValueChange = (name, newValue) => {
     this.props.values[name] = newValue
     this.props.onChange()
   }
 
   getMetadataItems = () => {
-    let inputItems = []
-    let i = 0
-    for (let inputValueName in this.props.values) {
+    const inputItems = []
+    const i = 0
+    for (const inputValueName in this.props.values) {
       inputItems.push(
         <MetadataItem name={inputValueName} value={this.props.values[inputValueName]} onChange={this.handleItemValueChange} />
       )
@@ -144,7 +142,7 @@ class MetadataEditor extends React.Component {
     return inputItems
   }
 
-  render() {
+  render () {
     return (
       <>
         {this.getMetadataItems()}
@@ -153,4 +151,4 @@ class MetadataEditor extends React.Component {
   }
 }
 
-export default MetadataEditor;
+export default MetadataEditor

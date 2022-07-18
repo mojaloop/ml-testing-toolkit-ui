@@ -21,31 +21,30 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 
 // core components
-import axios from 'axios';
-import { Select, Row, Col, Button, Input, Tooltip, Tag, message, Popover, Card } from 'antd';
-import 'antd/dist/antd.css';
+import axios from 'axios'
+import { Select, Row, Col, Button, Input, Tooltip, Tag, message, Popover, Card } from 'antd'
+import 'antd/dist/antd.css'
 
-import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
+import { FactDataGenerator, FactSelect } from './BuilderTools.jsx'
 import { ConfigurableParameter } from './RuleEditor'
 import ArrayInputValues from '../common/ArrayInputValues'
 // import './index.css';
-import Ajv from 'ajv';
-const ajv = new Ajv({allErrors: true});
+import Ajv from 'ajv'
+const ajv = new Ajv({ allErrors: true })
 
-const { Option } = Select;
-
+const { Option } = Select
 
 class ValueSelector extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       ajvErrors: null
     }
   }
+
   validateAjv = null
 
   handleValueChange = (newValue) => {
@@ -58,36 +57,36 @@ class ValueSelector extends React.Component {
       const valid = true
       if (valid || newValue.startsWith('{$environment')) {
         this.props.onChange(newValue)
-        this.setState({ajvErrors: ''})
+        this.setState({ ajvErrors: '' })
       } else {
         this.props.onChange(newValue)
-        this.setState({ajvErrors: this.validateAjv.errors})
+        this.setState({ ajvErrors: this.validateAjv.errors })
       }
     }
   }
 
-
   getValueInput = () => {
-    if(this.props.selectedFact && this.props.selectedFact.enum) {
+    if (this.props.selectedFact && this.props.selectedFact.enum) {
       return (
         <Select
           onChange={this.handleValueChange}
           value={this.props.value}
           style={{ width: 220 }}
         >
-        { this.props.selectedFact.enum.map(item => {
-          return (
-            <Option key={item} value={item}>{item}</Option>
-          )
-        })}
+          {this.props.selectedFact.enum.map(item => {
+            return (
+              <Option key={item} value={item}>{item}</Option>
+            )
+          })}
         </Select>
       )
     } else if (this.props.selectedOperator === 'in' || this.props.selectedOperator === 'notIn') {
       return (
         <>
-          <ArrayInputValues placeholder="Value" 
+          <ArrayInputValues
+            placeholder='Value'
             values={this.props.value && this.props.value.split(',')}
-            onChange={ (newValue) => {
+            onChange={(newValue) => {
               this.handleValueChange(newValue.join(','))
             }}
           />
@@ -96,23 +95,25 @@ class ValueSelector extends React.Component {
     } else {
       return (
         <>
-          <Input placeholder="Value" 
-          value={this.props.value}
-          onChange={(e) => this.handleValueChange(e.target.value)}  />
+          <Input
+            placeholder='Value'
+            value={this.props.value}
+            onChange={(e) => this.handleValueChange(e.target.value)}
+          />
         </>
       )
     }
   }
 
   getErrorMessage = () => {
-    if(this.props.selectedFact && this.props.selectedFact.enum) {
+    if (this.props.selectedFact && this.props.selectedFact.enum) {
       return (null)
     } else {
-      if(this.state.ajvErrors && this.state.ajvErrors.length > 0) {
+      if (this.state.ajvErrors && this.state.ajvErrors.length > 0) {
         return (
           <>
             <Tooltip title={ajv.errorsText(this.state.ajvErrors)}>
-              <Tag color="red">errors found</Tag>
+              <Tag color='red'>errors found</Tag>
             </Tooltip>
           </>
         )
@@ -120,20 +121,19 @@ class ValueSelector extends React.Component {
     }
   }
 
-  render() {
-    return(
+  render () {
+    return (
       <>
-        { this.getValueInput() }
-        { this.getErrorMessage() }
+        {this.getValueInput()}
+        {this.getErrorMessage()}
       </>
     )
   }
 }
 
 class Condition extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       selectedFactType: null,
       selectedFact: null,
@@ -150,10 +150,10 @@ class Condition extends React.Component {
     })
     const selectedFactPath = this.props.condition.path
     let allParameters = []
-    if(this.props.rootParameters) {
+    if (this.props.rootParameters) {
       allParameters = allParameters.concat(this.props.rootParameters)
     }
-    if(this.props.resourceDefinition && this.props.resourceDefinition.parameters) {
+    if (this.props.resourceDefinition && this.props.resourceDefinition.parameters) {
       allParameters = allParameters.concat(this.props.resourceDefinition.parameters)
     }
 
@@ -184,7 +184,7 @@ class Condition extends React.Component {
     {
       title: 'Request Headers',
       name: 'headers'
-    },
+    }
   ]
 
   allFactTypes = [
@@ -231,7 +231,7 @@ class Condition extends React.Component {
   }
 
   getFactTypeItems = () => {
-    let tempFactTypes = [...this.factTypes]
+    const tempFactTypes = [...this.factTypes]
     if (this.havePathParams()) {
       tempFactTypes.push(
         {
@@ -249,41 +249,41 @@ class Condition extends React.Component {
       )
     }
     return tempFactTypes.map((item) => {
-      return(<Option key={item.name} value={JSON.stringify(item)}>{item.title}</Option>)
-    })    
+      return (<Option key={item.name} value={JSON.stringify(item)}>{item.title}</Option>)
+    })
   }
 
   updateFactData = () => {
     if (this.state.selectedFactType) {
-      switch(this.state.selectedFactType.name) {
+      switch (this.state.selectedFactType.name) {
         case 'body':
-          this.setState( {factData: (new FactDataGenerator()).getBodyFactData(this.props.resourceDefinition)} )
+          this.setState({ factData: (new FactDataGenerator()).getBodyFactData(this.props.resourceDefinition) })
           break
         case 'headers':
-          this.setState( {factData: (new FactDataGenerator()).getHeadersFactData(this.props.resourceDefinition, this.props.rootParameters)} )
+          this.setState({ factData: (new FactDataGenerator()).getHeadersFactData(this.props.resourceDefinition, this.props.rootParameters) })
           break
         case 'pathParams':
-          this.setState( {factData: (new FactDataGenerator()).getPathParametersFactData(this.state.allParameters)} )
+          this.setState({ factData: (new FactDataGenerator()).getPathParametersFactData(this.state.allParameters) })
           break
         case 'queryParams':
-          this.setState( {factData: (new FactDataGenerator()).getQueryParametersFactData(this.state.allParameters)} )
+          this.setState({ factData: (new FactDataGenerator()).getQueryParametersFactData(this.state.allParameters) })
           break
         default:
-          this.setState( {factData: null} )
+          this.setState({ factData: null })
       }
     } else {
-      this.setState( {factData: null} )
+      this.setState({ factData: null })
     }
   }
 
   handleFactTypeSelect = async (value) => {
     try {
       const selectedValueObject = JSON.parse(value)
-      await this.setState( {selectedFactType:  selectedValueObject, selectedFact: null, selectedFactPath: null} )
+      await this.setState({ selectedFactType: selectedValueObject, selectedFact: null, selectedFactPath: null })
       this.props.condition.fact = selectedValueObject.name
       this.props.onConditionChange()
       this.updateFactData()
-    } catch(err) {}
+    } catch (err) {}
   }
 
   handleFactSelect = (value, factObject) => {
@@ -292,7 +292,7 @@ class Condition extends React.Component {
     if (this.props.condition.path === value) {
       selectedOperator = this.props.condition.operator
     }
-    this.setState( { selectedFact: factObject, selectedOperator, selectedFactPath: value } )
+    this.setState({ selectedFact: factObject, selectedOperator, selectedFactPath: value })
     this.props.condition.path = value
     this.props.condition.operator = selectedOperator
     this.props.onConditionChange()
@@ -300,10 +300,10 @@ class Condition extends React.Component {
 
   handleOperatorSelect = (operator) => {
     try {
-      this.setState( {selectedOperator:  operator} )
+      this.setState({ selectedOperator: operator })
       this.props.condition.operator = operator
       this.props.onConditionChange()
-    } catch(err) {}
+    } catch (err) {}
   }
 
   operatorDisplayNames = {
@@ -314,108 +314,109 @@ class Condition extends React.Component {
     numericLessThanInclusive: 'Less Than or Equal to',
     numericGreaterThanInclusive: 'Greater Than or Equal to',
     dateBefore: 'Before',
-    dateAfter: 'After',
+    dateAfter: 'After'
   }
+
   propertyTitleOperators = {
-    Amount: [ 'numericEqual', 'numericNotEqual', 'numericLessThan', 'numericGreaterThan', 'numericLessThanInclusive', 'numericGreaterThanInclusive' ],
+    Amount: ['numericEqual', 'numericNotEqual', 'numericLessThan', 'numericGreaterThan', 'numericLessThanInclusive', 'numericGreaterThanInclusive']
   }
+
   getOperatorItems = () => {
-    let operatorList = []
+    const operatorList = []
     if (this.state.selectedFact) {
       // Check the selectedFact is a string type
       if (this.state.selectedFact.type === 'string') {
         // Check the selectedFact title in openApi file and determine the list of operators
-        if(this.propertyTitleOperators[this.state.selectedFact.title]) {
+        if (this.propertyTitleOperators[this.state.selectedFact.title]) {
           this.propertyTitleOperators[this.state.selectedFact.title].map(item => {
             let displayName = item
             // Check whether the operator name is in display names, if found replace it
-            if(this.operatorDisplayNames[item]) {
+            if (this.operatorDisplayNames[item]) {
               displayName = this.operatorDisplayNames[item]
             }
             operatorList.push({ displayName, name: item })
           })
         } else {
-          operatorList.push({displayName: 'Equal', name: 'equal'})
-          operatorList.push({displayName: 'Not Equal', name: 'notEqual'})
-          operatorList.push({displayName: 'In', name: 'in'})
-          operatorList.push({displayName: 'Not In', name: 'notIn'})
+          operatorList.push({ displayName: 'Equal', name: 'equal' })
+          operatorList.push({ displayName: 'Not Equal', name: 'notEqual' })
+          operatorList.push({ displayName: 'In', name: 'in' })
+          operatorList.push({ displayName: 'Not In', name: 'notIn' })
         }
       } else if (this.state.selectedFact.type === 'integer') {
-        operatorList.push({displayName: 'Equal', name: 'equal'})
-        operatorList.push({displayName: 'Not Equal', name: 'notEqual'})
-        operatorList.push({displayName: 'Less Than', name: 'lessThan'})
-        operatorList.push({displayName: 'Less Than or Equal to', name: 'lessThanInclusive'})
-        operatorList.push({displayName: 'Greater Than', name: 'greaterThan'})
-        operatorList.push({displayName: 'Greater Than or Equal to', name: 'greaterThanInclusive'})
+        operatorList.push({ displayName: 'Equal', name: 'equal' })
+        operatorList.push({ displayName: 'Not Equal', name: 'notEqual' })
+        operatorList.push({ displayName: 'Less Than', name: 'lessThan' })
+        operatorList.push({ displayName: 'Less Than or Equal to', name: 'lessThanInclusive' })
+        operatorList.push({ displayName: 'Greater Than', name: 'greaterThan' })
+        operatorList.push({ displayName: 'Greater Than or Equal to', name: 'greaterThanInclusive' })
       } else {
-        operatorList.push({displayName: 'Equal', name: 'equal'})
-        operatorList.push({displayName: 'Not Equal', name: 'notEqual'})
+        operatorList.push({ displayName: 'Equal', name: 'equal' })
+        operatorList.push({ displayName: 'Not Equal', name: 'notEqual' })
       }
     }
 
-
     return operatorList.map(item => {
-      return(<Option key={item.name} value={item.name}>{item.displayName}</Option>)
+      return (<Option key={item.name} value={item.name}>{item.displayName}</Option>)
     })
     // return []
   }
 
-  render() {
+  render () {
     return (
       <Card>
-          <Row>
+        <Row>
           <Col span={8}>
-              <label>
-                Fact Type
-              </label>
-              <br />
+            <label>
+              Fact Type
+            </label>
+            <br />
 
-              <Select 
-                value={JSON.stringify(this.state.selectedFactType)}
-                onChange={this.handleFactTypeSelect}
-                style={{width: '100%'}}
-              >
-                {this.getFactTypeItems()} 
-              </Select>
+            <Select
+              value={JSON.stringify(this.state.selectedFactType)}
+              onChange={this.handleFactTypeSelect}
+              style={{ width: '100%' }}
+            >
+              {this.getFactTypeItems()}
+            </Select>
           </Col>
           <Col span={8} className='pl-2'>
-              <label>
-                Fact
-              </label>
-              <br />
-              <FactSelect factData={this.state.factData} value={this.state.selectedFactPath} onSelect={this.handleFactSelect} />
+            <label>
+              Fact
+            </label>
+            <br />
+            <FactSelect factData={this.state.factData} value={this.state.selectedFactPath} onSelect={this.handleFactSelect} />
           </Col>
           <Col span={8} className='pl-2'>
-              <label>
-                Operator
-              </label>
-              <br />
-              <Select style={{ width: '100%' }} value={this.state.selectedOperator} onChange={this.handleOperatorSelect}>
-                {this.getOperatorItems()}
-              </Select>
+            <label>
+              Operator
+            </label>
+            <br />
+            <Select style={{ width: '100%' }} value={this.state.selectedOperator} onChange={this.handleOperatorSelect}>
+              {this.getOperatorItems()}
+            </Select>
           </Col>
         </Row>
         <Row className='mt-2'>
           <Col span={8}>
-              <label>
-                Value
-              </label>
-              <br />
-              <ValueSelector value={this.props.condition.value} selectedFact={this.state.selectedFact} selectedOperator={this.state.selectedOperator} onChange={this.handleValueChange} />
+            <label>
+              Value
+            </label>
+            <br />
+            <ValueSelector value={this.props.condition.value} selectedFact={this.state.selectedFact} selectedOperator={this.state.selectedOperator} onChange={this.handleValueChange} />
 
           </Col>
           <Col span={16}>
             <br />
             <Button
               className='float-right'
-              type="primary"
+              type='primary'
               danger
               onClick={this.handleDelete}
             >
               Delete
             </Button>
           </Col>
-          </Row>
+        </Row>
       </Card>
 
     )
@@ -423,7 +424,6 @@ class Condition extends React.Component {
 }
 
 class Conditions extends React.Component {
-
   // componentDidUpdate = () => {
   //   console.log(this.props)
   // }
@@ -436,15 +436,16 @@ class Conditions extends React.Component {
     this.props.conditions.splice(index, 1)
   }
 
-  render() {
-    return(
+  render () {
+    return (
       <>
-      {
+        {
         this.props.conditions.map((condition, index) => {
           return (
-            <Row key={index} className="mt-2">
+            <Row key={index} className='mt-2'>
               <Col span={24}>
-                <Condition condition={condition} index={index} resource={this.props.resource} resourceDefinition={this.props.resourceDefinition} rootParameters={this.props.rootParameters}
+                <Condition
+                  condition={condition} index={index} resource={this.props.resource} resourceDefinition={this.props.resourceDefinition} rootParameters={this.props.rootParameters}
                   onConditionChange={this.handleConditionChange}
                   onDelete={this.handleConditionDelete}
                 />
@@ -458,15 +459,12 @@ class Conditions extends React.Component {
   }
 }
 
-
-
 class ConditionBuilder extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       configurableParameterSelected: ''
-    };
+    }
   }
 
   // async componentWillMount() {
@@ -481,7 +479,7 @@ class ConditionBuilder extends React.Component {
   }
 
   addCondition = () => {
-    this.props.conditions.push({...this.newCondition})
+    this.props.conditions.push({ ...this.newCondition })
     this.handleConditionsChange()
   }
 
@@ -490,7 +488,7 @@ class ConditionBuilder extends React.Component {
   }
 
   handleAddConfigParam = (newValue) => {
-    this.setState({configurableParameterSelected: `{$environment.${newValue}}`})
+    this.setState({ configurableParameterSelected: `{$environment.${newValue}}` })
   }
 
   handleConfigParamCopyToClipboard = () => {
@@ -498,28 +496,28 @@ class ConditionBuilder extends React.Component {
     message.success('Copied to clipboard')
   }
 
-  render() {
+  render () {
     const content = (
       <>
-      <Row>
-        <Col>
-        <ConfigurableParameter
-          onChange={this.handleAddConfigParam}
-          environment={this.props.environment}
-        />
-        </Col>
-      </Row>
-      {
-        this.state.configurableParameterSelected ?
-        (
-          <Row className="mt-4 text-center">
-            <Col>
-              Click below to copy <br/>
-              <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
-            </Col>
-          </Row>
-        )
-        : null
+        <Row>
+          <Col>
+            <ConfigurableParameter
+              onChange={this.handleAddConfigParam}
+              environment={this.props.environment}
+            />
+          </Col>
+        </Row>
+        {
+        this.state.configurableParameterSelected
+          ? (
+            <Row className='mt-4 text-center'>
+              <Col>
+                Click below to copy <br />
+                <Tag color='geekblue'><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
+              </Col>
+            </Row>
+            )
+          : null
       }
       </>
     )
@@ -527,8 +525,8 @@ class ConditionBuilder extends React.Component {
       <>
         <Row>
           <Col span={24}>
-            <Conditions 
-              conditions={this.props.conditions} 
+            <Conditions
+              conditions={this.props.conditions}
               resource={this.props.resource}
               resourceDefinition={this.props.resourceDefinition}
               rootParameters={this.props.rootParameters}
@@ -537,23 +535,23 @@ class ConditionBuilder extends React.Component {
           </Col>
         </Row>
         <Row>
-          <Col span={24} className="mt-2">
+          <Col span={24} className='mt-2'>
             <Button
-              type="primary"
+              type='primary'
               onClick={() => this.addCondition()}
-              disabled={(this.props.resource? false : true)}
+              disabled={(!this.props.resource)}
             >
               Add Condition
             </Button>
-            <Popover className="ml-2" content={content} title="Select a Configurable Parameter" trigger="click">
-              <Button color="secondary" size="sm">Add Configurable Params</Button>
+            <Popover className='ml-2' content={content} title='Select a Configurable Parameter' trigger='click'>
+              <Button color='secondary' size='sm'>Add Configurable Params</Button>
             </Popover>
           </Col>
         </Row>
-        
+
       </>
-    );
+    )
   }
 }
 
-export default ConditionBuilder;
+export default ConditionBuilder

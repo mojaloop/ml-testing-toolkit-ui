@@ -21,49 +21,47 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import socketIOClient from "socket.io-client";
+import React from 'react'
+import socketIOClient from 'socket.io-client'
 import { getConfig } from '../../utils/getConfig'
-import axios from 'axios';
+import axios from 'axios'
 
-import { Tabs } from 'antd';
+import { Tabs } from 'antd'
 
 import ActivityLog from './ActivityLog'
 import SequenceDiagram from './SequenceDiagram'
 
-const { TabPane } = Tabs;
+const { TabPane } = Tabs
 
 class Monitor extends React.Component {
-
-  newState =  {
+  newState = {
     timeline: {
       outbound: {
         socket: null,
-        socketTopic: "newOutboundLog"
+        socketTopic: 'newOutboundLog'
       },
       inbound: {
         socket: null,
-        socketTopic: "newLog"
+        socketTopic: 'newLog'
       }
     }
   }
 
-  constructor() {
-    super();
-    this.activityLogRef = React.createRef();
-    this.sequenceDiagramRef = React.createRef();
+  constructor () {
+    super()
+    this.activityLogRef = React.createRef()
+    this.sequenceDiagramRef = React.createRef()
     this.state = JSON.parse(JSON.stringify(this.newState))
   }
-  
+
   componentWillUnmount = () => {
     if (this.state.timeline.inbound.socket) {
       this.state.timeline.inbound.socket.disconnect()
-  }
+    }
     if (this.state.timeline.outbound.socket) {
       this.state.timeline.outbound.socket.disconnect()
     }
   }
-
 
   componentDidMount = async () => {
     const { apiBaseUrl } = getConfig()
@@ -76,36 +74,36 @@ class Monitor extends React.Component {
     }
     for (const logType of Object.keys(this.state.timeline)) {
       const item = this.state.timeline[logType]
-      item.socket = socketIOClient(apiBaseUrl);
-    if (getConfig().isAuthEnabled) {
-      const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
-      if (dfspId) {
-            item.socketTopic = `${item.socketTopic}/${dfspId}`
-      }
+      item.socket = socketIOClient(apiBaseUrl)
+      if (getConfig().isAuthEnabled) {
+        const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
+        if (dfspId) {
+          item.socketTopic = `${item.socketTopic}/${dfspId}`
+        }
       }
 
       item.socket.on(item.socketTopic, log => {
         this.activityLogRef.current && this.activityLogRef.current.appendLog(log)
         this.sequenceDiagramRef.current && this.sequenceDiagramRef.current.appendLog(log)
         this.forceUpdate()
-      });
+      })
     }
     this.forceUpdate()
   }
 
   render () {
     return (
-      <Tabs type="card" defaultActiveKey={'1'}>
-        <TabPane tab="Activity Log" key="1" forceRender>
+      <Tabs type='card' defaultActiveKey='1'>
+        <TabPane tab='Activity Log' key='1' forceRender>
           <ActivityLog ref={this.activityLogRef} />
         </TabPane>
-        <TabPane tab="Sequence Diagram" key="2" forceRender>
+        <TabPane tab='Sequence Diagram' key='2' forceRender>
           <SequenceDiagram ref={this.sequenceDiagramRef} />
         </TabPane>
       </Tabs>
-      
+
     )
   }
 }
 
-export default Monitor;
+export default Monitor

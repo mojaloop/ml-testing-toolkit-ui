@@ -21,11 +21,11 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Row, Col, Typography, Button, Table, Tag, Progress, Descriptions, Select } from 'antd';
+import React from 'react'
+import { Row, Col, Typography, Button, Table, Tag, Progress, Descriptions, Select } from 'antd'
 import { hashRGB } from '../../../utils/styleHelpers'
 const { Text, Title } = Typography
-const { Option } = Select;
+const { Option } = Select
 
 class HUBConsole extends React.Component {
   state = {
@@ -63,10 +63,11 @@ class HUBConsole extends React.Component {
 
     this.forceUpdate()
   }
+
   handleLimitsUpdate = (limitsData) => {
     console.log(limitsData)
     for (let i = 0; i < limitsData.length; i++) {
-      if(limitsData[i].name && this.state.dfsps[limitsData[i].name]) {
+      if (limitsData[i].name && this.state.dfsps[limitsData[i].name]) {
         if (limitsData[i].limit && limitsData[i].limit.type === 'NET_DEBIT_CAP') {
           this.state.dfsps[limitsData[i].name].NET_DEBIT_CAP = {}
           this.state.dfsps[limitsData[i].name].NET_DEBIT_CAP[limitsData[i].currency] = limitsData[i].limit.value
@@ -76,23 +77,26 @@ class HUBConsole extends React.Component {
 
     this.forceUpdate()
   }
+
   handleSettlementModelsUpdate = (settlementModels) => {
     this.state.settlementModels = settlementModels
     this.forceUpdate()
   }
+
   handleSettlementsUpdate = (settlements) => {
-    settlements.sort((a,b) => b.id - a.id )
+    settlements.sort((a, b) => b.id - a.id)
     this.state.settlements = settlements
 
     this.forceUpdate()
   }
+
   handleParticipantsUpdate = (participants) => {
     this.state.participants = participants
   }
 
   handleNotificationEvents = (event) => {
     // console.log(event)
-    switch(event.type) {
+    switch (event.type) {
       case 'dfspAccountsUpdate':
       {
         if (event.data && event.data.dfspId && event.data.accountsData) {
@@ -130,7 +134,7 @@ class HUBConsole extends React.Component {
       }
       case 'getDFSPValuesFinished':
       {
-        this.setState({getDFSPValuesInProgress: false})
+        this.setState({ getDFSPValuesInProgress: false })
         if (this.state.continueRefreshing) {
           this.state.continueRefreshing = false
           this.handleGetSettlements()
@@ -139,7 +143,7 @@ class HUBConsole extends React.Component {
       }
       case 'getDFSPValuesTerminated':
       {
-        this.setState({getDFSPValuesInProgress: false})
+        this.setState({ getDFSPValuesInProgress: false })
         if (this.state.continueRefreshing) {
           this.state.continueRefreshing = false
         }
@@ -147,52 +151,55 @@ class HUBConsole extends React.Component {
       }
       case 'getHubConsoleInitValuesFinished':
       {
-        this.setState({getHubConsoleInitValuesProgress: false})
+        this.setState({ getHubConsoleInitValuesProgress: false })
         break
       }
       case 'getHubConsoleInitValuesTerminated':
       {
-        this.setState({getHubConsoleInitValuesProgress: false})
+        this.setState({ getHubConsoleInitValuesProgress: false })
         break
       }
       case 'getSettlementsFinished':
       {
-        this.setState({getSettlementsInProgress: false})
+        this.setState({ getSettlementsInProgress: false })
         break
       }
       case 'getSettlementsTerminated':
       {
-        this.setState({getSettlementsInProgress: false})
+        this.setState({ getSettlementsInProgress: false })
         break
       }
       case 'executeSettlementFinished':
       {
-        this.setState({executeSettlementInProgress: false})
+        this.setState({ executeSettlementInProgress: false })
         this.handleRefreshAll()
         break
       }
       case 'executeSettlementTerminated':
       {
-        this.setState({executeSettlementInProgress: false})
+        this.setState({ executeSettlementInProgress: false })
         break
       }
     }
   }
 
   handleDFSPValues = async () => {
-    this.setState({getDFSPValuesInProgress: true})
+    this.setState({ getDFSPValuesInProgress: true })
     const resp = await this.props.outboundService.getDFSPValues()
   }
+
   handleHubConsoleInitValues = async () => {
-    this.setState({getHubConsoleInitValuesProgress: true})
+    this.setState({ getHubConsoleInitValuesProgress: true })
     const resp = await this.props.outboundService.getHubConsoleInitValues()
   }
+
   handleGetSettlements = async () => {
-    this.setState({getSettlementsInProgress: true})
+    this.setState({ getSettlementsInProgress: true })
     const resp = await this.props.outboundService.getSettlements()
   }
+
   handleExecuteSettlement = async () => {
-    this.setState({executeSettlementInProgress: true})
+    this.setState({ executeSettlementInProgress: true })
     const resp = await this.props.outboundService.executeSettlement(this.state.selectedSettlementModel)
   }
 
@@ -202,55 +209,55 @@ class HUBConsole extends React.Component {
     // const resp = await this.props.outboundService.getDFSPValues()
   }
 
-  render() {
+  render () {
     const dfspValuesColumns = [
       {
         title: 'DFSP ID',
-        dataIndex: 'dfspId',
+        dataIndex: 'dfspId'
       },
       {
         title: 'Position',
-        dataIndex: 'position',
+        dataIndex: 'position'
       },
       {
         title: 'Settlement',
-        dataIndex: 'settlement',
+        dataIndex: 'settlement'
       },
       {
         title: 'Interchange Fee',
-        dataIndex: 'INTERCHANGE_FEE',
-      },
+        dataIndex: 'INTERCHANGE_FEE'
+      }
       // {
       //   title: 'NET_DEBIT_CAP',
       //   dataIndex: 'NET_DEBIT_CAP',
       // },
-    ];
+    ]
     const settlementColumns = [
       {
         title: 'ID',
-        dataIndex: 'settlementId',
+        dataIndex: 'settlementId'
       },
       {
         title: 'Created',
-        dataIndex: 'createdDate',
+        dataIndex: 'createdDate'
       }
-    ];
+    ]
 
-    const dfspValuesData = Object.entries(this.state.dfsps).map((dfspItem,index) => {
-      const positionData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'POSITION').reduce((prevVal,currVal,idx) => {
+    const dfspValuesData = Object.entries(this.state.dfsps).map((dfspItem, index) => {
+      const positionData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'POSITION').reduce((prevVal, currVal, idx) => {
         const detail = <Tag color={hashRGB(currVal.currency)}>{currVal.currency + ': ' + currVal.value}</Tag>
         return idx == 0 ? detail : (<>{prevVal}<br />{detail}</>)
       }, '')
-      const netDebitCapData = dfspItem[1].NET_DEBIT_CAP && Object.entries(dfspItem[1].NET_DEBIT_CAP).reduce((prevVal,currVal,idx) => {
+      const netDebitCapData = dfspItem[1].NET_DEBIT_CAP && Object.entries(dfspItem[1].NET_DEBIT_CAP).reduce((prevVal, currVal, idx) => {
         const detail = <Tag color={hashRGB(currVal[0])}>{currVal[0] + ': ' + currVal[1]}</Tag>
         return idx == 0 ? detail : (<>{prevVal}<br />{detail}</>)
       }, '')
-      const settlementData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'SETTLEMENT').reduce((prevVal,currVal,idx) => {
+      const settlementData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'SETTLEMENT').reduce((prevVal, currVal, idx) => {
         const detail = <Tag color={hashRGB(currVal.currency)}>{currVal.currency + ': ' + currVal.value}</Tag>
         // const detail = currVal.currency + ': ' + currVal.value
         return idx == 0 ? detail : (<>{prevVal}<br />{detail}</>)
       }, '')
-      const interchangeFeeData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'INTERCHANGE_FEE').reduce((prevVal,currVal,idx) => {
+      const interchangeFeeData = dfspItem[1].accountsData.filter(item => item.ledgerAccountType === 'INTERCHANGE_FEE').reduce((prevVal, currVal, idx) => {
         const detail = <Tag color={hashRGB(currVal.currency)}>{currVal.currency + ': ' + currVal.value}</Tag>
         return idx == 0 ? detail : (<>{prevVal}<br />{detail}</>)
       }, '')
@@ -264,8 +271,8 @@ class HUBConsole extends React.Component {
       }
     })
 
-    const settlementsData = this.state.settlements.map((settlementItem,index) => {
-      let participantsInfo = settlementItem.participants.filter(item => item.accounts.length > 0).map(item => {
+    const settlementsData = this.state.settlements.map((settlementItem, index) => {
+      const participantsInfo = settlementItem.participants.filter(item => item.accounts.length > 0).map(item => {
         return {
           id: item.id,
           amount: item.accounts[0].netSettlementAmount,
@@ -277,12 +284,12 @@ class HUBConsole extends React.Component {
         key: index,
         settlementId: settlementItem.id,
         createdDate: settlementItem.createdDate,
-        participantsInfo: participantsInfo
+        participantsInfo
       }
     })
 
     const displayParticipantsInfo = (info) => {
-      let participantsDetailInfo = []
+      const participantsDetailInfo = []
       for (let i = 0; i < info.length; i++) {
         for (let j = 0; j < info[i].accounts.length; j++) {
           const participantFound = this.state.participants.find(participant => participant.accounts.find(account => account.id === info[i].accounts[j].id))
@@ -295,15 +302,15 @@ class HUBConsole extends React.Component {
         }
       }
 
-      const descriptionItems = participantsDetailInfo.map( item => (
-          <Descriptions.Item label={item.name + ' (' + item.accountType + ')'}>
-            {item.amount.amount + ' ' + item.amount.currency}
-          </Descriptions.Item>
+      const descriptionItems = participantsDetailInfo.map(item => (
+        <Descriptions.Item label={item.name + ' (' + item.accountType + ')'}>
+          {item.amount.amount + ' ' + item.amount.currency}
+        </Descriptions.Item>
       ))
       return (
         <Row>
           <Col span={24}>
-            <Descriptions layout="horizontal" column={1} size='small' bordered>
+            <Descriptions layout='horizontal' column={1} size='small' bordered>
               {descriptionItems}
             </Descriptions>
             {/* <pre style={{ margin: 0 }}>{JSON.stringify(info, null, 2)}{JSON.stringify(this.state.participants, null, 2)}</pre> */}
@@ -311,25 +318,24 @@ class HUBConsole extends React.Component {
         </Row>
       )
     }
-    
 
     return (
       <>
-      <Row className='mt-4 ml-2'>
-        <Col span={12} className='text-left'>
-          <Button
+        <Row className='mt-4 ml-2'>
+          <Col span={12} className='text-left'>
+            <Button
               onClick={this.handleRefreshAll}
             >
               Refresh
-          </Button>
-          {/* <Button
+            </Button>
+            {/* <Button
             onClick={this.handleDFSPValues}
             loading={this.state.getDFSPValuesInProgress}
           >
             Get DFSP Data
           </Button> */}
-        </Col>
-        {/* <Col span={6}>
+          </Col>
+          {/* <Col span={6}>
           <Button
             onClick={this.handleGetSettlements}
             loading={this.state.getSettlementsInProgress}
@@ -337,79 +343,79 @@ class HUBConsole extends React.Component {
             Get Settlements Data
           </Button>
         </Col> */}
-        <Col span={12} className='text-right'>
-          <Select
-            className='mr-2'
-            style={{ width: 220 }}
-            placeholder='Select Settlement Model'
-            loading={this.state.getHubConsoleInitValuesProgress}
-            disabled={this.state.getHubConsoleInitValuesProgress}
-            value={this.state.selectedSettlementModel}
-            defaultActiveFirstOption
-            onChange={(settlementModel) => {
-              this.setState({selectedSettlementModel: settlementModel})
-            }}
-          >
-            {
+          <Col span={12} className='text-right'>
+            <Select
+              className='mr-2'
+              style={{ width: 220 }}
+              placeholder='Select Settlement Model'
+              loading={this.state.getHubConsoleInitValuesProgress}
+              disabled={this.state.getHubConsoleInitValuesProgress}
+              value={this.state.selectedSettlementModel}
+              defaultActiveFirstOption
+              onChange={(settlementModel) => {
+                this.setState({ selectedSettlementModel: settlementModel })
+              }}
+            >
+              {
               this.state.settlementModels.map(settlementModel => {
                 return <Option value={settlementModel.name}>{settlementModel.name}</Option>
               })
             }
-          </Select>
-          <Button
-            type='primary'
-            onClick={this.handleExecuteSettlement}
-            disabled={!this.state.selectedSettlementModel}
-            loading={this.state.executeSettlementInProgress}
-            danger
-          >
-            Execute Settlement
-          </Button>
-        </Col>
-      </Row>
-      <Row className='mt-4 ml-2'>
-        <Col span={12}>
-          <Table
-            columns={dfspValuesColumns}
-            dataSource={dfspValuesData}
-            bordered
-            title={() => <Text strong>Accounts</Text>}
-            pagination={false}
-            scroll={{ y: 540 }}
-            loading={this.state.getDFSPValuesInProgress}
-            footer={(pageData) => {
-              return (
-                <Text strong>{this.state.provisioningStatus}</Text>
-              );
-            }}
-          />
-        </Col>
-        <Col span={12}>
-          <Table
-            className='ml-2'
-            columns={settlementColumns}
-            dataSource={settlementsData}
-            expandable={{
-              expandedRowRender: record => displayParticipantsInfo(record.participantsInfo),
-              rowExpandable: record => true,
-            }}
-            bordered
-            title={() => <Text strong>Settlements</Text>}
-            pagination={false}
-            scroll={{ y: 540 }}
-            loading={this.state.getSettlementsInProgress}
-            footer={(pageData) => {
-              return (
-                <Text strong>{this.state.provisioningStatus}</Text>
-              );
-            }}
-          />
-        </Col>
-      </Row>
+            </Select>
+            <Button
+              type='primary'
+              onClick={this.handleExecuteSettlement}
+              disabled={!this.state.selectedSettlementModel}
+              loading={this.state.executeSettlementInProgress}
+              danger
+            >
+              Execute Settlement
+            </Button>
+          </Col>
+        </Row>
+        <Row className='mt-4 ml-2'>
+          <Col span={12}>
+            <Table
+              columns={dfspValuesColumns}
+              dataSource={dfspValuesData}
+              bordered
+              title={() => <Text strong>Accounts</Text>}
+              pagination={false}
+              scroll={{ y: 540 }}
+              loading={this.state.getDFSPValuesInProgress}
+              footer={(pageData) => {
+                return (
+                  <Text strong>{this.state.provisioningStatus}</Text>
+                )
+              }}
+            />
+          </Col>
+          <Col span={12}>
+            <Table
+              className='ml-2'
+              columns={settlementColumns}
+              dataSource={settlementsData}
+              expandable={{
+                expandedRowRender: record => displayParticipantsInfo(record.participantsInfo),
+                rowExpandable: record => true
+              }}
+              bordered
+              title={() => <Text strong>Settlements</Text>}
+              pagination={false}
+              scroll={{ y: 540 }}
+              loading={this.state.getSettlementsInProgress}
+              footer={(pageData) => {
+                return (
+                  <Text strong>{this.state.provisioningStatus}</Text>
+                )
+              }}
+            />
+          </Col>
+        </Row>
       </>
 
-    );
+    )
   }
 }
 
-export default HUBConsole;
+export default HUBConsole

@@ -21,13 +21,12 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React, {useEffect} from "react";
-import _ from 'lodash';
-import { FileTwoTone, TagTwoTone, FolderTwoTone, FolderOpenTwoTone, DownOutlined } from '@ant-design/icons';
-import { Button, Tree, message, Input, Menu, Modal, Row, Col } from 'antd';
-import 'antd/dist/antd.css';
-import LabelsManager from "./LabelsManager.jsx";
-
+import React, { useEffect } from 'react'
+import _ from 'lodash'
+import { FileTwoTone, TagTwoTone, FolderTwoTone, FolderOpenTwoTone, DownOutlined } from '@ant-design/icons'
+import { Button, Tree, message, Input, Menu, Modal, Row, Col } from 'antd'
+import 'antd/dist/antd.css'
+import LabelsManager from './LabelsManager.jsx'
 
 class FolderBrowser extends React.Component {
   constructor () {
@@ -67,7 +66,7 @@ class FolderBrowser extends React.Component {
     this.state.treeDataArray = this.props.folderData
     this.state.rootNodeKey = this.state.treeDataArray[0] && this.state.treeDataArray[0].key
     this.setState({
-      checkedKeys: this.props.selectedFiles, 
+      checkedKeys: this.props.selectedFiles,
       expandedKeys: [this.state.rootNodeKey]
     })
   }
@@ -78,19 +77,19 @@ class FolderBrowser extends React.Component {
       this.convertFolderData(this.props.folderData)
       this.props.onSelect([])
       this.setState({
-        treeDataArray: this.props.folderData,
+        treeDataArray: this.props.folderData
       })
     }
   }
 
   convertFolderData = (nodeChildren) => {
-    for (let i=0; i<nodeChildren.length; i++) {
+    for (let i = 0; i < nodeChildren.length; i++) {
       if (nodeChildren[i].isLeaf) {
         if (nodeChildren[i].extraInfo && nodeChildren[i].extraInfo.type === 'file') {
           nodeChildren[i].icon = <FileTwoTone style={{ fontSize: '18px' }} />
         }
         if (nodeChildren[i].extraInfo && nodeChildren[i].extraInfo.type === 'fileRef') {
-          nodeChildren[i].icon = <TagTwoTone twoToneColor="#f39f3f" style={{ fontSize: '18px' }}/>
+          nodeChildren[i].icon = <TagTwoTone twoToneColor='#f39f3f' style={{ fontSize: '18px' }} />
         }
       } else {
         if (nodeChildren[i].children) {
@@ -104,21 +103,20 @@ class FolderBrowser extends React.Component {
   onExpand = expandedKeys => {
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
-    this.setState({expandedKeys, autoExpandParent: false})
-  };
+    this.setState({ expandedKeys, autoExpandParent: false })
+  }
 
   onCheck = checkedKeys => {
     this.props.onSelect(checkedKeys)
     this.setState({
       checkedKeys
     })
-  };
+  }
 
   onSelect = (selectedKeys, info) => {
-    this.setState({selectedKeys})
+    this.setState({ selectedKeys })
     // console.log('ON SELECT', info);
-
-  };
+  }
 
   getLevelInfo = (posArray) => {
     let nodesInSameLevel = this.state.treeDataArray
@@ -135,25 +133,26 @@ class FolderBrowser extends React.Component {
 
   onDragEnter = info => {
     // console.log('ON DRAG ENTER', info);
-  };
+  }
+
   onDrop = info => {
     if (info.dropToGap) {
-      const dropKey = info.node.props.eventKey;
-      const dragKey = info.dragNode.props.eventKey;
-      const dropPos = info.node.props.pos.split('-');
-      const dragPos = info.dragNode.props.pos.split('-');
+      const dropKey = info.node.props.eventKey
+      const dragKey = info.dragNode.props.eventKey
+      const dropPos = info.node.props.pos.split('-')
+      const dragPos = info.dragNode.props.pos.split('-')
       // Check the drag node and drop node are in same level
       const parentDropPosition = dropPos.slice(0, -1).join('-')
       const parentDragPosition = dragPos.slice(0, -1).join('-')
-      if (parentDropPosition === parentDragPosition ) {
-        const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
-        const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1]))/2);
+      if (parentDropPosition === parentDragPosition) {
+        const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1])
+        const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1])) / 2)
         // console.log(dropKey, dragKey, dropPos, dropPosition, dropIndex)
 
         const levelInfo = this.getLevelInfo(dragPos)
-        let nodesInSameLevel = levelInfo.nodesInSameLevel
+        const nodesInSameLevel = levelInfo.nodesInSameLevel
         // Find the drag object index
-        const dragObjectIndex = nodesInSameLevel.findIndex(item => item.key===info.dragNode.props.eventKey)
+        const dragObjectIndex = nodesInSameLevel.findIndex(item => item.key === info.dragNode.props.eventKey)
         // Store the drag object
         const dragObject = nodesInSameLevel[dragObjectIndex]
         // Remove that from the array
@@ -168,30 +167,30 @@ class FolderBrowser extends React.Component {
 
         // Create a copy of treeDataArray and set the state because treeData need to have new reference value to be updated
         const newTreeDataArray = [...this.state.treeDataArray]
-        this.setState({ treeDataArray: newTreeDataArray})
+        this.setState({ treeDataArray: newTreeDataArray })
         this.props.onOrderChange()
       } else {
-        const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1]))/2);
+        const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1])) / 2)
         const levelInfo = this.getLevelInfo(dropPos)
         // Some tweak to set the dropPos correctly
         const newDropPos = [...dropPos]
         newDropPos[newDropPos.length - 1] = dropIndex + ''
-        this.setState({confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to move this file?', key: 'moveFile', extraData: { levelPrefix: levelInfo.levelPrefix, dragPos: dragPos.slice(1), dropPos: newDropPos.slice(1) }}})
+        this.setState({ confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to move this file?', key: 'moveFile', extraData: { levelPrefix: levelInfo.levelPrefix, dragPos: dragPos.slice(1), dropPos: newDropPos.slice(1) } } })
       }
     } else {
       // If drop on a folder
       if (!info.node.isLeaf) {
-        const dropKey = info.node.props.eventKey;
-        const dragKey = info.dragNode.props.eventKey;
-        const dropPos = info.node.props.pos.split('-');
+        const dropKey = info.node.props.eventKey
+        const dragKey = info.dragNode.props.eventKey
+        const dropPos = info.node.props.pos.split('-')
         dropPos.push(0)
-        const dragPos = info.dragNode.props.pos.split('-');
-        const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1]))/2);
+        const dragPos = info.dragNode.props.pos.split('-')
+        const dropIndex = Math.ceil((info.dropPosition + Number(dropPos[dropPos.length - 1])) / 2)
         const levelInfo = this.getLevelInfo(dropPos)
         // Some tweak to set the dropPos correctly
         const newDropPos = [...dropPos]
         newDropPos[newDropPos.length - 1] = dropIndex + ''
-        this.setState({confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to move this file?', key: 'moveFile', extraData: { levelPrefix: levelInfo.levelPrefix, dragPos: dragPos.slice(1), dropPos: newDropPos.slice(1) }}})
+        this.setState({ confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to move this file?', key: 'moveFile', extraData: { levelPrefix: levelInfo.levelPrefix, dragPos: dragPos.slice(1), dropPos: newDropPos.slice(1) } } })
       }
     }
   }
@@ -203,10 +202,10 @@ class FolderBrowser extends React.Component {
         pageX: e.event.pageX,
         pageY: e.event.pageY,
         nodeRef: e.node,
-        categoryName: e.node.title,
-      },
-    });
-  };
+        categoryName: e.node.title
+      }
+    })
+  }
 
   hideContextMenu = () => {
     this.setState({
@@ -219,94 +218,94 @@ class FolderBrowser extends React.Component {
   handleContextMenuClick = async (e) => {
     // this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
     // console.log(this.state.rightClickNodeTreeItem.nodeRef.isLeaf())
-    const nodePos = this.state.rightClickNodeTreeItem.nodeRef.props.pos.split('-');
+    const nodePos = this.state.rightClickNodeTreeItem.nodeRef.props.pos.split('-')
     const levelInfo = this.getLevelInfo(nodePos)
-    switch(e.key) {
-      case "newFile":
-      case "newFolder":
-        {
-          let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          let keysInSameLevel = []
-          if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf) {
-            if(this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo  && this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo.type !== 'folder') {
-              levelPrefix = levelInfo.levelPrefix
-              keysInSameLevel = levelInfo.nodesInSameLevel.map(item => item.key)
-            } else {
-              keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
-            }
+    switch (e.key) {
+      case 'newFile':
+      case 'newFolder':
+      {
+        let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+        let keysInSameLevel = []
+        if (this.state.rightClickNodeTreeItem.nodeRef.isLeaf) {
+          if (this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo && this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo.type !== 'folder') {
+            levelPrefix = levelInfo.levelPrefix
+            keysInSameLevel = levelInfo.nodesInSameLevel.map(item => item.key)
           } else {
             keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
           }
-          await this.setState({inputDialogEnabled: true, inputDialogData: { title: 'Enter a file / folder name to create', key:e.key, extraData: { levelPrefix, keysInSameLevel }}})
-          this.inputDialogRef.focus()
-          break
+        } else {
+          keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
         }
-      case "rename":
-        {
-          const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          const fileKeyArr = fileKey.split('/')
-          await this.setState({inputDialogEnabled: true, inputDialogValue: fileKeyArr[fileKeyArr.length - 1], inputDialogData: { title: 'Enter new file / folder name', key:e.key, extraData: { fileKey, levelPrefix: levelInfo.levelPrefix }}})
-          this.inputDialogRef.focus()
-          break
-        }
-      case "delete":
-        {
-          const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          this.setState({confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to delte this file?', key: 'deleteFile', extraData: { fileKey }}})
-          break
-        }
-      case "duplicate":
-        {
-          const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          this.props.onDuplicateFileOrFolder(fileKey, levelInfo.levelPrefix)
-          this.hideContextMenu()
-          break
-        }
-      case "copy":
-        {
-          const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          const fileTitle = this.state.rightClickNodeTreeItem.nodeRef.props.title
-          message.info('Copied file')
-          this.setState({copiedFile: { key: fileKey, title: fileTitle, extraInfo: this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo }})
-          this.hideContextMenu()
-          break
-        }
-      case "paste":
-      case "pasteRef":
-        {
-          let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
-          let keysInSameLevel = []
-          if(this.state.rightClickNodeTreeItem.nodeRef.isLeaf) {
-            if(this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo  && this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo.type !== 'folder') {
-              levelPrefix = levelInfo.levelPrefix
-              keysInSameLevel = levelInfo.nodesInSameLevel.map(item => item.key)
-            } else {
-              keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
-            }
+        await this.setState({ inputDialogEnabled: true, inputDialogData: { title: 'Enter a file / folder name to create', key: e.key, extraData: { levelPrefix, keysInSameLevel } } })
+        this.inputDialogRef.focus()
+        break
+      }
+      case 'rename':
+      {
+        const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+        const fileKeyArr = fileKey.split('/')
+        await this.setState({ inputDialogEnabled: true, inputDialogValue: fileKeyArr[fileKeyArr.length - 1], inputDialogData: { title: 'Enter new file / folder name', key: e.key, extraData: { fileKey, levelPrefix: levelInfo.levelPrefix } } })
+        this.inputDialogRef.focus()
+        break
+      }
+      case 'delete':
+      {
+        const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+        this.setState({ confirmDialogEnabled: true, confirmDialogData: { title: 'Please confirm', description: 'Do you want to delte this file?', key: 'deleteFile', extraData: { fileKey } } })
+        break
+      }
+      case 'duplicate':
+      {
+        const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+        this.props.onDuplicateFileOrFolder(fileKey, levelInfo.levelPrefix)
+        this.hideContextMenu()
+        break
+      }
+      case 'copy':
+      {
+        const fileKey = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+        const fileTitle = this.state.rightClickNodeTreeItem.nodeRef.props.title
+        message.info('Copied file')
+        this.setState({ copiedFile: { key: fileKey, title: fileTitle, extraInfo: this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo } })
+        this.hideContextMenu()
+        break
+      }
+      case 'paste':
+      case 'pasteRef':
+      {
+        let levelPrefix = this.state.rightClickNodeTreeItem.nodeRef.props.eventKey
+        let keysInSameLevel = []
+        if (this.state.rightClickNodeTreeItem.nodeRef.isLeaf) {
+          if (this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo && this.state.rightClickNodeTreeItem.nodeRef.props.extraInfo.type !== 'folder') {
+            levelPrefix = levelInfo.levelPrefix
+            keysInSameLevel = levelInfo.nodesInSameLevel.map(item => item.key)
           } else {
             keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
           }
-          if(keysInSameLevel.includes(levelPrefix + '/' + this.state.copiedFile.title)) {
-            message.error('ERROR: An item with same name exists in this folder');
+        } else {
+          keysInSameLevel = this.state.rightClickNodeTreeItem.nodeRef.props.data.children.map(item => item.key)
+        }
+        if (keysInSameLevel.includes(levelPrefix + '/' + this.state.copiedFile.title)) {
+          message.error('ERROR: An item with same name exists in this folder')
+        } else {
+          if (e.key === 'pasteRef') {
+            this.props.onPasteReference(this.state.copiedFile.key, this.state.copiedFile.title, levelPrefix)
           } else {
-            if(e.key === 'pasteRef') {
-              this.props.onPasteReference(this.state.copiedFile.key, this.state.copiedFile.title, levelPrefix)
-            } else {
-              this.props.onPaste(this.state.copiedFile.key, levelPrefix)
-            }
+            this.props.onPaste(this.state.copiedFile.key, levelPrefix)
           }
-          this.hideContextMenu()
-          break
         }
-      case "assignLabels":
-        {
-          const labels = this.state.rightClickNodeTreeItem.nodeRef.extraInfo.labels
-          this.setState({selectLabelsDialogEnabled: true, selectLabelsDialogList: labels})
-          this.hideContextMenu()
-          break
-        }
+        this.hideContextMenu()
+        break
+      }
+      case 'assignLabels':
+      {
+        const labels = this.state.rightClickNodeTreeItem.nodeRef.extraInfo.labels
+        this.setState({ selectLabelsDialogEnabled: true, selectLabelsDialogList: labels })
+        this.hideContextMenu()
+        break
+      }
       default: {
-        console.log(e.key, " not found")
+        console.log(e.key, ' not found')
       }
     }
   }
@@ -314,18 +313,18 @@ class FolderBrowser extends React.Component {
   handleInputDialogOk = async (e) => {
     const inputValue = this.state.inputDialogValue
     // The following line should be await for updating the tree with new changes
-    await this.setState({inputDialogEnabled: false, inputDialogValue: ''})
-    switch(this.state.inputDialogData.key) {
-      case 'newFile':        
-        if(this.state.inputDialogData.extraData.keysInSameLevel.includes(this.state.inputDialogData.extraData.levelPrefix + '/' + inputValue)) {
-          message.error('ERROR: Filename exists');
+    await this.setState({ inputDialogEnabled: false, inputDialogValue: '' })
+    switch (this.state.inputDialogData.key) {
+      case 'newFile':
+        if (this.state.inputDialogData.extraData.keysInSameLevel.includes(this.state.inputDialogData.extraData.levelPrefix + '/' + inputValue)) {
+          message.error('ERROR: Filename exists')
         } else {
           this.props.onAddFileOrFolder(this.state.inputDialogData.extraData.levelPrefix, inputValue, false)
         }
         break
       case 'newFolder':
-        if(this.state.inputDialogData.extraData.keysInSameLevel.includes(this.state.inputDialogData.extraData.levelPrefix + '/' + inputValue)) {
-          message.error('ERROR: Filename exists');
+        if (this.state.inputDialogData.extraData.keysInSameLevel.includes(this.state.inputDialogData.extraData.levelPrefix + '/' + inputValue)) {
+          message.error('ERROR: Filename exists')
         } else {
           this.props.onAddFileOrFolder(this.state.inputDialogData.extraData.levelPrefix, inputValue, true)
         }
@@ -334,19 +333,19 @@ class FolderBrowser extends React.Component {
         this.props.onRenameFileOrFolder(this.state.inputDialogData.extraData.fileKey, inputValue, this.state.inputDialogData.extraData.levelPrefix)
         break
       default:
-        console.log(this.state.inputDialogData.key, " not found")
+        console.log(this.state.inputDialogData.key, ' not found')
         break
     }
   }
 
   handleInputDialogCancel = () => {
-    this.setState({inputDialogEnabled: false})
+    this.setState({ inputDialogEnabled: false })
   }
 
   handleConfirmDialogOk = async (e) => {
     // The following line should be await for updating the tree with new changes
-    await this.setState({confirmDialogEnabled: false})
-    switch(this.state.confirmDialogData.key) {
+    await this.setState({ confirmDialogEnabled: false })
+    switch (this.state.confirmDialogData.key) {
       case 'deleteFile':
         this.props.onDeleteFileOrFolder(this.state.confirmDialogData.extraData.fileKey)
         break
@@ -357,20 +356,20 @@ class FolderBrowser extends React.Component {
   }
 
   handleConfirmDialogCancel = () => {
-    this.setState({confirmDialogEnabled: false})
+    this.setState({ confirmDialogEnabled: false })
   }
 
   getNodeTreeRightClickMenu = () => {
-    const { pageX, pageY, id } = { ...this.state.rightClickNodeTreeItem };
+    const { pageX, pageY, id } = { ...this.state.rightClickNodeTreeItem }
     const tmpStyle = {
       position: 'absolute',
       left: `${pageX}px`,
       top: `${pageY - 130}px`,
-      display: this.state.contextMenuVisible? 'block' : 'none',
-      background:'white',
-      width:'150px',
-      border:'1px solid #D7D7D7'
-    };
+      display: this.state.contextMenuVisible ? 'block' : 'none',
+      background: 'white',
+      width: '150px',
+      border: '1px solid #D7D7D7'
+    }
     const menu = (
       <div style={tmpStyle} onMouseLeave={this.hideContextMenu}>
         <Menu onClick={this.handleContextMenuClick}>
@@ -382,29 +381,31 @@ class FolderBrowser extends React.Component {
           <Menu.Item key='copy'>Copy</Menu.Item>
           {
             this.state.copiedFile
-            ? (
-              <Menu.Item key='paste'>Paste</Menu.Item>
-            ) : null
+              ? (
+                <Menu.Item key='paste'>Paste</Menu.Item>
+                )
+              : null
           }
           {
             this.state.copiedFile && this.state.copiedFile.extraInfo.type === 'file'
-            ? (
-              <Menu.Item key='pasteRef'>Paste Reference</Menu.Item>
-            ) : null
+              ? (
+                <Menu.Item key='pasteRef'>Paste Reference</Menu.Item>
+                )
+              : null
           }
           <Menu.Item key='assignLabels'>Assign Labels</Menu.Item>
         </Menu>
       </div>
-    );
-    return this.state.rightClickNodeTreeItem.pageX === "" ? '' : menu;
-  };
+    )
+    return this.state.rightClickNodeTreeItem.pageX === '' ? '' : menu
+  }
 
   handleSelectLabelsDialogOk = () => {
     this.state.rightClickNodeTreeItem.nodeRef.extraInfo.labels = this.state.selectLabelsDialogList
     this.convertFolderData(this.props.folderData)
     this.setState({
       selectLabelsDialogEnabled: false,
-      treeDataArray: this.props.folderData,
+      treeDataArray: this.props.folderData
     })
     this.props.onSelect()
   }
@@ -416,88 +417,87 @@ class FolderBrowser extends React.Component {
     })
   }
 
-  render() {
-    
+  render () {
     return (
       <>
-      {
-        this.props.folderData.length > 0 ?
-        <Row className='mt'>
-          <Col span={24}>
-            <LabelsManager
-              visible={this.props.folderData.length > 0}
-              selectedFiles={this.props.selectedFiles}
-              labelsManager={this.props.labelsManager}
-              onSelect = {props => {
-                this.props.labelsManager.selectedLabels = props.selectedLabels || []
-                this.props.onSelect(props.selectedFiles)
-                this.setState({
-                  checkedKeys: props.selectedFiles
-                })
-              }}
-            />
-          </Col>
-        </Row>
-        : null
+        {
+        this.props.folderData.length > 0
+          ? <Row className='mt'>
+            <Col span={24}>
+              <LabelsManager
+                visible={this.props.folderData.length > 0}
+                selectedFiles={this.props.selectedFiles}
+                labelsManager={this.props.labelsManager}
+                onSelect={props => {
+                  this.props.labelsManager.selectedLabels = props.selectedLabels || []
+                  this.props.onSelect(props.selectedFiles)
+                  this.setState({
+                    checkedKeys: props.selectedFiles
+                  })
+                }}
+              />
+            </Col>
+          </Row>
+          : null
       }
-      <Modal
-        title={this.state.inputDialogData.title}
-        visible={this.state.inputDialogEnabled}
-        onOk={this.handleInputDialogOk}
-        onCancel={this.handleInputDialogCancel}
-      >
-        <Input
-          value={this.state.inputDialogValue}
-          onChange={(e) => this.setState({inputDialogValue: e.target.value})}
-          ref={input => {
-            this.inputDialogRef = input
-          }}
+        <Modal
+          title={this.state.inputDialogData.title}
+          visible={this.state.inputDialogEnabled}
+          onOk={this.handleInputDialogOk}
+          onCancel={this.handleInputDialogCancel}
+        >
+          <Input
+            value={this.state.inputDialogValue}
+            onChange={(e) => this.setState({ inputDialogValue: e.target.value })}
+            ref={input => {
+              this.inputDialogRef = input
+            }}
+          />
+        </Modal>
+        <Modal
+          title={this.state.confirmDialogData.title}
+          visible={this.state.confirmDialogEnabled}
+          onOk={this.handleConfirmDialogOk}
+          onCancel={this.handleConfirmDialogCancel}
+        >
+          {this.state.confirmDialogData.description}
+        </Modal>
+        <Modal
+          title='Assign Labels'
+          visible={this.state.selectLabelsDialogEnabled}
+          onOk={this.handleSelectLabelsDialogOk}
+          onCancel={this.handleSelectLabelsDialogCancel}
+        >
+          <LabelsManager
+            labelsManager={{
+              selectedLabels: this.state.selectLabelsDialogList,
+              labels: this.props.labelsManager.labels
+            }}
+            onSelect={(props) => {
+              this.setState({ selectLabelsDialogList: props.selectedLabels })
+            }}
+          />
+        </Modal>
+        <Tree
+          showIcon
+          checkable
+          onExpand={this.onExpand}
+          expandedKeys={this.state.expandedKeys}
+          autoExpandParent={this.state.autoExpandParent}
+          onCheck={this.onCheck}
+          checkedKeys={this.state.checkedKeys}
+          onSelect={this.onSelect}
+          selectedKeys={this.state.selectedKeys}
+          treeData={this.state.treeDataArray}
+          draggable
+          onDragEnter={this.onDragEnter}
+          onDrop={this.onDrop}
+          onRightClick={this.handleTreeNodeRightClick}
         />
-      </Modal>
-      <Modal
-        title={this.state.confirmDialogData.title}
-        visible={this.state.confirmDialogEnabled}
-        onOk={this.handleConfirmDialogOk}
-        onCancel={this.handleConfirmDialogCancel}
-      >
-        {this.state.confirmDialogData.description}
-      </Modal>
-      <Modal
-        title="Assign Labels"
-        visible={this.state.selectLabelsDialogEnabled}
-        onOk={this.handleSelectLabelsDialogOk}
-        onCancel={this.handleSelectLabelsDialogCancel}
-      >
-        <LabelsManager
-          labelsManager={{
-            selectedLabels: this.state.selectLabelsDialogList,
-            labels: this.props.labelsManager.labels
-          }}
-          onSelect = {(props) => {
-            this.setState({selectLabelsDialogList: props.selectedLabels})
-          }}
-        />
-      </Modal>
-      <Tree
-        showIcon
-        checkable
-        onExpand={this.onExpand}
-        expandedKeys={this.state.expandedKeys}
-        autoExpandParent={this.state.autoExpandParent}
-        onCheck={this.onCheck}
-        checkedKeys={this.state.checkedKeys}
-        onSelect={this.onSelect}
-        selectedKeys={this.state.selectedKeys}
-        treeData={this.state.treeDataArray}
-        draggable
-        onDragEnter={this.onDragEnter}
-        onDrop={this.onDrop}
-        onRightClick={this.handleTreeNodeRightClick}
-      />
-      {this.getNodeTreeRightClickMenu()}
+        {this.getNodeTreeRightClickMenu()}
       </>
     )
   }
 }
 
-export default FolderBrowser;
+export default FolderBrowser

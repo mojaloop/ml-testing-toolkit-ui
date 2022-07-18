@@ -21,21 +21,19 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Route, Switch } from "react-router-dom";
-import AdminNavbar from "../components/Navbars/AdminNavbar.jsx";
-import AdminFooter from "../components/Footers/AdminFooter.jsx";
-import Sidebar from "../components/Sidebar/Sidebar.jsx";
+import React from 'react'
+import { Route, Switch } from 'react-router-dom'
+import AdminNavbar from '../components/Navbars/AdminNavbar.jsx'
+import AdminFooter from '../components/Footers/AdminFooter.jsx'
+import Sidebar from '../components/Sidebar/Sidebar.jsx'
 
-import routes from "../routes.js";
-import { getConfig } from '../utils/getConfig'
-import { Layout, Card, Spin, Result, Row, Col } from "antd";
-import { fetchServerConfig, getUserConfig } from '../utils/getConfig'
+import routes from '../routes.js'
+import { getConfig, fetchServerConfig, getUserConfig } from '../utils/getConfig'
+import { Layout, Card, Spin, Result, Row, Col } from 'antd'
 
 const { Header, Footer, Sider, Content } = Layout
 
 class Admin extends React.Component {
-
   isAuthEnabled = getConfig().isAuthEnabled
 
   constructor () {
@@ -44,48 +42,49 @@ class Admin extends React.Component {
       isLoading: true,
       isConnectionError: false,
       connectionErrorMessage: ''
-    }  
+    }
   }
-  
+
   async componentDidMount () {
     await this.fetchConfiguration()
   }
 
-  componentDidUpdate(e) {
-    if (this.isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')){
+  componentDidUpdate (e) {
+    if (this.isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')) {
       return
     }
-    document.documentElement.scrollTop = 0;
-    document.scrollingElement.scrollTop = 0;
-    if(this.refs.mainContent) {
-      this.refs.mainContent.scrollTop = 0;
+    document.documentElement.scrollTop = 0
+    document.scrollingElement.scrollTop = 0
+    if (this.refs.mainContent) {
+      this.refs.mainContent.scrollTop = 0
     }
   }
 
   fetchConfiguration = async () => {
     try {
       await fetchServerConfig()
-      this.setState({isLoading: false})
-    } catch(err) {
-      this.setState({isConnectionError: true, connectionErrorMessage: err.message, isLoading: false})
+      this.setState({ isLoading: false })
+    } catch (err) {
+      this.setState({ isConnectionError: true, connectionErrorMessage: err.message, isLoading: false })
     }
   }
 
   getRoutes = routes => {
     return routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
+      if (prop.layout === '/admin') {
         return (
           <Route
             path={prop.layout + prop.path}
             component={prop.component}
             key={key}
           />
-        );
+        )
       } else {
-        return null;
+        return null
       }
-    });
-  };
+    })
+  }
+
   getBrandText = path => {
     for (let i = 0; i < routes.length; i++) {
       if (
@@ -93,73 +92,73 @@ class Admin extends React.Component {
           routes[i].layout + routes[i].path
         ) !== -1
       ) {
-        return routes[i].name;
+        return routes[i].name
       }
     }
-    return "Brand";
-  };
+    return 'Brand'
+  }
 
-  render() {
+  render () {
     if (localStorage.getItem('JWT_COOKIE_EXP_AT') || !this.isAuthEnabled) {
       return (
         <>
-        {
+          {
           this.state.isLoading
-          ? (
-            <Spin tip="Loading..." size="large">
-              <Row>
-                <Col span={24} style={{height: '600px'}} />
-              </Row>
-            </Spin>
-          )
-          : this.state.isConnectionError
             ? (
-              <Result
-                status="500"
-                title="500"
-                subTitle={this.state.connectionErrorMessage}
-              />
-            )
-            :  (
-              <Layout style={{backgroundColor: '#fafafa'}}>
-                <Sidebar
-                  {...this.props}
-                  routes={routes}
-                  logo={{
-                    innerLink: "/admin/index",
-                    imgSrc: require("../assets/img/mojaloop.png"),
-                    imgAlt: "..."
-                  }}
+              <Spin tip='Loading...' size='large'>
+                <Row>
+                  <Col span={24} style={{ height: '600px' }} />
+                </Row>
+              </Spin>
+              )
+            : this.state.isConnectionError
+              ? (
+                <Result
+                  status='500'
+                  title='500'
+                  subTitle={this.state.connectionErrorMessage}
                 />
-                <Layout>
-                  <AdminNavbar
+                )
+              : (
+                <Layout style={{ backgroundColor: '#fafafa' }}>
+                  <Sidebar
                     {...this.props}
-                    brandText={this.getBrandText(this.props.location.pathname)}
+                    routes={routes}
+                    logo={{
+                      innerLink: '/admin/index',
+                      imgSrc: require('../assets/img/mojaloop.png'),
+                      imgAlt: '...'
+                    }}
                   />
-                  <Content>
-                    <Header 
-                      style={{
-                        height: '3vh',
-                        background: '#293e5d'
-                      }}
+                  <Layout>
+                    <AdminNavbar
+                      {...this.props}
+                      brandText={this.getBrandText(this.props.location.pathname)}
                     />
-                    <Card className="shadow ml-4 mr-4 mt-n5">
-                      <Switch>{this.getRoutes(routes)}</Switch>
-                    </Card>
-                  </Content>
-                  <AdminFooter />
+                    <Content>
+                      <Header
+                        style={{
+                          height: '3vh',
+                          background: '#293e5d'
+                        }}
+                      />
+                      <Card className='shadow ml-4 mr-4 mt-n5'>
+                        <Switch>{this.getRoutes(routes)}</Switch>
+                      </Card>
+                    </Content>
+                    <AdminFooter />
+                  </Layout>
                 </Layout>
-              </Layout>
-            )
+                )
         }
         </>
-      );
+      )
     } else {
       return (
-        <>{this.props.history.push("/login")}</>
+        <>{this.props.history.push('/login')}</>
       )
     }
   }
 }
 
-export default Admin;
+export default Admin

@@ -21,28 +21,28 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import _ from 'lodash';
-import axios from 'axios';
-import { Select, Row, Col, Button, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Typography } from 'antd';
-import 'antd/dist/antd.css';
-import { FactDataGenerator } from './BuilderTools.jsx';
+import React from 'react'
+import _ from 'lodash'
+import axios from 'axios'
+import { Select, Row, Col, Button, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Typography } from 'antd'
+import 'antd/dist/antd.css'
+import { FactDataGenerator } from './BuilderTools.jsx'
 import { ConfigurableParameter, HeaderInputComponent, MockBuilder } from '../common/EventBuildHelper'
 
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
-import ace from 'brace';
-import 'brace/mode/json';
-import 'brace/theme/github';
-import 'brace/theme/tomorrow_night_blue';
-import Ajv from 'ajv';
-const ajv = new Ajv({allErrors: true});
+import { JsonEditor as Editor } from 'jsoneditor-react'
+import 'jsoneditor-react/es/editor.min.css'
+import ace from 'brace'
+import 'brace/mode/json'
+import 'brace/theme/github'
+import 'brace/theme/tomorrow_night_blue'
+import Ajv from 'ajv'
+const ajv = new Ajv({ allErrors: true })
 
-const { Option } = Select;
-const { Text } = Typography;
+const { Option } = Select
+const { Text } = Typography
 
 export class FixedCallbackBuilder extends React.Component {
-  constructor() {
+  constructor () {
     super()
     this.state = {
       configurableParameterSelected: '',
@@ -60,7 +60,6 @@ export class FixedCallbackBuilder extends React.Component {
     // console.log(this.props.callbackDefinition)
     this.bodySchema = (new FactDataGenerator()).getBodyFactData(this.props.callbackDefinition)
 
-
     let allParamsFromDefinition = []
     if (this.props.callbackRootParameters) {
       allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackRootParameters)
@@ -69,34 +68,29 @@ export class FixedCallbackBuilder extends React.Component {
       allParamsFromDefinition = allParamsFromDefinition.concat(this.props.callbackDefinition.parameters)
     }
 
-    let allParamsObject = {}
-    for (let k in allParamsFromDefinition) {
+    const allParamsObject = {}
+    for (const k in allParamsFromDefinition) {
       allParamsObject[allParamsFromDefinition[k].name] = {
         description: allParamsFromDefinition[k].description
       }
     }
-    this.setState({allParamsFromDefinition, allParamsObject})
-
+    this.setState({ allParamsFromDefinition, allParamsObject })
   }
   // componentDidUpdate = () => {
   //   // console.log(this.props.callbackRootParameters)
   //   // console.log(this.props.resourceDefinition.parameters)
   //   // console.log(this.props.callbackDefinition)
 
-
-
   // }
 
-
-  addHeaderItemsFromDefinition = async (onlyRequired=false) => {
+  addHeaderItemsFromDefinition = async (onlyRequired = false) => {
     this.state.allParamsFromDefinition.forEach((param) => {
-      if (param.in==='header') {
+      if (param.in === 'header') {
         if (!onlyRequired || param.required) {
           if (!this.props.eventParams.headers) {
             this.props.eventParams.headers = {}
             this.props.eventParams.headers[param.name] = ''
-          }
-          else if (!this.props.eventParams.headers[param.name]) {
+          } else if (!this.props.eventParams.headers[param.name]) {
             this.props.eventParams.headers[param.name] = ''
           }
         }
@@ -109,13 +103,15 @@ export class FixedCallbackBuilder extends React.Component {
     if (!this.props.eventParams.headers) {
       this.props.eventParams.headers = {}
     }
-    this.props.eventParams.headers[itemName] = this.props.eventParams.headers[itemName] ? this.props.eventParams.headers[itemName] : ""
+    this.props.eventParams.headers[itemName] = this.props.eventParams.headers[itemName] ? this.props.eventParams.headers[itemName] : ''
     this.updateChanges()
   }
+
   handleHeaderItemChange = (key, name, value) => {
     this.props.eventParams.headers[name] = value
     this.updateChanges()
   }
+
   handleHeaderItemDelete = async (name) => {
     delete this.props.eventParams.headers[name]
     this.updateChanges()
@@ -128,8 +124,8 @@ export class FixedCallbackBuilder extends React.Component {
   }
 
   handleAddHeaderClick = (event) => {
-    this.addHeaderItem(event.item.props.eventKey);
-  };
+    this.addHeaderItem(event.item.props.eventKey)
+  }
 
   headerItemsMenu = () => {
     const headerParams = this.state.allParamsFromDefinition.filter(item => {
@@ -152,33 +148,31 @@ export class FixedCallbackBuilder extends React.Component {
   }
 
   getHeaderItems = () => {
-    let headerItems = []
-    let k=0
+    const headerItems = []
+    let k = 0
     if (this.props.eventParams) {
-      for( let headerName in this.props.eventParams.headers ) {
+      for (const headerName in this.props.eventParams.headers) {
         const item = {
           name: headerName,
           value: this.props.eventParams.headers[headerName]
         }
         const key = k++
         headerItems.push(
-          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.state.allParamsObject[item.name]? this.state.allParamsObject[item.name].description: null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
+          <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.state.allParamsObject[item.name] ? this.state.allParamsObject[item.name].description : null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />
         )
       }
     }
     return headerItems
-
   }
 
   handleAddConfigParam = (newValue) => {
-    this.setState({configurableParameterSelected: newValue})
+    this.setState({ configurableParameterSelected: newValue })
   }
-
 
   handlePopulateSampleBodyClick = async () => {
     const newBody = (new FactDataGenerator()).getBodySample(this.props.callbackDefinition)
-    if(newBody) {
-      if(this.props.callbackObject && this.props.callbackObject.bodyOverride) {
+    if (newBody) {
+      if (this.props.callbackObject && this.props.callbackObject.bodyOverride) {
         _.merge(newBody, this.props.callbackObject.bodyOverride)
       }
       this.props.eventParams.body = newBody
@@ -189,70 +183,69 @@ export class FixedCallbackBuilder extends React.Component {
 
   handleConfigParamCopyToClipboard = () => {
     navigator.clipboard.writeText(this.state.configurableParameterSelected)
-    message.success('Copied to clipboard');
+    message.success('Copied to clipboard')
   }
 
-  render() {
-
+  render () {
     const addCustomHeaderDialogContent = (
       <>
-      <Row>
-        <Col span={24}>
-          <Input
-            placeholder="Enter name"
-            type="text"
-            value={this.state.newCustomHeaderName}
-            onChange={(e) => { this.setState({newCustomHeaderName: e.target.value })}}
-          />
-        </Col>
-      </Row>
-      <Row className="mt-2">
-        <Col span={24}>
-          <Button
-              type="primary"
-              onClick={ () => {
+        <Row>
+          <Col span={24}>
+            <Input
+              placeholder='Enter name'
+              type='text'
+              value={this.state.newCustomHeaderName}
+              onChange={(e) => { this.setState({ newCustomHeaderName: e.target.value }) }}
+            />
+          </Col>
+        </Row>
+        <Row className='mt-2'>
+          <Col span={24}>
+            <Button
+              type='primary'
+              onClick={() => {
                 this.addHeaderItem(this.state.newCustomHeaderName)
-                this.setState({addCustomHeaderDialogVisible: false})
+                this.setState({ addCustomHeaderDialogVisible: false })
               }}
             >
               Add
-          </Button>
-          <Button
-              className="ml-2"
-              type="default"
+            </Button>
+            <Button
+              className='ml-2'
+              type='default'
               danger
-              onClick={ () => {
-                this.setState({addCustomHeaderDialogVisible: false})
+              onClick={() => {
+                this.setState({ addCustomHeaderDialogVisible: false })
               }}
             >
               Cancel
-          </Button>
-        </Col>
-      </Row>
+            </Button>
+          </Col>
+        </Row>
       </>
     )
 
     const content = (
       <>
-      <Row>
-        <Col>
-          <ConfigurableParameter
-            onChange={this.handleAddConfigParam}
-            rootParameters={this.props.rootParameters}
-            resourceDefinition={this.props.resourceDefinition}
-          />
-        </Col>
-      </Row>
-      {
-        this.state.configurableParameterSelected ?
-        (
-          <Row className="mt-4 text-center">
-            <Col>
-              <Tag color="geekblue"><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
-            </Col>
-          </Row>
-        )
-        : null
+        <Row>
+          <Col>
+            <ConfigurableParameter
+              onChange={this.handleAddConfigParam}
+              rootParameters={this.props.rootParameters}
+              resourceDefinition={this.props.resourceDefinition}
+            />
+          </Col>
+        </Row>
+        {
+        this.state.configurableParameterSelected
+          ? (
+            <Row className='mt-4 text-center'>
+              <Col>
+                <Tag color='geekblue'><a onClick={this.handleConfigParamCopyToClipboard}>{this.state.configurableParameterSelected}</a></Tag>
+              </Col>
+            </Row>
+            )
+          : null
       }
       </>
     )
@@ -261,70 +254,70 @@ export class FixedCallbackBuilder extends React.Component {
       <>
         <Row>
           <Col span={24}>
-            <Card size="small" title="Headers">
+            <Card size='small' title='Headers'>
               <Row>
                 <Col span={24}>
-                    <Row>
-                      <Col span={8}>
-                        <label
-                          className="form-control-label"
-                          htmlFor="input-city"
+                  <Row>
+                    <Col span={8}>
+                      <label
+                        className='form-control-label'
+                        htmlFor='input-city'
+                      >
+                        Name
+                      </label>
+                    </Col>
+                    <Col span={8}>
+                      <label
+                        className='form-control-label'
+                        htmlFor='input-city'
+                      >
+                        Value
+                      </label>
+                    </Col>
+                  </Row>
+                  {this.getHeaderItems()}
+                  <Row className='mt-2'>
+                    <Col span={24}>
+                      <Dropdown overlay={this.headerItemsMenu()}>
+                        <Button
+                          type='primary'
+                          onClick={e => e.preventDefault()}
                         >
-                          Name
-                        </label>
-                      </Col>
-                      <Col span={8}>
-                        <label
-                          className="form-control-label"
-                          htmlFor="input-city"
-                        >
-                          Value
-                        </label>
-                      </Col>
-                    </Row>
-                    { this.getHeaderItems() }
-                    <Row className="mt-2">
-                      <Col span={24}>
-                        <Dropdown overlay={this.headerItemsMenu()}>
-                          <Button
-                            type="primary"
-                            onClick={e => e.preventDefault()}
-                          >
-                            Add Header
-                          </Button>
+                          Add Header
+                        </Button>
 
-                        </Dropdown>
+                      </Dropdown>
+                      <Button
+                        className='ml-2'
+                        type='default'
+                        danger
+                        onClick={() => this.addHeaderItemsFromDefinition(true)}
+                      >
+                        Add Required Headers
+                      </Button>
+                      <Button
+                        className='ml-2'
+                        type='default'
+                        onClick={() => this.addHeaderItemsFromDefinition(false)}
+                      >
+                        Add All Headers
+                      </Button>
+                      <Popover
+                        content={addCustomHeaderDialogContent}
+                        title='Enter name for the header'
+                        trigger='click'
+                        visible={this.state.addCustomHeaderDialogVisible}
+                        onVisibleChange={(visible) => this.setState({ addCustomHeaderDialogVisible: true })}
+                      >
                         <Button
-                          className="ml-2"
-                          type="default"
-                          danger
-                          onClick={() => this.addHeaderItemsFromDefinition(true)}
+                          color='warning'
+                          size='sm'
                         >
-                          Add Required Headers
+                          Add Custom Header
                         </Button>
-                        <Button
-                          className="ml-2"
-                          type="default"
-                          onClick={() => this.addHeaderItemsFromDefinition(false)}
-                        >
-                          Add All Headers
-                        </Button>
-                        <Popover
-                          content={addCustomHeaderDialogContent}
-                          title="Enter name for the header"
-                          trigger="click"
-                          visible={this.state.addCustomHeaderDialogVisible}
-                          onVisibleChange={ (visible) => this.setState({addCustomHeaderDialogVisible: true})}
-                        >
-                          <Button
-                              color="warning"
-                              size="sm"
-                            >
-                              Add Custom Header
-                          </Button>
-                        </Popover>
-                      </Col>
-                    </Row>
+                      </Popover>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
             </Card>
@@ -332,24 +325,24 @@ export class FixedCallbackBuilder extends React.Component {
         </Row>
         <Row className='mt-2'>
           <Col span={24}>
-            <Card size="small" title="Body">
+            <Card size='small' title='Body'>
               <Row className='mb-2'>
                 <Col span={24}>
-                  <Popover content={content} title="Select a Configurable Parameter" trigger="click">
-                    <Button type="dashed">Add Configurable Params</Button>
+                  <Popover content={content} title='Select a Configurable Parameter' trigger='click'>
+                    <Button type='dashed'>Add Configurable Params</Button>
                   </Popover>
-                  <Button className="ml-2" type="default" onClick={this.handlePopulateSampleBodyClick} >Populate with sample body</Button>
+                  <Button className='ml-2' type='default' onClick={this.handlePopulateSampleBodyClick}>Populate with sample body</Button>
                 </Col>
               </Row>
-              <Row >
+              <Row>
                 <Col span={24}>
                   <Editor
-                    ref="bodyEditor"
-                    value={ this.props.eventParams.body? this.props.eventParams.body : {} }
+                    ref='bodyEditor'
+                    value={this.props.eventParams.body ? this.props.eventParams.body : {}}
                     ace={ace}
                     ajv={ajv}
-                    theme="ace/theme/tomorrow_night_blue"
-                    mode="code"
+                    theme='ace/theme/tomorrow_night_blue'
+                    mode='code'
                     search={false}
                     statusBar={false}
                     navigationBar={false}
@@ -368,27 +361,25 @@ export class FixedCallbackBuilder extends React.Component {
 }
 
 class ParamsBuilder extends React.Component {
-
-  render() {
+  render () {
     if (this.props.eventType === 'FIXED_CALLBACK' || this.props.eventType === 'FIXED_ERROR_CALLBACK') {
       return (
         <FixedCallbackBuilder
           eventParams={this.props.eventParams}
           resourceDefinition={this.props.resourceDefinition}
-          rootParameters = {this.props.rootParameters}
+          rootParameters={this.props.rootParameters}
           callbackDefinition={this.props.callbackDefinition}
           callbackRootParameters={this.props.callbackRootParameters}
           callbackObject={this.props.callbackObject}
         />
       )
-    }
-    else if (this.props.eventType === 'MOCK_CALLBACK' || this.props.eventType === 'MOCK_ERROR_CALLBACK') {
+    } else if (this.props.eventType === 'MOCK_CALLBACK' || this.props.eventType === 'MOCK_ERROR_CALLBACK') {
       return (
         <MockBuilder
           mockType='callback'
           eventParams={this.props.eventParams}
           resourceDefinition={this.props.resourceDefinition}
-          rootParameters = {this.props.rootParameters}
+          rootParameters={this.props.rootParameters}
           callbackDefinition={this.props.callbackDefinition}
           callbackRootParameters={this.props.callbackRootParameters}
           callbackObject={this.props.callbackObject}
@@ -401,12 +392,11 @@ class ParamsBuilder extends React.Component {
 }
 
 class EventBuilder extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       selectedResource: null
-    };
+    }
   }
 
   componentDidMount = () => {
@@ -477,55 +467,57 @@ class EventBuilder extends React.Component {
     this.handleEventChange()
   }
 
-  render() {
-
+  render () {
     return (
       <>
         {
-          (this.props.isMappingEditor ? false : true) ? (
-          <>
-        <Row>
-          <Col span={24}>
-            <Row>
-              <Col><Text>Delay in milliseconds</Text></Col>
-              <Col className="pl-2">
-                <Input placeholder="0" value={this.props.event.params.delay} onChange={(e) => {
-                    const newValue = parseInt(e.target.value)
-                    this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue
-                    this.handleEventChange()
-                  }}
-                />
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Row className="mt-2">
-          <Col span={24}>
-            <Row>
-              <Col><Text>Event Type</Text></Col>
-              <Col className="pl-2">
-                <Select
-                  value={this.props.event.type}
-                  onChange={this.handleEventTypeSelect}
-                  disabled={(this.props.resource? false : true)}
-                  placeholder="Select Event Type"
-                >
-                  {this.getEventTypes()}
-                </Select>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-          </>
-          ) : null
+          (!this.props.isMappingEditor)
+            ? (
+              <>
+                <Row>
+                  <Col span={24}>
+                    <Row>
+                      <Col><Text>Delay in milliseconds</Text></Col>
+                      <Col className='pl-2'>
+                        <Input
+                          placeholder='0' value={this.props.event.params.delay} onChange={(e) => {
+                            const newValue = parseInt(e.target.value)
+                            this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue
+                            this.handleEventChange()
+                          }}
+                        />
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+                <Row className='mt-2'>
+                  <Col span={24}>
+                    <Row>
+                      <Col><Text>Event Type</Text></Col>
+                      <Col className='pl-2'>
+                        <Select
+                          value={this.props.event.type}
+                          onChange={this.handleEventTypeSelect}
+                          disabled={(!this.props.resource)}
+                          placeholder='Select Event Type'
+                        >
+                          {this.getEventTypes()}
+                        </Select>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </>
+              )
+            : null
         }
-        <Row className="mt-2">
+        <Row className='mt-2'>
           <Col span={24}>
             <ParamsBuilder
               eventType={this.props.event.type}
               eventParams={this.props.event.params}
               resourceDefinition={this.props.resourceDefinition}
-              rootParameters = {this.props.rootParameters}
+              rootParameters={this.props.rootParameters}
               callbackDefinition={this.props.callbackDefinition}
               callbackRootParameters={this.props.callbackRootParameters}
               callbackObject={this.props.callbackObject}
@@ -533,8 +525,8 @@ class EventBuilder extends React.Component {
           </Col>
         </Row>
       </>
-    );
+    )
   }
 }
 
-export default EventBuilder;
+export default EventBuilder

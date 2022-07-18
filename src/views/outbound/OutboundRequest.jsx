@@ -22,20 +22,19 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import socketIOClient from "socket.io-client";
+import React from 'react'
+import socketIOClient from 'socket.io-client'
 import mermaid from 'mermaid'
-import { getServerConfig } from '../../utils/getConfig'
-import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio, Switch} from 'antd';
-import { WarningTwoTone, DeleteTwoTone, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
-import 'antd/dist/antd.css';
-import axios from 'axios';
+import { getServerConfig, getConfig } from '../../utils/getConfig'
+import { Input, Row, Col, Affix, Descriptions, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Radio, Switch } from 'antd'
+import { WarningTwoTone, DeleteTwoTone, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons'
+import 'antd/dist/antd.css'
+import axios from 'axios'
 import TestCaseEditor from './TestCaseEditor'
 import TestCaseViewer from './TestCaseViewer'
 import IterationRunner from './IterationRunner'
-import { getConfig } from '../../utils/getConfig'
 import FileDownload from 'js-file-download'
-import FileManager from "./FileManager.jsx";
+import FileManager from './FileManager.jsx'
 import ServerLogsViewer from './ServerLogsViewer'
 import EnvironmentManager from './EnvironmentManager'
 
@@ -43,11 +42,11 @@ import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-sha
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
-import { extendObservable, trace } from "mobx";
+import { extendObservable, trace } from 'mobx'
 
 import { TTKColors } from '../../utils/styleHelpers'
-import { LocalDB } from '../../services/localDB/LocalDB';
-import { isUndefined } from "lodash";
+import { LocalDB } from '../../services/localDB/LocalDB'
+import { isUndefined } from 'lodash'
 
 let ipcRenderer = null
 
@@ -56,42 +55,41 @@ if (window && window.require) {
   ipcRenderer.send('mainAction', JSON.stringify({ action: 'ping' }))
 }
 
-const { Panel } = Collapse;
-const { TabPane } = Tabs;
-const { Title, Text } = Typography;
+const { Panel } = Collapse
+const { TabPane } = Tabs
+const { Title, Text } = Typography
 
-function buildFileSelector(multi = false, directory = false) {
-  const fileSelector = document.createElement('input');
-  fileSelector.setAttribute('type', 'file');
+function buildFileSelector (multi = false, directory = false) {
+  const fileSelector = document.createElement('input')
+  fileSelector.setAttribute('type', 'file')
   if (multi) {
-    fileSelector.setAttribute('multiple', 'multiple');
+    fileSelector.setAttribute('multiple', 'multiple')
   }
   if (directory) {
-    fileSelector.setAttribute('webkitdirectory', '');
+    fileSelector.setAttribute('webkitdirectory', '')
   }
-  return fileSelector;
+  return fileSelector
 }
 
-function readFileAsync(file) {
+function readFileAsync (file) {
   return new Promise((resolve, reject) => {
-    let reader = new FileReader();
+    const reader = new FileReader()
 
     reader.onload = () => {
-      resolve(reader.result);
-    };
+      resolve(reader.result)
+    }
 
-    reader.onerror = reject;
+    reader.onerror = reject
 
-    reader.readAsText(file);
+    reader.readAsText(file)
   })
 }
 
 class OutboundRequest extends React.Component {
-
-  constructor() {
-    super();
-    this.fileManagerRef = React.createRef();
-    this.iterationRunnerRef = React.createRef();
+  constructor () {
+    super()
+    this.fileManagerRef = React.createRef()
+    this.iterationRunnerRef = React.createRef()
     const sessionId = TraceHeaderUtils.generateSessionId()
     this.state = {
       request: {},
@@ -119,7 +117,7 @@ class OutboundRequest extends React.Component {
       totalPassedCount: 0,
       totalFailedCount: 0,
       totalAssertionsCount: 0,
-      sessionId: sessionId,
+      sessionId,
       testReport: null,
       userConfig: null,
       sendingOutboundRequestID: null,
@@ -135,11 +133,14 @@ class OutboundRequest extends React.Component {
         { title: 'Passed / Total', dataIndex: 'successRate', key: 'successRate', width: '10%' },
         { title: 'Status', dataIndex: 'status', key: 'status', width: '10%' },
         {
-          dataIndex: '', key: 'download', width: '10%', render: (text, record) => (
+          dataIndex: '',
+          key: 'download',
+          width: '10%',
+          render: (text, record) => (
             <Dropdown overlay={this.downloadReportMenu(record)}>
-              <Button className="float-right" color="info" size="sm" onClick={e => e.preventDefault()}>
+              <Button className='float-right' color='info' size='sm' onClick={e => e.preventDefault()}>
                 Download
-            </Button>
+              </Button>
             </Dropdown>
           )
         }
@@ -153,7 +154,7 @@ class OutboundRequest extends React.Component {
       testCaseEditorLogs: [],
       environmentManagerVisible: false,
       resetExecutionOptionEnabled: false
-    };
+    }
   }
 
   socket = null
@@ -170,7 +171,7 @@ class OutboundRequest extends React.Component {
   }
 
   componentDidMount = async () => {
-    this.environmentFileSelector = buildFileSelector();
+    this.environmentFileSelector = buildFileSelector()
     this.environmentFileSelector.addEventListener('input', (e) => {
       if (e.target.files) {
         this.handleImportEnvironmentFile(e.target.files[0])
@@ -184,7 +185,7 @@ class OutboundRequest extends React.Component {
 
     this.setState({ userConfig: userConfigRuntime })
     const { apiBaseUrl } = getConfig()
-    this.socket = socketIOClient(apiBaseUrl);
+    this.socket = socketIOClient(apiBaseUrl)
     // this.socket.on("outboundProgress", this.handleIncomingProgress);
     if (getConfig().isAuthEnabled) {
       const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
@@ -192,7 +193,7 @@ class OutboundRequest extends React.Component {
         this.state.sessionId = dfspId
       }
     }
-    this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
+    this.socket.on('outboundProgress/' + this.state.sessionId, this.handleIncomingProgress)
 
     const additionalData = this.restoreAdditionalData()
     if (additionalData) {
@@ -224,11 +225,10 @@ class OutboundRequest extends React.Component {
     }
 
     this.startAutoSaveTimer()
-
   }
 
   handleInputValuesChange = (newInputValues) => {
-    this.setState({inputValues: newInputValues})
+    this.setState({ inputValues: newInputValues })
   }
 
   handleIncomingProgress = (progress) => {
@@ -236,17 +236,17 @@ class OutboundRequest extends React.Component {
       return null
     }
     if (progress.status === 'FINISHED') {
-      message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
+      message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 })
       this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult })
     } else if (progress.status === 'TERMINATED') {
-      message.success({ content: 'Test case terminated', key: 'outboundStopProgress', duration: 2 });
+      message.success({ content: 'Test case terminated', key: 'outboundStopProgress', duration: 2 })
       this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult })
     } else if (progress.status.startsWith('ITERATION')) {
       this.iterationRunnerRef.current.handleIncomingProgress(progress)
     } else {
-      let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
+      const testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
       if (testCase) {
-        let request = testCase.requests.find(item => item.id === progress.requestId)
+        const request = testCase.requests.find(item => item.id === progress.requestId)
         if (request.status) {
           // Update total passed count
           // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
@@ -271,7 +271,7 @@ class OutboundRequest extends React.Component {
             request.status.additionalInfo = progress.additionalInfo
             request.status.testResult = progress.testResult
             // Clear the waiting status of the remaining requests
-            for (let i in testCase.requests) {
+            for (const i in testCase.requests) {
               if (!testCase.requests[i].status) {
                 testCase.requests[i].status = {}
               }
@@ -312,22 +312,22 @@ class OutboundRequest extends React.Component {
     const traceId = traceIdPrefix + this.state.sessionId + this.state.currentEndToEndId
 
     // const outboundRequestID = Math.random().toString(36).substring(7);
-    message.loading({ content: 'Initilizing the test cases...', key: 'outboundSendProgress' });
+    message.loading({ content: 'Initilizing the test cases...', key: 'outboundSendProgress' })
     const { apiBaseUrl } = getConfig()
     const convertedTemplate = template ? this.convertTemplate(template) : this.convertTemplate(this.state.template)
     convertedTemplate.inputValues = this.state.inputValues
     // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + '/api/outbound/template/' + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
     this.state.resetExecutionOptionEnabled = false
     this.state.sendingOutboundRequestID = traceId
     this.state.lastOutgoingRequestID = traceId
     this.state.testCaseEditorLogs = []
-    message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
+    message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 })
 
     // Set the status to waiting for all the requests
-    for (let i in this.state.template.test_cases) {
-      for (let j in this.state.template.test_cases[i].requests) {
+    for (const i in this.state.template.test_cases) {
+      for (const j in this.state.template.test_cases[i].requests) {
         const request = this.state.template.test_cases[i].requests[j]
         // console.log(request)
         // Also update the total assertion count
@@ -342,20 +342,20 @@ class OutboundRequest extends React.Component {
   }
 
   handleStopExecution = async (outboundRequestID) => {
-    message.loading({ content: 'Terminating the execution...', key: 'outboundStopProgress' });
+    message.loading({ content: 'Terminating the execution...', key: 'outboundStopProgress' })
     const { apiBaseUrl } = getConfig()
-    await axios.delete(apiBaseUrl + "/api/outbound/template/" + outboundRequestID)
+    await axios.delete(apiBaseUrl + '/api/outbound/template/' + outboundRequestID)
   }
 
   handleResetExecution = async () => {
-    message.error({ content: 'Execution has been reset', key: 'outboundSendProgress', duration: 2 });
-    message.error({ content: 'Execution has been reset', key: 'outboundStopProgress', duration: 2 });
+    message.error({ content: 'Execution has been reset', key: 'outboundSendProgress', duration: 2 })
+    message.error({ content: 'Execution has been reset', key: 'outboundStopProgress', duration: 2 })
     this.setState({ sendingOutboundRequestID: null, resetExecutionOptionEnabled: false })
   }
 
   handleSendStopClick = () => {
     if (this.state.sendingOutboundRequestID) {
-      if (this.state.resetExecutionOptionEnabled) { 
+      if (this.state.resetExecutionOptionEnabled) {
         this.handleResetExecution(this.state.sendingOutboundRequestID)
       } else {
         this.handleStopExecution(this.state.sendingOutboundRequestID)
@@ -374,12 +374,12 @@ class OutboundRequest extends React.Component {
 
   // Take the status property out from requests
   convertTemplate = (template, showAdvancedFeaturesAnyway = false) => {
-    let { test_cases, ...remainingTestCaseProps } = template
+    const { test_cases, ...remainingTestCaseProps } = template
     let newTestCases = test_cases
     if (test_cases) {
       newTestCases = test_cases.map(testCase => {
         if (testCase.requests) {
-          let { requests, ...remainingProps } = testCase
+          const { requests, ...remainingProps } = testCase
           const newRequests = requests.map(item => {
             const { status, scripts, ...newRequest } = item
             if ((this.state.userConfig && this.state.userConfig.ADVANCED_FEATURES_ENABLED) || showAdvancedFeaturesAnyway) {
@@ -405,28 +405,28 @@ class OutboundRequest extends React.Component {
         fileTemplate.test_cases = []
       }
       // Find highest request id to determine the new ID
-      let maxId = +fileTemplate.test_cases.reduce(function(m, k){ return k.id > m ? k.id : m }, 0)
-      fileTemplate.test_cases.push({ id: maxId+1, name: testCaseName, requests: [] })
+      const maxId = +fileTemplate.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
+      fileTemplate.test_cases.push({ id: maxId + 1, name: testCaseName, requests: [] })
       this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
       this.autoSave = true
     } else {
-      message.error('ERROR: no file selected or multiple files are selected');
+      message.error('ERROR: no file selected or multiple files are selected')
     }
   }
 
   download = (content, fileName, contentType) => {
-    var a = document.createElement("a");
-    var file = new Blob([content], { type: contentType });
-    a.href = URL.createObjectURL(file);
-    a.download = fileName;
-    a.click();
+    const a = document.createElement('a')
+    const file = new Blob([content], { type: contentType })
+    a.href = URL.createObjectURL(file)
+    a.download = fileName
+    a.click()
   }
 
   restoreSavedFolderData = async () => {
     // const storedFolderData = localStorage.getItem('folderData')
     const storedFolderData = await LocalDB.getItem('folderData')
-    if(storedFolderData) {
+    if (storedFolderData) {
       try {
         return JSON.parse(storedFolderData)
       } catch (err) { }
@@ -446,7 +446,7 @@ class OutboundRequest extends React.Component {
 
   restoreLabelsManager = () => {
     const labelsManager = localStorage.getItem('labelsManager')
-    if(labelsManager) {
+    if (labelsManager) {
       try {
         return JSON.parse(labelsManager)
       } catch (err) { }
@@ -463,7 +463,7 @@ class OutboundRequest extends React.Component {
         this.autoSaveLabelsManager(this.state.labelsManager)
       }
     },
-      2000)
+    2000)
   }
 
   autoSaveFolderData = (folderData) => {
@@ -472,16 +472,16 @@ class OutboundRequest extends React.Component {
   }
 
   autoSaveAdditionalData = (additionalData) => {
-    localStorage.setItem('additionalData', JSON.stringify(additionalData));
+    localStorage.setItem('additionalData', JSON.stringify(additionalData))
   }
 
   autoSaveLabelsManager = (labelsManager) => {
-    localStorage.setItem('labelsManager', JSON.stringify(labelsManager));
+    localStorage.setItem('labelsManager', JSON.stringify(labelsManager))
   }
 
   handleTemplateSaveClick = (fileName, saveTemplateOption) => {
     if (!fileName.endsWith('.json')) {
-      message.error('Filename should be ended with .json');
+      message.error('Filename should be ended with .json')
       return
     }
     let downloadContent = {}
@@ -490,20 +490,20 @@ class OutboundRequest extends React.Component {
     } else if (saveTemplateOption === 2) {
       downloadContent = this.state.inputValues
     }
-    this.download(JSON.stringify(this.convertTemplate(downloadContent), null, 2), fileName, 'text/plain');
+    this.download(JSON.stringify(this.convertTemplate(downloadContent), null, 2), fileName, 'text/plain')
   }
 
   regenerateTemplate = async (additionalData = {}) => {
-    var testCases = []
+    let testCases = []
     testCases = FolderParser.getTestCases(this.state.folderData, additionalData.selectedFiles || [])
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
     this.state.template.test_cases = []
-    for (let i=0; i < testCases.length; i++) {
+    for (let i = 0; i < testCases.length; i++) {
       if (testCases[i].requests === undefined) {
         testCases[i].requests = []
       }
       const testCaseRef = testCases[i]
-      this.state.template.test_cases.push({ ...testCaseRef, id: i + 1})
+      this.state.template.test_cases.push({ ...testCaseRef, id: i + 1 })
     }
     // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
     this.state.template.name = 'multi'
@@ -525,25 +525,24 @@ class OutboundRequest extends React.Component {
       case 'printhtml':
       case 'html':
       default:
-        message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
+        message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 })
         const { apiBaseUrl } = getConfig()
         const reportFormat = event.key
-        const response = await axios.post(apiBaseUrl + "/api/reports/testcase/" + reportFormat, testReport, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
-        let downloadFilename = "test." + reportFormat
+        const response = await axios.post(apiBaseUrl + '/api/reports/testcase/' + reportFormat, testReport, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
+        let downloadFilename = 'test.' + reportFormat
         if (response.headers['content-disposition']) {
           const disposition = response.headers['content-disposition']
           if (disposition && disposition.indexOf('attachment') !== -1) {
-            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-            var matches = filenameRegex.exec(disposition);
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+            const matches = filenameRegex.exec(disposition)
             if (matches != null && matches[1]) {
-              downloadFilename = matches[1].replace(/['"]/g, '');
+              downloadFilename = matches[1].replace(/['"]/g, '')
             }
           }
         }
         FileDownload(response.data, downloadFilename)
-        message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 });
+        message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 })
     }
-
   }
 
   handleDownloadDefinition = async (event) => {
@@ -551,25 +550,24 @@ class OutboundRequest extends React.Component {
       case 'printhtml':
       case 'html':
       default:
-        message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 });
+        message.loading({ content: 'Generating the report...', key: 'downloadReportProgress', duration: 10 })
         const { apiBaseUrl } = getConfig()
         const reportFormat = event.key
-        const response = await axios.post(apiBaseUrl + "/api/reports/testcase_definition/" + reportFormat, this.state.template, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
-        let downloadFilename = "test." + reportFormat
+        const response = await axios.post(apiBaseUrl + '/api/reports/testcase_definition/' + reportFormat, this.state.template, { headers: { 'Content-Type': 'application/json' }, responseType: 'blob' })
+        let downloadFilename = 'test.' + reportFormat
         if (response.headers['content-disposition']) {
           const disposition = response.headers['content-disposition']
           if (disposition && disposition.indexOf('attachment') !== -1) {
-            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-            var matches = filenameRegex.exec(disposition);
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+            const matches = filenameRegex.exec(disposition)
             if (matches != null && matches[1]) {
-              downloadFilename = matches[1].replace(/['"]/g, '');
+              downloadFilename = matches[1].replace(/['"]/g, '')
             }
           }
         }
         FileDownload(response.data, downloadFilename)
-        message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 });
+        message.success({ content: 'Report Generated', key: 'downloadReportProgress', duration: 2 })
     }
-
   }
 
   handleTestCaseChange = () => {
@@ -579,24 +577,24 @@ class OutboundRequest extends React.Component {
 
   handleTestCaseDelete = (testCaseIndex) => {
     const fileSelected = this.getSingleFileSelected()
-    if(fileSelected) {
+    if (fileSelected) {
       const fileTemplate = fileSelected.content
-      fileTemplate.test_cases.splice(testCaseIndex,1)
+      fileTemplate.test_cases.splice(testCaseIndex, 1)
       this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
       this.autoSave = true
     } else {
-      message.error('ERROR: no file selected or multiple files are selected');
+      message.error('ERROR: no file selected or multiple files are selected')
     }
   }
 
   handleTestCaseDuplicate = (testCaseIndex) => {
     const fileSelected = this.getSingleFileSelected()
-    if(fileSelected) {
+    if (fileSelected) {
       const fileTemplate = fileSelected.content
 
       // Find highest request id to determine the new ID
-      let maxId = +fileTemplate.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
+      const maxId = +fileTemplate.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
 
       const { id, name, ...otherProps } = fileTemplate.test_cases[testCaseIndex]
       // Deep copy other properties
@@ -608,24 +606,24 @@ class OutboundRequest extends React.Component {
       this.forceUpdate()
       this.autoSave = true
     } else {
-      message.error('ERROR: no file selected or multiple files are selected');
+      message.error('ERROR: no file selected or multiple files are selected')
     }
   }
 
   handleTestCaseRename = (testCaseIndex, newTitle) => {
     const fileSelected = this.getSingleFileSelected()
-    if(fileSelected) {
+    if (fileSelected) {
       fileSelected.content.test_cases[testCaseIndex].name = newTitle
       this.autoSaveFolderData(this.state.folderData)
       this.forceUpdate()
     } else {
-      message.error('ERROR: no file selected or multiple files are selected');
+      message.error('ERROR: no file selected or multiple files are selected')
     }
   }
 
   handleBreakOnErrorChange = (breakOnError, testCaseIndex) => {
     const fileSelected = this.getSingleFileSelected()
-    if(fileSelected) {
+    if (fileSelected) {
       if (isUndefined(testCaseIndex)) {
         for (let i = 0; i < fileSelected.content.test_cases.length; i++) {
           fileSelected.content.test_cases[i].breakOnError = breakOnError
@@ -637,25 +635,25 @@ class OutboundRequest extends React.Component {
       this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
     } else {
-      message.error('ERROR: multiple files are selected');
+      message.error('ERROR: multiple files are selected')
     }
   }
 
   handleDisableRequests = (disabled, testCaseIndex, requestIndex) => {
     const fileSelected = this.getSingleFileSelected()
-    if(fileSelected) {
+    if (fileSelected) {
       if (isUndefined(requestIndex)) {
         for (let i = 0; i < fileSelected.content.test_cases[testCaseIndex].requests.length; i++) {
-          fileSelected.content.test_cases[testCaseIndex].requests[i].disabled = disabled  
+          fileSelected.content.test_cases[testCaseIndex].requests[i].disabled = disabled
         }
       } else {
-        fileSelected.content.test_cases[testCaseIndex].requests[requestIndex].disabled = disabled  
+        fileSelected.content.test_cases[testCaseIndex].requests[requestIndex].disabled = disabled
       }
       this.autoSaveFolderData(this.state.folderData)
       this.regenerateTemplate(this.state.additionalData)
       this.forceUpdate()
     } else {
-      message.error('ERROR: multiple files are selected');
+      message.error('ERROR: multiple files are selected')
     }
   }
 
@@ -663,16 +661,16 @@ class OutboundRequest extends React.Component {
     if (this.state.template.test_cases) {
       return this.state.template.test_cases.map((testCase, testCaseIndex) => {
         return (
-          <Row className="mb-2">
+          <Row className='mb-2'>
             <Col span={24}>
               <TestCaseViewer
                 testCase={testCase}
                 labelsManager={this.state.labelsManager}
                 onChange={this.handleTestCaseChange}
                 inputValues={this.state.inputValues}
-                onEdit={() => {this.setState({showTestCaseIndex: testCaseIndex})}}
-                onDelete={() => { this.handleTestCaseDelete(testCaseIndex) } }
-                onDuplicate={() => { this.handleTestCaseDuplicate(testCaseIndex) } }
+                onEdit={() => { this.setState({ showTestCaseIndex: testCaseIndex }) }}
+                onDelete={() => { this.handleTestCaseDelete(testCaseIndex) }}
+                onDuplicate={() => { this.handleTestCaseDuplicate(testCaseIndex) }}
                 onRename={(newTestCaseName) => { this.handleTestCaseRename(testCaseIndex, newTestCaseName) }}
                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex) }}
@@ -773,7 +771,7 @@ class OutboundRequest extends React.Component {
 
   historyReportsLocal = async () => {
     const { apiBaseUrl } = getConfig()
-    const reports = await axios.get(apiBaseUrl + "/api/history/reports")
+    const reports = await axios.get(apiBaseUrl + '/api/history/reports')
     return reports.data
   }
 
@@ -817,33 +815,32 @@ class OutboundRequest extends React.Component {
 
   getDataLabelsMapping = (folderData = [], result = {}, parentLabels = []) => {
     for (let i = 0; i < folderData.length; i++) {
-      const data = folderData[i];
+      const data = folderData[i]
       const currentParentLabels = [...parentLabels, ...(data.extraInfo.labels || [])]
       for (let j = 0; j < currentParentLabels.length; j++) {
-        const label = currentParentLabels[j];
+        const label = currentParentLabels[j]
         if (!result[label]) {
           result[label] = []
         }
         result[label].push(data.key)
       }
-      if (data.extraInfo.type === "folder") {
+      if (data.extraInfo.type === 'folder') {
         this.getDataLabelsMapping(data.children, result, currentParentLabels)
       }
     }
     return result
   }
 
-  render() {
-
+  render () {
     const createNewTestCaseDialogContent = (
       <>
         <Input
-          placeholder="Test case name"
-          type="text"
+          placeholder='Test case name'
+          type='text'
           value={this.state.newTestCaseName}
           onChange={(e) => { this.setState({ newTestCaseName: e.target.value }) }}
           onKeyDown={(e) => {
-            if (e.key === "Escape") {
+            if (e.key === 'Escape') {
               this.setState({ createNewTestCaseDialogVisible: false })
             }
           }}
@@ -853,17 +850,17 @@ class OutboundRequest extends React.Component {
           }}
         />
         <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
+          className='text-right mt-2'
+          color='success'
+          href='#pablo'
           onClick={() => {
             this.handleCreateNewTestCaseClick(this.state.newTestCaseName)
             this.setState({ createNewTestCaseDialogVisible: false })
           }}
-          size="sm"
+          size='sm'
         >
           Create
-      </Button>
+        </Button>
       </>
     )
 
@@ -873,12 +870,12 @@ class OutboundRequest extends React.Component {
           <Row>
             <Col>
               <Input
-                placeholder="File name"
-                type="text"
+                placeholder='File name'
+                type='text'
                 value={this.state.saveTemplateFileName}
                 onChange={(e) => { this.setState({ saveTemplateFileName: e.target.value }) }}
                 onKeyDown={(e) => {
-                  if (e.key === "Escape") {
+                  if (e.key === 'Escape') {
                     if (templateOption == 1) {
                       this.setState({ saveTemplateTestcasesDialogVisible: false })
                     } else {
@@ -901,9 +898,9 @@ class OutboundRequest extends React.Component {
           <Row>
             <Col>
               <Button
-                className="text-right mt-2"
-                color="success"
-                href="#pablo"
+                className='text-right mt-2'
+                color='success'
+                href='#pablo'
                 onClick={() => {
                   this.handleTemplateSaveClick(this.state.saveTemplateFileName, templateOption)
                   if (templateOption == 1) {
@@ -912,17 +909,17 @@ class OutboundRequest extends React.Component {
                     this.setState({ saveTemplateEnvironemntDialogVisible: false })
                   }
                 }}
-                size="sm"
+                size='sm'
               >
                 Create
-            </Button>
+              </Button>
             </Col>
           </Row>
         </>
       )
     }
 
-    const SortableRuleItem = SortableElement(({ value }) => <Panel header={value.name}></Panel>)
+    const SortableRuleItem = SortableElement(({ value }) => <Panel header={value.name} />)
 
     const SortableRuleList = SortableContainer(({ items }) => {
       return (
@@ -934,11 +931,11 @@ class OutboundRequest extends React.Component {
       )
     })
 
-      return (
+    return (
       <>
         <Drawer
-          title="File Browser"
-          placement="left"
+          title='File Browser'
+          placement='left'
           width={600}
           closable={false}
           onClose={() => {
@@ -956,9 +953,9 @@ class OutboundRequest extends React.Component {
           />
         </Drawer>
         <Drawer
-          title="Environment Manager"
+          title='Environment Manager'
           forceRender
-          placement="right"
+          placement='right'
           width={800}
           closable={false}
           zIndex={1100}
@@ -976,26 +973,26 @@ class OutboundRequest extends React.Component {
           centered
           destroyOnClose
           forceRender
-          title="Template"
-          className="w-50 p-3"
-          visible={this.state.showTemplate ? true : false}
+          title='Template'
+          className='w-50 p-3'
+          visible={!!this.state.showTemplate}
           footer={null}
           onCancel={() => { this.setState({ showTemplate: false }) }}
         >
-          <pre>{JSON.stringify(this.convertTemplate({...this.state.template, inputValues: this.state.inputValues}), null, 2)}</pre>
+          <pre>{JSON.stringify(this.convertTemplate({ ...this.state.template, inputValues: this.state.inputValues }), null, 2)}</pre>
         </Modal>
         <Modal
           style={{ top: 20 }}
           destroyOnClose
           forceRender
           width='90%'
-          title="Iteration Runner"
-          visible={this.state.showIterationRunner ? true : false}
+          title='Iteration Runner'
+          visible={!!this.state.showIterationRunner}
           footer={null}
           onCancel={() => { this.setState({ showIterationRunner: false }) }}
         >
           <IterationRunner
-            template={this.convertTemplate({...this.state.template, inputValues: this.state.inputValues})}
+            template={this.convertTemplate({ ...this.state.template, inputValues: this.state.inputValues })}
             sessionId={this.state.sessionId}
             ref={this.iterationRunnerRef}
           />
@@ -1004,9 +1001,9 @@ class OutboundRequest extends React.Component {
           centered
           destroyOnClose
           forceRender
-          title="Sequence Diagram"
-          className="w-50 p-3"
-          visible={this.state.sequenceDiagramVisible ? true : false}
+          title='Sequence Diagram'
+          className='w-50 p-3'
+          visible={!!this.state.sequenceDiagramVisible}
           footer={null}
           onCancel={() => { this.seqDiagContainer.innerHTML = ''; this.setState({ sequenceDiagramVisible: false }) }}
         >
@@ -1014,17 +1011,16 @@ class OutboundRequest extends React.Component {
             ref={div => {
               this.seqDiagContainer = div
             }}
-          >
-          </div>
+          />
         </Modal>
         <Modal
           style={{ top: 20 }}
           bodyStyle={{ height: '85vh', 'overflow-y': 'auto' }}
           destroyOnClose
           forceRender
-          title={ this.state.showTestCaseIndex != null ? this.state.template.test_cases[this.state.showTestCaseIndex].name : '' }
+          title={this.state.showTestCaseIndex != null ? this.state.template.test_cases[this.state.showTestCaseIndex].name : ''}
           width='90%'
-          visible={this.state.showTestCaseIndex != null ? true : false}
+          visible={this.state.showTestCaseIndex != null}
           footer={null}
           keyboard={false}
           maskClosable={false}
@@ -1041,9 +1037,9 @@ class OutboundRequest extends React.Component {
                   onChange={this.handleTestCaseChange}
                   onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex) }}
                   traceID={this.state.lastOutgoingRequestID}
-                  onOpenEnvironmentManager={() => {this.setState({environmentManagerVisible: true})}}
+                  onOpenEnvironmentManager={() => { this.setState({ environmentManagerVisible: true }) }}
                 />
-              )
+                )
               : null
           }
         </Modal>
@@ -1051,108 +1047,113 @@ class OutboundRequest extends React.Component {
         <Row>
           <Col span={24}>
             <Affix offsetTop={2}>
-              <Row align="top">
-                <Col span={12}>                
-                  <Button type='primary' className='mt-2' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
-                    this.setState({ fileBrowserVisible: true })
-                  }}>
-                    <Text style={{color: 'white', fontWeight: 'bold'}}>Collections Manager</Text> <CaretRightFilled style={ {fontSize: '18px'} }/>
+              <Row align='top'>
+                <Col span={12}>
+                  <Button
+                    type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
+                      this.setState({ fileBrowserVisible: true })
+                    }}
+                  >
+                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Collections Manager</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
                   </Button>
                 </Col>
-                <Col span={12}>       
-                  <Button type='primary' className='mt-2 float-right' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
+                <Col span={12}>
+                  <Button
+                    type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
                       this.setState({ environmentManagerVisible: true })
-                    }}>
-                    <CaretLeftFilled style={ {fontSize: '18px'} }/> <Text style={{color: 'white', fontWeight: 'bold'}}>Environment Manager</Text>
-                  </Button>            
+                    }}
+                  >
+                    <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Environment Manager</Text>
+                  </Button>
                 </Col>
               </Row>
               <Row>
                 <Col span={24}>
-                  <Card className="mb-4">
+                  <Card className='mb-4'>
                     <Row>
-                      <Col span={10}></Col>
-                      <Col span={4} className="text-center">
-                      {
+                      <Col span={10} />
+                      <Col span={4} className='text-center'>
+                          {
                         this.state.totalAssertionsCount > 0
-                        ? (
-                          <>
-                          <Row>
-                            <Col span={24}>
-                              <Progress percent={Math.round((this.state.totalPassedCount + this.state.totalFailedCount) * 100 / this.state.totalAssertionsCount)} width={50} format={() => (this.state.totalPassedCount + this.state.totalFailedCount) + ' / ' + this.state.totalAssertionsCount} />
-                            </Col>
-                          </Row>
-                          <Row className='mt-4'>
-                            <Col span={8}>
-                              <Badge count="PASSED" style={{ backgroundColor: TTKColors.assertionPassed }}>
-                                <Progress type="circle" width={50} status="success" percent={100} format={() => this.state.totalPassedCount} />
-                              </Badge>
-                            </Col>
-                            <Col span={8}>
-                              <Badge count="FAILED" style={{ backgroundColor: TTKColors.assertionFailed }}>
-                                <Progress type="circle" width={50} status="exception" percent={100} format={() => this.state.totalFailedCount} />
-                              </Badge>
-                            </Col>
-                            <Col span={8}>
-                              <Badge count="TOTAL" style={{ backgroundColor: '#108ee9' }}>
-                                <Progress type="circle" width={50} status="normal" percent={100} format={() => this.state.totalAssertionsCount} />
-                              </Badge>
-                            </Col>
-                          </Row>
-                          </>
-                        )
-                        : null
+                          ? (
+                            <>
+                              <Row>
+                                <Col span={24}>
+                                  <Progress percent={Math.round((this.state.totalPassedCount + this.state.totalFailedCount) * 100 / this.state.totalAssertionsCount)} width={50} format={() => (this.state.totalPassedCount + this.state.totalFailedCount) + ' / ' + this.state.totalAssertionsCount} />
+                                </Col>
+                              </Row>
+                              <Row className='mt-4'>
+                                <Col span={8}>
+                                  <Badge count='PASSED' style={{ backgroundColor: TTKColors.assertionPassed }}>
+                                    <Progress type='circle' width={50} status='success' percent={100} format={() => this.state.totalPassedCount} />
+                                  </Badge>
+                                </Col>
+                                <Col span={8}>
+                                  <Badge count='FAILED' style={{ backgroundColor: TTKColors.assertionFailed }}>
+                                    <Progress type='circle' width={50} status='exception' percent={100} format={() => this.state.totalFailedCount} />
+                                  </Badge>
+                                </Col>
+                                <Col span={8}>
+                                  <Badge count='TOTAL' style={{ backgroundColor: '#108ee9' }}>
+                                    <Progress type='circle' width={50} status='normal' percent={100} format={() => this.state.totalAssertionsCount} />
+                                  </Badge>
+                                </Col>
+                              </Row>
+                            </>
+                            )
+                          : null
                       }
-                      </Col>
+                        </Col>
                       <Col span={10}>
-                        <Row>
+                          <Row>
                           <Col span='24'>
                             <Button
-                              className="float-right"
-                              type="primary"
+                              className='float-right'
+                              type='primary'
                               danger
                               onClick={this.handleSendStopClick}
                             >
                               {this.state.sendingOutboundRequestID ? (this.state.resetExecutionOptionEnabled ? 'Reset' : 'Stop') : 'Run'}
                             </Button>
                             <Button
-                              className="float-right mr-2"
-                              type="dashed"
+                              className='float-right mr-2'
+                              type='dashed'
                               danger
                               onClick={() => { this.setState({ showIterationRunner: true }) }}
                             >
                               Iteration Runner
                             </Button>
                             <Button
-                              className="float-right mr-2"
-                              type="dashed"
+                              className='float-right mr-2'
+                              type='dashed'
                               onClick={() => { this.setState({ showTemplate: true }) }}
                             >
                               Show Current Template
                             </Button>
                             {
-                              getConfig().isAuthEnabled ?
-                                <>
-                                  <Button className="float-right" type="primary" danger onClick={async (e) => {
-                                    this.setState({ historyReportsLocal: await this.historyReportsLocal() })
-                                    this.setState({ historyReportsVisible: true })
-                                  }}>
+                              getConfig().isAuthEnabled
+                                ? <>
+                                  <Button
+                                    className='float-right' type='primary' danger onClick={async (e) => {
+                                      this.setState({ historyReportsLocal: await this.historyReportsLocal() })
+                                      this.setState({ historyReportsVisible: true })
+                                    }}
+                                  >
                                     Reports History
-                                </Button>
+                                  </Button>
                                   {
                                     this.state.historyReportsVisible
-                                      ?
-                                      <Modal
-                                        title="Reports History"
-                                        visible={this.state.historyReportsVisible}
-                                        width='70%'
-                                        onOk={() => {
-                                          this.setState({ historyReportsVisible: false })
-                                        }}
-                                        onCancel={() => {
-                                          this.setState({ historyReportsVisible: false })
-                                        }}
-                                      >
+                                      ? <Modal
+                                          title='Reports History'
+                                          visible={this.state.historyReportsVisible}
+                                          width='70%'
+                                          onOk={() => {
+                                            this.setState({ historyReportsVisible: false })
+                                          }}
+                                          onCancel={() => {
+                                            this.setState({ historyReportsVisible: false })
+                                          }}
+                                        >
                                         <Row>
                                           <Col>
                                             <Table
@@ -1162,48 +1163,47 @@ class OutboundRequest extends React.Component {
                                           </Col>
                                         </Row>
                                       </Modal>
-                                      :
-                                      null
+                                      : null
                                   }
-                                </>
-                                :
-                                null
+                                  </>
+                                : null
                             }
                             {
-                              this.state.template.test_cases ? (
-                                <Checkbox
-                                  className="ml-2 mt-1 float-right"
-                                  onClick={(e) => {
-                                    this.handleBreakOnErrorChange(e.target.checked)
-                                  }}
-                                  checked={this.state.template.test_cases.every(testCase => testCase.breakOnError)}
-                                >
-                                  Break test run on error
-                                </Checkbox>
-                              ) : null
+                              this.state.template.test_cases
+                                ? (
+                                  <Checkbox
+                                    className='ml-2 mt-1 float-right'
+                                    onClick={(e) => {
+                                      this.handleBreakOnErrorChange(e.target.checked)
+                                    }}
+                                    checked={this.state.template.test_cases.every(testCase => testCase.breakOnError)}
+                                  >
+                                    Break test run on error
+                                  </Checkbox>
+                                  )
+                                : null
                             }
                           </Col>
                         </Row>
-                        <Row className='mt-2'>
+                          <Row className='mt-2'>
                           <Col span='24'>
                             {
                               this.state.testReport
-                                ?
-                                <Dropdown overlay={this.downloadReportMenu()}>
+                                ? <Dropdown overlay={this.downloadReportMenu()}>
                                   <Button
-                                    className="float-right"
+                                    className='float-right'
                                     type='primary'
                                     shape='round'
                                     onClick={e => e.preventDefault()}
                                   >
                                     Download Report
-                                </Button>
+                                  </Button>
                                 </Dropdown>
                                 : null
                             }
                           </Col>
                         </Row>
-                      </Col>
+                        </Col>
                     </Row>
                   </Card>
                 </Col>
@@ -1211,70 +1211,69 @@ class OutboundRequest extends React.Component {
             </Affix>
             {
               this.state.lastOutgoingRequestID
-              ?  <Row>
+                ? <Row>
                   <Col span={24}>
-                    <ServerLogsViewer traceID={this.state.lastOutgoingRequestID} userConfig={this.state.userConfig} /> 
+                    <ServerLogsViewer traceID={this.state.lastOutgoingRequestID} userConfig={this.state.userConfig} />
                   </Col>
-                </Row> 
-              : null
+                  </Row>
+                : null
             }
             <Row>
               <Col span={24}>
                 <Tabs defaultActiveKey='1'>
-                  <TabPane tab="Test Cases" key="1">
-                    <Row className="mb-2">
+                  <TabPane tab='Test Cases' key='1'>
+                    <Row className='mb-2'>
                       <Col span={24}>
-                        {
+                          {
                           this.state.template.test_cases && this.state.template.test_cases.length > 0
-                            ?
-                            <Dropdown overlay={this.downloadDefinitionMenu()}>
+                            ? <Dropdown overlay={this.downloadDefinitionMenu()}>
                               <Button
-                                className="float-right"
+                                className='float-right'
                                 type='primary'
                                 shape='round'
                                 onClick={e => e.preventDefault()}
                               >
                                 Download Definition
-                            </Button>
+                              </Button>
                             </Dropdown>
                             : null
                         }
-                        <Popover
-                          className="float-right mr-2"
+                          <Popover
+                          className='float-right mr-2'
                           content={getSaveTemplateDialogContent(1)}
-                          title="Enter filename to save"
-                          trigger="click"
+                          title='Enter filename to save'
+                          trigger='click'
                           visible={this.state.saveTemplateTestcasesDialogVisible}
                           onVisibleChange={(visible) => this.setState({ saveTemplateTestcasesDialogVisible: visible })}
                         >
                           <Button
-                            className="float-right"
-                            type="default"
+                            className='float-right'
+                            type='default'
                           >
                             Export Loaded Testcases
-                        </Button>
+                          </Button>
                         </Popover>
-                        <Popover
+                          <Popover
                           content={createNewTestCaseDialogContent}
-                          className="mr-2"
-                          title="Enter a name for the template"
-                          trigger="click"
+                          className='mr-2'
+                          title='Enter a name for the template'
+                          trigger='click'
                           visible={this.state.createNewTestCaseDialogVisible}
                           onVisibleChange={(visible) => this.setState({ createNewTestCaseDialogVisible: visible })}
                         >
                           <Button
-                            type="primary"
+                            type='primary'
                           >
                             Add Test Case
-                        </Button>
+                          </Button>
                         </Popover>
-                        {
+                          {
                           this.state.testCaseReorderingEnabled
                             ? (
                               <>
                                 <Button
-                                  className="text-right"
-                                  type="dashed"
+                                  className='text-right'
+                                  type='dashed'
                                   danger
                                   onClick={async () => {
                                     if (this.state.curTestCasesUpdated) {
@@ -1284,57 +1283,55 @@ class OutboundRequest extends React.Component {
                                       this.setState({ curTestCasesUpdated: false, tempReorderedTestCases: [] })
                                       this.autoSaveFolderData(this.state.folderData)
                                     } else {
-                                      message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 });
+                                      message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 })
                                     }
                                     this.setState({ testCaseReorderingEnabled: false })
                                   }}
                                 >
                                   Apply Reordering
-                            </Button>
+                                </Button>
                                 <Button
-                                  className="text-right ml-2"
-                                  type="dashed"
+                                  className='text-right ml-2'
+                                  type='dashed'
                                   onClick={async () => {
                                     this.setState({ curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: [] })
                                   }}
                                 >
                                   Cancel Reordering
-                            </Button>
+                                </Button>
                               </>
-                            )
+                              )
                             : (
-                              this.state.additionalData && this.state.additionalData.selectedFiles
-                                ?
-                                <Button
-                                  className="text-right"
-                                  type="default"
-                                  onClick={() => {
-                                    const fileSelected = this.getSingleFileSelected()
-                                    if (fileSelected) {
-                                      this.setState({ tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true })
-                                    } else {
-                                      message.error('ERROR: Only one file should be selected to reorder the testcases')
-                                    }
-                                  }}
-                                >
-                                  Reorder Test Cases
-                            </Button>
-                                :
-                                null
-                            )
+                                this.state.additionalData && this.state.additionalData.selectedFiles
+                                  ? <Button
+                                      className='text-right'
+                                      type='default'
+                                      onClick={() => {
+                                        const fileSelected = this.getSingleFileSelected()
+                                        if (fileSelected) {
+                                          this.setState({ tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true })
+                                        } else {
+                                          message.error('ERROR: Only one file should be selected to reorder the testcases')
+                                        }
+                                      }}
+                                    >
+                                    Reorder Test Cases
+                                    </Button>
+                                  : null
+                              )
                         }
-                      </Col>
+                        </Col>
                     </Row>
                     {
                       this.state.testCaseReorderingEnabled
                         ? (
                           <SortableRuleList items={this.state.tempReorderedTestCases} onSortEnd={this.onTestCaseSortEnd} />
-                        )
+                          )
                         : (
                           <>
                             {this.getTestCaseItems()}
                           </>
-                        )
+                          )
                     }
                   </TabPane>
                 </Tabs>
@@ -1343,8 +1340,8 @@ class OutboundRequest extends React.Component {
           </Col>
         </Row>
       </>
-    );
+    )
   }
 }
 
-export default OutboundRequest;
+export default OutboundRequest

@@ -21,10 +21,10 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import moment from 'moment';
+import React from 'react'
+import moment from 'moment'
 
-import { message, Button, Row, Col, Card, Layout, Typography, Descriptions } from 'antd';
+import { message, Button, Row, Col, Card, Layout, Typography, Descriptions } from 'antd'
 import { getConfig } from '../../utils/getConfig'
 
 const { Text, Title } = Typography
@@ -32,14 +32,13 @@ const { Content } = Layout
 const axios = require('axios').default
 
 class TokenFetcher extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       token: '',
       expiresInSec: 0,
       authConfig: {}
-    };
+    }
   }
 
   componentDidMount = async () => {
@@ -53,13 +52,13 @@ class TokenFetcher extends React.Component {
       const res = await axios.get(apiBaseUrl + '/api/keycloak/clientinfo')
       if (res.status === 200) {
         // this.setState({ token: res.data.access_token, expiresInSec: res.data.expires_in } )
-        this.setState({ authConfig: res.data } )
+        this.setState({ authConfig: res.data })
         return
       } else {
-        message.error({ content: 'Getting Token info failed: ' + res.statusText, key: 'login', duration: 3 });
+        message.error({ content: 'Getting Token info failed: ' + res.statusText, key: 'login', duration: 3 })
       }
     } catch (err) {
-      message.error({ content: 'Getting Token info failed: ' + err.message, key: 'login', duration: 3 });
+      message.error({ content: 'Getting Token info failed: ' + err.message, key: 'login', duration: 3 })
     }
   }
 
@@ -71,87 +70,87 @@ class TokenFetcher extends React.Component {
         ...this.state.authConfig
       }, { headers: { 'Content-Type': 'application/json' } })
       if (res.status === 200) {
-        this.setState({ token: res.data.access_token, expiresInSec: res.data.expires_in } )
+        this.setState({ token: res.data.access_token, expiresInSec: res.data.expires_in })
         return
       } else {
-        message.error({ content: 'Generating token failed: ' + res.statusText, key: 'login', duration: 3 });
+        message.error({ content: 'Generating token failed: ' + res.statusText, key: 'login', duration: 3 })
       }
     } catch (err) {
-      message.error({ content: 'Generating token failed: ' + err.message, key: 'login', duration: 3 });
+      message.error({ content: 'Generating token failed: ' + err.message, key: 'login', duration: 3 })
     }
   }
 
   onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-  };
+    console.log('Failed:', errorInfo)
+  }
 
-  render() {
+  render () {
     const displayAuthInfo = (info) => {
-      const descriptionItems = Object.entries(info).map( item => (
-          <Descriptions.Item label={item[0]}>
-            {item[1]}
-          </Descriptions.Item>
+      const descriptionItems = Object.entries(info).map(item => (
+        <Descriptions.Item label={item[0]}>
+          {item[1]}
+        </Descriptions.Item>
       ))
       return (
         <>
-        {
+          {
           Object.entries(info).length > 0
-          ? (
-            <>
-            <Title className='mt-2' level={4}>Use the following information in your DFSP service to get the token periodically</Title>
-            <Row>
-              <Col span={24}>
-                <Descriptions layout="horizontal" column={1} size='small' bordered>
-                  {descriptionItems}
-                </Descriptions>
-              </Col>
-            </Row>
-            </>
-          )
-          : <Title className='mt-2' style={{color: 'red'}} level={4}>There is some issue getting token information</Title>
+            ? (
+              <>
+                <Title className='mt-2' level={4}>Use the following information in your DFSP service to get the token periodically</Title>
+                <Row>
+                  <Col span={24}>
+                    <Descriptions layout='horizontal' column={1} size='small' bordered>
+                      {descriptionItems}
+                    </Descriptions>
+                  </Col>
+                </Row>
+              </>
+              )
+            : <Title className='mt-2' style={{ color: 'red' }} level={4}>There is some issue getting token information</Title>
         }
         </>
       )
     }
 
     return (
-      <Layout style={{backgroundColor: '#ffffff'}}>
+      <Layout style={{ backgroundColor: '#ffffff' }}>
         <Content>
           <Row>
             <Col colspan={24} className='mx-auto'>
-              <Card className='align-middle' style={{width: '600px'}}>
+              <Card className='align-middle' style={{ width: '600px' }}>
                 {displayAuthInfo(this.state.authConfig)}
-                <Button className='mt-2' type="primary" onClick={this.handleGenerateToken}>
+                <Button className='mt-2' type='primary' onClick={this.handleGenerateToken}>
                   Generate a Static Token
                 </Button>
-              {
+                {
                 this.state.token
-                ? (
-                  <>
-                  <Title className='mt-2' level={4}>Copy the following token. It expires { moment().add(this.state.expiresInSec, 'seconds').fromNow() }</Title>
-                  <Text
-                    className='mt-2'
-                    copyable = {
+                  ? (
+                    <>
+                      <Title className='mt-2' level={4}>Copy the following token. It expires {moment().add(this.state.expiresInSec, 'seconds').fromNow()}</Title>
+                      <Text
+                        className='mt-2'
+                        copyable={
                       {
                         text: this.state.token
                       }
                     }
-                  >
-                    <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
-                      {this.state.token}
-                    </pre>
-                  </Text>
-                  </>
-                )
-                : null
+                      >
+                        <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                          {this.state.token}
+                        </pre>
+                      </Text>
+                    </>
+                    )
+                  : null
               }
               </Card>
             </Col>
           </Row>
         </Content>
-    </Layout>
+      </Layout>
     )
   }
 }
 
-export default TokenFetcher;
+export default TokenFetcher

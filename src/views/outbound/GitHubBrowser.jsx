@@ -21,20 +21,19 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 import { FolderParser } from '@mojaloop/ml-testing-toolkit-shared-lib'
 import GitHubService from '../../services/gitHub'
-import { Row, Col, Table, Button, Typography, Tag, Progress, Select } from 'antd';
-import { FolderOutlined, FileOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { Row, Col, Table, Button, Typography, Tag, Progress, Select } from 'antd'
+import { FolderOutlined, FileOutlined } from '@ant-design/icons'
+import axios from 'axios'
 import { getUserConfig } from '../../utils/getConfig'
 import { decodeBase64 } from '../../utils/decoders'
 
 const { Text, Title } = Typography
-const { Option } = Select;
+const { Option } = Select
 
 class GitHubBrowser extends React.Component {
-
   state = {
     serverCollections: [],
     selectedCollections: [],
@@ -58,21 +57,21 @@ class GitHubBrowser extends React.Component {
 
   componentDidMount = async () => {
     const userConfig = getUserConfig()
-    
+
     this.gitHubConfig = userConfig && userConfig.GITHUB_CONFIG
     this.gitRepo = new GitHubService(this.gitHubConfig.TEST_CASES_REPO_OWNER, this.gitHubConfig.TEST_CASES_REPO_NAME)
-    
-    this.state.currentFolder = this.gitHubConfig.TEST_CASES_REPO_BASE_PATH 
+
+    this.state.currentFolder = this.gitHubConfig.TEST_CASES_REPO_BASE_PATH
     this.reloadTagsList()
   }
 
   reloadTagsList = async () => {
-    if(this.gitRepo) {
-      this.setState({isGettingTagList: true})
+    if (this.gitRepo) {
+      this.setState({ isGettingTagList: true })
       try {
         const resp = await this.gitRepo.getTags()
         const gitTags = resp.data.map(item => item.name)
-        this.setState({gitTags: gitTags, isGettingTagList: false})
+        this.setState({ gitTags, isGettingTagList: false })
         if (this.gitHubConfig.TEST_CASES_REPO_DEFAULT_RELEASE_TAG && this.gitHubConfig.TEST_CASES_REPO_DEFAULT_RELEASE_TAG !== 'latest') {
           const index = gitTags.findIndex(tagName => tagName === this.gitHubConfig.TEST_CASES_REPO_DEFAULT_RELEASE_TAG)
           if (index !== -1) {
@@ -83,22 +82,21 @@ class GitHubBrowser extends React.Component {
         } else {
           this.handleTagChange(0)
         }
-      } catch(err) {
-        this.setState({errorText: err.message, isGettingTagList: false})
+      } catch (err) {
+        this.setState({ errorText: err.message, isGettingTagList: false })
       }
     }
   }
 
   reloadFileList = async () => {
-    if(this.gitRepo) {
-      this.setState({isGettingFileList: true})
+    if (this.gitRepo) {
+      this.setState({ isGettingFileList: true })
       try {
         const resp = await this.gitRepo.getContents(this.state.currentFolder, this.state.gitTags[this.state.selectedTagIndex])
-        this.setState({serverCollections: resp.data, isGettingFileList: false})
-      } catch(err) {
-        this.setState({errorText: err.message, isGettingFileList: false})
+        this.setState({ serverCollections: resp.data, isGettingFileList: false })
+      } catch (err) {
+        this.setState({ errorText: err.message, isGettingFileList: false })
       }
-
     }
   }
 
@@ -119,29 +117,29 @@ class GitHubBrowser extends React.Component {
   }
 
   handleImport = async () => {
-    this.setState({isImporting: true, gitHubDownloadStatusText: 'Downloading...'})
+    this.setState({ isImporting: true, gitHubDownloadStatusText: 'Downloading...' })
     const selectedCollections = this.state.serverCollections.filter((item, index) => this.state.selectedCollections.includes(index))
     // console.log(selectedCollections)
     this.state.gitHubDownloadStatusCount = 0
     // Get the total number of files in the directories
     const totalFileCount = await this.getGitHubTreeFileCount(selectedCollections)
-    this.setState({gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, gitHubDownloadTotalFiles: totalFileCount})
+    this.setState({ gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, gitHubDownloadTotalFiles: totalFileCount })
     if (this.state.isCancelRequested) {
-      this.setState({gitHubDownloadStatusText: '', gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, isImporting: false, isCancelRequested: false})
+      this.setState({ gitHubDownloadStatusText: '', gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, isImporting: false, isCancelRequested: false })
       return
     }
     // await this.downloadGitHubObject(selectedCollections, this.folderData)
     this.folderData = await this.downloadGitHubTree(selectedCollections)
     if (this.state.isCancelRequested) {
-      this.setState({gitHubDownloadStatusText: '', gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, isImporting: false, isCancelRequested: false})
+      this.setState({ gitHubDownloadStatusText: '', gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, isImporting: false, isCancelRequested: false })
       return
     }
-    this.setState({gitHubDownloadStatusText: '', gitHubDownloadProgress: 100})
+    this.setState({ gitHubDownloadStatusText: '', gitHubDownloadProgress: 100 })
 
     if (this.folderData.length > 0) {
       this.props.onDownload(this.folderData)
     }
-    this.setState({isImporting: false})
+    this.setState({ isImporting: false })
   }
 
   handleCancel = async () => {
@@ -161,12 +159,12 @@ class GitHubBrowser extends React.Component {
   resetDownloadStatus = () => {
     this.state.gitHubDownloadStatusCount = 0
     this.folderData = []
-    this.setState({gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, gitHubDownloadTotalFiles: 0, gitHubDownloadStatusText: ''})
+    this.setState({ gitHubDownloadStatusCount: 0, gitHubDownloadProgress: 0, gitHubDownloadTotalFiles: 0, gitHubDownloadStatusText: '' })
   }
 
   // TODO: The imported items are the sub items of the selected folder. But the folder name should be added.
   downloadGitHubTree = async (gObjects) => {
-    var importFolderRawData = []
+    const importFolderRawData = []
     for (let i = 0; i < gObjects.length; i++) {
       if (this.state.isCancelRequested) {
         break
@@ -180,10 +178,10 @@ class GitHubBrowser extends React.Component {
           break
         }
         const fileObj = fileList[j]
-        this.setState({gitHubDownloadStatusText: 'Downloading file ' + fileObj.path + '...'})
+        this.setState({ gitHubDownloadStatusText: 'Downloading file ' + fileObj.path + '...' })
 
         const resp2 = await axios.get(fileObj.url)
-        this.setState({gitHubDownloadStatusCount: this.state.gitHubDownloadStatusCount + 1})
+        this.setState({ gitHubDownloadStatusCount: this.state.gitHubDownloadStatusCount + 1 })
 
         try {
           const fileContent = decodeBase64(resp2.data.content)
@@ -195,7 +193,7 @@ class GitHubBrowser extends React.Component {
             modified: '',
             content: fileContentObj
           })
-        } catch(err) {
+        } catch (err) {
           console.log(err.message)
         }
       }
@@ -205,7 +203,7 @@ class GitHubBrowser extends React.Component {
   }
 
   // TODO: Handle master.json file properly to construct folderData array
-  
+
   downloadGitHubObject = async (gObjects, folderData) => {
     // Iterate through all the github objects
     for (let i = 0; i < gObjects.length; i++) {
@@ -216,23 +214,23 @@ class GitHubBrowser extends React.Component {
         title: gObject.name
       }
 
-      if(gObject.type === 'dir') {
+      if (gObject.type === 'dir') {
         newObj.extraInfo = {
           type: 'folder'
         }
         newObj.children = []
         // Get objects in the directory
-        this.setState({gitHubDownloadStatusText: 'Fetching directory ' + gObject.path + '...'})
+        this.setState({ gitHubDownloadStatusText: 'Fetching directory ' + gObject.path + '...' })
         const resp = await this.gitRepo.getContents(gObject.path)
-        await this.downloadGitHubObject(resp.data, newObj.children)        
-      } else if(gObject.type === 'file') {
-        this.setState({gitHubDownloadStatusCount: this.state.gitHubDownloadStatusCount + 1})
+        await this.downloadGitHubObject(resp.data, newObj.children)
+      } else if (gObject.type === 'file') {
+        this.setState({ gitHubDownloadStatusCount: this.state.gitHubDownloadStatusCount + 1 })
         newObj.extraInfo = {
           type: 'file'
         }
         newObj.isLeaf = true
         // Download the file with axios
-        this.setState({gitHubDownloadStatusText: 'Downloading file ' + gObject.path + '...'})
+        this.setState({ gitHubDownloadStatusText: 'Downloading file ' + gObject.path + '...' })
         const resp = await axios.get(gObject.download_url)
         // Insert the content
         newObj.content = resp.data
@@ -240,7 +238,6 @@ class GitHubBrowser extends React.Component {
       folderData.push(newObj)
     }
   }
-
 
   componentWillUnmount = () => {
   }
@@ -250,13 +247,12 @@ class GitHubBrowser extends React.Component {
     this.setState({ selectedTagIndex: tagIndex })
     this.reloadFileList()
   }
-  
 
-  render() {
+  render () {
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         this.resetDownloadStatus()
-        this.setState({selectedCollections: selectedRowKeys})
+        this.setState({ selectedCollections: selectedRowKeys })
       },
       selectedRowKeys: this.state.selectedCollections
     }
@@ -268,27 +264,27 @@ class GitHubBrowser extends React.Component {
         render: (item) => {
           return (
             <>
-            {
+              {
               item.type === 'dir'
-              ? <FolderOutlined />
-              : <FileOutlined />
+                ? <FolderOutlined />
+                : <FileOutlined />
             }
-            <a className='ml-2' onClick={() => this.changeFolder(item.name)}>{item.name}</a>
+              <a className='ml-2' onClick={() => this.changeFolder(item.name)}>{item.name}</a>
             </>
           )
-        },
-      },
-    ];
+        }
+      }
+    ]
 
     const data = this.state.serverCollections.map((item, index) => {
       return {
         key: index,
-        name: item,
+        name: item
       }
     })
 
     const getHeaderOptions = () => {
-      if(this.state.currentFolder !== this.gitHubConfig.TEST_CASES_REPO_BASE_PATH) {
+      if (this.state.currentFolder !== this.gitHubConfig.TEST_CASES_REPO_BASE_PATH) {
         return <Button onClick={this.backToParentFolder}>Back</Button>
       }
     }
@@ -301,14 +297,14 @@ class GitHubBrowser extends React.Component {
       }
     }
     const getDownloadStatusTag = () => {
-      if(this.state.gitHubDownloadStatusCount > 0) {
-        if(this.state.gitHubDownloadProgress === 100) {
+      if (this.state.gitHubDownloadStatusCount > 0) {
+        if (this.state.gitHubDownloadProgress === 100) {
           return <Tag color='#87d068'>{this.state.gitHubDownloadStatusCount} files Downloaded</Tag>
         } else {
           return (
             <>
-            <Progress percent={this.state.gitHubDownloadStatusCount*100/this.state.gitHubDownloadTotalFiles} size="small" />
-            <Tag color='orange'>{this.state.gitHubDownloadStatusCount + '/' + this.state.gitHubDownloadTotalFiles}</Tag>
+              <Progress percent={this.state.gitHubDownloadStatusCount * 100 / this.state.gitHubDownloadTotalFiles} size='small' />
+              <Tag color='orange'>{this.state.gitHubDownloadStatusCount + '/' + this.state.gitHubDownloadTotalFiles}</Tag>
             </>
           )
         }
@@ -326,78 +322,78 @@ class GitHubBrowser extends React.Component {
     return (
       <>
         {/* Page content */}
-          <Row className="mt--7 mb-4">
-            <Col span={24}>
-              <Row className="mt-2">
-                <Col span={24}>
-                  <Select
-                    style={{ width: 120 }}
-                    onChange={this.handleTagChange}
-                    loading={this.state.isGettingTagList}
-                    value={this.state.selectedTagIndex}
-                  >
-                    { getGitTagOptions() }
-                  </Select>
-                </Col>
-              </Row>
-              <Row className="mt-2">
-                <Col span={24}>
-                  <Table
-                    rowSelection={{
-                      type: 'checkbox',
-                      ...rowSelection,
-                    }}
-                    columns={columns}
-                    dataSource={data}
-                    pagination={false}
-                    loading={this.state.isGettingFileList}
-                    showHeader={false}
-                    title={() => getHeaderOptions()}
-                  />
-                </Col>
-              </Row>
-              <Row className="mt-2">
-                <Col span={24}>
-                  <Button
-                    onClick={this.handleImport}
-                    disabled={this.state.selectedCollections.length === 0}
-                  >
-                    Import
-                  </Button>
-                  {
+        <Row className='mt--7 mb-4'>
+          <Col span={24}>
+            <Row className='mt-2'>
+              <Col span={24}>
+                <Select
+                  style={{ width: 120 }}
+                  onChange={this.handleTagChange}
+                  loading={this.state.isGettingTagList}
+                  value={this.state.selectedTagIndex}
+                >
+                  {getGitTagOptions()}
+                </Select>
+              </Col>
+            </Row>
+            <Row className='mt-2'>
+              <Col span={24}>
+                <Table
+                  rowSelection={{
+                    type: 'checkbox',
+                    ...rowSelection
+                  }}
+                  columns={columns}
+                  dataSource={data}
+                  pagination={false}
+                  loading={this.state.isGettingFileList}
+                  showHeader={false}
+                  title={() => getHeaderOptions()}
+                />
+              </Col>
+            </Row>
+            <Row className='mt-2'>
+              <Col span={24}>
+                <Button
+                  onClick={this.handleImport}
+                  disabled={this.state.selectedCollections.length === 0}
+                >
+                  Import
+                </Button>
+                {
                     this.state.isImporting
-                    ? (
-                      <Button
-                        type='primary'
-                        className="ml-2"
-                        danger
-                        onClick={this.handleCancel}
-                        loading={this.state.isCancelRequested}
-                      >
-                        Cancel
-                      </Button>
-                    )
-                    : null
+                      ? (
+                        <Button
+                          type='primary'
+                          className='ml-2'
+                          danger
+                          onClick={this.handleCancel}
+                          loading={this.state.isCancelRequested}
+                        >
+                          Cancel
+                        </Button>
+                        )
+                      : null
                   }
 
-                </Col>
-              </Row>
-              <Row className="mt-2">
-                <Col span={24}>
-                  {getDownloadStatusTag()}
-                  <Text>{this.state.gitHubDownloadStatusText}</Text>
-                </Col>
-              </Row>
-              <Row className="mt-2">
-                <Col span={24} className="text-center">
-                  <Text type='danger' strong>{this.state.errorText}</Text>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
+            <Row className='mt-2'>
+              <Col span={24}>
+                {getDownloadStatusTag()}
+                <Text>{this.state.gitHubDownloadStatusText}</Text>
+              </Col>
+            </Row>
+            <Row className='mt-2'>
+              <Col span={24} className='text-center'>
+                <Text type='danger' strong>{this.state.errorText}</Text>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       </>
-    );
+    )
   }
 }
 
-export default GitHubBrowser;
+export default GitHubBrowser

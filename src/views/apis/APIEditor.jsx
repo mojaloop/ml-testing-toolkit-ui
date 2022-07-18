@@ -21,46 +21,45 @@
  * Vijay Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 
-import { Modal, Input, Card, Row, Col, Button, Typography } from 'antd'; 
-import 'antd/dist/antd.css';
+import { Modal, Input, Card, Row, Col, Button, Typography } from 'antd'
+import 'antd/dist/antd.css'
 
-import axios from 'axios';
+import axios from 'axios'
 import { getConfig } from '../../utils/getConfig'
 import APIMappings from './APIMappings'
 
-const {Text} = Typography
+const { Text } = Typography
 
 class APIEditor extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       apiMappingsVisible: false,
       hostnames: [],
       prefix: '',
       valuesChanged: false
-    };
+    }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.componentSetState()
-  }  
+  }
 
   componentSetState = async () => {
-    this.setState({ hostnames: this.props.apiVersion.hostnames,
+    this.setState({
+      hostnames: this.props.apiVersion.hostnames,
       prefix: this.props.apiVersion.prefix
     })
   }
 
-
   handleSave = async () => {
-    const res = await axios.put(this.getDefinitionVersionURL(),{
+    const res = await axios.put(this.getDefinitionVersionURL(), {
       hostnames: this.state.hostnames,
       prefix: this.state.prefix
     })
-    this.setState({valuesChanged: false})
+    this.setState({ valuesChanged: false })
     this.props.onUpdated()
     return res.data
   }
@@ -68,14 +67,14 @@ class APIEditor extends React.Component {
   getDefinitionVersionURL = () => {
     const { apiBaseUrl } = getConfig()
     if (this.state.selectedApiIndex !== null) {
-      const url = apiBaseUrl + '/api/openapi/definition/' +  this.props.apiVersion.type + '/' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion
+      const url = apiBaseUrl + '/api/openapi/definition/' + this.props.apiVersion.type + '/' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion
       return url
     } else {
       return ''
     }
   }
 
-  showPrefix() {
+  showPrefix () {
     return (
       <Row className='mt-2'>
         <Col span={12}>
@@ -86,7 +85,7 @@ class APIEditor extends React.Component {
             <Col span={23}>
               <Input
                 value={this.state.prefix}
-                onChange={(e) => this.setState({prefix: e.target.value, valuesChanged: true})}
+                onChange={(e) => this.setState({ prefix: e.target.value, valuesChanged: true })}
               />
             </Col>
           </Row>
@@ -94,8 +93,8 @@ class APIEditor extends React.Component {
       </Row>
     )
   }
-  
-  showHostNames() {
+
+  showHostNames () {
     return (
       <Row className='mt-2'>
         <Col span={12}>
@@ -106,7 +105,7 @@ class APIEditor extends React.Component {
             <Col span={23}>
               <Input
                 value={this.state.hostnames}
-                onChange={(e) => this.setState({hostnames: e.target.value ? e.target.value.split(',') : [], valuesChanged: true})}
+                onChange={(e) => this.setState({ hostnames: e.target.value ? e.target.value.split(',') : [], valuesChanged: true })}
               />
             </Col>
           </Row>
@@ -115,20 +114,19 @@ class APIEditor extends React.Component {
     )
   }
 
-  render() {
-
+  render () {
     return (
       <>
         <Modal
           title='Mapping'
           style={{ top: 20 }}
-          className="p-3"
+          className='p-3'
           width='90%'
           destroyOnClose
           footer={null}
           visible={this.state.apiMappingsVisible}
-          onCancel={ e => {
-            this.setState({apiMappingsVisible: false})
+          onCancel={e => {
+            this.setState({ apiMappingsVisible: false })
           }}
         >
           <APIMappings
@@ -136,48 +134,48 @@ class APIEditor extends React.Component {
             openApiDefinition={this.props.openApiDefinition}
           />
         </Modal>
-          <Row>
-            <Col span={24}> 
-              <Card>
-                <Row>
+        <Row>
+          <Col span={24}>
+            <Card>
+              <Row>
                 <Col span={12}>
                   <Text strong>
                     {this.props.apiVersion?.type + ' ' + this.props.apiVersion?.majorVersion + '.' + this.props.apiVersion?.minorVersion}
                   </Text>
-                  </Col>
-                  <Col span={12}>
-                    <Button
-                      className="ml-2 float-right"
-                      type="primary"
-                      onClick={ e => {
-                        this.setState({apiMappingsVisible: true})
-                      }}
-                      disabled={!(this.props.apiVersion && (this.props.apiVersion.asynchronous ? true : false))}
-                    >
-                      Edit Asynchronous Callback Mappings
-                    </Button>
-                  </Col>
-                </Row>
-                {this.showPrefix()}
-                {this.showHostNames()}
-                <Row>
-                  <Col span={12}>
-                    <Button
-                      danger
-                      type="primary"
-                      onClick={this.handleSave}
-                      disabled={!this.state.valuesChanged}
-                    >
-                      Save
-                    </Button>
-                    </Col>
-                </Row>
-              </Card>
-            </Col>
-          </Row>
+                </Col>
+                <Col span={12}>
+                  <Button
+                    className='ml-2 float-right'
+                    type='primary'
+                    onClick={e => {
+                      this.setState({ apiMappingsVisible: true })
+                    }}
+                    disabled={!(this.props.apiVersion && (!!this.props.apiVersion.asynchronous))}
+                  >
+                    Edit Asynchronous Callback Mappings
+                  </Button>
+                </Col>
+              </Row>
+              {this.showPrefix()}
+              {this.showHostNames()}
+              <Row>
+                <Col span={12}>
+                  <Button
+                    danger
+                    type='primary'
+                    onClick={this.handleSave}
+                    disabled={!this.state.valuesChanged}
+                  >
+                    Save
+                  </Button>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
       </>
-    );
+    )
   }
 }
 
-export default APIEditor;
+export default APIEditor

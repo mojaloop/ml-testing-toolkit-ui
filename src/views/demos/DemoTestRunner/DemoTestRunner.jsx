@@ -21,43 +21,41 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import socketIOClient from "socket.io-client";
-import { getServerConfig } from '../../../utils/getConfig'
-import { Row, Col, Modal, Badge, message, Progress, Button, Card, Drawer, Layout} from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
-import axios from 'axios';
+import React from 'react'
+import socketIOClient from 'socket.io-client'
+import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig'
+import { Row, Col, Modal, Badge, message, Progress, Button, Card, Drawer, Layout } from 'antd'
+import { SettingOutlined } from '@ant-design/icons'
+import 'antd/dist/antd.css'
+import axios from 'axios'
 import TestCaseViewer from '../../outbound/TestCaseViewer'
-import { fetchServerConfig, getConfig } from '../../../utils/getConfig'
-import FileManager from "../../outbound/FileManager.jsx";
+import FileManager from '../../outbound/FileManager.jsx'
 import EnvironmentManager from '../../outbound/EnvironmentManager'
 import Monitor from '../../monitor/Monitor'
 
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
 
 import { TTKColors } from '../../../utils/styleHelpers'
-import { LocalDB } from '../../../services/localDB/LocalDB';
+import { LocalDB } from '../../../services/localDB/LocalDB'
 
 const { Sider, Content } = Layout
 
-function buildFileSelector(multi = false, directory = false) {
-  const fileSelector = document.createElement('input');
-  fileSelector.setAttribute('type', 'file');
+function buildFileSelector (multi = false, directory = false) {
+  const fileSelector = document.createElement('input')
+  fileSelector.setAttribute('type', 'file')
   if (multi) {
-    fileSelector.setAttribute('multiple', 'multiple');
+    fileSelector.setAttribute('multiple', 'multiple')
   }
   if (directory) {
-    fileSelector.setAttribute('webkitdirectory', '');
+    fileSelector.setAttribute('webkitdirectory', '')
   }
-  return fileSelector;
+  return fileSelector
 }
 
 class OutboundRequest extends React.Component {
-
-  constructor() {
-    super();
-    this.fileManagerRef = React.createRef();
+  constructor () {
+    super()
+    this.fileManagerRef = React.createRef()
     const sessionId = TraceHeaderUtils.generateSessionId()
     this.state = {
       request: {},
@@ -70,15 +68,15 @@ class OutboundRequest extends React.Component {
       totalPassedCount: 0,
       totalFailedCount: 0,
       totalAssertionsCount: 0,
-      sessionId: sessionId,
+      sessionId,
       testReport: null,
       userConfig: null,
       sendingOutboundRequestID: null,
       lastOutgoingRequestID: null,
       folderData: [],
       fileBrowserVisible: false,
-      testCaseEditorLogs: [],
-    };
+      testCaseEditorLogs: []
+    }
   }
 
   socket = null
@@ -97,7 +95,7 @@ class OutboundRequest extends React.Component {
   componentDidMount = async () => {
     await fetchServerConfig()
 
-    this.environmentFileSelector = buildFileSelector();
+    this.environmentFileSelector = buildFileSelector()
     this.environmentFileSelector.addEventListener('input', (e) => {
       if (e.target.files) {
         this.handleImportEnvironmentFile(e.target.files[0])
@@ -111,7 +109,7 @@ class OutboundRequest extends React.Component {
 
     this.setState({ userConfig: userConfigRuntime })
     const { apiBaseUrl } = getConfig()
-    this.socket = socketIOClient(apiBaseUrl);
+    this.socket = socketIOClient(apiBaseUrl)
     // this.socket.on("outboundProgress", this.handleIncomingProgress);
     if (getConfig().isAuthEnabled) {
       const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
@@ -119,7 +117,7 @@ class OutboundRequest extends React.Component {
         this.state.sessionId = dfspId
       }
     }
-    this.socket.on("outboundProgress/" + this.state.sessionId, this.handleIncomingProgress);
+    this.socket.on('outboundProgress/' + this.state.sessionId, this.handleIncomingProgress)
 
     const additionalData = this.restoreAdditionalData()
     const storedFolderData = await this.restoreSavedFolderData()
@@ -138,24 +136,23 @@ class OutboundRequest extends React.Component {
     }
 
     this.startAutoSaveTimer()
-
   }
 
   handleInputValuesChange = (newInputValues) => {
-    this.setState({inputValues: newInputValues})
+    this.setState({ inputValues: newInputValues })
   }
 
   handleIncomingProgress = (progress) => {
     if (progress.status === 'FINISHED') {
-      message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
+      message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 })
       this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult })
     } else if (progress.status === 'TERMINATED') {
-      message.success({ content: 'Test case terminated', key: 'outboundStopProgress', duration: 2 });
+      message.success({ content: 'Test case terminated', key: 'outboundStopProgress', duration: 2 })
       this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult })
     } else {
-      let testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
+      const testCase = this.state.template.test_cases.find(item => item.id === progress.testCaseId)
       if (testCase) {
-        let request = testCase.requests.find(item => item.id === progress.requestId)
+        const request = testCase.requests.find(item => item.id === progress.requestId)
         if (request.status) {
           // Update total passed count
           // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
@@ -180,7 +177,7 @@ class OutboundRequest extends React.Component {
             request.status.additionalInfo = progress.additionalInfo
             request.status.testResult = progress.testResult
             // Clear the waiting status of the remaining requests
-            for (let i in testCase.requests) {
+            for (const i in testCase.requests) {
               if (!testCase.requests[i].status) {
                 testCase.requests[i].status = {}
               }
@@ -221,21 +218,21 @@ class OutboundRequest extends React.Component {
     const traceId = traceIdPrefix + this.state.sessionId + this.state.currentEndToEndId
 
     // const outboundRequestID = Math.random().toString(36).substring(7);
-    message.loading({ content: 'Initilizing the test cases...', key: 'outboundSendProgress' });
+    message.loading({ content: 'Initilizing the test cases...', key: 'outboundSendProgress' })
     const { apiBaseUrl } = getConfig()
     const convertedTemplate = template ? this.convertTemplate(template) : this.convertTemplate(this.state.template)
     convertedTemplate.inputValues = this.state.inputValues
     // await axios.post(apiBaseUrl + "/api/outbound/template/" + outboundRequestID, template ? template : this.state.template, { headers: { 'Content-Type': 'application/json' } })
-    await axios.post(apiBaseUrl + "/api/outbound/template/" + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
+    await axios.post(apiBaseUrl + '/api/outbound/template/' + traceId, convertedTemplate, { headers: { 'Content-Type': 'application/json' } })
 
     this.state.sendingOutboundRequestID = traceId
     this.state.lastOutgoingRequestID = traceId
     this.state.testCaseEditorLogs = []
-    message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 });
+    message.loading({ content: 'Executing the test cases...', key: 'outboundSendProgress', duration: 10 })
 
     // Set the status to waiting for all the requests
-    for (let i in this.state.template.test_cases) {
-      for (let j in this.state.template.test_cases[i].requests) {
+    for (const i in this.state.template.test_cases) {
+      for (const j in this.state.template.test_cases[i].requests) {
         const request = this.state.template.test_cases[i].requests[j]
         // console.log(request)
         // Also update the total assertion count
@@ -250,9 +247,9 @@ class OutboundRequest extends React.Component {
   }
 
   handleStopExecution = async (outboundRequestID) => {
-    message.loading({ content: 'Terminating the execution...', key: 'outboundStopProgress' });
+    message.loading({ content: 'Terminating the execution...', key: 'outboundStopProgress' })
     const { apiBaseUrl } = getConfig()
-    await axios.delete(apiBaseUrl + "/api/outbound/template/" + outboundRequestID)
+    await axios.delete(apiBaseUrl + '/api/outbound/template/' + outboundRequestID)
   }
 
   handleSendStopClick = () => {
@@ -265,12 +262,12 @@ class OutboundRequest extends React.Component {
 
   // Take the status property out from requests
   convertTemplate = (template, showAdvancedFeaturesAnyway = false) => {
-    let { test_cases, ...remainingTestCaseProps } = template
+    const { test_cases, ...remainingTestCaseProps } = template
     let newTestCases = test_cases
     if (test_cases) {
       newTestCases = test_cases.map(testCase => {
         if (testCase.requests) {
-          let { requests, ...remainingProps } = testCase
+          const { requests, ...remainingProps } = testCase
           const newRequests = requests.map(item => {
             const { status, scripts, ...newRequest } = item
             if ((this.state.userConfig && this.state.userConfig.ADVANCED_FEATURES_ENABLED) || showAdvancedFeaturesAnyway) {
@@ -289,17 +286,17 @@ class OutboundRequest extends React.Component {
   }
 
   download = (content, fileName, contentType) => {
-    var a = document.createElement("a");
-    var file = new Blob([content], { type: contentType });
-    a.href = URL.createObjectURL(file);
-    a.download = fileName;
-    a.click();
+    const a = document.createElement('a')
+    const file = new Blob([content], { type: contentType })
+    a.href = URL.createObjectURL(file)
+    a.download = fileName
+    a.click()
   }
 
   restoreSavedFolderData = async () => {
     // const storedFolderData = localStorage.getItem('folderData')
     const storedFolderData = await LocalDB.getItem('folderData')
-    if(storedFolderData) {
+    if (storedFolderData) {
       try {
         return JSON.parse(storedFolderData)
       } catch (err) { }
@@ -325,7 +322,7 @@ class OutboundRequest extends React.Component {
         this.autoSaveAdditionalData(this.state.additionalData)
       }
     },
-      2000)
+    2000)
   }
 
   autoSaveFolderData = (folderData) => {
@@ -334,42 +331,41 @@ class OutboundRequest extends React.Component {
   }
 
   autoSaveAdditionalData = (additionalData) => {
-    localStorage.setItem('additionalData', JSON.stringify(additionalData));
+    localStorage.setItem('additionalData', JSON.stringify(additionalData))
   }
 
   regenerateTemplate = async (selectedFiles = null) => {
-    var testCases = []
+    let testCases = []
     testCases = FolderParser.getTestCases(this.state.folderData, selectedFiles)
     // this.state.template.test_cases = JSON.parse(JSON.stringify(testCases))
     this.state.template.test_cases = []
-    for (let i=0; i < testCases.length; i++) {
+    for (let i = 0; i < testCases.length; i++) {
       if (testCases[i].requests === undefined) {
         testCases[i].requests = []
       }
       const testCaseRef = testCases[i]
-      this.state.template.test_cases.push({ ...testCaseRef, id: i + 1})
+      this.state.template.test_cases.push({ ...testCaseRef, id: i + 1 })
     }
     // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
     this.state.template.name = 'multi'
     this.state.additionalData = {
       importedFilename: 'Multiple Files',
-      selectedFiles: selectedFiles
+      selectedFiles
     }
     this.forceUpdate()
     // this.autoSave = true
   }
 
-
   getTestCaseItems = () => {
     if (this.state.template.test_cases) {
       return this.state.template.test_cases.map((testCase, testCaseIndex) => {
         return (
-          <Row className="mb-2">
+          <Row className='mb-2'>
             <Col span={24}>
               <TestCaseViewer
                 testCase={testCase}
                 inputValues={this.state.inputValues}
-                noOptions={true}
+                noOptions
               />
             </Col>
           </Row>
@@ -378,7 +374,6 @@ class OutboundRequest extends React.Component {
     }
     return null
   }
-
 
   handleFileManagerContentChange = async (folderData, selectedFiles = null) => {
     this.state.folderData = folderData
@@ -406,13 +401,12 @@ class OutboundRequest extends React.Component {
     return fileSelected
   }
 
-  render() {
-
-      return (
+  render () {
+    return (
       <>
         <Drawer
-          title="Configuration"
-          placement="left"
+          title='Configuration'
+          placement='left'
           width={600}
           closable={false}
           onClose={() => {
@@ -423,8 +417,8 @@ class OutboundRequest extends React.Component {
           <Row>
             <Col span={24}>
               <Button
-                className="float-right mr-2"
-                type="dashed"
+                className='float-right mr-2'
+                type='dashed'
                 onClick={() => { this.setState({ showTemplate: true }) }}
               >
                 Show Current Template
@@ -434,12 +428,12 @@ class OutboundRequest extends React.Component {
           <Row className='mt-2'>
             <Col span={24}>
               <Card title='Collection Manager' size='small'>
-              <FileManager
-                folderData={this.state.folderData}
-                selectedFiles={this.state.additionalData.selectedFiles}
-                onChange={this.handleFileManagerContentChange}
-                ref={this.fileManagerRef}
-              />
+                <FileManager
+                  folderData={this.state.folderData}
+                  selectedFiles={this.state.additionalData.selectedFiles}
+                  onChange={this.handleFileManagerContentChange}
+                  ref={this.fileManagerRef}
+                />
               </Card>
             </Col>
           </Row>
@@ -458,13 +452,13 @@ class OutboundRequest extends React.Component {
           centered
           destroyOnClose
           forceRender
-          title="Template"
-          className="w-50 p-3"
-          visible={this.state.showTemplate ? true : false}
+          title='Template'
+          className='w-50 p-3'
+          visible={!!this.state.showTemplate}
           footer={null}
           onCancel={() => { this.setState({ showTemplate: false }) }}
         >
-          <pre>{JSON.stringify(this.convertTemplate({...this.state.template, inputValues: this.state.inputValues}), null, 2)}</pre>
+          <pre>{JSON.stringify(this.convertTemplate({ ...this.state.template, inputValues: this.state.inputValues }), null, 2)}</pre>
         </Modal>
         <Layout>
           <Sider
@@ -479,55 +473,57 @@ class OutboundRequest extends React.Component {
               <Col span={24}>
                 <Row>
                   <Col span={4}>
-                      <SettingOutlined style={ {fontSize: '24px'} } onClick={() => {
-                      this.setState({ fileBrowserVisible: true })
-                    }} />
+                    <SettingOutlined
+                        style={{ fontSize: '24px' }} onClick={() => {
+                          this.setState({ fileBrowserVisible: true })
+                        }}
+                      />
                   </Col>
-                  <Col span={16} className="text-center">
-                  {
+                  <Col span={16} className='text-center'>
+                    {
                     this.state.totalAssertionsCount > 0
-                    ? (
-                      <>
-                      <Row>
-                        <Col span={24}>
-                          <Progress percent={Math.round((this.state.totalPassedCount + this.state.totalFailedCount) * 100 / this.state.totalAssertionsCount)} width={50} format={() => (this.state.totalPassedCount + this.state.totalFailedCount) + ' / ' + this.state.totalAssertionsCount} />
-                        </Col>
-                      </Row>
-                      <Row className='mt-4'>
-                        <Col span={8}>
-                          <Badge count="PASSED" style={{ backgroundColor: TTKColors.assertionPassed }}>
-                            <Progress type="circle" width={50} status="success" percent={100} format={() => this.state.totalPassedCount} />
-                          </Badge>
-                        </Col>
-                        <Col span={8}>
-                          <Badge count="FAILED" style={{ backgroundColor: TTKColors.assertionFailed }}>
-                            <Progress type="circle" width={50} status="exception" percent={100} format={() => this.state.totalFailedCount} />
-                          </Badge>
-                        </Col>
-                        <Col span={8}>
-                          <Badge count="TOTAL" style={{ backgroundColor: '#108ee9' }}>
-                            <Progress type="circle" width={50} status="normal" percent={100} format={() => this.state.totalAssertionsCount} />
-                          </Badge>
-                        </Col>
-                      </Row>
-                      </>
-                    )
-                    : null
+                      ? (
+                        <>
+                          <Row>
+                            <Col span={24}>
+                              <Progress percent={Math.round((this.state.totalPassedCount + this.state.totalFailedCount) * 100 / this.state.totalAssertionsCount)} width={50} format={() => (this.state.totalPassedCount + this.state.totalFailedCount) + ' / ' + this.state.totalAssertionsCount} />
+                            </Col>
+                          </Row>
+                          <Row className='mt-4'>
+                            <Col span={8}>
+                              <Badge count='PASSED' style={{ backgroundColor: TTKColors.assertionPassed }}>
+                                <Progress type='circle' width={50} status='success' percent={100} format={() => this.state.totalPassedCount} />
+                              </Badge>
+                            </Col>
+                            <Col span={8}>
+                              <Badge count='FAILED' style={{ backgroundColor: TTKColors.assertionFailed }}>
+                                <Progress type='circle' width={50} status='exception' percent={100} format={() => this.state.totalFailedCount} />
+                              </Badge>
+                            </Col>
+                            <Col span={8}>
+                              <Badge count='TOTAL' style={{ backgroundColor: '#108ee9' }}>
+                                <Progress type='circle' width={50} status='normal' percent={100} format={() => this.state.totalAssertionsCount} />
+                              </Badge>
+                            </Col>
+                          </Row>
+                        </>
+                        )
+                      : null
                   }
                   </Col>
                   <Col span={4}>
                     <Row>
-                      <Col span='24'>
-                        <Button
-                          className="float-right"
-                          type="primary"
+                        <Col span='24'>
+                          <Button
+                          className='float-right'
+                          type='primary'
                           danger
                           onClick={this.handleSendStopClick}
                         >
                           {this.state.sendingOutboundRequestID ? 'Stop' : 'Run'}
                         </Button>
-                      </Col>
-                    </Row>
+                        </Col>
+                      </Row>
                   </Col>
                 </Row>
               </Col>
@@ -540,7 +536,8 @@ class OutboundRequest extends React.Component {
               </Col>
             </Row>
           </Sider>
-          <Content className='p-2'
+          <Content
+            className='p-2'
             style={{
               background: '#fff'
             }}
@@ -549,8 +546,8 @@ class OutboundRequest extends React.Component {
           </Content>
         </Layout>
       </>
-    );
+    )
   }
 }
 
-export default OutboundRequest;
+export default OutboundRequest

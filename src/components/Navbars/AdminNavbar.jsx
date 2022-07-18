@@ -21,15 +21,15 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react'
 import { Layout, Button, Typography, Row, Col } from 'antd'
 import { getConfig } from '../../utils/getConfig'
 
-const { Header } = Layout;
-const { Title, Text } = Typography;
+const { Header } = Layout
+const { Title, Text } = Typography
 
 class AdminNavbar extends React.Component {
-  render() {
+  render () {
     const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
     const { isAuthEnabled } = getConfig()
     return (
@@ -44,43 +44,40 @@ class AdminNavbar extends React.Component {
             <Col span={12}>
               <Title
                 level={4}
-                className="text-white text-uppercase d-none d-lg-inline-block"
+                className='text-white text-uppercase d-none d-lg-inline-block'
               >
                 {this.props.brandText}
               </Title>
             </Col>
             <Col span={12} className='text-right'>
-            {
+              {
               dfspId
-              ?
-              <Text className="text-white d-none d-lg-inline-block">{dfspId}</Text>
-              :
-              null
+                ? <Text className='text-white d-none d-lg-inline-block'>{dfspId}</Text>
+                : null
             }
 
-            {
+              {
               isAuthEnabled
-              ?
-              <Button
-                color="danger"
-                href="#pablo"
-                onClick={e => {
-                  e.preventDefault()
-                  this.props.handleLogout()
-                }}
-                size="sm"
-                className='ml-4'
-              >
-                Logout
-              </Button>
-              : null
+                ? <Button
+                    color='danger'
+                    href='#pablo'
+                    onClick={e => {
+                      e.preventDefault()
+                      this.props.handleLogout()
+                    }}
+                    size='sm'
+                    className='ml-4'
+                  >
+                  Logout
+                  </Button>
+                : null
             }
             </Col>
-          </Row>            
+          </Row>
         </Header>
       </>
-    );
+    )
   }
 }
 
-export default AdminNavbar;
+export default AdminNavbar

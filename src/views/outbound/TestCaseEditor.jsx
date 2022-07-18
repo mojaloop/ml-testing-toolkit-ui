@@ -22,59 +22,57 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import _ from 'lodash';
+import React from 'react'
+import _ from 'lodash'
 
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions ,Collapse, Card, Button, Radio, Affix, Typography, Alert, Switch } from 'antd';
+import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Collapse, Card, Button, Radio, Affix, Typography, Alert, Switch } from 'antd'
 
-import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
-import ace from 'brace';
-import 'brace/mode/json';
-import 'brace/theme/github';
-import 'brace/theme/tomorrow_night_blue';
-import 'brace/theme/github';
-import axios from 'axios';
-import './fixAce.css';
+import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretRightFilled, CaretLeftFilled } from '@ant-design/icons'
+import { JsonEditor as Editor } from 'jsoneditor-react'
+import 'jsoneditor-react/es/editor.min.css'
+import ace from 'brace'
+import 'brace/mode/json'
+import 'brace/theme/github'
+import 'brace/theme/tomorrow_night_blue'
+import axios from 'axios'
+import './fixAce.css'
 import RequestBuilder from './RequestBuilder'
 import TestAssertions from './TestAssertions'
 import ServerLogsViewer from './ServerLogsViewer'
 import { getConfig } from '../../utils/getConfig'
 import { TTKColors } from '../../utils/styleHelpers'
 
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/mode-javascript";
-import "ace-builds/src-noconflict/theme-terminal";
-import "ace-builds/src-noconflict/theme-dracula";
-import MetadataEditor from "./MetadataEditor";
+import AceEditor from 'react-ace'
+import 'ace-builds/src-noconflict/mode-javascript'
+import 'ace-builds/src-noconflict/theme-terminal'
+import 'ace-builds/src-noconflict/theme-dracula'
+import MetadataEditor from './MetadataEditor'
 
-const { Option } = Select;
-const { Step } = Steps;
-const { TabPane } = Tabs;
-const { Panel } = Collapse;
-const { Text, Paragraph } = Typography;
-
+const { Option } = Select
+const { Step } = Steps
+const { TabPane } = Tabs
+const { Panel } = Collapse
+const { Text, Paragraph } = Typography
 
 class ResourceSelector extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       selectedItem: null
     }
   }
+
   resourceOptions = []
 
   getResourceOptions = () => {
     this.resourceOptions = []
     if (this.props.openApiDefinition && this.props.openApiDefinition.paths) {
-      let currentResourceGroup = ''
-      for (let pathKey in this.props.openApiDefinition.paths) {
-        for (let methodKey in this.props.openApiDefinition.paths[pathKey]) {
-          let itemKey = methodKey + " " + pathKey
+      const currentResourceGroup = ''
+      for (const pathKey in this.props.openApiDefinition.paths) {
+        for (const methodKey in this.props.openApiDefinition.paths[pathKey]) {
+          const itemKey = methodKey + ' ' + pathKey
           // Filter the methods based on the api type
           switch (methodKey) {
             case 'get':
@@ -103,11 +101,9 @@ class ResourceSelector extends React.Component {
     } else {
       return null
     }
-
   }
 
-  render() {
-
+  render () {
     const resourceSelectHandler = (eventKey) => {
       const resourceArr = eventKey.split(' ')
       const resource = {
@@ -121,10 +117,11 @@ class ResourceSelector extends React.Component {
     }
 
     return (
-      <Select onChange={resourceSelectHandler}
-        disabled={(this.props.value ? true : false)}
+      <Select
+        onChange={resourceSelectHandler}
+        disabled={(!!this.props.value)}
         style={{ width: 300 }}
-        placeholder="Select a resource"
+        placeholder='Select a resource'
         value={this.getResourceValue()}
       >
         {this.getResourceOptions()}
@@ -134,10 +131,10 @@ class ResourceSelector extends React.Component {
 }
 
 class ApiVersionSelector extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
   }
+
   apiVersionOptions = []
 
   getApiVersionOptions = () => {
@@ -157,18 +154,18 @@ class ApiVersionSelector extends React.Component {
     }
   }
 
-  render() {
-
+  render () {
     const apiVersionSelectHandler = (eventKey) => {
       this.props.onSelect(JSON.parse(eventKey))
     }
 
     return (
       <>
-        <Select onChange={apiVersionSelectHandler}
-          disabled={(this.props.value ? true : false)}
+        <Select
+          onChange={apiVersionSelectHandler}
+          disabled={(!!this.props.value)}
           style={{ width: 300 }}
-          placeholder="Select an API"
+          placeholder='Select an API'
           value={this.getApiVersionValue()}
         >
           {this.getApiVersionOptions()}
@@ -179,9 +176,8 @@ class ApiVersionSelector extends React.Component {
 }
 
 class RequestGenerator extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.state = {
       origJson: [],
       curJson: {},
@@ -196,11 +192,10 @@ class RequestGenerator extends React.Component {
       apiVersions: [],
       renameRequestDialogVisible: false,
       newRequestDescription: ''
-    };
+    }
   }
 
   componentDidMount = async () => {
-
     const apiVersions = await this.getApiVersions()
     this.state.apiVersions = apiVersions
     await this.fetchRequest()
@@ -227,7 +222,6 @@ class RequestGenerator extends React.Component {
   }
 
   fetchAllApiData = async (apiType, version, asynchronous) => {
-
     const openApiDefinition = await this.getDefinition(apiType, version)
     let callbackMap = {}
     let responseMap = {}
@@ -265,9 +259,9 @@ class RequestGenerator extends React.Component {
     const rule = {
       description: this.state.description,
       conditions: {
-        "all": [...this.state.conditions, ...this.state.pathMethodConditions]
+        all: [...this.state.conditions, ...this.state.pathMethodConditions]
       },
-      request: this.state.request,
+      request: this.state.request
     }
     return JSON.stringify(rule, null, 2)
   }
@@ -275,16 +269,16 @@ class RequestGenerator extends React.Component {
   handleConditionsChange = () => {
     this.forceUpdate()
     // this.setState({conditions});
-  };
+  }
 
   handleRequestChange = (request) => {
-    this.setState({ request });
+    this.setState({ request })
     this.props.onChange(request)
-  };
+  }
 
   getApiVersions = async () => {
     const { apiBaseUrl } = getConfig()
-    const response = await axios.get(apiBaseUrl + "/api/openapi/api_versions")
+    const response = await axios.get(apiBaseUrl + '/api/openapi/api_versions')
     return response.data
   }
 
@@ -311,7 +305,7 @@ class RequestGenerator extends React.Component {
   }
 
   apiVersionSelectHandler = async (apiVersion) => {
-    let fetchAllApiData = await this.fetchAllApiData(apiVersion.type, apiVersion.majorVersion + '.' + apiVersion.minorVersion, apiVersion.asynchronous)
+    const fetchAllApiData = await this.fetchAllApiData(apiVersion.type, apiVersion.majorVersion + '.' + apiVersion.minorVersion, apiVersion.asynchronous)
     const request = this.props.request
     request.apiVersion = apiVersion
     this.props.onChange(request)
@@ -333,8 +327,9 @@ class RequestGenerator extends React.Component {
     }
     return null
   }
+
   getRootParameters = () => {
-    var rootParams = []
+    let rootParams = []
     if (this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method) {
       rootParams = this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters
     }
@@ -345,9 +340,9 @@ class RequestGenerator extends React.Component {
     let callbackObj = null
     try {
       if (this.props.mode === 'validation') {
-        callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['errorCallback']
+        callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method].errorCallback
       } else {
-        callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method]['successCallback']
+        callbackObj = this.state.callbackMap[this.state.selectedResource.path][this.state.selectedResource.method].successCallback
       }
     } catch (err) {
     }
@@ -361,7 +356,6 @@ class RequestGenerator extends React.Component {
     } catch (err) {
       return []
     }
-
   }
 
   getCallbackDefinition = () => {
@@ -372,7 +366,6 @@ class RequestGenerator extends React.Component {
       } catch (err) {
         return null
       }
-
     }
     return null
   }
@@ -381,30 +374,28 @@ class RequestGenerator extends React.Component {
     this.setState({ description: newValue })
   }
 
-
-  render() {
-
+  render () {
     const renameRequestDialogContent = (
       <>
         <Input
-          placeholder="Description"
-          type="text"
+          placeholder='Description'
+          type='text'
           value={this.state.newRequestDescription}
           onChange={(e) => { this.setState({ newRequestDescription: e.target.value }) }}
         />
         <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
+          className='text-right mt-2'
+          color='success'
+          href='#pablo'
           onClick={() => {
             this.props.request.description = this.state.newRequestDescription
             this.setState({ description: this.state.newRequestDescription, renameRequestDialogVisible: false })
             this.props.onChange(this.props.request)
           }}
-          size="sm"
+          size='sm'
         >
           Save
-      </Button>
+        </Button>
       </>
     )
 
@@ -413,8 +404,8 @@ class RequestGenerator extends React.Component {
         <Row>
           <Col span={24}>
             <Button
-              className="float-right"
-              type="primary"
+              className='float-right'
+              type='primary'
               danger
               onClick={async () => {
                 await this.props.onDelete(this.props.request.id)
@@ -422,28 +413,28 @@ class RequestGenerator extends React.Component {
               }}
             >
               Delete
-              </Button>
+            </Button>
             <Popover
-              className="float-right mr-2"
+              className='float-right mr-2'
               content={renameRequestDialogContent}
-              title="Enter new description"
-              trigger="click"
+              title='Enter new description'
+              trigger='click'
               visible={this.state.renameRequestDialogVisible}
               onVisibleChange={(visible) => this.setState({ renameRequestDialogVisible: visible })}
             >
               <Button>Rename</Button>
             </Popover>
             <Button
-              className="float-right mr-2"
-              type="dashed"
+              className='float-right mr-2'
+              type='dashed'
               onClick={() => { this.props.onDuplicate(this.props.request.id) }}
             >
               Duplicate
-              </Button>
+            </Button>
 
           </Col>
         </Row>
-        <Row className="mt-2">
+        <Row className='mt-2'>
           <Col span={24}>
             <table>
               <tbody>
@@ -463,7 +454,7 @@ class RequestGenerator extends React.Component {
             </table>
           </Col>
         </Row>
-        <Row className="mt-2">
+        <Row className='mt-2'>
           <Col span={24}>
             <RequestBuilder
               request={this.props.request}
@@ -479,19 +470,18 @@ class RequestGenerator extends React.Component {
           </Col>
         </Row>
       </>
-    );
+    )
   }
 }
 
 class TestCaseEditor extends React.Component {
-
-  constructor() {
-    super();
+  constructor () {
+    super()
     this.containerRef = React.createRef()
     this.state = {
       addNewRequestDialogVisible: false,
       newRequestDescription: ''
-    };
+    }
   }
 
   componentWillUnmount = () => {
@@ -502,7 +492,7 @@ class TestCaseEditor extends React.Component {
   }
 
   replaceInputValues = (inputObject, inputValues) => {
-    var resultObject
+    let resultObject
     // Check whether inputObject is string or object. If it is object, then convert that to JSON string and parse it while return
     if (typeof inputObject === 'string') {
       resultObject = inputObject
@@ -538,8 +528,8 @@ class TestCaseEditor extends React.Component {
   }
 
   getObjectAsDescriptions = (inputObject) => {
-    let inputItems = []
-    for (let key in inputObject) {
+    const inputItems = []
+    for (const key in inputObject) {
       inputItems.push(
         <>
           <Descriptions.Item label={key}>
@@ -557,12 +547,14 @@ class TestCaseEditor extends React.Component {
     }
     return null
   }
+
   getPostRequestScriptConsoleLog = (item) => {
     if (item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution && item.status.additionalInfo.scriptsExecution.postRequest && item.status.additionalInfo.scriptsExecution.postRequest.consoleLog) {
       return item.status.additionalInfo.scriptsExecution.postRequest.consoleLog
     }
     return null
   }
+
   printConsoleLog = (consoleLogArr) => {
     let consoleLogText = ''
     if (consoleLogArr) {
@@ -596,6 +588,7 @@ class TestCaseEditor extends React.Component {
     }
     return null
   }
+
   getPostRequestScriptEnvironmentState = (item) => {
     if (item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution && item.status.additionalInfo.scriptsExecution.postRequest && item.status.additionalInfo.scriptsExecution.postRequest.environment) {
       return item.status.additionalInfo.scriptsExecution.postRequest.environment
@@ -634,13 +627,13 @@ class TestCaseEditor extends React.Component {
         return (
           <Col span={24 / (this.props.testCase.requests.length ? (endIndex - startIndex) : 1)}>
             <Tabs defaultActiveKey='1'>
-              <TabPane tab={'Request'} key="1">
+              <TabPane tab='Request' key='1'>
                 <>
-                  <Card size="small" title={'Enabled'} className="mb-2">
-                    <Switch 
-                      size="default"
-                      checked={item.disabled ? false : true}
-                      className="mt-1"
+                  <Card size='small' title='Enabled' className='mb-2'>
+                    <Switch
+                      size='default'
+                      checked={!item.disabled}
+                      className='mt-1'
                       onChange={(enabled) => {
                         const disabled = !enabled
                         console.log(startIndex)
@@ -648,10 +641,10 @@ class TestCaseEditor extends React.Component {
                         console.log(disabled)
                         this.props.testCase.requests[startIndex + index].disabled = disabled
                         this.forceUpdate()
-                      }} 
+                      }}
                     />
                   </Card>
-                  <Card size="small" title={'Meta Data'} className="mb-2">
+                  <Card size='small' title='Meta Data' className='mb-2'>
                     <MetadataEditor
                       values={item.meta}
                       onChange={this.props.onChange}
@@ -661,43 +654,43 @@ class TestCaseEditor extends React.Component {
                     item.status && item.status.progressStatus == 'SKIPPED'
                       ? (
                         <Alert
-                          message="Request Skipped"
-                          type="warning"
+                          message='Request Skipped'
+                          type='warning'
                           showIcon
-                          className="mb-2"
+                          className='mb-2'
                         />
-                      )
+                        )
                       : null
                   }
                   {
                     requestShow.headers
                       ? (
-                        <Card size="small" title={'Header' + suffixRequestBody} className="mb-2">
+                        <Card size='small' title={'Header' + suffixRequestBody} className='mb-2'>
                           <Descriptions bordered column={1} size='small'>
                             {this.getObjectAsDescriptions(requestShow.headers)}
                           </Descriptions>
                         </Card>
-                      )
+                        )
                       : null
                   }
                   {
                     requestShow.body
                       ? (
-                        <Card size="small" className="mb-2" title={'Body' + suffixRequestBody}>
+                        <Card size='small' className='mb-2' title={'Body' + suffixRequestBody}>
                           <Text>
                             <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
-                              {JSON.stringify(requestShow.body,null,2)}
+                              {JSON.stringify(requestShow.body, null, 2)}
                             </pre>
                           </Text>
                         </Card>
-                      )
+                        )
                       : null
                   }
                   {
                     item.status && item.status.additionalInfo && item.status.additionalInfo.curlRequest
                       ? (
                         <>
-                          <Card size="small" className="mb-2" title="CURL command">
+                          <Card size='small' className='mb-2' title='CURL command'>
                             <Paragraph
                               copyable={
                                 {
@@ -710,23 +703,24 @@ class TestCaseEditor extends React.Component {
                                   {
                                     overflow: 'scroll',
                                     'white-space': 'pre-wrap',
-                                    'backgroundColor': '#111111',
+                                    backgroundColor: '#111111',
                                     color: 'white',
                                     minHeight: '50px',
                                     maxHeight: '300px'
                                   }
-                                }>
+                                }
+                              >
                                 {this.prettyPrintCURL(item.status.additionalInfo.curlRequest)}
                               </pre>
                             </Paragraph>
                           </Card>
                         </>
-                      )
+                        )
                       : null
                   }
                 </>
               </TabPane>
-              <TabPane tab="Editor" key="2">
+              <TabPane tab='Editor' key='2'>
                 <RequestGenerator
                   request={item}
                   allRequests={this.props.testCase.requests}
@@ -739,7 +733,7 @@ class TestCaseEditor extends React.Component {
               {
                 this.props.userConfig && this.props.userConfig.ADVANCED_FEATURES_ENABLED
                   ? (
-                    <TabPane tab="Scripts" key="3">
+                    <TabPane tab='Scripts' key='3'>
                       <Row>
                         <Col span={24}>
                           <Radio.Group
@@ -749,19 +743,19 @@ class TestCaseEditor extends React.Component {
                             }}
                             value={item.scriptingEngine || 'postman'}
                           >
-                            <Radio value={'javascript'}>Javascript</Radio>
-                            <Radio value={'postman'}>Postman-script</Radio>
+                            <Radio value='javascript'>Javascript</Radio>
+                            <Radio value='postman'>Postman-script</Radio>
                           </Radio.Group>
                         </Col>
                       </Row>
-                      <Row className="mt-2">
+                      <Row className='mt-2'>
                         <Col span={24}>
-                          <Tabs type="card" defaultActiveKey='1'>
-                            <TabPane tab="Pre-request" key="1">
+                          <Tabs type='card' defaultActiveKey='1'>
+                            <TabPane tab='Pre-request' key='1'>
                               <AceEditor
-                                ref="preReqScriptAceEditor"
-                                mode="javascript"
-                                theme="eclipse"
+                                ref='preReqScriptAceEditor'
+                                mode='javascript'
+                                theme='eclipse'
                                 width='100%'
                                 value={item.scripts && item.scripts.preRequest ? item.scripts.preRequest.exec.join('\n') : ''}
                                 onChange={(newScript) => {
@@ -774,20 +768,20 @@ class TestCaseEditor extends React.Component {
                                   item.scripts.preRequest.exec = newScript.split('\n')
                                   this.props.onChange(item)
                                 }}
-                                name="UNIQUE_ID_OF_DIV"
-                                wrapEnabled={true}
-                                showPrintMargin={true}
-                                showGutter={true}
+                                name='UNIQUE_ID_OF_DIV'
+                                wrapEnabled
+                                showPrintMargin
+                                showGutter
                                 tabSize={2}
-                                enableBasicAutocompletion={true}
-                                enableLiveAutocompletion={true}
+                                enableBasicAutocompletion
+                                enableLiveAutocompletion
                               />
                             </TabPane>
-                            <TabPane tab="Post-request" key="2">
+                            <TabPane tab='Post-request' key='2'>
                               <AceEditor
-                                ref="postReqScriptAceEditor"
-                                mode="javascript"
-                                theme="eclipse"
+                                ref='postReqScriptAceEditor'
+                                mode='javascript'
+                                theme='eclipse'
                                 width='100%'
                                 value={item.scripts && item.scripts.postRequest ? item.scripts.postRequest.exec.join('\n') : ''}
                                 onChange={(newScript) => {
@@ -800,24 +794,26 @@ class TestCaseEditor extends React.Component {
                                   item.scripts.postRequest.exec = newScript.split('\n')
                                   this.props.onChange(item)
                                 }}
-                                name="UNIQUE_ID_OF_DIV"
-                                wrapEnabled={true}
-                                showPrintMargin={true}
-                                showGutter={true}
+                                name='UNIQUE_ID_OF_DIV'
+                                wrapEnabled
+                                showPrintMargin
+                                showGutter
                                 tabSize={2}
-                                enableBasicAutocompletion={true}
-                                enableLiveAutocompletion={true}
+                                enableBasicAutocompletion
+                                enableLiveAutocompletion
                               />
                             </TabPane>
                             {
                               item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution
                                 ? (
-                                  <TabPane tab={
-                                    <span>
-                                      <CodeFilled />
-                                Console Logs
-                              </span>
-                                  } key="3">
+                                  <TabPane
+                                    tab={
+                                      <span>
+                                        <CodeFilled />
+                                        Console Logs
+                                      </span>
+                                  } key='3'
+                                  >
                                     <strong>Pre Request Log:</strong>
                                     <br />
                                     <Text>
@@ -826,12 +822,13 @@ class TestCaseEditor extends React.Component {
                                           {
                                             overflow: 'scroll',
                                             'white-space': 'pre-wrap',
-                                            'backgroundColor': '#111111',
+                                            backgroundColor: '#111111',
                                             color: 'yellow',
                                             minHeight: '50px',
                                             maxHeight: '300px'
                                           }
-                                        }>
+                                        }
+                                      >
                                         {this.printConsoleLog(this.getPreRequestScriptConsoleLog(item))}
                                       </pre>
                                     </Text>
@@ -844,71 +841,74 @@ class TestCaseEditor extends React.Component {
                                           {
                                             overflow: 'scroll',
                                             'white-space': 'pre-wrap',
-                                            'backgroundColor': '#111111',
+                                            backgroundColor: '#111111',
                                             color: 'yellow',
                                             minHeight: '50px',
                                             maxHeight: '300px'
                                           }
-                                        }>
+                                        }
+                                      >
                                         {this.printConsoleLog(this.getPostRequestScriptConsoleLog(item))}
                                       </pre>
                                     </Text>
                                   </TabPane>
-                                )
+                                  )
                                 : null
                             }
                             {
                               item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution
                                 ? (
-                                  <TabPane tab={
-                                    <span>
-                                      <HistoryOutlined />
-                                Environment State
-                              </span>
-                                  } key="4">
+                                  <TabPane
+                                    tab={
+                                      <span>
+                                        <HistoryOutlined />
+                                        Environment State
+                                      </span>
+                                  } key='4'
+                                  >
                                     <strong>Pre Request Environment State:</strong>
                                     <br />
-                                    <Card className="mb-2">
+                                    <Card className='mb-2'>
                                       {
                                         this.getPreRequestScriptEnvironmentState(item)
                                           ? (
                                             <Descriptions bordered column={1} size='small'>
                                               {this.getEnvironmentStateDescriptions(this.getPreRequestScriptEnvironmentState(item))}
                                             </Descriptions>
-                                          )
+                                            )
                                           : (
                                             <span>There are no items</span>
-                                          )
+                                            )
                                       }
                                     </Card>
                                     <br /><br />
                                     <strong>Post Request Environment State:</strong>
                                     <br />
-                                    <Card className="mb-2">
+                                    <Card className='mb-2'>
                                       {
                                         this.getPostRequestScriptEnvironmentState(item)
                                           ? (
                                             <Descriptions bordered column={1} size='small'>
                                               {this.getEnvironmentStateDescriptions(this.getPostRequestScriptEnvironmentState(item))}
                                             </Descriptions>
-                                          )
+                                            )
                                           : (
                                             <span>There are no items</span>
-                                          )
+                                            )
                                       }
                                     </Card>
                                   </TabPane>
-                                )
+                                  )
                                 : null
                             }
                           </Tabs>
                         </Col>
                       </Row>
                     </TabPane>
-                  )
+                    )
                   : null
               }
-              <TabPane tab={(<Badge offset={[20, 0]} style={{ backgroundColor: testStatusColor }} count={testStatus}>Tests</Badge>)} key="4">
+              <TabPane tab={(<Badge offset={[20, 0]} style={{ backgroundColor: testStatusColor }} count={testStatus}>Tests</Badge>)} key='4'>
                 <TestAssertions
                   request={item}
                   allRequests={this.props.testCase.requests}
@@ -920,7 +920,7 @@ class TestCaseEditor extends React.Component {
               {
                 item.status && item.status.response
                   ? (
-                    <TabPane tab="Response" key="5">
+                    <TabPane tab='Response' key='5'>
                       {
                         item.status.response
                           ? (
@@ -928,7 +928,7 @@ class TestCaseEditor extends React.Component {
                               <h4>Synchronous Response</h4>
                               <pre>{JSON.stringify(item.status.response, null, 2)}</pre>
                             </>
-                          )
+                            )
                           : null
                       }
                       {
@@ -938,11 +938,11 @@ class TestCaseEditor extends React.Component {
                               <h4>Callback</h4>
                               <pre>{JSON.stringify(item.status.callback, null, 2)}</pre>
                             </>
-                          )
+                            )
                           : null
                       }
                     </TabPane>
-                  )
+                    )
                   : null
               }
             </Tabs>
@@ -973,13 +973,12 @@ class TestCaseEditor extends React.Component {
       return (
         <Row>
           <Col span={spanCol}>
-            <Steps current={-1} type="default" size="default">
+            <Steps current={-1} type='default' size='default'>
               {stepItems}
             </Steps>
           </Col>
         </Row>
       )
-
     } else {
       return null
     }
@@ -990,7 +989,7 @@ class TestCaseEditor extends React.Component {
       this.props.testCase.requests = []
     }
     // Find highest request id to determine the new ID
-    let maxId = +this.props.testCase.requests.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
+    const maxId = +this.props.testCase.requests.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
 
     this.props.testCase.requests.push({ id: maxId + 1, description })
     this.forceUpdate()
@@ -1006,24 +1005,23 @@ class TestCaseEditor extends React.Component {
     // Find the request to duplicate
     const { id, description, ...otherProps } = this.props.testCase.requests.find(item => item.id == requestId)
     // Find maximum ID for creating a new request
-    let maxId = +this.props.testCase.requests.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
+    const maxId = +this.props.testCase.requests.reduce(function (m, k) { return k.id > m ? k.id : m }, 0)
     const clonedProps = JSON.parse(JSON.stringify(otherProps))
 
     this.props.testCase.requests.push({ id: maxId + 1, description: description + ' Copy', ...clonedProps })
     this.forceUpdate()
   }
 
-  render() {
-
+  render () {
     const addNewRequestDialogContent = (
       <>
         <Input
-          placeholder="Enter description"
-          type="text"
+          placeholder='Enter description'
+          type='text'
           value={this.state.newRequestDescription}
           onChange={(e) => { this.setState({ newRequestDescription: e.target.value }) }}
           onKeyDown={(e) => {
-            if (e.key === "Escape") {
+            if (e.key === 'Escape') {
               this.setState({ addNewRequestDialogVisible: false })
             }
           }}
@@ -1033,26 +1031,26 @@ class TestCaseEditor extends React.Component {
           }}
         />
         <Button
-          className="text-right mt-2"
-          color="success"
-          href="#pablo"
+          className='text-right mt-2'
+          color='success'
+          href='#pablo'
           onClick={() => {
             this.handleAddNewRequestClick(this.state.newRequestDescription)
             this.setState({ addNewRequestDialogVisible: false })
           }}
-          size="sm"
+          size='sm'
         >
           Add
-      </Button>
+        </Button>
       </>
     )
 
     const perRowContent = (startIndex, endIndex) => {
       return (
-        <Row className="mt-4">
+        <Row className='mt-4'>
           <Col span={24}>
             <Card title={this.getStepItems(startIndex, endIndex)}>
-              <Row gutter={16} >
+              <Row gutter={16}>
                 {this.getRequestGeneratorItems(startIndex, endIndex)}
               </Row>
             </Card>
@@ -1062,7 +1060,7 @@ class TestCaseEditor extends React.Component {
     }
 
     const getHorizontalGroups = () => {
-      var rows = []
+      const rows = []
       if (this.props.testCase.requests) {
         const rowCount = Math.abs(this.props.testCase.requests.length / 3)
         for (let i = 0; i < rowCount; i++) {
@@ -1086,8 +1084,8 @@ class TestCaseEditor extends React.Component {
             <Affix target={() => this.containerRef}>
               <Row>
                 <Col span={24}>
-                  <Card size="small">
-                    <Row align="top">
+                  <Card size='small'>
+                    <Row align='top'>
                       <Col span={18}>
                         <MetadataEditor
                           values={this.props.testCase.meta}
@@ -1095,43 +1093,45 @@ class TestCaseEditor extends React.Component {
                         />
                       </Col>
                       <Col span={6}>
-                        <Button type='primary' className='mt-2 float-right' style={ {height: '40px', backgroundColor: '#718ebc'} } onClick={() => {
+                        <Button
+                          type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
                             this.props.onOpenEnvironmentManager()
-                          }}>
-                          <CaretLeftFilled style={ {fontSize: '18px'} }/> <Text style={{color: 'white', fontWeight: 'bold'}}>Environment Manager</Text>
-                        </Button>            
+                          }}
+                        >
+                          <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Environment Manager</Text>
+                        </Button>
                       </Col>
                     </Row>
-                    <Row align="top">
+                    <Row align='top'>
                       <Col span={24}>
-                        <div className="float-right">
+                        <div className='float-right'>
                           <Button
                             className='ml-2'
-                            type="primary"
+                            type='primary'
                             danger
                             onClick={() => {
                               this.props.onSend()
                             }}
                           >
-                                Send
+                            Send
                           </Button>
                         </div>
                         <Popover
                           content={addNewRequestDialogContent}
-                          title="Enter a description for the request"
-                          trigger="click"
+                          title='Enter a description for the request'
+                          trigger='click'
                           visible={this.state.addNewRequestDialogVisible}
                           onVisibleChange={(visible) => this.setState({ addNewRequestDialogVisible: visible })}
                         >
                           <Button
-                            type="primary"
+                            type='primary'
                           >
                             Add New Request
                           </Button>
                         </Popover>
                       </Col>
                     </Row>
-                  </Card>          
+                  </Card>
                 </Col>
               </Row>
             </Affix>
@@ -1139,23 +1139,23 @@ class TestCaseEditor extends React.Component {
         </Row>
         {
           this.props.traceID
-          ?  <Row>
+            ? <Row>
               <Col span={24}>
-                <ServerLogsViewer traceID={this.props.traceID} userConfig={this.props.userConfig} /> 
+                <ServerLogsViewer traceID={this.props.traceID} userConfig={this.props.userConfig} />
               </Col>
-            </Row> 
-          : null
+              </Row>
+            : null
         }
         {
           this.props.logs.length
-          ? <Row className={`mt-4`}>
+            ? <Row className='mt-4'>
               <Col span={24}>
                 <Card>
-                  <ServerLogsViewer logs={this.props.logs} /> 
+                  <ServerLogsViewer logs={this.props.logs} />
                 </Card>
               </Col>
-            </Row>
-          : null
+              </Row>
+            : null
         }
         <Row>
           <Col span={24}>
@@ -1163,8 +1163,8 @@ class TestCaseEditor extends React.Component {
           </Col>
         </Row>
       </div>
-    );
+    )
   }
 }
 
-export default TestCaseEditor;
+export default TestCaseEditor

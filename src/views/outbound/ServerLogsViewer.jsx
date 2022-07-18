@@ -22,15 +22,15 @@
  * Steven Oderayi <steven.oderayi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { Table, Tag, Spin, message, Collapse, Button, Row, Col } from "antd";
-import axios from 'axios';
+import React from 'react'
+import { Table, Tag, Spin, message, Collapse, Button, Row, Col } from 'antd'
+import axios from 'axios'
 import { getConfig } from '../../utils/getConfig'
 
 const { Panel } = Collapse
 
 class ServerLogsViewer extends React.Component {
-  constructor() {
+  constructor () {
     super()
     this.state = {
       serverLogsLoading: false,
@@ -58,9 +58,9 @@ class ServerLogsViewer extends React.Component {
     }
   }
 
-  fetchServerLogs = async (componentName=null) => {
-    if (!this.props.traceID) return;
-    this.setState({serverLogsLoading: true, serverLogsError: null})
+  fetchServerLogs = async (componentName = null) => {
+    if (!this.props.traceID) return
+    this.setState({ serverLogsLoading: true, serverLogsError: null })
     let logs = []
     try {
       const res = await axios.get(`${getConfig().apiBaseUrl}/api/serverlogs/search?metadata.trace.traceId=${this.props.traceID}`)
@@ -73,74 +73,75 @@ class ServerLogsViewer extends React.Component {
       } else {
         message.error('Logs could not be retrieved at the moment. Please try again.')
       }
-    } catch(err) {
+    } catch (err) {
       message.error('Logs could not be retrieved at the moment. Please try again.')
     }
     this.setState({ logs, serverLogsLoading: false, serverLogsError: null })
   }
 
-  render() {
+  render () {
     const genExtra = () => (
       <>
-      {
+        {
         this.props.userConfig.LOG_SERVER_UI_URL
-        ? <Button
-            onClick={event => {
-              event.stopPropagation()
-            }}
-            href={this.props.userConfig.LOG_SERVER_UI_URL}
-            target="_blank"
-            className="float-right mr-2"
-            ghost
-            type="primary"
-          >Go to Log Server</Button>
-        : null
+          ? <Button
+              onClick={event => {
+                event.stopPropagation()
+              }}
+              href={this.props.userConfig.LOG_SERVER_UI_URL}
+              target='_blank'
+              className='float-right mr-2'
+              ghost
+              type='primary'
+            >Go to Log Server
+            </Button>
+          : null
       }
       </>
-    );
+    )
     // if (!this.state.logs.length) return null;
     const columns = [
-      { title: "Service Tag", dataIndex: 'service', key: 'servcie' },
-      { title: "Timestamp", dataIndex: 'timestamp', key: 'timestamp' },
-      { title: "Source", dataIndex: 'source', key: 'source' },
-      { title: "Destination", dataIndex: 'destination', key: 'destination' },
+      { title: 'Service Tag', dataIndex: 'service', key: 'servcie' },
+      { title: 'Timestamp', dataIndex: 'timestamp', key: 'timestamp' },
+      { title: 'Source', dataIndex: 'source', key: 'source' },
+      { title: 'Destination', dataIndex: 'destination', key: 'destination' },
       {
-        title: "Status",
+        title: 'Status',
         dataIndex: 'status',
         key: 'status',
-        render: text => text === 'success' ? <Tag color="green">{text}</Tag> : <Tag color="volcano">{text}</Tag>
+        render: text => text === 'success' ? <Tag color='green'>{text}</Tag> : <Tag color='volcano'>{text}</Tag>
       }
     ]
     const dataSource = this.state.logs.map((log, i) => ({ ...this.marshalLogItem(log, i) }))
 
     return (
       <Collapse onChange={this.handleExpandServerLogs}>
-        <Panel header="Server Logs" key="1" extra={genExtra()}>
-            {
+        <Panel header='Server Logs' key='1' extra={genExtra()}>
+          {
               this.state.serverLogsLoading
-              ? <center><Spin size="large" /></center>
-              : (
-                <>
-                <Row>
-                  <Col>
-                    <Button type='primary' onClick={this.fetchServerLogs}>Reload</Button>
-                  </Col>
-                </Row>
-                <Row className="mt-2">
-                  <Col span={24}>
-                    <Table
-                      dataSource={dataSource}
-                      columns={columns}
-                      pagination={false}
-                      scroll={{ y: 480 }}
-                      expandable={{
-                        expandedRowRender: log => <pre><code>{JSON.stringify(log.content, null, 2)}</code></pre>
-                      }}
-                    />
-                  </Col>
-                </Row>
-                </>
-              )
+                ? <center><Spin size='large' /></center>
+                : (
+                  <>
+                    <Row>
+                      <Col>
+                        <Button type='primary' onClick={this.fetchServerLogs}>Reload</Button>
+                      </Col>
+                    </Row>
+                    <Row className='mt-2'>
+                      <Col span={24}>
+                        <Table
+                          dataSource={dataSource}
+                          columns={columns}
+                          pagination={false}
+                          scroll={{ y: 480 }}
+                          expandable={{
+                            expandedRowRender: log => <pre><code>{JSON.stringify(log.content, null, 2)}</code></pre>
+                          }}
+                        />
+                      </Col>
+                    </Row>
+                  </>
+                  )
             }
         </Panel>
       </Collapse>
@@ -148,4 +149,4 @@ class ServerLogsViewer extends React.Component {
   }
 }
 
-export default ServerLogsViewer;
+export default ServerLogsViewer

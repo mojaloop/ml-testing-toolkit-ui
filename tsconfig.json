@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "baseUrl": "src",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "lib": ["es6", "dom"],
+    "rootDir": "src",
+    "moduleResolution": "node",
+    "module": "esnext",
+    "target": "esnext",
+    "jsx": "react",
+    "sourceMap": true,
+    "declaration": false,
+    "allowJs": true,
+  },
+  "exclude": [
+    "build",
+    "electron",
+    "node_modules",
+    "public",
+    "nginx"
+  ]
+}
