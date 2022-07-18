@@ -31,7 +31,7 @@ import axios from 'axios';
 import { Select, Input, Tooltip, Tag, Popover, message, Row, Col, Collapse, Modal, Switch, Button } from 'antd';
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import arrayMove from 'array-move';
+import { arrayMoveImmutable as arrayMove } from 'array-move';
 
 import 'antd/dist/antd.css';
 // import './index.css';

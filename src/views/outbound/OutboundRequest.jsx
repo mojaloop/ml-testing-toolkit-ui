@@ -42,7 +42,8 @@ import EnvironmentManager from './EnvironmentManager';
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import arrayMove from 'array-move';
+
+import { arrayMoveImmutable as arrayMove } from 'array-move';
 
 import { TTKColors } from '../../utils/styleHelpers';
 import { LocalDB } from '../../services/localDB/LocalDB';

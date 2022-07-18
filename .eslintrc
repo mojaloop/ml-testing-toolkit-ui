@@ -1,6 +1,6 @@
 {
     "plugins": ["@typescript-eslint", "import"],
-    "extends": ["airbnb-typescript", "plugin:@typescript-eslint/recommended"],
+    "extends": ["airbnb-typescript", "plugin:react/recommended"],
     "parser": "@typescript-eslint/parser",
     "ignorePatterns": ["src/test"],
     "parserOptions": {
@@ -93,6 +93,12 @@
         }
       ],
       "@typescript-eslint/no-use-before-define": "off",
-      "@typescript-eslint/no-shadow": "off"
+      "@typescript-eslint/no-shadow": "off",
+      "react/prop-types": "off",
+      "react/no-direct-mutation-state": "off",
+      "react/jsx-key": "off",
+      "@typescript-eslint/space-before-blocks": "off",
+      "react/no-string-refs": "off",
+      "react/react-in-jsx-scope": "off"
     }
   }

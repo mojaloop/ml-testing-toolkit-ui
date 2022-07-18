@@ -29,7 +29,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import MetadataEditor from './MetadataEditor';
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import arrayMove from 'array-move';
+import { arrayMoveImmutable as arrayMove } from 'array-move';
 
 import { TTKColors } from '../../utils/styleHelpers';
 

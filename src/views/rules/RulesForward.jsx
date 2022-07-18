@@ -33,7 +33,7 @@ import RulesEditor from './RuleEditor';
 import RuleViewer from './RuleViewer';
 import { getConfig } from '../../utils/getConfig';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import arrayMove from 'array-move';
+import { arrayMoveImmutable as arrayMove } from 'array-move';
 
 const { Panel } = Collapse;
 const { Title } = Typography;

@@ -1,6 +1,16 @@
 reject: [
   # TODO: Incompatibility issues found with the TTK backend if we update socket.io client
-  "socket.io-client"
-  # TODO: Npm install is failing if we try to upgrade react
-  # "react",
+  "socket.io-client",
+  # TODO: Upgrading react may cause many implications
+  "react",
+  "react-ace",
+  "react-dom",
+  "react-keyed-file-browser",
+  "react-router-dom",
+  "react-scripts",
+  "web-vitals",
+  "@types/react",
+  "@testing-library/jest-dom",
+  "@testing-library/react",
+  "@testing-library/user-event"
 ]
