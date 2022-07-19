@@ -30,8 +30,7 @@
     "test:coverage": "jest --coverage --coverageThreshold='{}' --testMatch '**/test/unit/**/*.test.js'",
     "test:coverage-check": "jest --coverage --testMatch '**/test/unit/**/*.test.js'",
     "test:junit": "jest --reporters=default --reporters=jest-junit --testMatch '**/test/unit/**/*.test.js'",
-    "audit:resolve": "SHELL=sh resolve-audit",
-    "audit:check": "SHELL=sh check-audit",
+    "audit:check": "npx audit-ci --config ./audit-ci.jsonc",
     "dep:check": "npx ncu -e 2",
     "dep:update": "npx ncu -u",
     "release": "npx standard-version --no-verify --releaseCommitMessageFormat 'chore(release): {{currentTag}} [skip ci]'",
@@ -89,8 +88,8 @@
   "devDependencies": {
     "@types/markerclustererplus": "2.1.33",
     "@types/react": "16.8.7",
+    "audit-ci": "^6.3.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
-    "npm-audit-resolver": "^3.0.0-7",
     "standard-version": "^9.5.0"
   },
   "jest": {
