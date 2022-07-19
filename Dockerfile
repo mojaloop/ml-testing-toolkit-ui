@@ -12,6 +12,7 @@ RUN npm install
 
 COPY src /opt/app/src
 COPY public /opt/app/public
+COPY .eslintrc /opt/app/
 
 RUN npm run build
 
