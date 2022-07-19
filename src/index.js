@@ -21,6 +21,7 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
