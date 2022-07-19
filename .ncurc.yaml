@@ -5,7 +5,6 @@ reject: [
   "react",
   "react-ace",
   "react-dom",
-  "react-keyed-file-browser",
   "react-router-dom",
   "react-scripts",
   "web-vitals",
