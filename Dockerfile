@@ -16,7 +16,7 @@ COPY .eslintrc tsconfig.json /opt/app/
 
 RUN npm run build
 
-FROM node:16.15.0-alpine
+FROM nginx:1.16.0-alpine
 WORKDIR /usr/share/nginx/html
 
 # Create a non-root user: ml-user
