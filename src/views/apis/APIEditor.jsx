@@ -24,7 +24,7 @@
  ******/
 import React from 'react';
 
-import { Modal, Input, Card, Row, Col, Button, Typography } from 'antd';
+import { Modal, Input, Card, Row, Col, Button, Typography, message } from 'antd';
 import 'antd/dist/antd.css';
 
 import axios from 'axios';
@@ -56,6 +56,10 @@ class APIEditor extends React.Component {
     };
 
     handleSave = async () => {
+        if(!this.state.prefix.startsWith('/')) {
+            message.error('Prefix should starts with /');
+            return;
+        }
         const res = await axios.put(this.getDefinitionVersionURL(), {
             hostnames: this.state.hostnames,
             prefix: this.state.prefix,
