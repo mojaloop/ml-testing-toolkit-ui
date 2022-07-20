@@ -1,3 +1,4 @@
+## Add a TODO comment indicating the reason for each rejected dependency upgrade added to this list, and what should be done to resolve it (i.e. handle it through a story, etc).
 reject: [
   # TODO: Incompatibility issues found with the TTK backend if we update socket.io client
   "socket.io-client",
