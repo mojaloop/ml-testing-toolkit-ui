@@ -2,7 +2,8 @@
 reject: [
   # TODO: Incompatibility issues found with the TTK backend if we update socket.io client
   "socket.io-client",
-  # TODO: Upgrading react may cause many implications
+  # TODO: Tried to upgrade the react and getting many issues while building the app due to the difference in the libraries.
+  # So keeping the react versions same for now.
   "react",
   "react-ace",
   "react-dom",

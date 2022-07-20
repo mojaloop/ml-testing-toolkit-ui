@@ -700,6 +700,7 @@ workflows:
             - setup
             - test-dependencies
             - test-lint
+            ## The following tests are commented out as there is no test coverage for the TTK UI at the moment
             # - test-unit
             # - test-coverage
             # - test-integration
@@ -739,6 +740,7 @@ workflows:
             - pr-tools/pr-title-check
             - test-dependencies
             - test-lint
+            ## The following tests are commented out as there is no test coverage for the TTK UI at the moment
             # - test-unit
             # - test-coverage
             # - test-integration
@@ -766,6 +768,7 @@ workflows:
             - pr-tools/pr-title-check
             - test-dependencies
             - test-lint
+            ## The following tests are commented out as there is no test coverage for the TTK UI at the moment
             # - test-unit
             # - test-coverage
             # - test-integration
@@ -785,6 +788,7 @@ workflows:
             - pr-tools/pr-title-check
             - test-dependencies
             - test-lint
+            ## The following tests are commented out as there is no test coverage for the TTK UI at the moment
             # - test-unit
             # - test-coverage
             # - test-integration

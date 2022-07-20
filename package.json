@@ -8,7 +8,14 @@
     "url": "https://github.com/vijayg10/ml-testing-toolkit-ui.git"
   },
   "author": "Vijaya Kumar Guthi",
-  "license": "MIT",
+  "contributors": [
+    "Vijaya Kumar <vijaya.guthi@modusbox.com>",
+    "Georgi Logodazhki <georgi.logodazhki@modusbox.com>"
+  ],
+  "engines": {
+    "node": "=16.x"
+  },
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/vijayg10/ml-testing-toolkit-ui/issues"
   },
@@ -96,5 +103,10 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"
     ]
+  },
+  "standard-version": {
+    "scripts": {
+      "postchangelog": "replace '\\[mojaloop/#(\\d+)\\]\\(https://github.com/mojaloop/(.*)/issues/(\\d+)\\)' '[mojaloop/#$1](https://github.com/mojaloop/project/issues/$1)' CHANGELOG.md"
+    }
   }
 }

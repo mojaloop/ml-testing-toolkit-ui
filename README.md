@@ -54,3 +54,8 @@ Please follow this link to learn about backend service.
 
 https://github.com/mojaloop/ml-testing-toolkit/blob/master/README.md
 
+-------
+
+a. auditing-dependencies: https://github.com/mojaloop/central-ledger/blob/master/README.md#auditing-dependencies
+b. container-scans: https://github.com/mojaloop/central-ledger/blob/master/README.md#container-scans
+c. automated-releases: https://github.com/mojaloop/central-ledger/blob/master/README.md#automated-releases
