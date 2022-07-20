@@ -92,6 +92,11 @@
     "eslint-config-airbnb-typescript": "^17.0.0",
     "standard-version": "^9.5.0"
   },
+  "standard-version": {
+      "scripts": {
+          "postchangelog": "replace '\\[mojaloop/#(\\d+)\\]\\(https://github.com/mojaloop/(.*)/issues/(\\d+)\\)' '[mojaloop/#$1](https://github.com/mojaloop/project/issues/$1)' CHANGELOG.md"
+      }
+  },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"
