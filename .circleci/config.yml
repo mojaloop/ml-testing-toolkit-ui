@@ -307,22 +307,23 @@ jobs:
           paths:
             - ./docker-image.tar
 
-  license-scan:
-    executor: default-machine
-    steps:
-      - attach_workspace:
-          at: /tmp
-      - run:
-          name: Load the pre-built docker image from workspace
-          command: docker load -i /tmp/docker-image.tar
-      - run:
-          <<: *defaults_license_scanner
-      - run:
-          name: Run the license-scanner
-          command: cd /tmp/license-scanner && mode=docker dockerImages=$DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:$CIRCLE_TAG make run
-      - store_artifacts:
-          path: /tmp/license-scanner/results
-          prefix: licenses
+  ## Disabling the license scan because the docker image contains only compiled html and javascript files
+  # license-scan:
+  #   executor: default-machine
+  #   steps:
+  #     - attach_workspace:
+  #         at: /tmp
+  #     - run:
+  #         name: Load the pre-built docker image from workspace
+  #         command: docker load -i /tmp/docker-image.tar
+  #     - run:
+  #         <<: *defaults_license_scanner
+  #     - run:
+  #         name: Run the license-scanner
+  #         command: cd /tmp/license-scanner && mode=docker dockerImages=$DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:$CIRCLE_TAG make run
+  #     - store_artifacts:
+  #         path: /tmp/license-scanner/results
+  #         prefix: licenses
 
   image-scan:
     executor: anchore/anchore_engine
@@ -713,16 +714,17 @@ workflows:
             branches:
               ignore:
                 - /.*/
-      - license-scan:
-          context: org-global
-          requires:
-            - build
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-snapshot(\.[0-9]+)?)?(\-hotfix(\.[0-9]+)?)?(\-perf(\.[0-9]+)?)?/
-            branches:
-              ignore:
-                - /.*/
+      ## Disabling the license scan because the docker image contains only compiled html and javascript files
+      # - license-scan:
+      #     context: org-global
+      #     requires:
+      #       - build
+      #     filters:
+      #       tags:
+      #         only: /v[0-9]+(\.[0-9]+)*(\-snapshot(\.[0-9]+)?)?(\-hotfix(\.[0-9]+)?)?(\-perf(\.[0-9]+)?)?/
+      #       branches:
+      #         ignore:
+      #           - /.*/
       - image-scan:
           context: org-global
           requires:
@@ -746,7 +748,8 @@ workflows:
             # - test-integration
             - vulnerability-check
             - audit-licenses
-            - license-scan
+            ## Disabling the license scan because the docker image contains only compiled html and javascript files
+            # - license-scan
             - image-scan
           filters:
             branches:
@@ -774,7 +777,8 @@ workflows:
             # - test-integration
             - vulnerability-check
             - audit-licenses
-            - license-scan
+            ## Disabling the license scan because the docker image contains only compiled html and javascript files
+            # - license-scan
             - image-scan
           filters:
             tags:
@@ -794,7 +798,8 @@ workflows:
             # - test-integration
             - vulnerability-check
             - audit-licenses
-            - license-scan
+            ## Disabling the license scan because the docker image contains only compiled html and javascript files
+            # - license-scan
             - image-scan
           filters:
             tags:
