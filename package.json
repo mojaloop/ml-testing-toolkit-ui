@@ -1,6 +1,6 @@
 {
   "name": "ml-testing-toolkit-ui",
-  "version": "15.0.0-snapshot.0",
+  "version": "15.0.0-snapshot.1",
   "description": "Mojaloop Testing Toolkit Web User Interface",
   "main": "index.js",
   "repository": {
@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
-    "@mojaloop/ml-testing-toolkit-shared-lib": "^12.2.0",
+    "@mojaloop/ml-testing-toolkit-shared-lib": "^13.0.0",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -97,6 +97,7 @@
     "@types/react": "16.8.7",
     "audit-ci": "^6.3.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
+    "replace": "^1.2.1",
     "standard-version": "^9.5.0"
   },
   "jest": {
