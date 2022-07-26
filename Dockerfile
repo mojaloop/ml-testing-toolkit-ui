@@ -19,8 +19,6 @@ RUN npm run build
 FROM nginx:1.16.0-alpine
 WORKDIR /usr/share/nginx/html
 
-RUN apk add --no-cache -t acl
-
 # Replace the nginx config files
 RUN rm -f /etc/nginx/conf.d/default.conf /etc/nginx/nginx.conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
@@ -32,7 +30,6 @@ RUN adduser -D ml-user
 RUN chown -R ml-user:ml-user /var/log/nginx
 RUN chown -R ml-user:ml-user /var/cache/nginx
 RUN chown -R ml-user:ml-user /usr/share/nginx
-RUN setfacl -m u:ml-user:rwx /var/run
 
 USER ml-user
 
