@@ -1005,14 +1005,18 @@ class HeaderBodyBuilder extends React.Component {
 
     handlePopulateSampleBodyClick = async () => {
         // const newBody = (new FactDataGenerator()).getBodySample(this.props.resourceDefinition)
-        const newBody = await (new FactDataGenerator()).generateSample(this.bodySchema);
-        if(newBody) {
-            // if(this.props.callbackObject && this.props.callbackObject.bodyOverride) {
-            //   _.merge(newBody, this.props.callbackObject.bodyOverride)
-            // }
-            this.props.request.body = newBody;
-            this.updateBodyChanges();
-            this.updateChanges();
+        try {
+            const newBody = await (new FactDataGenerator()).generateSample(this.bodySchema);
+            if(newBody) {
+                // if(this.props.callbackObject && this.props.callbackObject.bodyOverride) {
+                //   _.merge(newBody, this.props.callbackObject.bodyOverride)
+                // }
+                this.props.request.body = newBody;
+                this.updateBodyChanges();
+                this.updateChanges();
+            }
+        } catch (err) {
+            message.error('Can not generate sample body. Error: ' + err.message);
         }
     };
 

@@ -123,7 +123,7 @@ export class FixedCallbackBuilder extends React.Component {
     };
 
     handleAddHeaderClick = event => {
-        this.addHeaderItem(event.item.props.eventKey);
+        this.addHeaderItem(event.key);
     };
 
     headerItemsMenu = () => {

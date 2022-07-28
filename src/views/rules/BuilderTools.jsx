@@ -24,14 +24,8 @@
 import React from 'react';
 import { TreeSelect } from 'antd';
 import 'antd/dist/antd.css';
-import jsf from 'json-schema-faker';
+const { mock } = require('mock-json-schema');
 import _ from 'lodash';
-
-jsf.option({
-    alwaysFakeOptionals: true,
-    ignoreMissingRefs: true,
-    maxItems: 2,
-});
 
 const getSchema = contentObj => {
     if(contentObj.hasOwnProperty('allOf')) {
@@ -293,7 +287,7 @@ export class FactDataGenerator {
     };
 
     generateSample = async schema => {
-        const sample = await jsf.resolve(schema);
+        const sample = mock(schema);
         return sample;
     };
 }
