@@ -21,424 +21,430 @@
  * Georgi Logodazhki <georgi.logodazhki@modusbox.com>
  --------------
  ******/
-import React from "react";
-import _, { isEmpty } from "lodash"
-import { Select, Row, Col, Button, Typography, Input, Tabs, Tag, Popover, Descriptions, Radio} from 'antd';
+import React from 'react';
+import _ from 'lodash';
+import { Select, Row, Col, Button, Typography, Input, Tabs } from 'antd';
 import 'jsoneditor-react/es/editor.min.css';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
 import '../rules/fixAce.css';
-import EventBuilder from '../rules/EventBuilder'
+import EventBuilder from '../rules/EventBuilder';
 
 const { Option } = Select;
 const { Title } = Typography;
 
 class ResourceSelector extends React.Component {
-
-  constructor() {
-    super();
-    this.state = {
-      disabled: false
+    constructor() {
+        super();
+        this.state = {
+            disabled: false,
+        };
     }
-  }
-  resourceOptions = []
 
-  componentDidMount = () => {
+    resourceOptions = [];
 
-  }
+    componentDidMount = () => {
 
+    };
 
-  getResourceOptions = () => {
-    this.resourceOptions = []
-    if (this.props.value && this.props.value.path && this.props.value.method) {
-      let itemKey = JSON.stringify({
-        method: this.props.value.method,
-        path: this.props.value.path
-      })
-      this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{itemKey.method} {itemKey.path}</Option>)
-    } else if(this.props.openApiDefinition) {
-      if (this.props.mappingType) {
-        for ( let pathKey in this.props.openApiDefinition.paths ) {
-          for ( let methodKey in this.props.openApiDefinition.paths[pathKey]) {
-            let itemKey = JSON.stringify({
-              method: methodKey,
-              path: pathKey
-            })
-            if (methodKey === 'put' && (pathKey.startsWith(this.props.selectedResource.path))) {
-              switch(this.props.mappingType) {
-                case 'successCallback':
-                  if (!pathKey.endsWith('/error')) {
-                    this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
-                  }
-                  break
-                case 'errorCallback':
-                  if (pathKey.endsWith('/error')) {
-                    this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>)
-                  }
-                  break
-                default:
-                  break
-              }
-            }
-          }
-        }
-      } else {
-        Object.keys(this.props.openApiDefinition.paths).forEach(path => {
-          if (!path.endsWith('/error')) {
-            Object.keys(this.props.openApiDefinition.paths[path]).forEach(method => {
-              if (method != 'put' && method != 'parameters') {
-                if (this.props.callbackMap && this.props.callbackMap[path] && this.props.callbackMap[path][method]) {
-
-                } else {
-                  let itemKey = JSON.stringify({
-                    method: method,
-                    path: path
-                  })
-                  this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{method} {path}</Option>)
+    getResourceOptions = () => {
+        this.resourceOptions = [];
+        if(this.props.value && this.props.value.path && this.props.value.method) {
+            const itemKey = JSON.stringify({
+                method: this.props.value.method,
+                path: this.props.value.path,
+            });
+            this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{itemKey.method} {itemKey.path}</Option>);
+        } else if(this.props.openApiDefinition) {
+            if(this.props.mappingType) {
+                for(const pathKey in this.props.openApiDefinition.paths) {
+                    for(const methodKey in this.props.openApiDefinition.paths[pathKey]) {
+                        const itemKey = JSON.stringify({
+                            method: methodKey,
+                            path: pathKey,
+                        });
+                        if(methodKey === 'put' && (pathKey.startsWith(this.props.selectedResource.path))) {
+                            switch (this.props.mappingType) {
+                                case 'successCallback':
+                                    if(!pathKey.endsWith('/error')) {
+                                        this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>);
+                                    }
+                                    break;
+                                case 'errorCallback':
+                                    if(pathKey.endsWith('/error')) {
+                                        this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{methodKey} {pathKey}</Option>);
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
                 }
-              }
-            })
-          }
-        })
-      }
-    } else {
-      console.log('ERROR')
+            } else {
+                Object.keys(this.props.openApiDefinition.paths).forEach(path => {
+                    if(!path.endsWith('/error')) {
+                        Object.keys(this.props.openApiDefinition.paths[path]).forEach(method => {
+                            if(method != 'put' && method != 'parameters') {
+                                if(this.props.callbackMap && this.props.callbackMap[path] && this.props.callbackMap[path][method]) {
+
+                                } else {
+                                    const itemKey = JSON.stringify({
+                                        method,
+                                        path,
+                                    });
+                                    this.resourceOptions.push(<Option key={itemKey} value={itemKey}>{method} {path}</Option>);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        } else {
+            console.log('ERROR');
+        }
+        return this.resourceOptions;
+    };
+
+    getResourceValue = () => {
+        const value = (this.props.value && this.props.value.method && this.props.value.path) ? (this.props.value.method + ' ' + this.props.value.path) : null;
+        this.state.disabled = !!value;
+        return value;
+    };
+
+    render() {
+        const resourceSelectHandler = eventKey => {
+            this.props.onSelect(JSON.parse(eventKey), this.props.mappingType || 'successCallback');
+        };
+
+        return (
+            <>
+                <Select
+                    onChange={resourceSelectHandler}
+                    disabled={this.state.disabled}
+                    style={{ width: 300 }}
+                    placeholder='Select a resource'
+                    value={this.getResourceValue()}
+                >
+                    {this.getResourceOptions()}
+                </Select>
+            </>
+        );
     }
-    return this.resourceOptions
-  }
-
-  getResourceValue = () => {
-    const value = (this.props.value && this.props.value.method && this.props.value.path) ? (this.props.value.method + ' ' + this.props.value.path) : null
-    this.state.disabled = value ? true : false
-    return value
-  }
-
-  render() {
-
-    const resourceSelectHandler = (eventKey) => {
-      this.props.onSelect(JSON.parse(eventKey), this.props.mappingType || 'successCallback')
-    }
-
-    return(
-      <>
-      <Select onChange={resourceSelectHandler}
-        disabled={this.state.disabled}
-        style={{ width: 300 }}
-        placeholder="Select a resource"
-        value={this.getResourceValue()}
-      >
-      {this.getResourceOptions()}
-      </Select>
-      </>
-    )
-  }
 }
 
 class MappingEditor extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            mode: null,
+            description: '',
+            selectedResource: {
+                data: {},
+            },
+            showConfigurableParameterDialog: false,
+            configurableParameterSelected: '',
+            selectedCallbackResource: {},
+            event: {
+                successCallback: {
+                    params: {},
+                },
+                errorCallback: {
+                    params: {},
+                },
+            },
+        };
+    }
 
-  constructor() {
-    super();
-    this.state = {
-      mode: null,
-      description: '',
-      selectedResource: {
-        data: {}
-      },
-      showConfigurableParameterDialog: false,
-      configurableParameterSelected: '',
-      selectedCallbackResource: {},
-      event: {
-        'successCallback': {
-          params: {}
-        },
-        'errorCallback': {
-          params: {}
-        }
-      }
+    componentDidMount = () => {
+        const selectedResource = JSON.parse(JSON.stringify(this.props.selectedResource));
+
+        const mapping = this.props.mapping;
+
+        const description = this.props.description || '';
+
+        const fspid = selectedResource.data.fspid;
+
+        this.setState({ selectedResource, mapping, description, fspid });
     };
-  }
 
-  componentDidMount = () => {
-    const selectedResource = JSON.parse(JSON.stringify(this.props.selectedResource))
-    
-    const mapping = this.props.mapping
+    getEvent = callbackType => {
+        const event = this.state.event[callbackType] || {};
 
-    const description = this.props.description || ''
+        if(!event.params) {
+            event.params = {};
+        }
 
-    const fspid = selectedResource.data.fspid
+        if(_.isEmpty(this.state.selectedResource.data)) {
+            return event;
+        }
 
-    this.setState({selectedResource, mapping, description, fspid})
-  }
+        switch (callbackType) {
+            case 'successCallback': {
+                event.type = 'FIXED_CALLBACK';
+                break;
+            }
+            case 'errorCallback': {
+                event.type = 'FIXED_ERROR_CALLBACK';
+                break;
+            }
+            default:
+        }
+        let mappingEvent;
+        if(this.state.selectedResource && this.state.selectedResource.data && this.state.selectedResource.data[callbackType]) {
+            mappingEvent = JSON.parse(JSON.stringify(this.state.selectedResource.data[callbackType]));
+        } else {
+            mappingEvent = {};
+        }
 
-  getEvent = (callbackType) => {
-    const event = this.state.event[callbackType] || {}
+        event.method = mappingEvent.method;
+        event.path = mappingEvent.path;
+        event.pathPattern = mappingEvent.pathPattern;
+        event.params.body = mappingEvent.bodyOverride;
+        event.params.headers = mappingEvent.headerOverride;
 
-    if (!event.params) {
-      event.params = {}
-    }
+        return event;
+    };
 
-    if (_.isEmpty(this.state.selectedResource.data)) {
-      return event
-    }
+    handleEventChange = (event, mappingType) => {
+        this.state.event[mappingType] = event;
+        this.forceUpdate();
+    };
 
-    switch (callbackType) {
-      case 'successCallback': {
-        event.type = "FIXED_CALLBACK"
-        break
-      }
-      case 'errorCallback': {
-        event.type = "FIXED_ERROR_CALLBACK"
-        break
-      }
-      default:
-    }
-    let mappingEvent
-    if (this.state.selectedResource && this.state.selectedResource.data && this.state.selectedResource.data[callbackType]) {
-      mappingEvent = JSON.parse(JSON.stringify(this.state.selectedResource.data[callbackType]))
-    } else {
-      mappingEvent = {}
-    }
+    handleSave = () => {
+        this.state.selectedResource.data.fspid = this.state.fspid;
+        Object.keys(this.state.event).forEach(mappingType => {
+            if(!_.isEmpty(this.state.event[mappingType].params)) {
+                const params = JSON.parse(JSON.stringify(this.state.event[mappingType].params));
+                this.state.selectedResource.data[mappingType].bodyOverride = params.body;
+                this.state.selectedResource.data[mappingType].headerOverride = params.headers;
+            }
+        });
+        this.props.onSave(this.state.selectedResource);
+    };
 
-    event.method = mappingEvent.method
-    event.path = mappingEvent.path
-    event.pathPattern = mappingEvent.pathPattern
-    event.params.body = mappingEvent.bodyOverride
-    event.params.headers = mappingEvent.headerOverride
+    resourceSelectHandler = newSelectedResource => {
+        const selectedResource = {
+            method: newSelectedResource.method,
+            path: newSelectedResource.path,
+            data: {
+                fspid: '',
+                successCallback: {},
+                errorCallback: {},
+            },
+        };
+        this.setState({ selectedResource });
+        this.forceUpdate();
+    };
 
-    return event
-  }
+    callbackResourceSelectHandler = (selectedCallbackResource, mappingType) => {
+        this.state.selectedResource.data[mappingType] = {
+            method: selectedCallbackResource.method,
+            path: selectedCallbackResource.path,
+        };
+        this.forceUpdate();
+    };
 
-  handleEventChange = (event, mappingType) => {
-    this.state.event[mappingType] = event
-    this.forceUpdate()
-  };
+    getResourceDefinition = () => {
+        if(this.state.selectedResource && this.state.selectedResource.path && this.state.selectedResource.method && this.props.openApiDefinition) {
+            return this.props.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method];
+        }
+        return null;
+    };
 
-  handleSave = () => {
-    this.state.selectedResource.data.fspid = this.state.fspid
-    Object.keys(this.state.event).forEach(mappingType => {
-      if (!_.isEmpty(this.state.event[mappingType].params)) {
-        const params = JSON.parse(JSON.stringify(this.state.event[mappingType].params))
-        this.state.selectedResource.data[mappingType].bodyOverride = params.body
-        this.state.selectedResource.data[mappingType].headerOverride = params.headers
-      }
-    })
-    this.props.onSave(this.state.selectedResource)
-  }
+    getRootParameters = () => {
+        let rootParams = [];
+        if(this.state.selectedResource && this.state.selectedResource.path && this.props.openApiDefinition) {
+            rootParams = this.props.openApiDefinition.paths[this.state.selectedResource.path].parameters;
+        }
+        return rootParams;
+    };
 
-  resourceSelectHandler = (newSelectedResource) => {
-    const selectedResource = {
-      method: newSelectedResource.method,
-      path: newSelectedResource.path,
-      data: {
-        fspid: '',
-        successCallback: {},
-        errorCallback: {}
-      }
-    }
-    this.setState({selectedResource})
-    this.forceUpdate()
-  }
+    getResourceMappingByType = mappingType => {
+        if(this.state.selectedResource && this.state.selectedResource.data) {
+            return this.state.selectedResource.data[mappingType];
+        }
+        return {};
+    };
 
-  callbackResourceSelectHandler = (selectedCallbackResource, mappingType) => {
-    this.state.selectedResource.data[mappingType] = {
-      method: selectedCallbackResource.method,
-      path: selectedCallbackResource.path
-    }
-    this.forceUpdate()
-  }
+    getCallbackRootParameters = callbackType => {
+        try {
+            const callbackObj = this.state.selectedResource.data[callbackType];
+            return this.props.openApiDefinition.paths[callbackObj.path].parameters;
+        } catch (err) {
+            return [];
+        }
+    };
 
-  getResourceDefinition = () => {
-    if (this.state.selectedResource && this.state.selectedResource.path && this.state.selectedResource.method && this.props.openApiDefinition) {
-      return this.props.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method]
-    }
-    return null
-  }
-  getRootParameters = () => {
-    var rootParams = []
-    if (this.state.selectedResource && this.state.selectedResource.path && this.props.openApiDefinition) {
-      rootParams = this.props.openApiDefinition.paths[this.state.selectedResource.path].parameters
-    }
-    return rootParams
-  }
+    getCallbackDefinition = callbackType => {
+        try {
+            const callbackObj = this.state.selectedResource.data[callbackType];
+            return this.props.openApiDefinition.paths[callbackObj.path][callbackObj.method];
+        } catch (err) {
+            return {};
+        }
+    };
 
-  getResourceMappingByType = (mappingType) => {
-    if (this.state.selectedResource && this.state.selectedResource.data) {
-      return this.state.selectedResource.data[mappingType]
-    }
-    return {}
-  }
-
-  getCallbackRootParameters = (callbackType) => {
-    try {
-      const callbackObj = this.state.selectedResource.data[callbackType]
-      return this.props.openApiDefinition.paths[callbackObj.path].parameters
-    } catch(err) {
-      return []
-    }
-  }
-  getCallbackDefinition = (callbackType) => {
-    try {
-      const callbackObj = this.state.selectedResource.data[callbackType]
-      return this.props.openApiDefinition.paths[callbackObj.path][callbackObj.method]
-    } catch(err) {
-      return {}
-    }
-  }
-
-
-  render() {
-    return (
-      <>
-        <Row>
-          <Col span={24}>
-              <Row className="bg-white border-0 align-items-center">
-                <Col span={16} className="text-center">
-                  <table>
-                    <tbody>
-                    <tr>
-                      <td align='right'><b>Resource:</b></td>
-                      <td>
-                        <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.resourceSelectHandler} />
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </Col>
-                <Col span={8}>
-                  <Button
-                    className="float-right"
-                    type="primary"
-                    onClick={this.handleSave}
-                  >
-                    Save
-                  </Button>
-                </Col>
-              </Row>
-              <Row className="bg-white border-0 align-items-center">
-                <Col span={24}>
-                  <table>
-                    <tbody>
-                    <tr>
-                      <td align='right'><b>FSPID:</b></td>
-                      <td>
-                      <Input 
-                        className="float-left"
-                        placeholder="Value" 
-                        value={this.state.fspid}
-                        onChange={(e) => {
-                          this.setState({fspid: e.target.value})
-                        }}  />
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-              {
-                (this.state.selectedResource) ? (
-                  <Row className="mt-2">
+    render() {
+        return (
+            <>
+                <Row>
                     <Col span={24}>
-                      {
-                        (this.props.mode === 'callback' && this.state.selectedResource.data.successCallback) ? (
-                          <Tabs defaultActiveKey='successCallback' >
-                            <Tabs.TabPane tab="Success Callback" key="successCallback">
-                              <Title level={4} className="text-muted mb-4">
-                                Success Callback
-                              </Title>
-                              <div className="pl-4">
+                        <Row className='bg-white border-0 align-items-center'>
+                            <Col span={16} className='text-center'>
                                 <table>
-                                  <tbody>
-                                  <tr>
-                                    <td align='right'><b>Callback Resource:</b></td>
-                                    <td>
-                                      <ResourceSelector value={this.state.selectedResource.data['successCallback']} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.callbackResourceSelectHandler} mappingType='successCallback' selectedResource={this.state.selectedResource}/>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td align='right'><b>Path Pattern:</b></td>
-                                    <td>
-                                    <Input 
-                                      className="float-left"
-                                      placeholder="pathPattern" 
-                                      value={this.state.selectedResource.data['successCallback'].pathPattern}
-                                      onChange={(e) => {
-                                        this.state.selectedResource.data['successCallback'].pathPattern = e.target.value
-                                        this.forceUpdate()
-                                      }}  />
-                                    </td>
-                                  </tr>
-                                  </tbody>
+                                    <tbody>
+                                        <tr>
+                                            <td align='right'><b>Resource:</b></td>
+                                            <td>
+                                                <ResourceSelector value={this.state.selectedResource} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.resourceSelectHandler} />
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
-                                <EventBuilder
-                                    event={this.getEvent('successCallback')}
-                                    disableEventSelect={true}
-                                    onChange={(event) => {this.handleEventChange(event, 'successCallback')}}
-                                    resource={this.state.selectedResource}
-                                    resourceDefinition={this.getResourceDefinition()}
-                                    rootParameters={this.getRootParameters()}
-                                    callbackDefinition={this.getCallbackDefinition('successCallback')}
-                                    callbackRootParameters={this.getCallbackRootParameters('successCallback')}
-                                    callbackObject={this.getResourceMappingByType('successCallback')}
-                                    mode='callback'
-                                    isMappingEditor={true}
-                                  />
-                              </div>
-                            </Tabs.TabPane>
-                            <Tabs.TabPane tab="Error Callback" key="errorCallback">
-                              <Title level={4} className="text-muted mb-4">
-                                Error Callback
-                              </Title>
-                              <div className="pl-4">
+                            </Col>
+                            <Col span={8}>
+                                <Button
+                                    className='float-right'
+                                    type='primary'
+                                    onClick={this.handleSave}
+                                >
+                  Save
+                                </Button>
+                            </Col>
+                        </Row>
+                        <Row className='bg-white border-0 align-items-center'>
+                            <Col span={24}>
                                 <table>
-                                  <tbody>
-                                  <tr>
-                                    <td align='right'><b>Callback Resource:</b></td>
-                                    <td>
-                                      <ResourceSelector value={this.state.selectedResource.data['errorCallback']} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.callbackResourceSelectHandler} mappingType='errorCallback' selectedResource={this.state.selectedResource} />
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td align='right'><b>Path Pattern:</b></td>
-                                    <td>
-                                    <Input 
-                                      className="float-left"
-                                      placeholder="pathPattern" 
-                                      value={this.state.selectedResource.data['errorCallback'].pathPattern}
-                                      onChange={(e) => {
-                                        this.state.selectedResource.data['errorCallback'].pathPattern = e.target.value
-                                        this.forceUpdate()
-                                      }}  />
-                                    </td>
-                                  </tr>
-                                  </tbody>
+                                    <tbody>
+                                        <tr>
+                                            <td align='right'><b>FSPID:</b></td>
+                                            <td>
+                                                <Input
+                                                    className='float-left'
+                                                    placeholder='Value'
+                                                    value={this.state.fspid}
+                                                    onChange={e => {
+                                                        this.setState({ fspid: e.target.value });
+                                                    }}
+                                                />
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
-                                <EventBuilder
-                                  event={this.getEvent('errorCallback')}
-                                  onChange={(event) => {this.handleEventChange(event, 'errorCallback')}}
-                                  resource={this.state.selectedResource}
-                                  resourceDefinition={this.getResourceDefinition()}
-                                  rootParameters={this.getRootParameters()}
-                                  callbackDefinition={this.getCallbackDefinition('errorCallback')}
-                                  callbackRootParameters={this.getCallbackRootParameters('errorCallback')}
-                                  callbackObject={this.getResourceMappingByType('errorCallback')}
-                                  mode='validation'
-                                  isMappingEditor={true}
-                                />
-                              </div>
-                            </Tabs.TabPane>
-                          </Tabs>
-                        ) : null 
-                      }
+                            </Col>
+                        </Row>
+                        {
+                            (this.state.selectedResource)
+                                ? (
+                                    <Row className='mt-2'>
+                                        <Col span={24}>
+                                            {
+                                                (this.props.mode === 'callback' && this.state.selectedResource.data.successCallback)
+                                                    ? (
+                                                        <Tabs defaultActiveKey='successCallback'>
+                                                            <Tabs.TabPane tab='Success Callback' key='successCallback'>
+                                                                <Title level={4} className='text-muted mb-4'>
+                                  Success Callback
+                                                                </Title>
+                                                                <div className='pl-4'>
+                                                                    <table>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align='right'><b>Callback Resource:</b></td>
+                                                                                <td>
+                                                                                    <ResourceSelector value={this.state.selectedResource.data.successCallback} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.callbackResourceSelectHandler} mappingType='successCallback' selectedResource={this.state.selectedResource} />
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td align='right'><b>Path Pattern:</b></td>
+                                                                                <td>
+                                                                                    <Input
+                                                                                        className='float-left'
+                                                                                        placeholder='pathPattern'
+                                                                                        value={this.state.selectedResource.data.successCallback.pathPattern}
+                                                                                        onChange={e => {
+                                                                                            this.state.selectedResource.data.successCallback.pathPattern = e.target.value;
+                                                                                            this.forceUpdate();
+                                                                                        }}
+                                                                                    />
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                    <EventBuilder
+                                                                        event={this.getEvent('successCallback')}
+                                                                        disableEventSelect
+                                                                        onChange={event => { this.handleEventChange(event, 'successCallback'); }}
+                                                                        resource={this.state.selectedResource}
+                                                                        resourceDefinition={this.getResourceDefinition()}
+                                                                        rootParameters={this.getRootParameters()}
+                                                                        callbackDefinition={this.getCallbackDefinition('successCallback')}
+                                                                        callbackRootParameters={this.getCallbackRootParameters('successCallback')}
+                                                                        callbackObject={this.getResourceMappingByType('successCallback')}
+                                                                        mode='callback'
+                                                                        isMappingEditor
+                                                                    />
+                                                                </div>
+                                                            </Tabs.TabPane>
+                                                            <Tabs.TabPane tab='Error Callback' key='errorCallback'>
+                                                                <Title level={4} className='text-muted mb-4'>
+                                  Error Callback
+                                                                </Title>
+                                                                <div className='pl-4'>
+                                                                    <table>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align='right'><b>Callback Resource:</b></td>
+                                                                                <td>
+                                                                                    <ResourceSelector value={this.state.selectedResource.data.errorCallback} openApiDefinition={this.props.openApiDefinition} mode={this.props.mode} callbackMap={this.state.mapping} onSelect={this.callbackResourceSelectHandler} mappingType='errorCallback' selectedResource={this.state.selectedResource} />
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td align='right'><b>Path Pattern:</b></td>
+                                                                                <td>
+                                                                                    <Input
+                                                                                        className='float-left'
+                                                                                        placeholder='pathPattern'
+                                                                                        value={this.state.selectedResource.data.errorCallback.pathPattern}
+                                                                                        onChange={e => {
+                                                                                            this.state.selectedResource.data.errorCallback.pathPattern = e.target.value;
+                                                                                            this.forceUpdate();
+                                                                                        }}
+                                                                                    />
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                    <EventBuilder
+                                                                        event={this.getEvent('errorCallback')}
+                                                                        onChange={event => { this.handleEventChange(event, 'errorCallback'); }}
+                                                                        resource={this.state.selectedResource}
+                                                                        resourceDefinition={this.getResourceDefinition()}
+                                                                        rootParameters={this.getRootParameters()}
+                                                                        callbackDefinition={this.getCallbackDefinition('errorCallback')}
+                                                                        callbackRootParameters={this.getCallbackRootParameters('errorCallback')}
+                                                                        callbackObject={this.getResourceMappingByType('errorCallback')}
+                                                                        mode='validation'
+                                                                        isMappingEditor
+                                                                    />
+                                                                </div>
+                                                            </Tabs.TabPane>
+                                                        </Tabs>
+                                                    )
+                                                    : null
+                                            }
+                                        </Col>
+                                    </Row>
+                                )
+                                : null
+                        }
                     </Col>
-                  </Row>
-                ) : null
-              }
-          </Col>
-        </Row>
-      </>
-    );
-  }
+                </Row>
+            </>
+        );
+    }
 }
 
 export default MappingEditor;

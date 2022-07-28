@@ -1,0 +1,18 @@
+## Add a TODO comment indicating the reason for each rejected dependency upgrade added to this list, and what should be done to resolve it (i.e. handle it through a story, etc).
+reject: [
+  # TODO: Tried to upgrade the react and getting many issues while building the app due to the difference in the libraries.
+  # So keeping the react versions same for now.
+  "react",
+  "react-ace",
+  "react-dom",
+  "react-router-dom",
+  "react-scripts",
+  "web-vitals",
+  "@types/react",
+  "@testing-library/jest-dom",
+  "@testing-library/react",
+  "@testing-library/user-event",
+  # Keeping the bootstrap to the same version because there are many renames in the class names in the recent versions
+  "bootstrap"
+
+]

@@ -21,119 +21,118 @@
  * Georgi Logodazhki <georgi.logodazhki@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react';
 import { Select, Tag } from 'antd';
 import 'antd/dist/antd.css';
 
-
 class LabelsManager extends React.Component {
-  constructor () {
-    super()
-    this.state = {
-      labelsMapping: null
+    constructor() {
+        super();
+        this.state = {
+            labelsMapping: null,
+        };
     }
-  }
 
-  componentDidMount = () => {
-    this.updateLabelsMapping()
-  }
+    componentDidMount = () => {
+        this.updateLabelsMapping();
+    };
 
-  componentDidUpdate = () => {
-    this.updateLabelsMapping()
-  }
+    componentDidUpdate = () => {
+        this.updateLabelsMapping();
+    };
 
-  updateLabelsMapping = () => {
-    if (this.props.selectedFiles && (JSON.stringify(this.state.labelsMapping || {}) !== JSON.stringify(this.props.labelsManager.mapping || {}))) {
-      this.setState({
-        labelsMapping: this.props.labelsManager.mapping
-      })
-      this.handleSelectionLabelsChanged({selectedLabels: this.props.labelsManager.selectedLabels})
-    }
-  }
-
-  handleSelectionLabelsChanged = async (props) => {
-    if (props.selectedLabels) {
-      if (this.props.selectedFiles) {
-        const selectedFilesByLabel = []
-        for (let i = 0; i < props.selectedLabels.length; i++) {
-          const label = props.selectedLabels[i]
-          if (this.props.labelsManager.mapping[label]) {
-            selectedFilesByLabel.push(...this.props.labelsManager.mapping[label])
-          }
+    updateLabelsMapping = () => {
+        if(this.props.selectedFiles && (JSON.stringify(this.state.labelsMapping || {}) !== JSON.stringify(this.props.labelsManager.mapping || {}))) {
+            this.setState({
+                labelsMapping: this.props.labelsManager.mapping,
+            });
+            this.handleSelectionLabelsChanged({ selectedLabels: this.props.labelsManager.selectedLabels });
         }
-        const selectedFiles = []
-        if (selectedFilesByLabel.length > this.props.labelsManager.selectedFiles.length) {
-          for (let i = 0; i < selectedFilesByLabel.length; i++) {
-            if (!this.props.selectedFiles.includes(selectedFilesByLabel[i])) {
-              selectedFiles.push(selectedFilesByLabel[i])
+    };
+
+    handleSelectionLabelsChanged = async props => {
+        if(props.selectedLabels) {
+            if(this.props.selectedFiles) {
+                const selectedFilesByLabel = [];
+                for(let i = 0; i < props.selectedLabels.length; i++) {
+                    const label = props.selectedLabels[i];
+                    if(this.props.labelsManager.mapping[label]) {
+                        selectedFilesByLabel.push(...this.props.labelsManager.mapping[label]);
+                    }
+                }
+                const selectedFiles = [];
+                if(selectedFilesByLabel.length > this.props.labelsManager.selectedFiles.length) {
+                    for(let i = 0; i < selectedFilesByLabel.length; i++) {
+                        if(!this.props.selectedFiles.includes(selectedFilesByLabel[i])) {
+                            selectedFiles.push(selectedFilesByLabel[i]);
+                        }
+                    }
+                    selectedFiles.push(...this.props.selectedFiles);
+                } else {
+                    for(let i = 0; i < this.props.selectedFiles.length; i++) {
+                        const selectedFile = this.props.selectedFiles[i];
+                        if(selectedFilesByLabel.includes(selectedFile) || !this.props.labelsManager.selectedFiles.includes(selectedFile)) {
+                            selectedFiles.push(selectedFile);
+                        }
+                    }
+                }
+                props.selectedFiles = selectedFiles;
+                this.props.labelsManager.selectedFiles = selectedFilesByLabel;
             }
-          }
-          selectedFiles.push(...this.props.selectedFiles)
-        } else {
-          for (let i = 0; i < this.props.selectedFiles.length; i++) {
-            const selectedFile = this.props.selectedFiles[i]
-            if (selectedFilesByLabel.includes(selectedFile) || !this.props.labelsManager.selectedFiles.includes(selectedFile)) {
-              selectedFiles.push(selectedFile)
-            }
-          }
         }
-        props.selectedFiles = selectedFiles
-        this.props.labelsManager.selectedFiles = selectedFilesByLabel
-      }
+        this.props.onSelect(props);
+    };
+
+    getLabelsOptions = (labels, selectedLabels) => {
+        if(selectedLabels) {
+            labels = labels.filter(label => !selectedLabels.includes(label.name));
+        }
+
+        return labels.map(label => {
+            return {
+                label: label.name + ' - ' + label.description,
+                value: label.name,
+            };
+        });
+    };
+
+    getLabelByName = labelName => {
+        return this.props.labelsManager.labels.filter(label => label.name === labelName);
+    };
+
+    render() {
+        return (
+            <Select
+                mode='multiple'
+                placeholder='Select Labels'
+                value={this.props.labelsManager.selectedLabels}
+                tagRender={props => {
+                    const label = this.props.labelsManager.labels.find(label => label.name === props.value);
+                    if(label) {
+                        return (
+                            <Tag
+                                color={label.color}
+                                onMouseDown={event => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                }}
+                                closable={props.closable}
+                                onClose={props.onClose}
+                                style={{ marginRight: 3 }}
+                            >
+                                {label.name}
+                            </Tag>
+                        );
+                    }
+                }}
+                onChange={selectedLabels => {
+                    this.handleSelectionLabelsChanged({ selectedLabels });
+                }}
+                options={this.getLabelsOptions([...this.props.labelsManager.labels], this.props.labelsManager.selectedLabels)}
+                style={{ width: '100%' }}
+            />
+        );
     }
-    this.props.onSelect(props)
-  }
-
-  getLabelsOptions = (labels, selectedLabels) => {
-    if (selectedLabels) {
-      labels = labels.filter(label => !selectedLabels.includes(label.name))
-    }
-
-    return labels.map(label => { return {
-      label: label.name + " - " + label.description,
-      value: label.name
-    }})
-  }
-
-  getLabelByName = (labelName => {
-    return this.props.labelsManager.labels.filter(label => label.name === labelName)
-  })
-
-
-  render() {
-    
-    return (
-      <Select 
-          mode="multiple"
-          placeholder="Select Labels"
-          value={this.props.labelsManager.selectedLabels}
-          tagRender={(props) => {
-            const label = this.props.labelsManager.labels.find(label => label.name === props.value)
-            if (label) {
-              return (
-                <Tag 
-                  color={label.color}
-                  onMouseDown={event => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                  }}
-                  closable={props.closable}
-                  onClose={props.onClose}
-                  style={{ marginRight: 3 }}
-                >
-                  {label.name}
-                </Tag>
-              )
-            }
-          }}
-          onChange={selectedLabels => {
-            this.handleSelectionLabelsChanged({selectedLabels})
-          }}
-          options={this.getLabelsOptions([...this.props.labelsManager.labels], this.props.labelsManager.selectedLabels)}
-          style={{width:'100%'}}
-        />
-    )
-  }
 }
 
 export default LabelsManager;

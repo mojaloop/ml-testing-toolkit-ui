@@ -21,12 +21,12 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
+import React from 'react';
 
 class Footer extends React.Component {
-  render() {
-    return null
-  }
+    render() {
+        return null;
+    }
 }
 
 export default Footer;

@@ -23,7 +23,7 @@
  ******/
 
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, dialog, ipcMain} = require('electron')
+const { app, BrowserWindow, dialog, ipcMain } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const { files } = require('node-dir')
@@ -37,10 +37,10 @@ const mkdirAsync = promisify(fs.mkdir)
 
 const WEB_URL = 'http://localhost:3000/admin/outbound_request'
 const MASTERFILE_NAME = 'master.json'
-var globalFilePath = null
-var mainWindow
+let globalFilePath = null
+let mainWindow
 
-var actionEventSender = null
+let actionEventSender = null
 
 ipcMain.on('mainAction', (event, actionDataJSON) => {
   actionEventSender = event.sender
@@ -69,20 +69,19 @@ ipcMain.on('mainAction', (event, actionDataJSON) => {
 function openFileDialog () {
   // Open file dialog
   // multiSelections
-  let dialogProperties = [ 'openFile' ] 
-  if (process.platform === 'darwin') { // For MacOS
-    dialogProperties = [ 'openFile', 'openDirectory' ]
-  }
-  const fileNames = dialog.showOpenDialog(mainWindow, { properties: dialogProperties}).then(
-    result => {
-      if (!result.canceled) {
-        globalFilePath = result.filePaths[0].toString()
-        handleLocalFileOrFolderOpen(globalFilePath)
-      }
-    }
-  )
+  // let dialogProperties = ['openFile']
+  // if (process.platform === 'darwin') { // For MacOS
+  //   dialogProperties = ['openFile', 'openDirectory']
+  // }
+  // const fileNames = dialog.showOpenDialog(mainWindow, { properties: dialogProperties }).then(
+  //   result => {
+  //     if (!result.canceled) {
+  //       globalFilePath = result.filePaths[0].toString()
+  //       handleLocalFileOrFolderOpen(globalFilePath)
+  //     }
+  //   }
+  // )
 }
-
 
 function createWindow () {
   // Create the browser window.
@@ -114,7 +113,7 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
-  
+
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -135,15 +134,15 @@ app.on('window-all-closed', function () {
 // File Reading Functions
 handleLocalFileOrFolderOpen = async (filePath) => {
   const folderRawData = await getFolderRawData(filePath)
-  actionEventSender.send('rendererAction', { action: 'importFolderData' , data: folderRawData, nativeFilePath: globalFilePath })
+  actionEventSender.send('rendererAction', { action: 'importFolderData', data: folderRawData, nativeFilePath: globalFilePath })
 }
 
 const getFileData = async (fileToRead, fileStat, rootFolder) => {
   try {
     const pathArray = rootFolder.split('/')
-    const selectedFolderName = pathArray[pathArray.length-1]
+    const selectedFolderName = pathArray[pathArray.length - 1]
     const absolutePathPrefix = pathArray.slice(0, -1).join('/')
-    const fileFullName = fileToRead.replace(absolutePathPrefix+'/', '')
+    const fileFullName = fileToRead.replace(absolutePathPrefix + '/', '')
 
     const content = await readFileAsync(fileToRead, 'utf8')
     const fileContent = JSON.parse(content)
@@ -160,7 +159,7 @@ const getFileData = async (fileToRead, fileStat, rootFolder) => {
   }
 }
 const getFolderRawData = async (folderItem) => {
-  var importFolderRawData = []
+  const importFolderRawData = []
   const stat = await fileStatAsync(folderItem)
   if (stat.isFile() && folderItem.endsWith('.json')) {
     const fileItemData = await getFileData(folderItem, stat, folderItem)
@@ -169,7 +168,7 @@ const getFolderRawData = async (folderItem) => {
     }
   } else if (stat.isDirectory()) {
     const fileList = await readRecursiveAsync(folderItem)
-    for (var j = 0; j < fileList.length; j++) {
+    for (let j = 0; j < fileList.length; j++) {
       const fileItemData = await getFileData(fileList[j], stat, folderItem)
       if (fileItemData) {
         importFolderRawData.push(fileItemData)
@@ -182,7 +181,6 @@ const getFolderRawData = async (folderItem) => {
 
 // File Writing Functions
 const saveFolder = async (saveFilePath, folderData) => {
-  
   const pathArray = saveFilePath.split('/')
   const parentFolder = pathArray.slice(0, -1).join('/')
 
@@ -200,9 +198,9 @@ const saveFolder = async (saveFilePath, folderData) => {
 
   const removeStatusInfo = (templateContent) => {
     if (templateContent.test_cases) {
-      for(let i = 0; i < templateContent.test_cases.length; i++) {
+      for (let i = 0; i < templateContent.test_cases.length; i++) {
         if (templateContent.test_cases[i].requests) {
-          for(let j = 0; j < templateContent.test_cases[i].requests.length; j++) {
+          for (let j = 0; j < templateContent.test_cases[i].requests.length; j++) {
             if (templateContent.test_cases[i].requests[j].status) {
               delete templateContent.test_cases[i].requests[j].status
             }
@@ -213,23 +211,23 @@ const saveFolder = async (saveFilePath, folderData) => {
   }
 
   const writeFileToFolder = async (folderName, fileName, fileContent) => {
-    await writeFileAsync(folderName + '/' + fileName, fileContent);
+    await writeFileAsync(folderName + '/' + fileName, fileContent)
   }
 
   const addFilesToFolder = async (nodeChildren, currentFolder) => {
     // Create the folder
-    await mkdirAsync(currentFolder, { recursive: true });
+    await mkdirAsync(currentFolder, { recursive: true })
     // Add master file
     if (nodeChildren.length > 1) {
       const masterFileContent = generateMasterFile(nodeChildren)
-      await writeFileToFolder(currentFolder, MASTERFILE_NAME, JSON.stringify(masterFileContent,null,2));
+      await writeFileToFolder(currentFolder, MASTERFILE_NAME, JSON.stringify(masterFileContent, null, 2))
     }
 
-    for (let i=0; i<nodeChildren.length; i++) {
+    for (let i = 0; i < nodeChildren.length; i++) {
       if (nodeChildren[i].isLeaf && nodeChildren[i].extraInfo.type === 'file') {
-        const templateContent = nodeChildren[i].content;
+        const templateContent = nodeChildren[i].content
         removeStatusInfo(templateContent)
-        await writeFileToFolder(currentFolder, nodeChildren[i].title, JSON.stringify(templateContent,null,2));
+        await writeFileToFolder(currentFolder, nodeChildren[i].title, JSON.stringify(templateContent, null, 2))
       } else {
         if (nodeChildren[i].children) {
           const folderHandler = currentFolder + '/' + nodeChildren[i].title
@@ -240,15 +238,14 @@ const saveFolder = async (saveFilePath, folderData) => {
   }
 
   try {
-
     // Backup the folder just incase
     const backupFolderName = saveFilePath + '_electron-backup-' + (new Date().toISOString())
-    await renameFileAsync(saveFilePath, backupFolderName);
-    await mkdirAsync(saveFilePath, { recursive: true });
+    await renameFileAsync(saveFilePath, backupFolderName)
+    await mkdirAsync(saveFilePath, { recursive: true })
     // Replace the files
     await addFilesToFolder(folderData, parentFolder)
     actionEventSender.send('rendererAction', { action: 'savingStatusSuccess' })
-  } catch(err){
+  } catch (err) {
     console.log(err.message)
     actionEventSender.send('rendererAction', { action: 'savingStatusError', message: err.message })
   }

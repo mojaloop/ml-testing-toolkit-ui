@@ -21,98 +21,100 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from "react";
-import { getConfig } from '../../utils/getConfig'
-import APIDocViewer from './APIDocViewer'
+import React from 'react';
+import { getConfig } from '../../utils/getConfig';
+import APIDocViewer from './APIDocViewer';
 import axios from 'axios';
-import { Select, Row, Col, Card } from 'antd';
+import { Select, Row, Col } from 'antd';
 
 const { Option } = Select;
 
 class APIDocs extends React.Component {
-  state = {
-    apiVersions: [],
-    selectedVersion: null
-  }
+    state = {
+        apiVersions: [],
+        selectedVersion: null,
+    };
 
-  getApiVersions = async () => {
-    const { apiBaseUrl } = getConfig()
-    const response = await axios.get(apiBaseUrl + "/api/openapi/api_versions")
-    return response.data
-  }
-  getApiVersionOptions = () => {
-    this.apiVersionOptions = this.state.apiVersions.map((item, index) => {
-      return (
-        <Option key={index} value={JSON.stringify(item)}>{item.type} {item.majorVersion}.{item.minorVersion}</Option>
-      )
-    })
-    return this.apiVersionOptions
-  }
+    getApiVersions = async () => {
+        const { apiBaseUrl } = getConfig();
+        const response = await axios.get(apiBaseUrl + '/api/openapi/api_versions');
+        return response.data;
+    };
 
-  getApiVersionValue = () => {
-    if(this.state.selectedVersion) {
-      return JSON.stringify(this.state.selectedVersion)
-    } else {
-      return null
+    getApiVersionOptions = () => {
+        this.apiVersionOptions = this.state.apiVersions.map((item, index) => {
+            return (
+                <Option key={index} value={JSON.stringify(item)}>{item.type} {item.majorVersion}.{item.minorVersion}</Option>
+            );
+        });
+        return this.apiVersionOptions;
+    };
+
+    getApiVersionValue = () => {
+        if(this.state.selectedVersion) {
+            return JSON.stringify(this.state.selectedVersion);
+        } else {
+            return null;
+        }
+    };
+
+    componentDidMount = async () => {
+        const apiVersions = await this.getApiVersions();
+        this.setState({ apiVersions, selectedVersion: apiVersions[0] });
+    };
+
+    handleApiVersionSelect = eventKey => {
+        this.setState({ selectedVersion: JSON.parse(eventKey) });
+    };
+
+    getSelectedVersionURL = () => {
+        const { apiBaseUrl } = getConfig();
+        if(this.state.selectedVersion) {
+            const url = apiBaseUrl + '/api/openapi/definition/' + this.state.selectedVersion.type + '/' + this.state.selectedVersion.majorVersion + '.' + this.state.selectedVersion.minorVersion;
+            return url;
+        } else {
+            return '';
+        }
+    };
+
+    render() {
+        return (
+            <>
+                {/* Page content */}
+                <Row className='mt--7 mb-4'>
+                    <Col span={24}>
+                        <Row>
+                            <Col span={24}>
+                                <Select
+                                    onChange={this.handleApiVersionSelect}
+                                    disabled={(!!this.props.value)}
+                                    style={{ width: 300 }}
+                                    className='float-right'
+                                    placeholder='Select an API'
+                                    value={this.getApiVersionValue()}
+                                >
+                                    {this.getApiVersionOptions()}
+                                </Select>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={24}>
+                                {
+                                    this.state.selectedVersion
+                                        ? (
+                                            <APIDocViewer
+                                                specUrl={this.getSelectedVersionURL()}
+                                            />
+                                        )
+                                        : null
+                                }
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+            </>
+        );
     }
-  }
-
-  componentDidMount = async () => {
-    const apiVersions = await this.getApiVersions()
-    this.setState({ apiVersions, selectedVersion: apiVersions[0] })
-  }
-
-  handleApiVersionSelect = (eventKey) => {
-    this.setState({ selectedVersion: JSON.parse(eventKey) })
-  }
-
-  getSelectedVersionURL = () => {
-    const { apiBaseUrl } = getConfig()
-    if (this.state.selectedVersion) {
-      const url = apiBaseUrl + '/api/openapi/definition/' + this.state.selectedVersion.type + '/' + this.state.selectedVersion.majorVersion + '.' + this.state.selectedVersion.minorVersion
-      return url
-    } else {
-      return ''
-    }
-  }
-
-  render() {
-    return (
-      <>
-        {/* Page content */}
-          <Row className="mt--7 mb-4">
-            <Col span={24}>
-              <Row>
-                <Col span={24}>
-                <Select onChange={this.handleApiVersionSelect}
-                  disabled={(this.props.value? true : false)}
-                  style={{ width: 300 }}
-                  className="float-right"
-                  placeholder="Select an API"
-                  value={this.getApiVersionValue()}
-                >
-                {this.getApiVersionOptions()}
-                </Select>
-              </Col>
-              </Row>
-              <Row>
-              <Col span={24}>
-              {
-                this.state.selectedVersion
-                ? (
-                  <APIDocViewer
-                    specUrl={this.getSelectedVersionURL()}
-                  />
-                )
-                : null
-              }
-              </Col>
-              </Row>
-            </Col>
-          </Row>
-      </>
-    );
-  }
 }
 
 export default APIDocs;

@@ -22,89 +22,89 @@
  --------------
  ******/
 
-import React from "react";
+import React from 'react';
 import { Input, Row, Col, Button, Card } from 'antd';
 import { DeleteTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
 class ArrayInputValues extends React.Component {
+    state = {
+        values: [],
+    };
 
-  state = {
-    values: []
-  };
+    componentDidMount = async () => {
+        if(!this.props.values || !Array.isArray(this.props.values)) {
+            this.props.onChange([]);
+        } else {
+            this.setState({ values: this.props.values });
+        }
+    };
 
-  componentDidMount = async () => {
-    if (!this.props.values || !Array.isArray(this.props.values)) {
-      this.props.onChange([])
-    } else {
-      this.setState({values: this.props.values})
-    }
-  }
+    handleDeleteClick = itemIndex => {
+        this.state.values.splice(itemIndex, 1);
+        this.props.onChange(this.state.values);
+    };
 
-  handleDeleteClick = (itemIndex) => {
-    this.state.values.splice(itemIndex,1)
-    this.props.onChange(this.state.values)
-  }
+    getInputItems = () => {
+        const inputItems = [];
+        for(let i = 0; i < this.state.values.length; i++) {
+            inputItems.push(
+                <Row className='mb-2' key={i}>
+                    <Col span={24}>
+                        <Row gutter={8}>
+                            <Col span={23}>
+                                <Input
+                                    value={this.state.values[i]}
+                                    onChange={e => {
+                                        this.state.values[i] = e.target.value;
+                                        this.props.onChange(this.state.values);
+                                    }}
+                                />
+                            </Col>
+                            <Col span={1}>
+                                <DeleteTwoTone
+                                    key={i} type='delete' theme='filled'
+                                    onClick={() => this.handleDeleteClick(i)}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>,
+            );
+        }
+        return inputItems;
+    };
 
-  getInputItems = () => {
-    let inputItems = []
-    for (let i = 0; i < this.state.values.length; i++) {
-      inputItems.push(
-          <Row className='mb-2' key={i}>
-            <Col span={24}>
-              <Row gutter={8}>
-                <Col span={23}>
-                  <Input
-                    value={this.state.values[i]}
-                    onChange={(e) => {
-                      this.state.values[i] = e.target.value
-                      this.props.onChange(this.state.values)
-                    }}
-                  />
-                </Col>
-                <Col span={1}>
-                  <DeleteTwoTone key={i} type="delete" theme="filled"
-                    onClick={() => this.handleDeleteClick(i)}
-                  />
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-      )
-    }
-    return inputItems
-  }
+    handleAddInputValue = () => {
+        this.state.values.push('');
+        this.props.onChange(this.state.values);
+    };
 
-  handleAddInputValue = () => {
-    this.state.values.push('')
-    this.props.onChange(this.state.values)
-  }
-
-  render() {
-    return (
-      <>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Card size='small'>
-              <Row className='mb-2'>
-                <Col span={24}>
-                  <Button
-                    className="text-right float-right"
-                    color="primary"
-                    size="sm"
-                    onClick={this.handleAddInputValue}
-                  >
+    render() {
+        return (
+            <>
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Card size='small'>
+                            <Row className='mb-2'>
+                                <Col span={24}>
+                                    <Button
+                                        className='text-right float-right'
+                                        color='primary'
+                                        size='sm'
+                                        onClick={this.handleAddInputValue}
+                                    >
                     Add
-                  </Button>
-                </Col>
-              </Row>
-              {this.getInputItems()}
-            </Card>
-          </Col>
-        </Row>
-      </>
-    )
-  }
+                                    </Button>
+                                </Col>
+                            </Row>
+                            {this.getInputItems()}
+                        </Card>
+                    </Col>
+                </Row>
+            </>
+        );
+    }
 }
 
 export default ArrayInputValues;
