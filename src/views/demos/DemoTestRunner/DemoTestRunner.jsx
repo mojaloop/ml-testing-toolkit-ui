@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/indent,indent */
 /*****
  License
  --------------
@@ -25,19 +26,26 @@
 import React from 'react';
 import socketIOClient from 'socket.io-client';
 import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig';
-import { Row, Col, Modal, Badge, message, Progress, Button, Card, Drawer, Layout } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
+import { Row, Col, Modal, Badge, message, Progress, Button, Card, Affix, Layout } from 'antd';
+import { Tabs } from 'antd';
+// import { SettingOutlined } from '@ant-design/icons';
+import DemoAPIDocViewer from './DemoAPIDocViewer';
+import DemoTestCaseResults from './DemoTestCaseResults';
 import 'antd/dist/antd.css';
 import axios from 'axios';
-import TestCaseViewer from '../../outbound/TestCaseViewer';
+import DemoTestCaseViewer from './DemoTestCaseViewer';
 import FileManager from '../../outbound/FileManager.jsx';
 import EnvironmentManager from '../../outbound/EnvironmentManager';
-import Monitor from '../../monitor/Monitor';
+// import Monitor from '../../monitor/Monitor';
+import ActivityLog from '../../monitor/ActivityLog';
+import SequenceDiagram from '../../monitor/SequenceDiagram';
+import { isUndefined } from 'lodash';
 
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 
 import { TTKColors } from '../../../utils/styleHelpers';
 import { LocalDB } from '../../../services/localDB/LocalDB';
+const { TabPane } = Tabs;
 
 const { Sider, Content } = Layout;
 
@@ -57,6 +65,9 @@ class OutboundRequest extends React.Component {
     constructor() {
         super();
         this.fileManagerRef = React.createRef();
+        this.demoApiDocViewerRef = React.createRef();
+        this.activityLogRef = React.createRef();
+        this.sequenceDiagramRef = React.createRef();
         const sessionId = TraceHeaderUtils.generateSessionId();
         this.state = {
             request: {},
@@ -77,6 +88,7 @@ class OutboundRequest extends React.Component {
             folderData: [],
             fileBrowserVisible: false,
             testCaseEditorLogs: [],
+            documentationVisible: false,
         };
     }
 
@@ -122,6 +134,15 @@ class OutboundRequest extends React.Component {
         }
         this.socket.on('outboundProgress/' + this.state.sessionId, this.handleIncomingProgress);
 
+        this.socket.on('newLog', log => {
+            console.log('GVK', log);
+            // if(this.activityLogRef.current)
+            //     this.activityLogRef.current.appendLog(log);
+            if(this.sequenceDiagramRef.current)
+                this.sequenceDiagramRef.current.appendLog(log);
+            this.forceUpdate();
+        });
+
         const additionalData = this.restoreAdditionalData();
         const storedFolderData = await this.restoreSavedFolderData();
 
@@ -139,6 +160,7 @@ class OutboundRequest extends React.Component {
         }
 
         this.startAutoSaveTimer();
+ 
     };
 
     handleInputValuesChange = newInputValues => {
@@ -198,7 +220,7 @@ class OutboundRequest extends React.Component {
                         request.status.state = 'error';
                         request.status.response = progress.response;
                         request.status.callback = progress.callback;
-                        request.status.requestSent = progress.requestSent;
+                        request.status.requestSent = null;
                         request.status.additionalInfo = progress.additionalInfo;
                         request.status.testResult = progress.testResult;
                     }
@@ -262,6 +284,29 @@ class OutboundRequest extends React.Component {
             this.handleSendTemplate();
         }
     };
+
+    handleDisableRequests = (disabled, testCaseIndex, requestIndex) => {
+        const fileSelected = this.getSingleFileSelected();
+        if(fileSelected) {
+            if(isUndefined(requestIndex)) {
+                for(let i = 0; i < fileSelected.content.test_cases[testCaseIndex].requests.length; i++) {
+                    fileSelected.content.test_cases[testCaseIndex].requests[i].disabled = disabled;
+                }
+            } else {
+                fileSelected.content.test_cases[testCaseIndex].requests[requestIndex].disabled = disabled;
+            }
+            this.autoSaveFolderData(this.state.folderData);
+            this.regenerateTemplate(this.state.additionalData.selectedFiles);
+            this.forceUpdate();
+        } else {
+            message.error('ERROR: multiple files are selected');
+        }
+    };
+
+    handleOnRequestClicked = async request => {
+        await this.setState({ documentationVisible: true });
+        await this.demoApiDocViewerRef.current?.showDocForRequest(request);
+    }
 
     // Take the status property out from requests
     convertTemplate = (template, showAdvancedFeaturesAnyway = false) => {
@@ -366,9 +411,32 @@ class OutboundRequest extends React.Component {
                 return (
                     <Row className='mb-2'>
                         <Col span={24}>
-                            <TestCaseViewer
+                            <DemoTestCaseViewer
                                 testCase={testCase}
                                 inputValues={this.state.inputValues}
+                                onDisableRequests={(disabled, requestIndex) => { this.handleDisableRequests(disabled, testCaseIndex, requestIndex); }}
+                                onRequestClicked={this.handleOnRequestClicked}
+                                noOptions
+                            />
+                        </Col>
+                    </Row>
+                );
+            });
+        }
+        return null;
+    };
+
+    getTestCaseResults = () => {
+        if(this.state.template.test_cases) {
+            return this.state.template.test_cases.map((testCase, testCaseIndex) => {
+                return (
+                    <Row className='mb-2'>
+                        <Col span={24}>
+                            <DemoTestCaseResults
+                                testCase={testCase}
+                                inputValues={this.state.inputValues}
+                                onDisableRequests={(disabled, requestIndex) => { this.handleDisableRequests(disabled, testCaseIndex, requestIndex); }}
+                                onRequestClicked={this.handleOnRequestClicked}
                                 noOptions
                             />
                         </Col>
@@ -408,7 +476,7 @@ class OutboundRequest extends React.Component {
     render() {
         return (
             <>
-                <Drawer
+                {/* <Drawer
                     title='Configuration'
                     placement='left'
                     width={600}
@@ -463,7 +531,7 @@ class OutboundRequest extends React.Component {
                     onCancel={() => { this.setState({ showTemplate: false }); }}
                 >
                     <pre>{JSON.stringify(this.convertTemplate({ ...this.state.template, inputValues: this.state.inputValues }), null, 2)}</pre>
-                </Modal>
+                </Modal> */}
                 <Layout>
                     <Sider
                         width={500}
@@ -477,11 +545,11 @@ class OutboundRequest extends React.Component {
                             <Col span={24}>
                                 <Row>
                                     <Col span={4}>
-                                        <SettingOutlined
+                                        {/* <SettingOutlined
                                             style={{ fontSize: '24px' }} onClick={() => {
                                                 this.setState({ fileBrowserVisible: true });
                                             }}
-                                        />
+                                        /> */}
                                     </Col>
                                     <Col span={16} className='text-center'>
                                         {
@@ -546,7 +614,45 @@ class OutboundRequest extends React.Component {
                             background: '#fff',
                         }}
                     >
-                        <Monitor />
+                    
+                    {
+                        this.state.documentationVisible
+                        ? (
+                            <>
+                            <Affix>
+                                <Row>
+                                    <Col span={24}>
+                                        <Button danger className='float-right mt-2 mr-2'
+                                            onClick={() => {this.setState({ documentationVisible: false });}}
+                                        >Close</Button>
+                                    </Col>
+                                </Row>
+                            </Affix>
+                            <Row>
+                                <Col span={24}>
+                                    <Card>
+                                        <DemoAPIDocViewer
+                                            ref={this.demoApiDocViewerRef}
+                                        />
+                                    </Card>
+                                </Col>
+                            </Row>
+                            </>
+                        )
+                        : (
+                            <Tabs type='card' defaultActiveKey='1'>
+                                <TabPane tab='Test Results' key='1' forceRender>
+                                    { this.getTestCaseResults() }
+                                </TabPane>
+                                {/* <TabPane tab='Activity Log' key='2' forceRender>
+                                    <ActivityLog ref={this.activityLogRef} />
+                                </TabPane> */}
+                                <TabPane tab='Sequence Diagram' key='3' forceRender>
+                                    <SequenceDiagram ref={this.sequenceDiagramRef} />
+                                </TabPane>
+                            </Tabs>
+                        )
+                    }
                     </Content>
                 </Layout>
             </>
