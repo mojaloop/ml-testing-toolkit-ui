@@ -225,6 +225,7 @@ class TestMonitor extends React.Component {
         this.state.incomingItemsObj[primaryGroupId].position = log.notificationType === 'newLog' ? 'right' : 'left';
 
         this.state.incomingItemsObj[primaryGroupId].secondaryItemsObj[secondaryGroupId].push(log);
+        this.forceUpdate();
     };
 
     getTimelineSets = () => {

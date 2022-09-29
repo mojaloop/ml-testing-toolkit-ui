@@ -83,6 +83,49 @@ class OutboundService {
         return this.customParams;
     };
 
+    async getPayeeProxyDisplayInfo(idNumber) {
+        const url = '/api/samples/load?collections=examples/collections/dummy.json&collections=examples/collections/gsp_party.json';
+        const resp1 = await axios.get(this.apiBaseUrl + url);
+        const template = resp1.data.body;
+        const traceId = this.getTraceId();
+        template.name = 'getPayeeProxyDisplayInfo';
+        template.inputValues = this.inputValues;
+        // Replace corresponding values in inputValues
+        template.inputValues.payeePhoneNumber = idNumber + '';
+        const resp2 = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
+        return resp2;
+    }
+
+    async getTransferFundsQuotation(idNumber, amount, currency) {
+        const url = '/api/samples/load?collections=examples/collections/dummy.json&collections=examples/collections/gsp_quote.json';
+        const resp1 = await axios.get(this.apiBaseUrl + url);
+        const template = resp1.data.body;
+        const traceId = this.getTraceId();
+        template.name = 'getTransferFundsQuotation';
+        template.inputValues = this.inputValues;
+        // Replace corresponding values in inputValues
+        template.inputValues.payeePhoneNumber = idNumber + '';
+        template.inputValues.amount = amount + '';
+        template.inputValues.currency = currency + '';
+        const resp2 = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
+        return resp2;
+    }
+
+    async transferFunds(idNumber, amount, currency) {
+        const url = '/api/samples/load?collections=examples/collections/dummy.json&collections=examples/collections/gsp_approve.json';
+        const resp1 = await axios.get(this.apiBaseUrl + url);
+        const template = resp1.data.body;
+        const traceId = this.getTraceId();
+        template.name = 'transferFunds';
+        template.inputValues = this.inputValues;
+        // Replace corresponding values in inputValues
+        template.inputValues.payeePhoneNumber = idNumber + '';
+        template.inputValues.amount = amount + '';
+        template.inputValues.currency = currency + '';
+        const resp2 = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
+        return resp2;
+    }
+
     async getParties(idNumber) {
         const traceId = this.getTraceId();
         // eslint-disable-next-line @typescript-eslint/no-var-requires

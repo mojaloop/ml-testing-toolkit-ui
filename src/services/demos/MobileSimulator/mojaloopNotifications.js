@@ -97,6 +97,33 @@ class NotificationService {
         });
     };
 
+    notifyPayerGetPayeeProxyDisplayInfoComplete = log => {
+        // Monitoring Logs
+        this.notificationEventFunction({
+            category: 'payer',
+            type: 'getPayeeProxyDisplayInfoComplete',
+            data: log.totalResult,
+        });
+    };
+
+    notifyPayerGetTransferFundsQuotationComplete = log => {
+        // Monitoring Logs
+        this.notificationEventFunction({
+            category: 'payer',
+            type: 'getTransferFundsQuotationUpdateComplete',
+            data: log.totalResult,
+        });
+    };
+
+    notifyPayerTransferFundsComplete = log => {
+        // Monitoring Logs
+        this.notificationEventFunction({
+            category: 'payer',
+            type: 'transferFundsComplete',
+            data: log.totalResult,
+        });
+    };
+
     notifyPayeeMonitorLog = log => {
         // Monitoring Logs
         this.notificationEventFunction({
@@ -288,7 +315,7 @@ class NotificationService {
     };
 
     handleNotificationLog = log => {
-        // console.log(log)
+        console.log(log);
 
         // Handle the outbound progress events
         if(log.internalLogType === 'outboundProgress') {
@@ -308,6 +335,15 @@ class NotificationService {
                         break;
                     case 'EXECUTE_SETTLEMENT':
                         this.notifyExecuteSettlement(log);
+                        break;
+                    case 'getPayeeProxyDisplayInfo':
+                        this.notifyPayerGetPayeeProxyDisplayInfoComplete(log);
+                        break;
+                    case 'getTransferFundsQuotation':
+                        this.notifyPayerGetTransferFundsQuotationComplete(log);
+                        break;
+                    case 'transferFunds':
+                        this.notifyPayerTransferFundsComplete(log);
                         break;
                 }
             } else {
@@ -347,6 +383,37 @@ class NotificationService {
         }
 
         // Payer Logs
+
+        // Catch outbound request
+        if(log.notificationType === 'newOutboundLog' &&
+          log.message.startsWith('Sending request') &&
+          log.resource
+        ) {
+            this.notificationEventFunction({
+                category: 'payer',
+                type: 'httpRequest',
+                data: {
+                    resource: log.resource,
+                },
+            });
+            this.notifyPayerMonitorLog(log);
+        }
+
+        // Catch response
+        if(log.notificationType === 'newOutboundLog' &&
+          log.message.startsWith('Received response') &&
+          log.resource
+        ) {
+            this.notificationEventFunction({
+                category: 'payer',
+                type: 'httpResponse',
+                data: {
+                    resource: log.resource,
+                },
+            });
+            this.notifyPayerMonitorLog(log);
+        }
+
         // Catch get Parties request
         if(log.notificationType === 'newOutboundLog' &&
           log.message.startsWith('Sending request') &&

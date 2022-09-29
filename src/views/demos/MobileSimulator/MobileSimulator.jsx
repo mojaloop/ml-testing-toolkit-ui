@@ -22,18 +22,15 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, Drawer, Button, Typography, Modal, Tabs } from 'antd';
+import { Row, Col, Drawer, Button, Typography, Modal, Tabs, message } from 'antd';
 import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import mobile_left from '../../../assets/img/mobile_pink_iphone.png';
 import mobile_right from '../../../assets/img/mobile_green_iphone.png';
 
 import PayerMobile from './PayerMobile.jsx';
-import PayeeMobile from './PayeeMobile.jsx';
 import TestDiagram from './TestDiagram.jsx';
 import TestMonitor from './TestMonitor.jsx';
-import Settings from './Settings.jsx';
-import HUBConsole from './HUBConsole.jsx';
 import NotificationService from '../../../services/demos/MobileSimulator/mojaloopNotifications';
 import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound';
 import { getServerConfig } from '../../../utils/getConfig';
@@ -43,24 +40,16 @@ const { TabPane } = Tabs;
 
 class MobileSimulator extends React.Component {
     state = {
-        payerName: 'Pink Bank',
-        hubName: 'Mojaloop Switch',
-        payeeName: 'Green Bank',
+        payerName: 'PISP Backend',
+        hubName: 'GSP Adapter',
         payerLogsDrawerVisible: false,
-        payeeLogsDrawerVisible: false,
-        showSettings: false,
-        hubConsoleEnabled: false,
     };
 
     constructor() {
         super();
         this.payerMobileRef = React.createRef();
-        this.payeeMobileRef = React.createRef();
         this.testDiagramRef = React.createRef();
         this.payerMonitorRef = React.createRef();
-        this.payeeMonitorRef = React.createRef();
-        this.settingsRef = React.createRef();
-        this.hubConsoleRef = React.createRef();
         this.notificationServiceObj = new NotificationService();
         const sessionId = this.notificationServiceObj.getSessionId();
         this.outboundServiceObj = new OutboundService(sessionId);
@@ -68,40 +57,27 @@ class MobileSimulator extends React.Component {
 
     componentDidMount = async () => {
         this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents);
-        this.fetchConfiguration();
+        // this.fetchConfiguration();
     };
 
     componentWillUnmount = () => {
         this.notificationServiceObj.disconnect();
     };
 
-    fetchConfiguration = async () => {
-        const { userConfigRuntime } = await getServerConfig();
-        const hubConsoleEnabled = userConfigRuntime && userConfigRuntime.UI_CONFIGURATION && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR.HUB_CONSOLE_ENABLED;
-        this.setState({ hubConsoleEnabled });
-    };
+    // fetchConfiguration = async () => {
+    //     const { userConfigRuntime } = await getServerConfig();
+    // };
 
     handleNotificationEvents = event => {
         if(event.category === 'payer') {
             if(this.payerMobileRef.current)
                 this.payerMobileRef.current.handleNotificationEvents(event);
-            this.updateSequenceDiagram(event);
-        } else if(event.category === 'payee') {
-            if(this.payeeMobileRef.current)
-                this.payeeMobileRef.current.handleNotificationEvents(event);
-            this.updateSequenceDiagram(event);
+            // this.updateSequenceDiagram(event);
         } else if(event.category === 'payerMonitorLog') {
-            if(this.payerMonitorRef.current)
+            this.updateSequenceDiagram(event);
+            if(this.payerMonitorRef.current) {
                 this.payerMonitorRef.current.appendLog(event.data.log);
-        } else if(event.category === 'payeeMonitorLog') {
-            if(this.payeeMonitorRef.current)
-                this.payeeMonitorRef.current.appendLog(event.data.log);
-        } else if(event.category === 'settingsLog') {
-            if(this.settingsRef.current)
-                this.settingsRef.current.handleNotificationEvents(event);
-        } else if(event.category === 'hubConsole') {
-            if(this.hubConsoleRef.current)
-                this.hubConsoleRef.current.handleNotificationEvents(event);
+            }
         }
     };
 
@@ -112,14 +88,45 @@ class MobileSimulator extends React.Component {
         if(this.payerMonitorRef.current) {
             this.payerMonitorRef.current.clearLogs();
         }
-        if(this.payeeMonitorRef.current) {
-            this.payeeMonitorRef.current.clearLogs();
-        }
     };
 
     updateSequenceDiagram = event => {
+        console.log('GVK Update Sequece Diagram', event);
         switch (event.type) {
             // Payer Side Events
+            case 'log':
+            {
+                
+                if(event.data?.log?.message?.startsWith('Sending')) {
+                    if(event.data.log.resource.method === 'post' && event.data.log.resource.path === '/v3/getTransferFundsQuotation') {
+                        this.clearEverything();
+                    }
+                    if(this.testDiagramRef.current) {
+                        this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] ' + event.data.log.resource.method + ' ' + event.data.log.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                    }
+                } else if(event.data?.log?.message?.startsWith('Received')) {
+                    if(this.testDiagramRef.current) {
+                        this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.log.additionalData.response.status + ' ' + event.data.log.additionalData.response.statusText, { dashed: true, activation: { mode: 'activate', peer: 'both' } });
+                    }
+                }
+                break;
+            }
+            // case 'httpRequest':
+            // {
+            //     this.clearEverything();
+            //     if(this.testDiagramRef.current) {
+            //         this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+            //     }
+            //     break;
+            // }
+            // case 'httpResponse':
+            // {
+            //     this.clearEverything();
+            //     if(this.testDiagramRef.current) {
+            //         this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+            //     }
+            //     break;
+            // }
             case 'getParties':
             {
                 this.clearEverything();
@@ -208,138 +215,12 @@ class MobileSimulator extends React.Component {
                 break;
             }
 
-            // Payer Side Events
-            case 'payeeGetParties':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addCustomSequence(`rect rgb(255, 245, 173)\n${this.state.hubName}-->>${this.state.hubName}: Oracle Lookup\nend\n`);
-                    // this.testDiagramRef.current.addSequence(this.state.hubName, this.state.hubName, 'Oracle Lookup')
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'payeeGetPartiesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
-                }
-                break;
-            }
-            case 'payeePutParties':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
-                }
-                break;
-            }
-            case 'payeePutPartiesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'payeePostQuotes':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'payeePostQuotesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
-                }
-                break;
-            }
-            case 'payeePutQuotes':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
-                }
-                break;
-            }
-            case 'payeePutQuotesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'payeePostTransfers':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'payeePostTransfersResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
-                }
-                break;
-            }
-            case 'payeePutTransfers':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
-                }
-                break;
-            }
-            case 'payeePutTransfersResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                }
-                break;
-            }
         }
     };
 
     render() {
         return (
             <>
-                <Drawer
-                    title='Pink Bank Logs'
-                    width='70%'
-                    placement='left'
-                    forceRender
-                    closable={false}
-                    visible={this.state.payerLogsDrawerVisible}
-                    onClose={() => {
-                        this.setState({ payerLogsDrawerVisible: false });
-                    }}
-                >
-                    <TestMonitor ref={this.payerMonitorRef} />
-                </Drawer>
-                <Drawer
-                    title='Green Bank Logs'
-                    width='70%'
-                    placement='right'
-                    forceRender
-                    closable={false}
-                    visible={this.state.payeeLogsDrawerVisible}
-                    onClose={() => {
-                        this.setState({ payeeLogsDrawerVisible: false });
-                    }}
-                >
-                    <TestMonitor ref={this.payeeMonitorRef} />
-                </Drawer>
-                <Modal
-                    style={{ top: 20 }}
-                    destroyOnClose
-                    title='Settings'
-                    visible={!!this.state.showSettings}
-                    footer={null}
-                    onCancel={() => { this.setState({ showSettings: false }); }}
-                >
-                    <Settings
-                        ref={this.settingsRef}
-                        outboundService={this.outboundServiceObj}
-                    />
-                </Modal>
                 <Row className='h-100'>
                     <Col span={24}>
                         <Row className='h-100'>
@@ -356,20 +237,9 @@ class MobileSimulator extends React.Component {
                                     backgroundRepeat: 'no-repeat',
                                 }}
                             >
-                                <Row align='top'>
-                                    <Col span={24}>
-                                        <Button
-                                            type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#F90085' }} onClick={() => {
-                                                this.setState({ payerLogsDrawerVisible: true });
-                                            }}
-                                        >
-                                            <Text style={{ color: 'white', fontWeight: 'bold' }}>Pink Bank Logs</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
-                                        </Button>
-                                    </Col>
-                                </Row>
                                 <Row align='bottom' className='h-100'>
                                     <Col span={24}>
-                                        <Row style={{ marginLeft: '3vh', marginBottom: '8vh', width: '24vh', height: '45vh' }}>
+                                        <Row style={{ marginLeft: '3vh', marginBottom: '3vh', width: '24vh', height: '45vh' }}>
                                             <Col span={24}>
                                                 <PayerMobile
                                                     ref={this.payerMobileRef}
@@ -381,16 +251,6 @@ class MobileSimulator extends React.Component {
                                 </Row>
                             </Col>
                             <Col span={16} className='text-center'>
-                                <Button
-                                    className='mt-2 mb-2'
-                                    style={{ width: '50px', height: '50px' }}
-                                    danger
-                                    shape='circle'
-                                    size='large'
-                                    onClick={() => { this.setState({ showSettings: true }); }}
-                                >
-                                    <SettingOutlined style={{ fontSize: '24px' }} />
-                                </Button>
                                 <div
                                     style={{
                                         height: '90vh',
@@ -407,59 +267,16 @@ class MobileSimulator extends React.Component {
                                                 <TestDiagram ref={this.testDiagramRef} />
                                             </div>
                                         </TabPane>
-                                        {
-                                            this.state.hubConsoleEnabled
-                                                ? (
-                                                    <TabPane tab='Hub Console' key='2'>
-                                                        <HUBConsole
-                                                            style={{
-                                                                width: '90%',
-                                                            }}
-                                                            ref={this.hubConsoleRef}
-                                                            outboundService={this.outboundServiceObj}
-                                                        />
-                                                    </TabPane>
-                                                )
-                                                : null
-                                        }
+                                        <TabPane tab='Activity Log' key='2' forceRender>
+                                            <TestMonitor
+                                                style={{
+                                                    width: '90%',
+                                                }}
+                                                ref={this.payerMonitorRef}
+                                            />
+                                        </TabPane>
                                     </Tabs>
                                 </div>
-                            </Col>
-                            <Col
-                                span={4}
-                                className='align-bottom'
-                                style={{
-                                    verticalAlign: 'bottom',
-                                    width: '100%',
-                                    height: '100%',
-                                    backgroundImage: `url(${mobile_right})`,
-                                    backgroundPosition: 'right bottom',
-                                    backgroundSize: '30vh',
-                                    backgroundRepeat: 'no-repeat',
-                                }}
-                            >
-                                <Row align='top'>
-                                    <Col span={24}>
-                                        <Button
-                                            type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
-                                                this.setState({ payeeLogsDrawerVisible: true });
-                                            }}
-                                        >
-                                            <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Green Bank Logs</Text>
-                                        </Button>
-                                    </Col>
-                                </Row>
-                                <Row align='bottom' className='h-100'>
-                                    <Col span={24}>
-                                        <Row className='float-right' style={{ marginRight: '3vh', marginBottom: '8vh', width: '24vh', height: '45vh' }}>
-                                            <Col span={24}>
-                                                <PayeeMobile
-                                                    ref={this.payeeMobileRef}
-                                                />
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                </Row>
                             </Col>
                         </Row>
                     </Col>
