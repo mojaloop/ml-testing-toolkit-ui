@@ -22,9 +22,10 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, Select, List, Avatar, Radio, Space } from 'antd';
+import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, List, Avatar } from 'antd';
+import { GspTransformer } from '../../../utils/gspTransformer.ts';
+
 const { Text } = Typography;
-const { Option } = Select;
 
 class PayerMobile extends React.Component {
     state = {
@@ -237,7 +238,7 @@ class PayerMobile extends React.Component {
                                 <Text>Fee:</Text>
                             </Col>
                             <Col span={14}>
-                            $ <Text strong>{this.state.quotesResponse && this.state.quotesResponse.result && this.state.quotesResponse.result.success && this.state.quotesResponse.result.success.feeAmount?.amountMicros }</Text>
+                            $ <Text strong>{this.state.quotesResponse && this.state.quotesResponse.result && this.state.quotesResponse.result.success && GspTransformer.toFspiopCurrency(this.state.quotesResponse.result.success.feeAmount?.amountMicros) }</Text>
                             </Col>
                         </Row>
                         <Row className='mt-4'>

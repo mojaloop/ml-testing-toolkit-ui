@@ -40,8 +40,9 @@ const { TabPane } = Tabs;
 
 class MobileSimulator extends React.Component {
     state = {
-        payerName: 'PISP Backend',
-        hubName: 'GSP Adapter',
+        pispBackendName: 'GPay Backend',
+        coreConnectorName: 'GSP Adapter',
+        thirdPartySDKName: 'Third Party SDK',
         payerLogsDrawerVisible: false,
     };
 
@@ -91,128 +92,149 @@ class MobileSimulator extends React.Component {
     };
 
     updateSequenceDiagram = event => {
-        console.log('GVK Update Sequece Diagram', event);
-        switch (event.type) {
-            // Payer Side Events
-            case 'log':
-            {
-                
-                if(event.data?.log?.message?.startsWith('Sending')) {
-                    if(event.data.log.resource.method === 'post' && event.data.log.resource.path === '/v3/getTransferFundsQuotation') {
-                        this.clearEverything();
+        if(event.data?.log?.internalLogType === 'inbound') {
+            switch (event.type) {
+                // Payer Side Events
+                case 'log':
+                {
+                    
+                    if(event.data?.log?.message?.startsWith('Request:')) {
+                        if(event.data.log.resource.method === 'post' && event.data.log.resource.path === '/v3/getTransferFundsQuotation') {
+                            this.clearEverything();
+                        }
+                        if(this.testDiagramRef.current) {
+                            this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.thirdPartySDKName, '[HTTP REQ] ' + event.data.log.resource.method + ' ' + event.data.log.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                        }
+                    } else if(event.data?.log?.message?.startsWith('Response:')) {
+                        if(this.testDiagramRef.current) {
+                            this.testDiagramRef.current.addSequence(this.state.thirdPartySDKName, this.state.coreConnectorName, '[HTTP RESP] ' + event.data.log.additionalData.response.status + ' ' + event.data.log.additionalData.response.statusText, { dashed: true, activation: { mode: 'deactivate', peer: 'source' } });
+                        }
                     }
-                    if(this.testDiagramRef.current) {
-                        this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] ' + event.data.log.resource.method + ' ' + event.data.log.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                    break;
+                }
+                // case 'getParties':
+                // {
+                //     this.clearEverything();
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.pispBackendName, this.state.coreConnectorName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                //     }
+                //     break;
+                // }
+                // case 'getPartiesResponse':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                //     }
+                //     break;
+                // }
+                // case 'putParties':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                //     }
+                //     break;
+                // }
+                // case 'putPartiesResponse':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.pispBackendName, this.state.coreConnectorName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
+                //     }
+                //     break;
+                // }
+                // case 'postQuotes':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addNoteOver(this.state.pispBackendName, this.state.payeeName, 'Quotes');
+                //         this.testDiagramRef.current.addSequence(this.state.pispBackendName, this.state.coreConnectorName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                //     }
+                //     break;
+                // }
+                // case 'postQuotesResponse':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                //     }
+                //     break;
+                // }
+                // case 'putQuotes':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                //     }
+                //     break;
+                // }
+                // case 'putQuotesResponse':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
+                //     }
+                //     break;
+                // }
+                // case 'postTransfers':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addNoteOver(this.state.pispBackendName, this.state.payeeName, 'Transfer');
+                //         this.testDiagramRef.current.addSequence(this.state.pispBackendName, this.state.coreConnectorName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                //     }
+                //     break;
+                // }
+                // case 'postTransfersResponse':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                //     }
+                //     break;
+                // }
+                // case 'putTransfers':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                //     }
+                //     break;
+                // }
+                // case 'putTransfersResponse':
+                // {
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.pispBackendName, this.state.coreConnectorName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
+                //     }
+                //     break;
+                // }
+    
+            }
+        } else {
+            switch (event.type) {
+                // Payer Side Events
+                case 'log':
+                {
+                    
+                    if(event.data?.log?.message?.startsWith('Sending')) {
+                        if(this.testDiagramRef.current) {
+                            this.testDiagramRef.current.addSequence(this.state.pispBackendName, this.state.coreConnectorName, '[HTTP REQ] ' + event.data.log.resource.method + ' ' + event.data.log.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                        }
+                    } else if(event.data?.log?.message?.startsWith('Received response')) {
+                        if(this.testDiagramRef.current) {
+                            this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP RESP] ' + event.data.log.additionalData.response.status + ' ' + event.data.log.additionalData.response.statusText, { dashed: true, activation: { mode: 'deactivate', peer: 'source' } });
+                        }
                     }
-                } else if(event.data?.log?.message?.startsWith('Received')) {
-                    if(this.testDiagramRef.current) {
-                        this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.log.additionalData.response.status + ' ' + event.data.log.additionalData.response.statusText, { dashed: true, activation: { mode: 'activate', peer: 'both' } });
-                    }
+                    break;
                 }
-                break;
-            }
-            // case 'httpRequest':
-            // {
-            //     this.clearEverything();
-            //     if(this.testDiagramRef.current) {
-            //         this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-            //     }
-            //     break;
-            // }
-            // case 'httpResponse':
-            // {
-            //     this.clearEverything();
-            //     if(this.testDiagramRef.current) {
-            //         this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-            //     }
-            //     break;
-            // }
-            case 'getParties':
-            {
-                this.clearEverything();
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-                }
-                break;
-            }
-            case 'getPartiesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putParties':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putPartiesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
-                }
-                break;
-            }
-            case 'postQuotes':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addNoteOver(this.state.payerName, this.state.payeeName, 'Quotes');
-                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-                }
-                break;
-            }
-            case 'postQuotesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putQuotes':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putQuotesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
-                }
-                break;
-            }
-            case 'postTransfers':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addNoteOver(this.state.payerName, this.state.payeeName, 'Transfer');
-                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-                }
-                break;
-            }
-            case 'postTransfersResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putTransfers':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putTransfersResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
-                }
-                break;
+                // case 'httpRequest':
+                // {
+                //     this.clearEverything();
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.pispBackendName, this.state.coreConnectorName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                //     }
+                //     break;
+                // }
+                // case 'httpResponse':
+                // {
+                //     this.clearEverything();
+                //     if(this.testDiagramRef.current) {
+                //         this.testDiagramRef.current.addSequence(this.state.coreConnectorName, this.state.pispBackendName, '[HTTP RESP] ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                //     }
+                //     break;
+                // }
+    
             }
 
         }

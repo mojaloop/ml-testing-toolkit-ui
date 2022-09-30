@@ -59,7 +59,7 @@ class NotificationService {
         for(const logType of Object.keys(this.logTypes)) {
             const item = this.logTypes[logType];
             item.socket = socketIOClient(this.apiBaseUrl);
-            item.socket.on(item.socketTopic + '/' + this.sessionId, log => {
+            item.socket.on(item.socketTopic, log => {
                 this.handleNotificationLog({ ...log, internalLogType: logType });
             });
         }
@@ -315,8 +315,6 @@ class NotificationService {
     };
 
     handleNotificationLog = log => {
-        console.log(log);
-
         // Handle the outbound progress events
         if(log.internalLogType === 'outboundProgress') {
             if(log.status === 'FINISHED' || log.status === 'TERMINATED') {
@@ -414,434 +412,94 @@ class NotificationService {
             this.notifyPayerMonitorLog(log);
         }
 
-        // Catch get Parties request
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Sending request') &&
-          log.resource &&
-          log.resource.method === 'get' &&
-          log.resource.path.startsWith('/parties/')
-        ) {
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'getParties',
-                data: {
-                    resource: log.resource,
-                },
-            });
-            this.notifyPayerMonitorLog(log);
-        }
+        // // Catch put Parties
+        // if(log.notificationType === 'newLog' &&
+        //   log.message.startsWith('Request: put') &&
+        //   log.resource &&
+        //   log.resource.method === 'put' &&
+        //   log.resource.path.startsWith('/parties/')
+        // ) {
+        //     this.notifyPayerMonitorLog(log);
+        //     this.notificationEventFunction({
+        //         category: 'payer',
+        //         type: 'putParties',
+        //         data: {
+        //             resource: log.resource,
+        //             party:  log.additionalData && 
+        //                     log.additionalData.request && 
+        //                     log.additionalData.request.body ? log.additionalData.request.body.party : null,
+        //         },
+        //     });
+        // }
 
-        // Catch get Parties response
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Received response') &&
-          log.resource &&
-          log.resource.method === 'get' &&
-          log.resource.path.startsWith('/parties/')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'getPartiesResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.message.replace('Received response ', ''),
-                },
-            });
-        }
-
-        // Catch put Parties
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Request: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/parties/')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'putParties',
-                data: {
-                    resource: log.resource,
-                    party:  log.additionalData && 
-                            log.additionalData.request && 
-                            log.additionalData.request.body ? log.additionalData.request.body.party : null,
-                },
-            });
-        }
-
-        // Catch put Parties response
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Response: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/parties/')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'putPartiesResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response.status + '',
-                },
-            });
-        }
-
-        // Catch post Quotes request
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Sending request') &&
-          log.resource &&
-          log.resource.method === 'post' &&
-          log.resource.path.startsWith('/quotes')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'postQuotes',
-                data: {
-                    resource: log.resource,
-                    quotesRequest: log.additionalData &&
-                                    log.additionalData.request ? log.additionalData.request.body : null,
-                },
-            });
-        }
-        // Catch post Quotes response
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Received response') &&
-          log.resource &&
-          log.resource.method === 'post' &&
-          log.resource.path.startsWith('/quotes')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'postQuotesResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.message.replace('Received response ', ''),
-                },
-            });
-        }
-
-        // Catch put Quotes
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Request: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/quotes/')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'putQuotes',
-                data: {
-                    resource: log.resource,
-                    quotesResponse: log.additionalData &&
-                                      log.additionalData.request ? log.additionalData.request.body : null,
-                },
-            });
-        }
-
-        // Catch put Quotes response
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Response: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/quotes/')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'putQuotesResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response.status + '',
-                },
-            });
-        }
-        // Catch post Transfers request
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Sending request') &&
-          log.resource &&
-          log.resource.method === 'post' &&
-          log.resource.path.startsWith('/transfers')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'postTransfers',
-                data: {
-                    resource: log.resource,
-                    transfersRequest: log.additionalData && 
-                                        log.additionalData.request ? log.additionalData.request.body : null,
-                },
-            });
-        }
-        // Catch post Transfers response
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Received response') &&
-          log.resource &&
-          log.resource.method === 'post' &&
-          log.resource.path.startsWith('/transfers')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'postTransfersResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.message.replace('Received response ', ''),
-                },
-            });
-        }
-
-        // Catch put Transfers
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Request: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/transfers/')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'putTransfers',
-                data: {
-                    resource: log.resource,
-                    transfersResponse: log.additionalData &&
-                                        log.additionalData.request ? log.additionalData.request.body : null,
-                },
-            });
-        }
-
-        // Catch put Transfers response
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Response: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/transfers/')
-        ) {
-            this.notifyPayerMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payer',
-                type: 'putTransfersResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response.status + '',
-                },
-            });
-        }
 
         // *********** Payee Side Logs ********* //
-        // Catch get Parties request
         if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Request: get') &&
-          log.resource &&
-          log.resource.method === 'get' &&
-          log.resource.path.startsWith('/parties/')
+          log.message.startsWith('Request:') &&
+          log.resource
         ) {
-            this.notifyPayeeMonitorLog(log);
             this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeeGetParties',
+                category: 'payer',
+                type: 'httpInboundRequest',
                 data: {
                     resource: log.resource,
                 },
             });
+            this.notifyPayerMonitorLog(log);
         }
 
-        // Catch get Parties response
+        // Catch response
         if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Response: get') &&
-          log.resource &&
-          log.resource.method === 'get' &&
-          log.resource.path.startsWith('/parties/')
+          log.message.startsWith('Response:') &&
+          log.resource
         ) {
-            this.notifyPayeeMonitorLog(log);
             this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeeGetPartiesResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response.status + '',
-                },
-            });
-        }
-        // Catch put Parties request
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Request: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/parties/')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePutParties',
+                category: 'payer',
+                type: 'httpInboundResponse',
                 data: {
                     resource: log.resource,
                 },
             });
+            this.notifyPayerMonitorLog(log);
         }
 
-        // Catch put Parties response
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Response: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/parties/')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePutPartiesResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response.status + ' ' + log.additionalData.response.statusText,
-                },
-            });
-        }
-        // Catch post Quotes request
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Request: post') &&
-          log.resource &&
-          log.resource.method === 'post' &&
-          log.resource.path.startsWith('/quotes')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePostQuotes',
-                data: {
-                    resource: log.resource,
-                    requestBody: log.additionalData.request.body,
-                },
-            });
-        }
 
-        // Catch post Quotes response
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Response: post') &&
-          log.resource &&
-          log.resource.method === 'post' &&
-          log.resource.path.startsWith('/quotes')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePostQuotesResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response.status + '',
-                },
-            });
-        }
-        // Catch put Quotes request
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Request: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/quotes/')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePutQuotes',
-                data: {
-                    resource: log.resource,
-                    requestBody: log.additionalData.request.body,
-                },
-            });
-        }
+        // // Catch get Parties response
+        // if(log.notificationType === 'newLog' &&
+        //   log.message.startsWith('Response: get') &&
+        //   log.resource &&
+        //   log.resource.method === 'get' &&
+        //   log.resource.path.startsWith('/parties/')
+        // ) {
+        //     this.notifyPayeeMonitorLog(log);
+        //     this.notificationEventFunction({
+        //         category: 'payee',
+        //         type: 'payeeGetPartiesResponse',
+        //         data: {
+        //             resource: log.resource,
+        //             responseStatus: log.additionalData.response.status + '',
+        //         },
+        //     });
+        // }
+        // // Catch post Quotes request
+        // if(log.notificationType === 'newLog' &&
+        //   log.message.startsWith('Request: post') &&
+        //   log.resource &&
+        //   log.resource.method === 'post' &&
+        //   log.resource.path.startsWith('/quotes')
+        // ) {
+        //     this.notifyPayeeMonitorLog(log);
+        //     this.notificationEventFunction({
+        //         category: 'payee',
+        //         type: 'payeePostQuotes',
+        //         data: {
+        //             resource: log.resource,
+        //             requestBody: log.additionalData.request.body,
+        //         },
+        //     });
+        // }
 
-        // Catch put Quotes response
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Response: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/quotes/')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePutQuotesResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response &&
-                                    (log.additionalData.response.status + ' ' + log.additionalData.response.statusText),
-                },
-            });
-        }
-        // Catch post Transfers request
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Request: post') &&
-          log.resource &&
-          log.resource.method === 'post' &&
-          log.resource.path.startsWith('/transfers')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePostTransfers',
-                data: {
-                    resource: log.resource,
-                    requestBody: log.additionalData.request.body,
-                },
-            });
-        }
-
-        // Catch post Transfers response
-        if(log.notificationType === 'newLog' &&
-          log.message.startsWith('Response: post') &&
-          log.resource &&
-          log.resource.method === 'post' &&
-          log.resource.path.startsWith('/transfers')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePostTransfersResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response.status + '',
-                },
-            });
-        }
-        // Catch put Transfers request
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Request: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/transfers/')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePutTransfers',
-                data: {
-                    resource: log.resource,
-                    requestBody: log.additionalData.request.body,
-                },
-            });
-        }
-
-        // Catch put Transfers response
-        if(log.notificationType === 'newOutboundLog' &&
-          log.message.startsWith('Response: put') &&
-          log.resource &&
-          log.resource.method === 'put' &&
-          log.resource.path.startsWith('/transfers/')
-        ) {
-            this.notifyPayeeMonitorLog(log);
-            this.notificationEventFunction({
-                category: 'payee',
-                type: 'payeePutTransfersResponse',
-                data: {
-                    resource: log.resource,
-                    responseStatus: log.additionalData.response.status + ' ' + log.additionalData.response.statusText,
-                },
-            });
-        }
+   
     };
 }
 
