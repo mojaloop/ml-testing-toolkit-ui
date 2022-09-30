@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, List, Avatar, Image } from 'antd';
+import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, List, Avatar } from 'antd';
 import {
     QrcodeOutlined,
 } from '@ant-design/icons';

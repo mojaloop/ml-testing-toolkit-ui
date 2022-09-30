@@ -22,8 +22,7 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, Drawer, Button, Typography, Modal, Tabs, message } from 'antd';
-import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
+import { Row, Col, Tabs } from 'antd';
 import 'antd/dist/antd.css';
 import mobile_left from '../../../assets/img/mobile_google_pay_iphone.png';
 // import mobile_right from '../../../assets/img/mobile_green_iphone.png';
@@ -33,9 +32,9 @@ import TestDiagram from './TestDiagram.jsx';
 import TestMonitor from './TestMonitor.jsx';
 import NotificationService from '../../../services/demos/MobileSimulator/mojaloopNotifications';
 import OutboundService from '../../../services/demos/MobileSimulator/mojaloopOutbound';
-import { getServerConfig } from '../../../utils/getConfig';
+// import { getServerConfig } from '../../../utils/getConfig';
 
-const { Text } = Typography;
+// const { Text } = Typography;
 const { TabPane } = Tabs;
 
 class MobileSimulator extends React.Component {
