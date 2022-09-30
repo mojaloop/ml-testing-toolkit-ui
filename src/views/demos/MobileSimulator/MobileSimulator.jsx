@@ -25,8 +25,8 @@ import React from 'react';
 import { Row, Col, Drawer, Button, Typography, Modal, Tabs, message } from 'antd';
 import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
-import mobile_left from '../../../assets/img/mobile_pink_iphone.png';
-import mobile_right from '../../../assets/img/mobile_green_iphone.png';
+import mobile_left from '../../../assets/img/mobile_google_pay_iphone.png';
+// import mobile_right from '../../../assets/img/mobile_green_iphone.png';
 
 import PayerMobile from './PayerMobile.jsx';
 import TestDiagram from './TestDiagram.jsx';
@@ -247,7 +247,7 @@ class MobileSimulator extends React.Component {
                     <Col span={24}>
                         <Row className='h-100'>
                             <Col
-                                span={4}
+                                span={5}
                                 className='text-left align-bottom'
                                 style={{
                                     verticalAlign: 'bottom',
@@ -272,7 +272,7 @@ class MobileSimulator extends React.Component {
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col span={16} className='text-center'>
+                            <Col span={15} className='text-center'>
                                 <div
                                     style={{
                                         height: '90vh',

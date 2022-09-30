@@ -22,9 +22,13 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, List, Avatar } from 'antd';
+import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, List, Avatar, Image } from 'antd';
+import {
+    QrcodeOutlined,
+} from '@ant-design/icons';
 import { GspTransformer } from '../../../utils/gspTransformer.ts';
-
+import fingerprintIcon from '../../../assets/img/fingerprint-icon.gif';
+// import QRScannerScreen from '../../../assets/img/qr-scanner.png';
 const { Text } = Typography;
 
 class PayerMobile extends React.Component {
@@ -160,7 +164,7 @@ class PayerMobile extends React.Component {
                                 <Text strong>{this.state.idNumber }</Text>
                             </Col>
                         </Row>
-                        <Row>
+                        <Row className='mt-2'>
                             <Col span={10}>
                                 <Text>Reference:</Text>
                             </Col>
@@ -168,16 +172,21 @@ class PayerMobile extends React.Component {
                                 <Text>{this.state.reference }</Text>
                             </Col>
                         </Row>
-                        <Row className='mt-1'>
+                        <Row className='mt-2'>
                             <Col span={10}><Text strong>Amount:</Text></Col>
                             <Col span={14}>
                                 <Text strong>$ {this.state.amount}</Text>
                             </Col>
                         </Row>
+                        <Row className='mt-2'>
+                            <Col span={24}>
+                                <Text strong>Select Account</Text>
+                            </Col>
+                        </Row>
                         <Row className='mt-1'>
                             <Col span={24}>
                                 <List
-                                    itemLayout="horizontal"
+                                    itemLayout="vertical"
                                     dataSource={this.accountsData}
                                     renderItem={item => (
                                         <List.Item>
@@ -193,7 +202,7 @@ class PayerMobile extends React.Component {
                         </Row>
                         <Row className='mt-3'>
                             <Col span={24} className='text-center'>
-                                <Button type='primary' shape='round' danger onClick={this.handleGetQuote}>Confirm</Button>
+                                <Button style={{ width: '17vh' }} type='primary' shape='round' danger onClick={this.handleGetQuote}>Confirm</Button>
                             </Col>
                         </Row>
                     </Card>
@@ -209,7 +218,7 @@ class PayerMobile extends React.Component {
                                 <Text strong>{this.state.idNumber }</Text>
                             </Col>
                         </Row>
-                        <Row>
+                        <Row className='mt-2'>
                             <Col span={10}>
                                 <Text>Reference:</Text>
                             </Col>
@@ -217,7 +226,7 @@ class PayerMobile extends React.Component {
                                 <Text>{this.state.reference }</Text>
                             </Col>
                         </Row>
-                        <Row>
+                        <Row className='mt-2'>
                             <Col span={10}>
                                 <Text>Name:</Text>
                             </Col>
@@ -225,7 +234,7 @@ class PayerMobile extends React.Component {
                                 <Text strong>{this.state.quotesResponse && this.state.quotesResponse.result && this.state.quotesResponse.result.success && this.state.quotesResponse.result.success.payeeProxyLookup && this.state.quotesResponse.result.success.payeeProxyLookup.displayInfo.displayName }</Text>
                             </Col>
                         </Row>
-                        <Row>
+                        <Row className='mt-2'>
                             <Col span={10}>
                                 <Text>Amount:</Text>
                             </Col>
@@ -233,7 +242,7 @@ class PayerMobile extends React.Component {
                                 $ <Text strong>{this.state.amount }</Text>
                             </Col>
                         </Row>
-                        <Row>
+                        <Row className='mt-2'>
                             <Col span={10}>
                                 <Text>Fee:</Text>
                             </Col>
@@ -242,11 +251,23 @@ class PayerMobile extends React.Component {
                             </Col>
                         </Row>
                         <Row className='mt-4'>
-                            <Col span={12} className='text-center'>
-                                <Button type='primary' shape='round' danger onClick={this.handleCancel}>Cancel</Button>
+                            <Col span={24} className='text-center'>
+                                <Button style={{ width: '17vh' }} type='primary' shape='round' danger onClick={this.handleCancel}>Cancel</Button>
                             </Col>
-                            <Col span={12} className='text-center'>
-                                <Button type='primary' shape='round' success onClick={this.handleTransfer}>Proceed</Button>
+                        </Row>
+                        <Row className='mt-2'>
+                            <Col span={24} className='text-center'>
+                                <Button style={{ width: '17vh' }} type='primary' shape='round' success onClick={this.handleTransfer}>Authenticate</Button>
+                            </Col>
+                        </Row>
+                        <Row className='mt-2'>
+                            <Col span={24} className='text-center'>
+                                <Card>
+                                    <img
+                                        width={60}
+                                        src={fingerprintIcon}
+                                    />
+                                </Card>
                             </Col>
                         </Row>
 
@@ -291,11 +312,12 @@ class PayerMobile extends React.Component {
                                                 this.setState({ idNumber: newIdNumber });
                                             }}
                                         />
+                                        <Button className='float-right' icon={<QrcodeOutlined />}></Button>
                                     </Col>
                                 </Row>
                                 <Row className='mt-2'>
                                     <Col span={24}>
-                                        <Text className='mr-2' strong>Amount</Text>
+                                        <Text className='mr-2' strong>Amount</Text><br />
                                         $ <InputNumber
                                             placeholder='Amount'
                                             value={this.state.amount}
@@ -307,7 +329,7 @@ class PayerMobile extends React.Component {
                                         />
                                     </Col>
                                 </Row>
-                                <Row>
+                                <Row className='mt-2'>
                                     <Col span={24}>
                                         <Text strong>Reference</Text>
                                         <Input
@@ -322,6 +344,7 @@ class PayerMobile extends React.Component {
                                 <Row className='mt-4'>
                                     <Col span={24} style={{ textAlign: 'center' }}>
                                         <Button
+                                            style={{ width: '17vh' }}
                                             type='primary'
                                             shape='round'
                                             success
