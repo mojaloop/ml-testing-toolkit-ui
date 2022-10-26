@@ -70,6 +70,20 @@ class Demos extends React.Component {
                         </ul>
                     </Col>
                 </Row>
+                <Row className='my-4'>
+                    <Col span={24}>
+                        <ul>
+                            <li>
+                                <a
+                                    href='/demomonitoring'
+                                    target='_blank'
+                                >
+                  Demo Monitoring
+                                </a>
+                            </li>
+                        </ul>
+                    </Col>
+                </Row>
             </>
         );
     }
