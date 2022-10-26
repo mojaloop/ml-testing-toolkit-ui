@@ -39,6 +39,7 @@ import MobileSimulator from './views/demos/MobileSimulator/MobileSimulator.jsx';
 import PayeeAppSimulator from './views/demos/PayeeAppSimulator/PayeeApp';
 import PayeeMobileSimulator from './views/demos/PayeeAppSimulator/PayeeMobile';
 import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
+import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx';
 
 import axios from 'axios';
 
@@ -99,6 +100,7 @@ function App() {
                         <Route exact path='/payeeapp' render={props => <PayeeAppSimulator {...props} />} />
                         <Route exact path='/payeemobile' render={props => <PayeeMobileSimulator {...props} />} />
                         <Route exact path='/demotestrunner' render={props => <DemoTestRunner {...props} />} />
+                        <Route exact path='/demomonitoring' render={props => <DemoMonitoring {...props} />} />
                         <Redirect from='/' to='/admin/index' />
                     </Switch>
             }

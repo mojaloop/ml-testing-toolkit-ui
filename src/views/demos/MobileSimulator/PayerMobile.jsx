@@ -262,19 +262,19 @@ class PayerMobile extends React.Component {
 
     handleSearch = async idNumber => {
         this.setState({ gettingPartyInfo: true, stage: 'getParties' });
-        // const resp = await this.props.outboundService.getParties(idNumber);
+        const resp = await this.props.outboundService.getParties(idNumber);
     };
 
     handleGetQuote = async e => {
         this.setState({ stage: 'postQuotes' });
-        // const resp = await this.props.outboundService.postQuotes(this.state.amount, this.state.selectedCurrency);
+        const resp = await this.props.outboundService.postQuotes(this.state.amount, this.state.selectedCurrency);
     };
 
     handleSend = async e => {
         this.setState({ stage: 'postTransfers' });
-        // if(this.state.quotesRequest && this.state.quotesResponse) {
-        //     const resp = await this.props.outboundService.postTransfers(this.state.quotesResponse.transferAmount.amount, this.state.quotesRequest.transactionId, this.state.quotesResponse.expiration, this.state.quotesResponse.ilpPacket, this.state.quotesResponse.condition);
-        // }
+        if(this.state.quotesRequest && this.state.quotesResponse) {
+            const resp = await this.props.outboundService.postTransfers(this.state.quotesResponse.transferAmount.amount, this.state.quotesRequest.transactionId, this.state.quotesResponse.expiration, this.state.quotesResponse.ilpPacket, this.state.quotesResponse.condition);
+        }
     };
 
     handleCancel = e => {
