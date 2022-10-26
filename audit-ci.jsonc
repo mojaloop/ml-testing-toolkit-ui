@@ -50,6 +50,9 @@
     "GHSA-cfm4-qjh2-4765",
     "GHSA-rp65-9cf3-cjxr",
     "GHSA-rp65-9cf3-cjxr",
-    "GHSA-g4rg-993r-mgx7"
+    "GHSA-g4rg-993r-mgx7",
+    // TODO: d3-color, minimatch - can not be resolved with npm audit fix
+    "GHSA-36jr-mh4h-2g58",
+    "GHSA-f8q6-p94x-37v3"
   ]
 }
