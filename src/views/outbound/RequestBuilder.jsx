@@ -25,7 +25,8 @@
 import React from 'react';
 import _ from 'lodash';
 
-import { Select, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch, Button, Typography } from 'antd';
+import { Spin, Select, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch, Button, Typography } from 'antd';
+import { QuestionCircleTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import { DeleteTwoTone } from '@ant-design/icons';
 
@@ -36,6 +37,7 @@ import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
 import JsonEditor from './JsonEditor.jsx';
+import { FetchUtils } from './FetchUtils';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const parseCurl = require('../../utils/curlParser').default;
@@ -51,6 +53,7 @@ class ConfigurableParameter extends React.Component {
             paramType: null,
             factData: null,
             selectedValueComponent: null,
+            isLoading: false,
         };
 
         // Set paramTypes Array
@@ -161,17 +164,21 @@ class ConfigurableParameter extends React.Component {
                             placeholder='Please Select'
                             style={{ width: 200 }}
                             value={this.state.selectedValueComponent}
-                            onChange={requestId => {
+                            onChange={async requestId => {
                                 const request = this.props.allRequests.find(item => item.id === requestId);
+                                // Fetch data here
+                                this.setState({ isLoading: true });
+                                const fetchAllApiData = await FetchUtils.fetchAllApiData(request.apiVersion.type, request.apiVersion.majorVersion + '.' + request.apiVersion.minorVersion, request.apiVersion.asynchronous);
+                                this.setState({ isLoading: false });
                                 let resourceDefinition = null;
                                 let rootParams = null;
                                 if(this.state.paramType === 1) {
-                                    resourceDefinition = this.props.openApiDefinition.paths[request.operationPath][request.method];
-                                    rootParams = this.props.openApiDefinition.paths[request.operationPath].parameters;
+                                    resourceDefinition = fetchAllApiData.openApiDefinition.paths[request.operationPath][request.method];
+                                    rootParams = fetchAllApiData.openApiDefinition.paths[request.operationPath].parameters;
                                 } else {
-                                    const callbackObj = this.props.callbackMap[request.operationPath][request.method].successCallback;
-                                    resourceDefinition = this.props.openApiDefinition.paths[callbackObj.path][callbackObj.method];
-                                    rootParams = this.props.openApiDefinition.paths[callbackObj.path].parameters;
+                                    const callbackObj = fetchAllApiData.callbackMap[request.operationPath][request.method].successCallback;
+                                    resourceDefinition = fetchAllApiData.openApiDefinition.paths[callbackObj.path][callbackObj.method];
+                                    rootParams = fetchAllApiData.openApiDefinition.paths[callbackObj.path].parameters;
                                 }
                                 const bodyFactData = (new FactDataGenerator()).getBodyFactData(resourceDefinition);
                                 const headerFactData = (new FactDataGenerator()).getHeadersFactData(resourceDefinition, rootParams);
@@ -293,24 +300,26 @@ class ConfigurableParameter extends React.Component {
 
     render() {
         return (
-            <Row>
-                <Col>
-                    <Select
-                        placeholder='Please Select'
-                        style={{ width: 200 }}
-                        value={this.paramTypes[this.state.paramType]}
-                        onSelect={this.handleParamTypeChange}
-                    >
-                        {this.getParamTypeMenu()}
-                    </Select>
-                </Col>
-                <Col>
-                    {this.getValueComponent()}
-                </Col>
-                <Col>
-                    {this.getRequestFactComponent()}
-                </Col>
-            </Row>
+            <Spin size='large' spinning={this.state.isLoading}>
+                <Row>
+                    <Col>
+                        <Select
+                            placeholder='Please Select'
+                            style={{ width: 200 }}
+                            value={this.paramTypes[this.state.paramType]}
+                            onSelect={this.handleParamTypeChange}
+                        >
+                            {this.getParamTypeMenu()}
+                        </Select>
+                    </Col>
+                    <Col>
+                        {this.getValueComponent()}
+                    </Col>
+                    <Col>
+                        {this.getRequestFactComponent()}
+                    </Col>
+                </Row>
+            </Spin>
         );
     }
 }
@@ -502,7 +511,10 @@ class OptionsBuilder extends React.Component {
                                         }}
                                     />
                                     <Text strong className='ml-2'>
-                    Override with Custom URL
+                                        Override with Custom URL
+                                        <Tooltip placement='topLeft' title='If there is no custom URL specified, the requests go to CALLBACK_ENDPOINT in user settings'>
+                                            <QuestionCircleTwoTone style={{ paddingLeft: '4px', fontSize: '20px' }} />
+                                        </Tooltip>
                                     </Text>
                                 </Col>
                             </Row>
