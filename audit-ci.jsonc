@@ -53,6 +53,9 @@
     "GHSA-g4rg-993r-mgx7",
     // TODO: d3-color, minimatch - can not be resolved with npm audit fix
     "GHSA-36jr-mh4h-2g58",
-    "GHSA-f8q6-p94x-37v3"
+    "GHSA-f8q6-p94x-37v3",
+    // The following are the react dev utils which can not be updated at the moment
+    "GHSA-76p3-8jx3-jpfq",
+    "GHSA-3rfm-jhwj-7488"
   ]
 }

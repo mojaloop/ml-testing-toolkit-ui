@@ -181,28 +181,28 @@ class HUBConsole extends React.Component {
 
     handleDFSPValues = async () => {
         this.setState({ getDFSPValuesInProgress: true });
-        const resp = await this.props.outboundService.getDFSPValues();
+        await this.props.outboundService.getDFSPValues();
     };
 
     handleHubConsoleInitValues = async () => {
         this.setState({ getHubConsoleInitValuesProgress: true });
-        const resp = await this.props.outboundService.getHubConsoleInitValues();
+        await this.props.outboundService.getHubConsoleInitValues();
     };
 
     handleGetSettlements = async () => {
         this.setState({ getSettlementsInProgress: true });
-        const resp = await this.props.outboundService.getSettlements();
+        await this.props.outboundService.getSettlements();
     };
 
     handleExecuteSettlement = async () => {
         this.setState({ executeSettlementInProgress: true });
-        const resp = await this.props.outboundService.executeSettlement(this.state.selectedSettlementModel);
+        await this.props.outboundService.executeSettlement(this.state.selectedSettlementModel);
     };
 
     handleRefreshAll = async () => {
         this.state.continueRefreshing = true;
         this.handleDFSPValues();
-        const resp = await this.props.outboundService.getDFSPValues();
+        await this.props.outboundService.getDFSPValues();
     };
 
     render() {

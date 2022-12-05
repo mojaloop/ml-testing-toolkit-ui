@@ -23,7 +23,6 @@
  ******/
 import React from 'react';
 import { TreeSelect } from 'antd';
-import 'antd/dist/antd.css';
 const { mock } = require('mock-json-schema');
 import _ from 'lodash';
 
@@ -44,6 +43,7 @@ export class FactSelect extends React.Component {
             value: undefined,
             treeData: [],
             factData: null,
+            treeLoadedKeys: [],
         };
     }
 
@@ -64,8 +64,7 @@ export class FactSelect extends React.Component {
                 const selectedFact = this.findValueInFactData(value, this.props.factData);
                 this.props.onSelect(value, selectedFact);
             }
-
-            this.setState({ treeData: factTreeData, factData: this.props.factData, value });
+            this.setState({ treeData: factTreeData, treeLoadedKeys: [], factData: this.props.factData, value });
         }
     };
 
@@ -89,16 +88,29 @@ export class FactSelect extends React.Component {
     getNodeFacts = (nodeData, parentId = 0, valuePrefix = '') => {
         const nodeSchema = getSchema(nodeData);
         const factTreeData = [];
-        for(const property in nodeSchema.properties) {
+        let properties;
+        if(nodeSchema.type === 'array') {
+            if(nodeSchema.items.type === 'object') {
+                properties = nodeSchema.items.properties;
+            }
+        } else {
+            properties = nodeSchema.properties;
+        }
+        for(const property in properties) {
             let isLeaf = true;
-            const fact = getSchema(nodeSchema.properties[property]);
+            let title = property;
+            const fact = getSchema(properties[property]);
             if(fact.type === 'object') {
                 isLeaf = false;
+            }
+            if(fact.type === 'array') {
+                isLeaf = false;
+                title = property + '[0]';
             }
             const random = Math.random()
                 .toString(36)
                 .substring(2, 6);
-            factTreeData.push({ id: random, pId: parentId, value: valuePrefix + property, nodeObject: fact, title: property, isLeaf, disabled: !isLeaf && !this.props.enableNodesSelection });
+            factTreeData.push({ id: random, pId: parentId, value: valuePrefix + title, nodeObject: fact, title, isLeaf, disabled: !isLeaf && !this.props.enableNodesSelection });
         }
         return factTreeData;
     };
@@ -131,6 +143,8 @@ export class FactSelect extends React.Component {
                 onChange={this.onChange}
                 loadData={this.onLoadData}
                 treeData={treeData}
+                treeDefaultExpandAll={false}
+                treeLoadedKeys={this.state.treeLoadedKeys}
             />
         );
     }
@@ -168,7 +182,7 @@ export class FactDataGenerator {
         }
         try {
             totalParameters.concat(resourceDefinition.parameters).forEach(item => {
-                if(item.in === 'header') {
+                if(item?.in === 'header') {
                     headerSchema.properties[item.name] = getSchema(item.schema);
                 }
             });

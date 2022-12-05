@@ -27,7 +27,7 @@ import _ from 'lodash';
 
 // core components
 
-import { Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Card, Button, Radio, Affix, Typography, Alert, Switch } from 'antd';
+import { Spin, Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Card, Button, Radio, Affix, Typography, Alert, Switch } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretLeftFilled } from '@ant-design/icons';
 import 'jsoneditor-react/es/editor.min.css';
@@ -37,6 +37,7 @@ import 'brace/theme/tomorrow_night_blue';
 import axios from 'axios';
 import './fixAce.css';
 import RequestBuilder from './RequestBuilder';
+import { FetchUtils } from './FetchUtils';
 import TestAssertions from './TestAssertions';
 import ServerLogsViewer from './ServerLogsViewer';
 import { getConfig } from '../../utils/getConfig';
@@ -184,13 +185,15 @@ class RequestGenerator extends React.Component {
             apiVersions: [],
             renameRequestDialogVisible: false,
             newRequestDescription: '',
+            isLoading: false,
+            fetchDataFailed: false,
         };
     }
 
     componentDidMount = async () => {
         const apiVersions = await this.getApiVersions();
         this.state.apiVersions = apiVersions;
-        await this.fetchRequest();
+        this.fetchRequest();
     };
 
     fetchRequest = async () => {
@@ -205,30 +208,19 @@ class RequestGenerator extends React.Component {
 
         let selectedApiVersion = null;
         let fetchAllApiData = {};
+        let fetchDataFailed = false;
         if(this.props.request && this.props.request.apiVersion) {
             selectedApiVersion = this.props.request.apiVersion;
-            fetchAllApiData = await this.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion + '.' + selectedApiVersion.minorVersion, selectedApiVersion.asynchronous);
+            this.onLoadingStart();
+            try {
+                fetchAllApiData = await FetchUtils.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion + '.' + selectedApiVersion.minorVersion, selectedApiVersion.asynchronous);
+            } catch (err) {
+                fetchDataFailed = true;
+            }
+            this.onLoadingEnd();
         }
         const newRequestDescription = this.props.request.description;
-        this.setState({ selectedResource, selectedApiVersion, newRequestDescription, ...fetchAllApiData });
-    };
-
-    fetchAllApiData = async (apiType, version, asynchronous) => {
-        const openApiDefinition = await this.getDefinition(apiType, version);
-        let callbackMap = {};
-        let responseMap = {};
-
-        if(asynchronous) {
-            try {
-                callbackMap = await this.getCallbackMap(apiType, version);
-            } catch (err) { }
-        } else {
-            try {
-                responseMap = await this.getResponseMap(apiType, version);
-            } catch (err) { }
-        }
-
-        return { openApiDefinition, callbackMap, responseMap };
+        this.setState({ fetchDataFailed, selectedResource, selectedApiVersion, newRequestDescription, ...fetchAllApiData });
     };
 
     getConditions = () => {
@@ -274,30 +266,8 @@ class RequestGenerator extends React.Component {
         return response.data;
     };
 
-    getDefinition = async (apiType, version) => {
-        const { apiBaseUrl } = getConfig();
-        const response = await axios.get(`${apiBaseUrl}/api/openapi/definition/${apiType}/${version}`);
-        // console.log(response.data)
-        return response.data;
-        // this.setState(  { openApiDefinition: response.data } )
-    };
-
-    getResponseMap = async (apiType, version) => {
-        const { apiBaseUrl } = getConfig();
-        const response = await axios.get(`${apiBaseUrl}/api/openapi/response_map/${apiType}/${version}`);
-        return response.data;
-        // this.setState(  { callbackMap: response.data } )
-    };
-
-    getCallbackMap = async (apiType, version) => {
-        const { apiBaseUrl } = getConfig();
-        const response = await axios.get(`${apiBaseUrl}/api/openapi/callback_map/${apiType}/${version}`);
-        return response.data;
-        // this.setState(  { callbackMap: response.data } )
-    };
-
     apiVersionSelectHandler = async apiVersion => {
-        const fetchAllApiData = await this.fetchAllApiData(apiVersion.type, apiVersion.majorVersion + '.' + apiVersion.minorVersion, apiVersion.asynchronous);
+        const fetchAllApiData = await FetchUtils.fetchAllApiData(apiVersion.type, apiVersion.majorVersion + '.' + apiVersion.minorVersion, apiVersion.asynchronous);
         const request = this.props.request;
         request.apiVersion = apiVersion;
         this.props.onChange(request);
@@ -314,7 +284,7 @@ class RequestGenerator extends React.Component {
     };
 
     getResourceDefinition = () => {
-        if(this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method) {
+        if(this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method && this.state.openApiDefinition.paths[this.state.selectedResource.path]) {
             return this.state.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method];
         }
         return null;
@@ -322,7 +292,7 @@ class RequestGenerator extends React.Component {
 
     getRootParameters = () => {
         let rootParams = [];
-        if(this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method) {
+        if(this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method && this.state.openApiDefinition.paths[this.state.selectedResource.path]) {
             rootParams = this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters;
         }
         return rootParams;
@@ -366,6 +336,14 @@ class RequestGenerator extends React.Component {
         this.setState({ description: newValue });
     };
 
+    onLoadingStart = () => {
+        this.setState({ isLoading: true, fetchDataFailed: false });
+    };
+
+    onLoadingEnd = () => {
+        this.setState({ isLoading: false });
+    };
+
     render() {
         const renameRequestDialogContent = (
             <>
@@ -392,7 +370,7 @@ class RequestGenerator extends React.Component {
         );
 
         return (
-            <>
+            <Spin size='large' spinning={this.state.isLoading}>
                 <Row>
                     <Col span={24}>
                         <Button
@@ -428,22 +406,39 @@ class RequestGenerator extends React.Component {
                 </Row>
                 <Row className='mt-2'>
                     <Col span={24}>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td align='right'><b>API:</b></td>
-                                    <td>
-                                        <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align='right'><b>Resource:</b></td>
-                                    <td>
-                                        <ResourceSelector value={this.state.selectedResource} selectedApiVersion={this.state.selectedApiVersion} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        {
+                            this.state.fetchDataFailed ? (
+                                <Alert
+                                    message="Error fetching the data about the API resource."
+                                    description={
+                                        <span>
+                                            <Text strong>{this.state.selectedApiVersion.type + ':' + this.state.selectedApiVersion.majorVersion + '.' + this.state.selectedApiVersion.minorVersion}</Text>
+                                            <Text class='ml-2' code>{this.state.selectedResource.method + ' ' + this.state.selectedResource.path}</Text>
+                                        </span>
+                                    }
+                                    type="warning"
+                                    showIcon
+                                />
+                            ) : (
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td align='right'><b>API:</b></td>
+                                            <td>
+                                                <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align='right'><b>Resource:</b></td>
+                                            <td>
+                                                <ResourceSelector value={this.state.selectedResource} selectedApiVersion={this.state.selectedApiVersion} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            )
+                        }
+
                     </Col>
                 </Row>
                 <Row className='mt-2'>
@@ -461,7 +456,7 @@ class RequestGenerator extends React.Component {
                         />
                     </Col>
                 </Row>
-            </>
+            </Spin>
         );
     }
 }

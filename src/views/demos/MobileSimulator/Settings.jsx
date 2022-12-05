@@ -76,7 +76,7 @@ class Settings extends React.Component {
 
     handleStartProvisioning = async idNumber => {
         this.setState({ provisioningInProgress: true, provisioningStatus: '', progressSteps: {} });
-        const resp = await this.props.outboundService.startProvisioning();
+        await this.props.outboundService.startProvisioning();
     };
 
     render() {

@@ -33,7 +33,6 @@ import { Select, Input, Tooltip, Tag, Popover, message, Row, Col, Collapse, Moda
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 
-import 'antd/dist/antd.css';
 // import './index.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
 import AceEditor from 'react-ace';
