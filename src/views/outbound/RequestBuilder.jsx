@@ -27,7 +27,6 @@ import _ from 'lodash';
 
 import { Spin, Select, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch, Button, Typography } from 'antd';
 import { QuestionCircleTwoTone } from '@ant-design/icons';
-// import 'antd/dist/antd.css';
 import { DeleteTwoTone } from '@ant-design/icons';
 
 // import './index.css';
@@ -167,28 +166,34 @@ class ConfigurableParameter extends React.Component {
                             onChange={async requestId => {
                                 const request = this.props.allRequests.find(item => item.id === requestId);
                                 // Fetch data here
-                                this.setState({ isLoading: true });
-                                const fetchAllApiData = await FetchUtils.fetchAllApiData(request.apiVersion.type, request.apiVersion.majorVersion + '.' + request.apiVersion.minorVersion, request.apiVersion.asynchronous);
-                                this.setState({ isLoading: false });
-                                let resourceDefinition = null;
-                                let rootParams = null;
-                                if(this.state.paramType === 1) {
-                                    resourceDefinition = fetchAllApiData.openApiDefinition.paths[request.operationPath][request.method];
-                                    rootParams = fetchAllApiData.openApiDefinition.paths[request.operationPath].parameters;
-                                } else {
-                                    const callbackObj = fetchAllApiData.callbackMap[request.operationPath][request.method].successCallback;
-                                    resourceDefinition = fetchAllApiData.openApiDefinition.paths[callbackObj.path][callbackObj.method];
-                                    rootParams = fetchAllApiData.openApiDefinition.paths[callbackObj.path].parameters;
+                                try {
+                                    this.setState({ isLoading: true });
+                                    const fetchAllApiData = await FetchUtils.fetchAllApiData(request.apiVersion.type, request.apiVersion.majorVersion + '.' + request.apiVersion.minorVersion, request.apiVersion.asynchronous);
+                                    this.setState({ isLoading: false });
+                                    let resourceDefinition = null;
+                                    let rootParams = null;
+                                    if(this.state.paramType === 1) {
+                                        resourceDefinition = fetchAllApiData.openApiDefinition.paths[request.operationPath][request.method];
+                                        rootParams = fetchAllApiData.openApiDefinition.paths[request.operationPath].parameters;
+                                    } else {
+                                        const callbackObj = fetchAllApiData.callbackMap[request.operationPath][request.method].successCallback;
+                                        resourceDefinition = fetchAllApiData.openApiDefinition.paths[callbackObj.path][callbackObj.method];
+                                        rootParams = fetchAllApiData.openApiDefinition.paths[callbackObj.path].parameters;
+                                    }
+                                    const bodyFactData = (new FactDataGenerator()).getBodyFactData(resourceDefinition);
+                                    const headerFactData = (new FactDataGenerator()).getHeadersFactData(resourceDefinition, rootParams);
+                                    const factData = {
+                                        properties: {
+                                            body: bodyFactData,
+                                            headers: { type: 'object', ...headerFactData },
+                                        },
+                                    };
+                                    this.setState({ selectedValueComponent: requestId, factData });
+                                } catch (err) {
+                                    console.log('GVK', err.stack);
+                                    message.error('Error fetching the data about the API resource');
+                                    this.setState({ isLoading: false, factData: null });
                                 }
-                                const bodyFactData = (new FactDataGenerator()).getBodyFactData(resourceDefinition);
-                                const headerFactData = (new FactDataGenerator()).getHeadersFactData(resourceDefinition, rootParams);
-                                const factData = {
-                                    properties: {
-                                        body: bodyFactData,
-                                        headers: { type: 'object', ...headerFactData },
-                                    },
-                                };
-                                this.setState({ selectedValueComponent: requestId, factData });
                             }}
                         >
                             {requestSelectionOptionItems}

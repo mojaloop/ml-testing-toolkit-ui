@@ -284,7 +284,7 @@ class RequestGenerator extends React.Component {
     };
 
     getResourceDefinition = () => {
-        if(this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method) {
+        if(this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method && this.state.openApiDefinition.paths[this.state.selectedResource.path]) {
             return this.state.openApiDefinition.paths[this.state.selectedResource.path][this.state.selectedResource.method];
         }
         return null;
@@ -292,7 +292,7 @@ class RequestGenerator extends React.Component {
 
     getRootParameters = () => {
         let rootParams = [];
-        if(this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method) {
+        if(this.state.selectedResource && this.state.openApiDefinition && this.state.selectedResource.path && this.state.selectedResource.method && this.state.openApiDefinition.paths[this.state.selectedResource.path]) {
             rootParams = this.state.openApiDefinition.paths[this.state.selectedResource.path].parameters;
         }
         return rootParams;
@@ -337,7 +337,7 @@ class RequestGenerator extends React.Component {
     };
 
     onLoadingStart = () => {
-        this.setState({ isLoading: true });
+        this.setState({ isLoading: true, fetchDataFailed: false });
     };
 
     onLoadingEnd = () => {
@@ -418,7 +418,6 @@ class RequestGenerator extends React.Component {
                                     }
                                     type="warning"
                                     showIcon
-                                    closable
                                 />
                             ) : (
                                 <table>

@@ -26,7 +26,6 @@ import React from 'react';
 import socketIOClient from 'socket.io-client';
 import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig';
 import { Typography, Layout } from 'antd';
-// import 'antd/dist/antd.css';
 // import axios from 'axios';
 import Monitor from '../../monitor/Monitor';
 import { TTKColors } from '../../../utils/styleHelpers';

@@ -24,7 +24,6 @@
 import React from 'react';
 
 import { Input, Menu, Collapse, Modal, message, Card, Row, Col, Button, Typography } from 'antd';
-// import 'antd/dist/antd.css';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 import axios from 'axios';

@@ -27,7 +27,6 @@ import socketIOClient from 'socket.io-client';
 import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig';
 import { Row, Col, Modal, Badge, message, Progress, Button, Card, Drawer, Layout } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
-// import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseViewer from '../../outbound/TestCaseViewer';
 import FileManager from '../../outbound/FileManager.jsx';
