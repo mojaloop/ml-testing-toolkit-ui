@@ -24,7 +24,7 @@
 import React from 'react';
 import { FileTwoTone, TagTwoTone, FolderTwoTone } from '@ant-design/icons';
 import { Tree, message, Input, Menu, Modal, Row, Col } from 'antd';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 import LabelsManager from './LabelsManager.jsx';
 
 class FolderBrowser extends React.Component {

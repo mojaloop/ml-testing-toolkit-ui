@@ -23,7 +23,7 @@
  ******/
 import React from 'react';
 import { Select, Row, Col, Button, Input, Tooltip, Popover, Checkbox } from 'antd';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
 import { FixedCallbackBuilder } from '../rules/EventBuilder';
 

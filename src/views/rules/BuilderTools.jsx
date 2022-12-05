@@ -23,7 +23,7 @@
  ******/
 import React from 'react';
 import { TreeSelect } from 'antd';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 const { mock } = require('mock-json-schema');
 import _ from 'lodash';
 

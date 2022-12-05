@@ -29,7 +29,7 @@ import mermaid from 'mermaid';
 import { getServerConfig, getConfig } from '../../utils/getConfig';
 import { Input, Row, Col, Affix, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox } from 'antd';
 import { CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor';
 import TestCaseViewer from './TestCaseViewer';

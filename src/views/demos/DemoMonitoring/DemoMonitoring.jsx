@@ -26,25 +26,13 @@ import React from 'react';
 import socketIOClient from 'socket.io-client';
 import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig';
 import { Typography, Layout } from 'antd';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 // import axios from 'axios';
 import Monitor from '../../monitor/Monitor';
 import { TTKColors } from '../../../utils/styleHelpers';
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
-
-function buildFileSelector(multi = false, directory = false) {
-    const fileSelector = document.createElement('input');
-    fileSelector.setAttribute('type', 'file');
-    if(multi) {
-        fileSelector.setAttribute('multiple', 'multiple');
-    }
-    if(directory) {
-        fileSelector.setAttribute('webkitdirectory', '');
-    }
-    return fileSelector;
-}
 
 class DemoMonitoring extends React.Component {
     constructor() {

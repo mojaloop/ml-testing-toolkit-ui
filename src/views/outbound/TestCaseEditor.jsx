@@ -332,11 +332,11 @@ class RequestGenerator extends React.Component {
 
     onLoadingStart = () => {
         this.setState({ isLoading: true });
-    }
+    };
 
     onLoadingEnd = () => {
         this.setState({ isLoading: false });
-    }
+    };
 
     render() {
         const renameRequestDialogContent = (

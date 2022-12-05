@@ -25,7 +25,7 @@
 import React from 'react';
 import { Input, Row, Col, message, Popover, Button, Card, Checkbox, Radio, Typography } from 'antd';
 import { DeleteTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 
 const { Text } = Typography;
 

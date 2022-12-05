@@ -27,7 +27,7 @@ import _ from 'lodash';
 
 import { Spin, Select, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Row, Col, Switch, Button, Typography } from 'antd';
 import { QuestionCircleTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 import { DeleteTwoTone } from '@ant-design/icons';
 
 // import './index.css';

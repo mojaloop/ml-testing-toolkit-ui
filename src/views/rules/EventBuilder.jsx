@@ -24,7 +24,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { Select, Row, Col, Button, Input, Tag, Menu, Dropdown, Card, Popover, message, Typography } from 'antd';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 import { FactDataGenerator } from './BuilderTools.jsx';
 import { ConfigurableParameter, HeaderInputComponent, MockBuilder } from '../common/EventBuildHelper';
 
