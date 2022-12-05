@@ -186,6 +186,7 @@ class RequestGenerator extends React.Component {
             renameRequestDialogVisible: false,
             newRequestDescription: '',
             isLoading: false,
+            fetchDataFailed: false,
         };
     }
 
@@ -207,14 +208,19 @@ class RequestGenerator extends React.Component {
 
         let selectedApiVersion = null;
         let fetchAllApiData = {};
+        let fetchDataFailed = false;
         if(this.props.request && this.props.request.apiVersion) {
             selectedApiVersion = this.props.request.apiVersion;
             this.onLoadingStart();
-            fetchAllApiData = await FetchUtils.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion + '.' + selectedApiVersion.minorVersion, selectedApiVersion.asynchronous);
+            try {
+                fetchAllApiData = await FetchUtils.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion + '.' + selectedApiVersion.minorVersion, selectedApiVersion.asynchronous);
+            } catch (err) {
+                fetchDataFailed = true;
+            }
             this.onLoadingEnd();
         }
         const newRequestDescription = this.props.request.description;
-        this.setState({ selectedResource, selectedApiVersion, newRequestDescription, ...fetchAllApiData });
+        this.setState({ fetchDataFailed, selectedResource, selectedApiVersion, newRequestDescription, ...fetchAllApiData });
     };
 
     getConditions = () => {
@@ -400,22 +406,40 @@ class RequestGenerator extends React.Component {
                 </Row>
                 <Row className='mt-2'>
                     <Col span={24}>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td align='right'><b>API:</b></td>
-                                    <td>
-                                        <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align='right'><b>Resource:</b></td>
-                                    <td>
-                                        <ResourceSelector value={this.state.selectedResource} selectedApiVersion={this.state.selectedApiVersion} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        {
+                            this.state.fetchDataFailed ? (
+                                <Alert
+                                    message="Error fetching the data about the API resource."
+                                    description={
+                                        <span>
+                                            <Text strong>{this.state.selectedApiVersion.type + ':' + this.state.selectedApiVersion.majorVersion + '.' + this.state.selectedApiVersion.minorVersion}</Text>
+                                            <Text class='ml-2' code>{this.state.selectedResource.method + ' ' + this.state.selectedResource.path}</Text>
+                                        </span>
+                                    }
+                                    type="warning"
+                                    showIcon
+                                    closable
+                                />
+                            ) : (
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td align='right'><b>API:</b></td>
+                                            <td>
+                                                <ApiVersionSelector value={this.state.selectedApiVersion} apiVersions={this.state.apiVersions} onSelect={this.apiVersionSelectHandler} />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align='right'><b>Resource:</b></td>
+                                            <td>
+                                                <ResourceSelector value={this.state.selectedResource} selectedApiVersion={this.state.selectedApiVersion} openApiDefinition={this.state.openApiDefinition} onSelect={this.resourceSelectHandler} />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            )
+                        }
+
                     </Col>
                 </Row>
                 <Row className='mt-2'>
