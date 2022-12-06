@@ -52,6 +52,11 @@ class TestCaseViewer extends React.Component {
     };
 
     componentDidMount = () => {
+        if(!this.props.testCase.meta) {
+            this.props.testCase.meta = {
+                info: this.props.testCase.name,
+            };
+        }
         this.setState({ testCaseName: this.props.testCase.name });
     };
 
