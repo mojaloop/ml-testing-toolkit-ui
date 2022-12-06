@@ -1460,7 +1460,7 @@ class RequestBuilder extends React.Component {
         // } else {
         //   delete this.props.request.params
         // }
-        this.headerBodyBuilderRef.current.updateBodyChanges();
+        // this.headerBodyBuilderRef.current.updateBodyChanges();
         this.props.onChange(this.props.request);
     };
 
