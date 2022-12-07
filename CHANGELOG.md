@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.0.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.0.2...v15.0.3) (2022-12-07)
+
+
+### Bug Fixes
+
+* **mojaloop/#3031:** address conflicting parent/child onChange call ([#152](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/152)) ([a24805f](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/a24805f955c3f04becdea950e747991f5916ea51)), closes [mojaloop/#3031](https://github.com/mojaloop/project/issues/3031)
+* **mojaloop/2890:** issue with meta info option and added markdown support ([#151](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/151)) ([e9657b1](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/e9657b1752e703cefe1ea7f7b2352d35ac74c656))
+
 ### [15.0.2](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.0.1...v15.0.2) (2022-12-05)
 
 
