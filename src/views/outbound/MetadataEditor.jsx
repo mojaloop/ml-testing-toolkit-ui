@@ -25,6 +25,7 @@
 import React from 'react';
 import { Input, Row, Col, Checkbox, Typography } from 'antd';
 import { EditTwoTone, SaveTwoTone, CloseSquareTwoTone } from '@ant-design/icons';
+import ReactMarkdown from 'react-markdown';
 
 const { Text } = Typography;
 
@@ -71,7 +72,9 @@ class MetadataItem extends React.Component {
             }
         } else {
             return (
-                <Text type='secondary'>{this.props.value}</Text>
+                <ReactMarkdown>
+                    {this.props.value}
+                </ReactMarkdown>
             );
         }
     };
@@ -131,13 +134,15 @@ class MetadataEditor extends React.Component {
     };
 
     getMetadataItems = () => {
-        const inputItems = [];
-        for(const inputValueName in this.props.values) {
-            inputItems.push(
-                <MetadataItem name={inputValueName} value={this.props.values[inputValueName]} onChange={this.handleItemValueChange} />,
-            );
+        if(this.props.values) {
+            const inputItems = [];
+            for(const inputValueName in this.props.values) {
+                inputItems.push(
+                    <MetadataItem name={inputValueName} value={this.props.values[inputValueName]} onChange={this.handleItemValueChange} />,
+                );
+            }
+            return inputItems;
         }
-        return inputItems;
     };
 
     render() {
