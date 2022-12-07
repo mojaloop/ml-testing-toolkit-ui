@@ -1460,7 +1460,10 @@ class RequestBuilder extends React.Component {
         // } else {
         //   delete this.props.request.params
         // }
-        this.headerBodyBuilderRef.current.updateBodyChanges();
+        // https://github.com/mojaloop/project/issues/3031
+        // Commenting this out since it's likely that this is causing issues
+        // with the JSON editor
+        // this.headerBodyBuilderRef.current.updateBodyChanges();
         this.props.onChange(this.props.request);
     };
 
