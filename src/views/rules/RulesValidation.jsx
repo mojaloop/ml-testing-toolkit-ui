@@ -32,9 +32,36 @@ import RuleViewer from './RuleViewer';
 import { getConfig } from '../../utils/getConfig';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
+import fileDownload from 'js-file-download';
 
 const { Panel } = Collapse;
 const { Title } = Typography;
+
+function buildFileSelector(multi = false) {
+    const fileSelector = document.createElement('input');
+    fileSelector.setAttribute('type', 'file');
+    return fileSelector;
+}
+
+const readFileAsync = (file, type) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+
+        reader.onerror = reject;
+
+        switch (type) {
+            case 'readAsArrayBuffer':
+                reader.readAsArrayBuffer(file);
+                break;
+            default:
+                reader.readAsText(file);
+        }
+    });
+};
 
 class RulesValidation extends React.Component {
     constructor() {
@@ -53,18 +80,29 @@ class RulesValidation extends React.Component {
 
     componentDidMount() {
         this.getValidationRulesFiles();
+        this.specFilesSelector = buildFileSelector();
+        this.specFilesSelector.addEventListener('input', async e => {
+            if(e.target.files) {
+                const file = e.target.files[0];
+                await this.handleImport(file);
+                this.getValidationRulesFiles(file.name);
+                this.specFilesSelector.value = null;
+            }
+        });
     }
 
-    getValidationRulesFiles = async () => {
+    getValidationRulesFiles = async (selectedRuleFile = null) => {
         message.loading({ content: 'Getting rules files...', key: 'getFilesProgress' });
         const { apiBaseUrl } = getConfig();
         const response = await axios.get(apiBaseUrl + '/api/rules/files/validation');
         const activeRulesFile = response.data.activeRulesFile;
         await this.setState({ validationRulesFiles: response.data.files, activeRulesFile });
         message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
-
-        // Select the active rules file by default
-        await this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null });
+        if(selectedRuleFile) {
+            await this.setState({ selectedRuleFile, ruleItemActive: null });
+        } else {
+            await this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null });
+        }
         await this.updateRulesFileDisplay();
     };
 
@@ -85,6 +123,34 @@ class RulesValidation extends React.Component {
                 <Menu.Item key={ruleFile}>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</Menu.Item>
             );
         });
+    };
+
+    handleImport = async file_to_read => {
+        message.loading({ content: 'Importing ...', key: 'importProgress' });
+        try {
+            const { apiBaseUrl } = getConfig();
+            await axios.post(apiBaseUrl + '/api/rules/import/rules_validation',
+                { buffer: Buffer.from(await readFileAsync(file_to_read, 'readAsArrayBuffer')) },
+                { params: { rulesFilename: file_to_read.name }, headers: { 'Content-Type': 'application/json' } });
+            message.success({ content: 'Import completed', key: 'importProgress', duration: 2 });
+        } catch (err) {
+            message.error({ content: err.response ? err.response.data : err.message, key: 'importProgress', duration: 6 });
+        }
+    };
+
+    handleExport = async () => {
+        message.loading({ content: 'Export validation rules...', key: 'exportFileProgress' });
+        try {
+            let data;
+            const { apiBaseUrl } = getConfig();
+            const exportRulesResponse = await axios.get(apiBaseUrl + '/api/rules/export/rules_validation', { params: { rulesFilename: this.state.selectedRuleFile } });
+            data = Buffer.from(Buffer.from(exportRulesResponse.data.body.buffer.data));
+            const parsedMessage = JSON.stringify(JSON.parse(data), null, 2);
+            fileDownload(parsedMessage, this.state.selectedRuleFile);
+            message.success({ content: 'Export validation rules completed', key: 'exportFileProgress', duration: 2 });
+        } catch (err) {
+            message.error({ content: err.response ? err.response.data : err.message, key: 'exportFileProgress', duration: 6 });
+        }
     };
 
     handleRuleFileSelect = async selectedItem => {
@@ -224,12 +290,17 @@ class RulesValidation extends React.Component {
     };
 
     handleRuleFileDelete = async () => {
-        message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' });
-        const { apiBaseUrl } = getConfig();
-        await axios.delete(apiBaseUrl + '/api/rules/files/validation/' + this.state.selectedRuleFile);
-        await this.getValidationRulesFiles();
-        await this.setState({ selectedRuleFile: null, ruleItemActive: null });
-        message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 });
+        try {
+            message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' });
+            const { apiBaseUrl } = getConfig();
+            await axios.delete(apiBaseUrl + '/api/rules/files/validation/' + this.state.selectedRuleFile);
+            await this.getValidationRulesFiles();
+            await this.setState({ selectedRuleFile: null, ruleItemActive: null });
+            message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 });
+        } catch (err) {
+            console.log(err);
+            message.error({ content: err.response ? err.response.data.error : err.message, key: 'deleteFileProgress', duration: 6 });
+        }
     };
 
     handleRuleFileSetActive = async () => {
@@ -310,6 +381,13 @@ class RulesValidation extends React.Component {
                                                 >
                           Add a new Rule
                                                 </Button>
+                                                <Button
+                                                    className='float-right mr-2'
+                                                    type='primary'
+                                                    onClick={this.handleExport}
+                                                >
+                          Export rules
+                                                </Button>
                                                 {
                                                     this.state.reOrderingEnabled
                                                         ? (
@@ -371,6 +449,30 @@ class RulesValidation extends React.Component {
                     </Col>
                     <Col span={8} className='pl-2'>
                         <Card>
+                            <div className='d-flex justify-content-between mb-2 '>
+                                <Button
+                                    className='mr-2'
+                                    type='primary'
+                                    onClick={() => {
+                                        this.specFilesSelector.click();
+                                    }}
+                                >
+                  Import rules
+                                </Button>
+                                {
+                                    this.state.selectedRuleFile
+                                        ? (
+                                            <Button
+                                                className='mr-2'
+                                                type='primary'
+                                                onClick={this.handleExport}
+                                            >
+                          Export rules
+                                            </Button>
+                                        )
+                                        : null
+                                }
+                            </div>
                             <div className='d-flex justify-content-between'>
                                 <Button
                                     className='mr-4'
