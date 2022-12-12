@@ -33,35 +33,11 @@ import { getConfig } from '../../utils/getConfig';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import fileDownload from 'js-file-download';
+import { buildFileSelector, readFileAsync } from '../../utils/fileSelector';
 
 const { Panel } = Collapse;
 const { Title } = Typography;
 
-function buildFileSelector(multi = false) {
-    const fileSelector = document.createElement('input');
-    fileSelector.setAttribute('type', 'file');
-    return fileSelector;
-}
-
-const readFileAsync = (file, type) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            resolve(reader.result);
-        };
-
-        reader.onerror = reject;
-
-        switch (type) {
-            case 'readAsArrayBuffer':
-                reader.readAsArrayBuffer(file);
-                break;
-            default:
-                reader.readAsText(file);
-        }
-    });
-};
 
 class RulesCallback extends React.Component {
     constructor() {
@@ -379,13 +355,6 @@ class RulesCallback extends React.Component {
                                                     onClick={this.handleAddNewRuleClick}
                                                 >
                           Add a new Rule
-                                                </Button>
-                                                <Button
-                                                    className='float-right mr-2'
-                                                    type='primary'
-                                                    onClick={this.handleExport}
-                                                >
-                          Export rules
                                                 </Button>
                                                 {
                                                     this.state.reOrderingEnabled

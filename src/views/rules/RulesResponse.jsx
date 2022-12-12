@@ -34,36 +34,13 @@ import { getConfig } from '../../utils/getConfig';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import fileDownload from 'js-file-download';
+import { buildFileSelector, readFileAsync } from '../../utils/fileSelector';
 
 const ResponseRulesServiceObj = new ResponseRulesService();
 const { Panel } = Collapse;
 const { Title } = Typography;
 
-function buildFileSelector(multi = false) {
-    const fileSelector = document.createElement('input');
-    fileSelector.setAttribute('type', 'file');
-    return fileSelector;
-}
 
-const readFileAsync = (file, type) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            resolve(reader.result);
-        };
-
-        reader.onerror = reject;
-
-        switch (type) {
-            case 'readAsArrayBuffer':
-                reader.readAsArrayBuffer(file);
-                break;
-            default:
-                reader.readAsText(file);
-        }
-    });
-};
 class RulesResponse extends React.Component {
     constructor() {
         super();
@@ -463,7 +440,7 @@ class RulesResponse extends React.Component {
                             </div>
                             <div className='d-flex justify-content-between'>
                                 <Button
-                                    className='mr-2'
+                                    className='mr-4'
                                     type='primary'
                                     onClick={() => { this.setState({ mode: 'newFile' }); }}
                                 >
@@ -473,7 +450,6 @@ class RulesResponse extends React.Component {
                                     this.state.selectedRuleFile
                                         ? (
                                             <Button
-                                                className='float-right mr-2'
                                                 onClick={this.handleRuleFileSetActive}
                                             >
                           Set as active

@@ -34,34 +34,10 @@ import axios from 'axios';
 import { getConfig, getServerConfig } from '../../utils/getConfig';
 import FileDownload from 'js-file-download';
 import TokenFetcher from './TokenFetcher';
+import { buildFileSelector, readFileAsync } from '../../utils/fileSelector';
 
 const { Text } = Typography;
 
-function buildFileSelector(multi = false) {
-    const fileSelector = document.createElement('input');
-    fileSelector.setAttribute('type', 'file');
-    return fileSelector;
-}
-
-const readFileAsync = (file, type) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            resolve(reader.result);
-        };
-
-        reader.onerror = reject;
-
-        switch (type) {
-            case 'readAsArrayBuffer':
-                reader.readAsArrayBuffer(file);
-                break;
-            default:
-                reader.readAsText(file);
-        }
-    });
-};
 
 class ParamInput extends React.Component {
     inputValue = null;
