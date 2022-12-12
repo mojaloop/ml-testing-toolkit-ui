@@ -38,7 +38,6 @@ import { buildFileSelector, readFileAsync } from '../../utils/fileSelector';
 const { Panel } = Collapse;
 const { Title } = Typography;
 
-
 class RulesValidation extends React.Component {
     constructor() {
         super();

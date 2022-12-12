@@ -38,7 +38,6 @@ import { buildFileSelector, readFileAsync } from '../../utils/fileSelector';
 
 const { Text } = Typography;
 
-
 class ParamInput extends React.Component {
     inputValue = null;
 

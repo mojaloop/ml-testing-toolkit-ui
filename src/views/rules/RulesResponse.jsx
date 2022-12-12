@@ -40,7 +40,6 @@ const ResponseRulesServiceObj = new ResponseRulesService();
 const { Panel } = Collapse;
 const { Title } = Typography;
 
-
 class RulesResponse extends React.Component {
     constructor() {
         super();
