@@ -102,7 +102,7 @@ class RulesResponse extends React.Component {
         message.loading({ content: 'Importing ...', key: 'importProgress' });
         try {
             const { apiBaseUrl } = getConfig();
-            await axios.post(apiBaseUrl + '/api/rules/import/rules_response',
+            await axios.post(apiBaseUrl + '/api/rules/files/response/import',
                 { buffer: Buffer.from(await readFileAsync(file_to_read, 'readAsArrayBuffer')) },
                 { params: { rulesFilename: file_to_read.name }, headers: { 'Content-Type': 'application/json' } });
             message.success({ content: 'Import completed', key: 'importProgress', duration: 2 });
@@ -116,7 +116,7 @@ class RulesResponse extends React.Component {
         try {
             let data;
             const { apiBaseUrl } = getConfig();
-            const exportRulesResponse = await axios.get(apiBaseUrl + '/api/rules/export/rules_response', { params: { rulesFilename: this.state.selectedRuleFile } });
+            const exportRulesResponse = await axios.get(apiBaseUrl + `/api/rules/files/response/${this.state.selectedRuleFile}/export`);
             data = Buffer.from(Buffer.from(exportRulesResponse.data.body.buffer.data));
             const parsedMessage = JSON.stringify(JSON.parse(data), null, 2);
             fileDownload(parsedMessage, this.state.selectedRuleFile);
