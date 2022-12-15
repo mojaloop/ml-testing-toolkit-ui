@@ -33,6 +33,8 @@ import ResponseRulesService from '../../services/rules/response';
 import { getConfig } from '../../utils/getConfig';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
+import fileDownload from 'js-file-download';
+import { buildFileSelector, readFileAsync } from '../../utils/fileSelector';
 
 const ResponseRulesServiceObj = new ResponseRulesService();
 const { Panel } = Collapse;
@@ -55,17 +57,29 @@ class RulesResponse extends React.Component {
 
     componentDidMount() {
         this.getResponseRulesFiles();
+        this.specFilesSelector = buildFileSelector();
+        this.specFilesSelector.addEventListener('input', async e => {
+            if(e.target.files) {
+                const file = e.target.files[0];
+                await this.handleImport(file);
+                this.getResponseRulesFiles(file.name);
+                this.specFilesSelector.value = null;
+            }
+        });
     }
 
-    getResponseRulesFiles = async () => {
+    getResponseRulesFiles = async (selectedRuleFile = null) => {
         message.loading({ content: 'Getting rules files...', key: 'getFilesProgress' });
         const responseData = await ResponseRulesServiceObj.fetchResponseRulesFiles();
         if(responseData) {
             const activeRulesFile = responseData.activeRulesFile;
             await this.setState({ responseRulesFiles: responseData.files, activeRulesFile });
-            message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
-            // Select the active rules file by default
-            await this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null });
+            message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 1 });
+            if(selectedRuleFile) {
+                await this.setState({ selectedRuleFile, ruleItemActive: null });
+            } else {
+                await this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null });
+            }
         }
         this.updateRulesFileDisplay();
     };
@@ -82,6 +96,34 @@ class RulesResponse extends React.Component {
                 <Menu.Item key={ruleFile}>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</Menu.Item>
             );
         });
+    };
+
+    handleImport = async file_to_read => {
+        message.loading({ content: 'Importing ...', key: 'importProgress' });
+        try {
+            const { apiBaseUrl } = getConfig();
+            await axios.post(apiBaseUrl + '/api/rules/files/response/import',
+                { buffer: Buffer.from(await readFileAsync(file_to_read, 'readAsArrayBuffer')) },
+                { params: { rulesFilename: file_to_read.name }, headers: { 'Content-Type': 'application/json' } });
+            message.success({ content: 'Import completed', key: 'importProgress', duration: 2 });
+        } catch (err) {
+            message.error({ content: err.response ? err.response.data : err.message, key: 'importProgress', duration: 6 });
+        }
+    };
+
+    handleExport = async () => {
+        message.loading({ content: 'Export response rules...', key: 'exportFileProgress' });
+        try {
+            let data;
+            const { apiBaseUrl } = getConfig();
+            const exportRulesResponse = await axios.get(apiBaseUrl + `/api/rules/files/response/${this.state.selectedRuleFile}/export`);
+            data = Buffer.from(Buffer.from(exportRulesResponse.data.body.buffer.data));
+            const parsedMessage = JSON.stringify(JSON.parse(data), null, 2);
+            fileDownload(parsedMessage, this.state.selectedRuleFile);
+            message.success({ content: 'Export response rules', key: 'exportFileProgress', duration: 2 });
+        } catch (err) {
+            message.error({ content: err.response ? err.response.data : err.message, key: 'exportFileProgress', duration: 6 });
+        }
     };
 
     handleRuleFileSelect = async selectedItem => {
@@ -219,12 +261,17 @@ class RulesResponse extends React.Component {
     };
 
     handleRuleFileDelete = async () => {
-        message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' });
-        const { apiBaseUrl } = getConfig();
-        await axios.delete(apiBaseUrl + '/api/rules/files/response/' + this.state.selectedRuleFile);
-        await this.getResponseRulesFiles();
-        await this.setState({ selectedRuleFile: null, ruleItemActive: null });
-        message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 });
+        try {
+            message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' });
+            const { apiBaseUrl } = getConfig();
+            await axios.delete(apiBaseUrl + '/api/rules/files/response/' + this.state.selectedRuleFile);
+            await this.getResponseRulesFiles();
+            await this.setState({ selectedRuleFile: null, ruleItemActive: null });
+            message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 });
+        } catch (err) {
+            console.log(err);
+            message.error({ content: err.response ? err.response.data.error : err.message, key: 'deleteFileProgress', duration: 6 });
+        }
     };
 
     handleRuleFileSetActive = async () => {
@@ -366,6 +413,30 @@ class RulesResponse extends React.Component {
                     </Col>
                     <Col span={8} className='pl-2'>
                         <Card>
+                            <div className='d-flex justify-content-between mb-2 '>
+                                <Button
+                                    className='mr-2'
+                                    type='primary'
+                                    onClick={() => {
+                                        this.specFilesSelector.click();
+                                    }}
+                                >
+                  Import rules
+                                </Button>
+                                {
+                                    this.state.selectedRuleFile
+                                        ? (
+                                            <Button
+                                                className='mr-2'
+                                                type='primary'
+                                                onClick={this.handleExport}
+                                            >
+                          Export rules
+                                            </Button>
+                                        )
+                                        : null
+                                }
+                            </div>
                             <div className='d-flex justify-content-between'>
                                 <Button
                                     className='mr-4'
