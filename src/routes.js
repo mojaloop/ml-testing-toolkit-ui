@@ -29,6 +29,7 @@ import OutboundRequest from './views/outbound/OutboundRequest.jsx';
 import Monitor from './views/monitor/Monitor.jsx';
 import Dashboard from './views/dashboard/Dashboard.jsx';
 import Settings from './views/settings/Settings.jsx';
+import ReportHistory from './views/outbound/ReportHistory.jsx';
 import APIManagement from './views/apis/APIManagement.jsx';
 import Demos from './views/demos/Demos.jsx';
 
@@ -42,6 +43,7 @@ import {
     FileSearchOutlined,
     SendOutlined,
     ExperimentOutlined,
+    ReadOutlined,
 } from '@ant-design/icons';
 
 const routes = [
@@ -92,6 +94,13 @@ const routes = [
         name: 'Test Runner',
         icon: <SendOutlined />,
         component: OutboundRequest,
+        layout: '/admin',
+    },
+    {
+        path: '/reports',
+        name: 'Reports',
+        icon: <ReadOutlined />,
+        component: ReportHistory,
         layout: '/admin',
     },
     {
