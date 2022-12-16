@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.1.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.0.3...v15.1.0) (2022-12-16)
+
+
+### Features
+
+* **mojaloop/#3033:** add rule import and export ([#154](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/154)) ([8539202](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/853920281079e9c2365df4db460109863d71179f)), closes [mojaloop/#3033](https://github.com/mojaloop/project/issues/3033)
+* **mojaloop/3060:** add report history page ([#155](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/155)) ([ed4c80e](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/ed4c80ebd548e6a238f33325207cadd22b7b3075))
+
 ### [15.0.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.0.2...v15.0.3) (2022-12-07)
 
 
