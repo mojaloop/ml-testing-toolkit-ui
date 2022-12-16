@@ -63,9 +63,9 @@
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "ace-builds": "^1.13.2",
+    "ace-builds": "^1.14.0",
     "ajv": "^8.11.2",
-    "antd": "^5.0.6",
+    "antd": "^5.0.7",
     "array-move": "^4.0.0",
     "axios": "^1.2.1",
     "bootstrap": "^4.5.3",
@@ -97,9 +97,9 @@
   "devDependencies": {
     "@types/markerclustererplus": "2.1.33",
     "@types/react": "16.8.7",
-    "audit-ci": "^6.4.0",
+    "audit-ci": "^6.4.1",
     "eslint-config-airbnb-typescript": "^17.0.0",
-    "npm-check-updates": "^16.5.6",
+    "npm-check-updates": "^16.6.0",
     "replace": "^1.2.2",
     "standard-version": "^9.5.0"
   },

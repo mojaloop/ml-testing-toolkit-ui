@@ -119,7 +119,7 @@ class ReportHistory extends React.Component {
             />
         );
 
-    }
+    };
 
     socket = null;
 
@@ -213,18 +213,18 @@ class ReportHistory extends React.Component {
         const reportsHistoryData = await this.getReportsHistoryData(currentPage, pageSize, filterOptions);
         const historyReportsLocal = this.constructTableData(reportsHistoryData.documents);
         this.setState({ currentPage, pageSize, filterStatus, filterDateRangeStart, filterDateRangeEnd, historyReportsLocal, historyReportsTotal: reportsHistoryData.count });
-    }
+    };
 
     handlePageChange = async (currentPage, pageSize) => {
         this.state.currentPage = currentPage;
         this.state.pageSize = pageSize;
         this.updateResults();
-    }
+    };
 
     handleFilterStatusChange = e => {
         this.state.filterStatus = e.target.value;
         this.updateResults();
-    }
+    };
 
     handleDateChange = (dates, dateStrings) => {
         // Ignoring local timezone offset because we are dealing with the server time zone
