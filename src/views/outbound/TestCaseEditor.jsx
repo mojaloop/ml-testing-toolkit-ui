@@ -985,7 +985,7 @@ class TestCaseEditor extends React.Component {
     handleBreakOnErrorChange = checked => {
         this.props.testCase.breakOnError = checked;
         this.props.onChange();
-    }
+    };
 
     handleRequestDelete = requestId => {
         const deleteIndex = this.props.testCase.requests.findIndex(item => item.id == requestId);

@@ -24,7 +24,7 @@
 import React from 'react';
 import _ from 'lodash';
 
-import { Row, Col, Tag, Dropdown, Menu, message, Input, Collapse, Card, Button, Typography, Switch, Checkbox } from 'antd';
+import { Row, Col, Tag, Dropdown, Menu, message, Input, Collapse, Card, Button, Typography, Switch } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import MetadataEditor from './MetadataEditor';
 
