@@ -134,11 +134,6 @@ class TestCaseViewer extends React.Component {
         this.props.onRename(newTestCaseName);
     };
 
-    handleBreakTestCaseOnError = breakOnError => {
-        this.props.testCase.breakOnError = breakOnError;
-        this.props.onBreakTestCaseOnError(breakOnError);
-    };
-
     handleDisableRequests = (disabled, requestIndex) => {
         if(_.isUndefined(requestIndex)) {
             this.props.testCase.requests.forEach(request => {
@@ -345,13 +340,6 @@ class TestCaseViewer extends React.Component {
                                                 >
                       Edit
                                                 </Button>
-                                                <Checkbox
-                                                    className='ml-2 mt-1 float-right'
-                                                    onClick={e => { this.handleBreakTestCaseOnError(e.target.checked); }}
-                                                    checked={!!this.props.testCase.breakOnError}
-                                                >
-                      Break test case on error
-                                                </Checkbox>
                                                 {
                                                     this.state.testCaseRequestsReorderingEnabled && (this.props.testCase.requests && this.props.testCase.requests.length > 0)
                                                         ? (

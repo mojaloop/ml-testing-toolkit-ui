@@ -27,7 +27,7 @@ import _ from 'lodash';
 
 // core components
 
-import { Spin, Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Card, Button, Radio, Affix, Typography, Alert, Switch } from 'antd';
+import { Spin, Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Card, Button, Radio, Affix, Typography, Alert, Switch, Checkbox } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretLeftFilled } from '@ant-design/icons';
 import 'jsoneditor-react/es/editor.min.css';
@@ -982,6 +982,11 @@ class TestCaseEditor extends React.Component {
         this.forceUpdate();
     };
 
+    handleBreakOnErrorChange = checked => {
+        this.props.testCase.breakOnError = checked;
+        this.props.onChange();
+    }
+
     handleRequestDelete = requestId => {
         const deleteIndex = this.props.testCase.requests.findIndex(item => item.id == requestId);
         this.props.testCase.requests.splice(deleteIndex, 1);
@@ -1117,6 +1122,15 @@ class TestCaseEditor extends React.Component {
                             Add New Request
                                                     </Button>
                                                 </Popover>
+                                                <Checkbox
+                                                    className='ml-2 mt-1 float-right'
+                                                    onClick={e => {
+                                                        this.handleBreakOnErrorChange(e.target.checked);
+                                                    }}
+                                                    checked={this.props.testCase.breakOnError}
+                                                >
+                                                    Skip remaining requests on error
+                                                </Checkbox>
                                             </Col>
                                         </Row>
                                     </Card>
