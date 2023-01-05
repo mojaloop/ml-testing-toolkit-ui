@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.1.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.1.0...v15.1.1) (2023-01-05)
+
+
+### Bug Fixes
+
+* **mojaloop/3076:** break on error functionality ([#156](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/156)) ([82e8310](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/82e83103eefdb6c2243934361e12ba69a7c4df87))
+
 ## [15.1.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.0.3...v15.1.0) (2022-12-16)
 
 
