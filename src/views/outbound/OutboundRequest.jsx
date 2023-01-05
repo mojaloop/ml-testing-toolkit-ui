@@ -93,7 +93,9 @@ class OutboundRequest extends React.Component {
         const sessionId = TraceHeaderUtils.generateSessionId();
         this.state = {
             request: {},
-            template: {},
+            template: {
+                options: {},
+            },
             inputValues: {},
             additionalData: {
                 selectedFiles: [],
@@ -241,6 +243,7 @@ class OutboundRequest extends React.Component {
             message.success({ content: 'Test case finished', key: 'outboundSendProgress', duration: 2 });
             this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult });
         } else if(progress.status === 'TERMINATED') {
+            message.success({ content: 'Test case terminated', key: 'outboundSendProgress', duration: 2 });
             message.success({ content: 'Test case terminated', key: 'outboundStopProgress', duration: 2 });
             this.setState({ sendingOutboundRequestID: null, testReport: progress.totalResult });
         } else if(progress.status.startsWith('ITERATION')) {
@@ -626,21 +629,9 @@ class OutboundRequest extends React.Component {
     };
 
     handleBreakOnErrorChange = (breakOnError, testCaseIndex) => {
-        const fileSelected = this.getSingleFileSelected();
-        if(fileSelected) {
-            if(isUndefined(testCaseIndex)) {
-                for(let i = 0; i < fileSelected.content.test_cases.length; i++) {
-                    fileSelected.content.test_cases[i].breakOnError = breakOnError;
-                }
-            } else {
-                fileSelected.content.test_cases[testCaseIndex].breakOnError = breakOnError;
-            }
-            this.autoSaveFolderData(this.state.folderData);
-            this.regenerateTemplate(this.state.additionalData);
-            this.forceUpdate();
-        } else {
-            message.error('ERROR: multiple files are selected');
-        }
+        this.state.template.options.breakOnError = breakOnError;
+        this.regenerateTemplate(this.state.additionalData);
+        this.forceUpdate();
     };
 
     handleDisableRequests = (disabled, testCaseIndex, requestIndex) => {
@@ -678,7 +669,6 @@ class OutboundRequest extends React.Component {
                                 onRename={newTestCaseName => { this.handleTestCaseRename(testCaseIndex, newTestCaseName); }}
                                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
                                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex); }}
-                                onBreakTestCaseOnError={breakTestCaseOnError => { this.handleBreakOnErrorChange(breakTestCaseOnError, testCaseIndex); }}
                                 onDisableRequests={(disabled, requestIndex) => { this.handleDisableRequests(disabled, testCaseIndex, requestIndex); }}
                             />
                         </Col>
@@ -1180,9 +1170,9 @@ class OutboundRequest extends React.Component {
                                                                         onClick={e => {
                                                                             this.handleBreakOnErrorChange(e.target.checked);
                                                                         }}
-                                                                        checked={this.state.template.test_cases.every(testCase => testCase.breakOnError)}
+                                                                        checked={this.state.template.options?.breakOnError}
                                                                     >
-                                    Break test run on error
+                                                                        Break test run on error
                                                                     </Checkbox>
                                                                 )
                                                                 : null
