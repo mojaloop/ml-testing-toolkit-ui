@@ -20,3 +20,25 @@ export const hashRGB = str => {
 
     return '#' + '00000'.substring(0, 6 - c.length) + c;
 };
+
+// Added to catch when the external iframe element that is 
+// blocking the page clicking due to its styling is rendered
+export const waitForElementToRender = (selector) => {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver((mutations) => {
+            if (document.querySelector(selector)) {
+                resolve(document.querySelector(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
