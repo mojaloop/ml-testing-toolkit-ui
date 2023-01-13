@@ -21,8 +21,8 @@
   },
   "homepage": "https://localhost:6060/",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts --max_old_space_size=4096 build",
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --max_old_space_size=4096 --openssl-legacy-provider build",
     "test:react": "react-scripts test",
     "eject": "react-scripts eject",
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
