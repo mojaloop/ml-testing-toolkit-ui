@@ -22,7 +22,7 @@
  --------------
  ******/
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
 
@@ -41,6 +41,8 @@ import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
 import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx';
 
 import axios from 'axios';
+
+import { waitForElementToRender } from './utils/styleHelpers';
 
 function App() {
     const { isAuthEnabled } = getConfig();
@@ -78,6 +80,12 @@ function App() {
         localStorage.clear();
         setUser(false);
     };
+
+    useEffect(function () {
+        waitForElementToRender('iframe').then(element => {
+            element.style.pointerEvents = 'none';
+        });
+    }, []);
 
     return (
         <Router>
