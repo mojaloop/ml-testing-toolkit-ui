@@ -23,14 +23,14 @@ export const hashRGB = str => {
 
 // Added to catch when the external iframe element that is 
 // blocking the page clicking due to its styling is rendered
-export const waitForElementToRender = (selector) => {
+export const waitForElementToRender = selector => {
     return new Promise(resolve => {
-        if (document.querySelector(selector)) {
+        if(document.querySelector(selector)) {
             return resolve(document.querySelector(selector));
         }
 
-        const observer = new MutationObserver((mutations) => {
-            if (document.querySelector(selector)) {
+        const observer = new MutationObserver(mutations => {
+            if(document.querySelector(selector)) {
                 resolve(document.querySelector(selector));
                 observer.disconnect();
             }
@@ -38,7 +38,7 @@ export const waitForElementToRender = (selector) => {
 
         observer.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
         });
     });
-}
+};
