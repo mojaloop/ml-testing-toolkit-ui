@@ -81,8 +81,8 @@ function App() {
         setUser(false);
     };
 
-    useEffect(function() {
-        waitForElementToRender('iframe').then((element) => {
+    useEffect(function () {
+        waitForElementToRender('iframe').then(element => {
             element.style.pointerEvents = 'none';
         });
     }, []);
