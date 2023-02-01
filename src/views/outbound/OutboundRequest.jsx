@@ -190,7 +190,6 @@ class OutboundRequest extends React.Component {
         this.setState({ userConfig: userConfigRuntime });
         const { apiBaseUrl } = getConfig();
         this.socket = socketIOClient(apiBaseUrl);
-        // this.socket.on("outboundProgress", this.handleIncomingProgress);
         if(getConfig().isAuthEnabled) {
             const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID');
             if(dfspId) {
@@ -198,7 +197,9 @@ class OutboundRequest extends React.Component {
             }
         }
         this.socket.on('outboundProgress/' + this.state.sessionId, this.handleIncomingProgress);
-
+        this.socket.onAny((eventName, ...args) => {
+            console.log(eventName, args);
+        });
         const additionalData = this.restoreAdditionalData();
         if(additionalData) {
             this.state.additionalData = additionalData;
