@@ -197,9 +197,6 @@ class OutboundRequest extends React.Component {
             }
         }
         this.socket.on('outboundProgress/' + this.state.sessionId, this.handleIncomingProgress);
-        this.socket.onAny((eventName, ...args) => {
-            console.log(eventName, args);
-        });
         const additionalData = this.restoreAdditionalData();
         if(additionalData) {
             this.state.additionalData = additionalData;
