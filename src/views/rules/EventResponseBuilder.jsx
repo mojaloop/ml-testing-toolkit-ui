@@ -24,6 +24,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { Select, Row, Col, Button, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Typography } from 'antd';
+import 'antd/dist/antd.css';
 import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
 
 import { JsonEditor as Editor } from 'jsoneditor-react';
