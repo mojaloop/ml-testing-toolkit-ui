@@ -25,6 +25,7 @@
 import React from 'react';
 
 import { Modal, Input, Card, Row, Col, Button, Typography, message } from 'antd';
+import 'antd/dist/antd.css';
 
 import axios from 'axios';
 import { getConfig } from '../../utils/getConfig';

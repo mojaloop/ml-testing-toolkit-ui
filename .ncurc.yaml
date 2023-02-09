@@ -15,5 +15,7 @@ reject: [
   # Keeping the bootstrap to the same version because there are many renames in the class names in the recent versions
   "bootstrap",
   # TODO: Mermaid is throwing an error while building if upgraded. Need to investigate the root cause.
-  "mermaid"
+  "mermaid",
+  # antd v5+ currently suffers from poor performance https://github.com/ant-design/ant-design/issues/39746
+  "antd"
 ]

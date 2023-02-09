@@ -25,6 +25,7 @@ import React from 'react';
 
 // core components
 import { Select, Row, Col, Button, Input, Tooltip, Tag, message, Popover, Card } from 'antd';
+import 'antd/dist/antd.css';
 
 import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
 import { ConfigurableParameter } from './RuleEditor';

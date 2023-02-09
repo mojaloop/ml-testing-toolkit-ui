@@ -23,6 +23,7 @@
  ******/
 import React from 'react';
 import { Select, Tag } from 'antd';
+import 'antd/dist/antd.css';
 
 class LabelsManager extends React.Component {
     constructor() {
