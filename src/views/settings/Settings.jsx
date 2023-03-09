@@ -28,6 +28,7 @@ import _ from 'lodash';
 import { Input, Checkbox, Divider, Tooltip, message, Row, Col, Typography, Button, Modal, Table, Select, Tabs, Card } from 'antd';
 import { QuestionCircleTwoTone } from '@ant-design/icons';
 
+import 'antd/dist/antd.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import axios from 'axios';

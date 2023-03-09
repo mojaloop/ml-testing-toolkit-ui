@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.1.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.1.2...v15.1.3) (2023-02-09)
+
+
+### Bug Fixes
+
+* **mojaloop/#3113:** downgrade antd due to UI performance issues with v5 ([#169](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/169)) ([1279f12](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/1279f12679a6a46299a325b0f242f6af53d55e8f)), closes [mojaloop/#3113](https://github.com/mojaloop/project/issues/3113)
+
 ### [15.1.2](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.1.1...v15.1.2) (2023-02-03)
 
 ### [15.1.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.1.0...v15.1.1) (2023-01-05)

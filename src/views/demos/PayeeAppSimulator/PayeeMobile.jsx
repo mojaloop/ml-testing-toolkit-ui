@@ -22,6 +22,7 @@
  --------------
  ******/
 import React from 'react';
+import 'antd/dist/antd.css';
 import mobile_bg from '../../../assets/img/mobile_plain.png';
 
 import PayeeApp from './PayeeApp.jsx';

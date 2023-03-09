@@ -32,6 +32,7 @@ import AdminLayout from './layouts/Admin.jsx';
 import { getConfig } from './utils/getConfig';
 
 import './index.css';
+import 'antd/dist/antd.css';
 
 import Login from './views/login/Login.jsx';
 import MobileSimulator from './views/demos/MobileSimulator/MobileSimulator.jsx';

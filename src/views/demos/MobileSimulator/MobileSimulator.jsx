@@ -24,6 +24,7 @@
 import React from 'react';
 import { Row, Col, Drawer, Button, Typography, Modal, Tabs } from 'antd';
 import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
+import 'antd/dist/antd.css';
 import mobile_left from '../../../assets/img/mobile_pink_iphone.png';
 import mobile_right from '../../../assets/img/mobile_green_iphone.png';
 
