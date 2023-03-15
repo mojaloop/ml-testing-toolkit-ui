@@ -529,7 +529,7 @@ class OutboundRequest extends React.Component {
         } else {
             this.state.template.name = 'multi';
         }
-        this.state.template.saveReport = true;
+
         this.state.additionalData = {
             importedFilename: 'Multiple Files',
             selectedFiles: additionalData.selectedFiles || [],
