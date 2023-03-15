@@ -27,10 +27,10 @@ import React from 'react';
 import socketIOClient from 'socket.io-client';
 import mermaid from 'mermaid';
 import { getServerConfig, getConfig } from '../../utils/getConfig';
-import { Input, Row, Col, Affix, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox } from 'antd';
+import { Input, Row, Col, Affix, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, Switch, Space } from 'antd';
 import { CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
 import 'antd/dist/antd.css';
-import axios from 'axios';
+import axios, { all } from 'axios';
 import TestCaseEditor from './TestCaseEditor';
 import TestCaseViewer from './TestCaseViewer';
 import IterationRunner from './IterationRunner';
@@ -376,6 +376,16 @@ class OutboundRequest extends React.Component {
         this.handleSendTemplate(testCaseToSend);
     };
 
+    handleReportFileName = event => {
+        this.state.template.name = event.target.value;
+        this.forceUpdate();
+    };
+
+    handleReportSaveToDB = event => {
+        this.state.template.saveReport = event.target.checked ? true : false;
+        this.forceUpdate();
+    };
+
     // Take the status property out from requests
     convertTemplate = (template, showAdvancedFeaturesAnyway = false) => {
         const { test_cases, ...remainingTestCaseProps } = template;
@@ -511,7 +521,15 @@ class OutboundRequest extends React.Component {
             this.state.template.test_cases.push({ ...testCaseRef, id: i + 1 });
         }
         // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
-        this.state.template.name = 'multi';
+        const folders = additionalData.selectedFiles.filter(x => x.slice((x.lastIndexOf('.') - 1 >>> 0) + 2) == '');
+        if(additionalData.selectedFiles.length == 1) {
+            this.state.template.name = additionalData.selectedFiles[0].replace(/\.[^/.]+$/, '');
+        } else if(folders.length == 1 && additionalData.selectedFiles.every(filePath => filePath.includes(folders[0]))) {
+            this.state.template.name = folders[0];
+        } else {
+            this.state.template.name = 'multi';
+        }
+        this.state.template.saveReport = true;
         this.state.additionalData = {
             importedFilename: 'Multiple Files',
             selectedFiles: additionalData.selectedFiles || [],
@@ -1176,6 +1194,26 @@ class OutboundRequest extends React.Component {
                                                                 )
                                                                 : null
                                                         }
+                                                    </Col>
+                                                </Row>
+                                                <Row className='mt-2' justify="end">
+                                                    <Col span='6'>
+                                                        <Checkbox
+                                                            className='ml-2 mt-1 float-right'
+                                                            onChange={this.handleReportSaveToDB}
+                                                            checked={this.state.template.saveReport}
+                                                        >
+                                    Save Report to DB
+                                                        </Checkbox>
+                                                    </Col>
+                                                    <Col span='12'>
+                                                        <Input
+                                                            className='mr-2'
+                                                            defaultValue="multi"
+                                                            value={this.state.template.name}
+                                                            onChange={this.handleReportFileName}
+                                                            addonBefore="Report Name"
+                                                        />
                                                     </Col>
                                                 </Row>
                                                 <Row className='mt-2'>
