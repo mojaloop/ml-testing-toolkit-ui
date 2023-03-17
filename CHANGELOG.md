@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.2.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.2.0...v15.2.1) (2023-03-17)
+
+
+### Bug Fixes
+
+* **mojaloop/#3133:** sanitize file paths ([#173](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/173)) ([24fd203](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/24fd2038de7e5b07fc6914bad5ff274c9e736936)), closes [mojaloop/#3133](https://github.com/mojaloop/project/issues/3133)
+
 ## [15.2.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.1.3...v15.2.0) (2023-03-16)
 
 
