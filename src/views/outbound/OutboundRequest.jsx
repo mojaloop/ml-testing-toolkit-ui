@@ -523,9 +523,14 @@ class OutboundRequest extends React.Component {
         // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
         const folders = additionalData.selectedFiles.filter(x => x.slice((x.lastIndexOf('.') - 1 >>> 0) + 2) == '');
         if(additionalData.selectedFiles.length == 1) {
-            this.state.template.name = additionalData.selectedFiles[0].replace(/\.[^/.]+$/, '');
+            this.state.template.name = additionalData.selectedFiles[0]
+                .replace(/\.[^/.]+$/, '') // Remove extension
+                .replace(/^.+\.\//, '') // Remove relative paths
+                .replace(/\\|\//g, '_'); // Convert path to snake case
         } else if(folders.length == 1 && additionalData.selectedFiles.every(filePath => filePath.includes(folders[0]))) {
-            this.state.template.name = folders[0];
+            this.state.template.name = folders[0]
+                .replace(/^.+\.\//, '') // Remove relative paths
+                .replace(/\\|\//g, '_'); // Convert path to snake case
         } else {
             this.state.template.name = 'multi';
         }
