@@ -33,10 +33,10 @@ import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor';
 import TestCaseViewer from './TestCaseViewer';
+import TestCaseDemoViewer from './TestCaseDemoViewer';
 import IterationRunner from './IterationRunner';
 import FileDownload from 'js-file-download';
 import FileManager from './FileManager.jsx';
-import ServerLogsViewer from './ServerLogsViewer';
 import EnvironmentManager from './EnvironmentManager';
 
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
@@ -153,7 +153,6 @@ class OutboundRequest extends React.Component {
             testCaseRequestsReorderingEnabled: false,
             curTestCasesRequestsUpdated: false,
             tempReorderedTestCases: [],
-            serverLogsVisible: true,
             testCaseEditorLogs: [],
             environmentManagerVisible: false,
             resetExecutionOptionEnabled: false,
@@ -336,9 +335,7 @@ class OutboundRequest extends React.Component {
                 // console.log(request)
                 // Also update the total assertion count
                 this.state.totalAssertionsCount += (request.tests && request.tests.assertions) ? request.tests.assertions.length : 0;
-                if(!request.status) {
-                    request.status = {};
-                }
+                request.status = {};
                 request.status.state = 'process';
             }
         }
@@ -692,6 +689,26 @@ class OutboundRequest extends React.Component {
                                 onShowSequenceDiagram={this.handleShowSequenceDiagram}
                                 onSend={() => { this.handleSendSingleTestCase(testCaseIndex); }}
                                 onDisableRequests={(disabled, requestIndex) => { this.handleDisableRequests(disabled, testCaseIndex, requestIndex); }}
+                            />
+                        </Col>
+                    </Row>
+                );
+            });
+        }
+        return null;
+    };
+
+    getTestCaseDemoItems = () => {
+        if(this.state.template.test_cases) {
+            return this.state.template.test_cases.map((testCase, testCaseIndex) => {
+                return (
+                    <Row className='mb-2'>
+                        <Col span={24}>
+                            <TestCaseDemoViewer
+                                testCase={testCase}
+                                labelsManager={this.state.labelsManager}
+                                inputValues={this.state.inputValues}
+                                onShowSequenceDiagram={this.handleShowSequenceDiagram}
                             />
                         </Col>
                     </Row>
@@ -1212,13 +1229,18 @@ class OutboundRequest extends React.Component {
                                                         </Checkbox>
                                                     </Col>
                                                     <Col span='12'>
-                                                        <Input
-                                                            className='mr-2'
-                                                            defaultValue="multi"
-                                                            value={this.state.template.name}
-                                                            onChange={this.handleReportFileName}
-                                                            addonBefore="Report Name"
-                                                        />
+                                                        {
+                                                            this.state.template.saveReport
+                                                                ? (
+                                                                    <Input
+                                                                        className='mr-2'
+                                                                        defaultValue="multi"
+                                                                        value={this.state.template.name}
+                                                                        onChange={this.handleReportFileName}
+                                                                        addonBefore="Report Name"
+                                                                    />
+                                                                ) : null
+                                                        }
                                                     </Col>
                                                 </Row>
                                                 <Row className='mt-2'>
@@ -1245,15 +1267,6 @@ class OutboundRequest extends React.Component {
                                 </Col>
                             </Row>
                         </Affix>
-                        {
-                            this.state.lastOutgoingRequestID
-                                ? <Row>
-                                    <Col span={24}>
-                                        <ServerLogsViewer traceID={this.state.lastOutgoingRequestID} userConfig={this.state.userConfig} />
-                                    </Col>
-                                </Row>
-                                : null
-                        }
                         <Row>
                             <Col span={24}>
                                 <Tabs defaultActiveKey='1'>
@@ -1369,6 +1382,9 @@ class OutboundRequest extends React.Component {
                                                     </>
                                                 )
                                         }
+                                    </TabPane>
+                                    <TabPane tab='Demo View' key='2'>
+                                        {this.getTestCaseDemoItems()}
                                     </TabPane>
                                 </Tabs>
                             </Col>
