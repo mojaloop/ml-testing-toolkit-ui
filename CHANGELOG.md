@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.3.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.2.1...v15.3.0) (2023-03-24)
+
+
+### Features
+
+* testrunner demo view ([#175](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/175)) ([27cdfa3](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/27cdfa36ca3d4c4296dcfe2c974de1d96da25243))
+
 ### [15.2.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.2.0...v15.2.1) (2023-03-17)
 
 
