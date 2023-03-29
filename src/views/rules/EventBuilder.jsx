@@ -364,27 +364,65 @@ class ParamsBuilder extends React.Component {
     render() {
         if(this.props.eventType === 'FIXED_CALLBACK' || this.props.eventType === 'FIXED_ERROR_CALLBACK') {
             return (
-                <FixedCallbackBuilder
-                    eventParams={this.props.eventParams}
-                    resourceDefinition={this.props.resourceDefinition}
-                    rootParameters={this.props.rootParameters}
-                    callbackDefinition={this.props.callbackDefinition}
-                    callbackRootParameters={this.props.callbackRootParameters}
-                    callbackObject={this.props.callbackObject}
-                />
+                <div>
+                    <Row>
+                        <Col span={24}>
+                            <Row>
+                                <Col><Text>Delay in milliseconds</Text></Col>
+                                <Col className='pl-2'>
+                                    <Input
+                                        placeholder='0' value={this.props.event.params.delay} onChange={e => {
+                                            const newValue = parseInt(e.target.value);
+                                            this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue;
+                                            this.handleEventChange();
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                    <FixedCallbackBuilder
+                        eventParams={this.props.eventParams}
+                        resourceDefinition={this.props.resourceDefinition}
+                        rootParameters={this.props.rootParameters}
+                        callbackDefinition={this.props.callbackDefinition}
+                        callbackRootParameters={this.props.callbackRootParameters}
+                        callbackObject={this.props.callbackObject}
+                    />
+                </div>
             );
         } else if(this.props.eventType === 'MOCK_CALLBACK' || this.props.eventType === 'MOCK_ERROR_CALLBACK') {
             return (
-                <MockBuilder
-                    mockType='callback'
-                    eventParams={this.props.eventParams}
-                    resourceDefinition={this.props.resourceDefinition}
-                    rootParameters={this.props.rootParameters}
-                    callbackDefinition={this.props.callbackDefinition}
-                    callbackRootParameters={this.props.callbackRootParameters}
-                    callbackObject={this.props.callbackObject}
-                />
+                <div>
+                    <Row>
+                        <Col span={24}>
+                            <Row>
+                                <Col><Text>Delay in milliseconds</Text></Col>
+                                <Col className='pl-2'>
+                                    <Input
+                                        placeholder='0' value={this.props.event.params.delay} onChange={e => {
+                                            const newValue = parseInt(e.target.value);
+                                            this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue;
+                                            this.handleEventChange();
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                    <MockBuilder
+                        mockType='callback'
+                        eventParams={this.props.eventParams}
+                        resourceDefinition={this.props.resourceDefinition}
+                        rootParameters={this.props.rootParameters}
+                        callbackDefinition={this.props.callbackDefinition}
+                        callbackRootParameters={this.props.callbackRootParameters}
+                        callbackObject={this.props.callbackObject}
+                    />
+                </div>
             );
+        } else if(this.props.eventType === 'NO_CALLBACK') {
+            return null;
         } else {
             return null;
         }
@@ -417,6 +455,10 @@ class EventBuilder extends React.Component {
         {
             name: 'MOCK_CALLBACK',
             title: 'Mock Callback',
+        },
+        {
+            name: 'NO_CALLBACK',
+            title: 'No Callback',
         },
     ];
 
@@ -474,22 +516,6 @@ class EventBuilder extends React.Component {
                     (!this.props.isMappingEditor)
                         ? (
                             <>
-                                <Row>
-                                    <Col span={24}>
-                                        <Row>
-                                            <Col><Text>Delay in milliseconds</Text></Col>
-                                            <Col className='pl-2'>
-                                                <Input
-                                                    placeholder='0' value={this.props.event.params.delay} onChange={e => {
-                                                        const newValue = parseInt(e.target.value);
-                                                        this.props.event.params.delay = (isNaN(newValue)) || newValue <= 0 ? undefined : newValue;
-                                                        this.handleEventChange();
-                                                    }}
-                                                />
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                </Row>
                                 <Row className='mt-2'>
                                     <Col span={24}>
                                         <Row>
@@ -521,6 +547,7 @@ class EventBuilder extends React.Component {
                             callbackDefinition={this.props.callbackDefinition}
                             callbackRootParameters={this.props.callbackRootParameters}
                             callbackObject={this.props.callbackObject}
+                            event={this.props.event}
                         />
                     </Col>
                 </Row>
