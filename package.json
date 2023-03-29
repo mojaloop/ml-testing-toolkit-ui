@@ -79,7 +79,7 @@
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "mermaid": "9.1.7",
-    "mobx": "^6.8.0",
+    "mobx": "^6.9.0",
     "mock-json-schema": "^1.1.1",
     "moment": "^2.29.4",
     "react": "^17.0.1",
@@ -99,7 +99,7 @@
     "@types/react": "16.8.7",
     "audit-ci": "^6.6.1",
     "eslint-config-airbnb-typescript": "^17.0.0",
-    "npm-check-updates": "^16.8.0",
+    "npm-check-updates": "^16.9.0",
     "replace": "^1.2.2",
     "standard-version": "^9.5.0"
   },
