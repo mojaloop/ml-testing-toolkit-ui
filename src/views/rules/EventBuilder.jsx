@@ -471,6 +471,10 @@ class EventBuilder extends React.Component {
             name: 'MOCK_ERROR_CALLBACK',
             title: 'Mock Error Callback',
         },
+        {
+            name: 'NO_CALLBACK',
+            title: 'No Callback',
+        },
     ];
 
     handleEventTypeSelect = eventType => {
