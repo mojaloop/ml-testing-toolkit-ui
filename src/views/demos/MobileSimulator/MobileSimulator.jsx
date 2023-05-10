@@ -338,6 +338,7 @@ class MobileSimulator extends React.Component {
                     <Settings
                         ref={this.settingsRef}
                         outboundService={this.outboundServiceObj}
+                        inputValues={this.outboundServiceObj.inputValues}
                     />
                 </Modal>
                 <Row className='h-100'>

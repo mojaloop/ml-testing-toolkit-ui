@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, Typography, Button, Table, Tag, Progress, InputNumber } from 'antd';
+import { Row, Col, Typography, Button, Table, Tag, Progress, InputNumber, Input } from 'antd';
 const { Text } = Typography;
 
 class Settings extends React.Component {
@@ -105,6 +105,34 @@ class Settings extends React.Component {
 
         return (
             <>
+                <Row className='mt-4 ml-2'>
+                    <Col span={24}>
+                        <Text strong>Payer First Name:</Text>
+                        <Input
+                            className='ml-2'
+                            style={{ width: '40%' }}
+                            value={this.props.inputValues.fromFirstName}
+                            onChange={newName => {
+                                this.props.inputValues.fromFirstName = newName.target.value;
+                                this.forceUpdate();
+                            }}
+                        />
+                    </Col>
+                </Row>
+                <Row className='mt-4 ml-2'>
+                    <Col span={24}>
+                        <Text strong>Payer Last Name:</Text>
+                        <Input
+                            className='ml-2'
+                            style={{ width: '40%' }}
+                            value={this.props.inputValues.fromLastName}
+                            onChange={newName => {
+                                this.props.inputValues.fromLastName = newName.target.value;
+                                this.forceUpdate();
+                            }}
+                        />
+                    </Col>
+                </Row>
                 <Row className='mt-4 ml-2'>
                     <Col span={24}>
                         <Text strong>Payer Transfer Expiry:</Text>
