@@ -121,13 +121,27 @@ class Settings extends React.Component {
                 </Row>
                 <Row className='mt-4 ml-2'>
                     <Col span={24}>
-                        <Text strong>Payer Last Name:</Text>
+                        <Text strong>Payer First Name:</Text>
                         <Input
                             className='ml-2'
                             style={{ width: '40%' }}
-                            value={this.props.inputValues.fromLastName}
+                            value={this.props.inputValues.fromFirstName}
                             onChange={newName => {
-                                this.props.inputValues.fromLastName = newName.target.value;
+                                this.props.inputValues.fromFirstName = newName.target.value;
+                                this.forceUpdate();
+                            }}
+                        />
+                    </Col>
+                </Row>
+                <Row className='mt-4 ml-2'>
+                    <Col span={24}>
+                        <Text strong>Payer MSISDN:</Text>
+                        <Input
+                            className='ml-2'
+                            style={{ width: '40%' }}
+                            value={this.props.inputValues.fromIdValue}
+                            onChange={newName => {
+                                this.props.inputValues.fromIdValue = newName.target.value;
                                 this.forceUpdate();
                             }}
                         />
