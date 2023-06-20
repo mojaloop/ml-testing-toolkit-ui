@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.4.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.3.0...v15.4.0) (2023-06-20)
+
+
+### Features
+
+* configurable payer name in mobilesim ([#177](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/177)) ([03bd2d3](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/03bd2d38c041b465c631b327363a19fc356e20f8))
+* **mojaloop/#3176:** add option for no callback in callback/validation rules ([#176](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/176)) ([b783a92](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/b783a920e150e8265eb56b94306be22b1bde01ec)), closes [mojaloop/#3176](https://github.com/mojaloop/project/issues/3176)
+
 ## [15.3.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.2.1...v15.3.0) (2023-03-24)
 
 
