@@ -17,5 +17,7 @@ reject: [
   # TODO: Mermaid is throwing an error while building if upgraded. Need to investigate the root cause.
   "mermaid",
   # antd v5+ currently suffers from poor performance https://github.com/ant-design/ant-design/issues/39746
-  "antd"
+  "antd",
+  ## TODO: The new version of npm-check-updates uses new Glob v9.x and it is introducing a dependency Package "path-scurry@1.6.1" which is licensed under "BlueOak-1.0.0" which is not permitted by the Mojaloop License Policy
+  npm-check-updates
 ]

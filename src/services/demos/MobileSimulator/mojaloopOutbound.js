@@ -106,8 +106,8 @@ class OutboundService {
         // Replace corresponding values in inputValues
         template.inputValues.amount = amount + '';
         template.inputValues.currency = currency + '';
-        template.inputValues.fromFirstName = 'Vijay';
-        template.inputValues.fromLastName = 'Kumar';
+        template.inputValues.fromFirstName = this.inputValues.fromFirstName;
+        template.inputValues.fromLastName = this.inputValues.fromLastName;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         // if(typeof response.data === 'object') {
         //   return response.data
