@@ -1,291 +1,146 @@
 {
-
   "name": "multi",
-
   "test_cases": [
-
     {
-
       "id": 1,
-
       "name": "p2p_money_transfer - p2p_happy_path Get Parties",
-
       "requests": [
-
         {
-
           "id": 1,
-
           "description": "Delete participant",
-
           "apiVersion": {
-
             "minorVersion": 0,
-
             "majorVersion": 1,
-
             "type": "fspiop",
-
             "asynchronous": true
-
           },
-
           "operationPath": "/participants/{Type}/{ID}",
-
           "path": "/participants/{$inputs.toIdType}/{$inputs.toIdValue}",
-
           "method": "delete",
-
           "params": {
-
             "Type": "{$inputs.toIdType}",
-
             "ID": "{$inputs.toIdValue}"
-
           },
-
           "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
-
           "ignoreCallbacks": true,
-
           "headers": {
-
             "Content-Type": "application/vnd.interoperability.participants+json;version=1.0",
-
             "Date": "{$function.generic.curDate}",
-
             "FSPIOP-Source": "{$inputs.mobileSimPayeeFsp}",
-
             "Accept": "application/vnd.interoperability.participants+json;version=1.0"
-
           }
-
         },
-
         {
-
           "id": 2,
-
           "description": "Add Participant to ALS",
-
           "apiVersion": {
-
             "minorVersion": 1,
-
             "majorVersion": 1,
-
             "type": "fspiop",
-
             "asynchronous": true
-
           },
-
           "operationPath": "/participants/{Type}/{ID}",
-
           "path": "/participants/{$inputs.toIdType}/{$inputs.toIdValue}",
-
           "method": "post",
-
           "params": {
-
             "Type": "{$inputs.toIdType}",
-
             "ID": "{$inputs.toIdValue}"
-
           },
-
           "headers": {
-
             "FSPIOP-Source": "{$inputs.mobileSimPayeeFsp}",
-
             "Accept": "application/vnd.interoperability.participants+json;version=1.0",
-
             "Content-Type": "application/vnd.interoperability.participants+json;version=1.0",
-
             "Date": "{$function.generic.curDate}"
-
           },
-
           "body": {
-
             "fspId": "{$inputs.mobileSimPayeeFsp}",
-
             "currency": "USD"
-
           },
-
           "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
-
           "ignoreCallbacks": true
-
         },
-
         {
-
           "id": 3,
-
           "description": "Get party information",
-
           "apiVersion": {
-
             "minorVersion": 0,
-
             "majorVersion": 1,
-
             "type": "fspiop",
-
             "asynchronous": true
-
           },
-
           "operationPath": "/parties/{Type}/{ID}",
-
           "method": "get",
-
           "headers": {
-
             "Accept": "{$inputs.accept}",
-
             "Content-Type": "{$inputs.contentType}",
-
             "Date": "{$function.generic.curDate}",
-
             "FSPIOP-Source": "{$inputs.mobileSimPayerFsp}"
-
           },
-
           "params": {
-
             "Type": "{$inputs.toIdType}",
-
             "ID": "{$inputs.toIdValue}"
-
           },
-
           "tests": {
-
             "assertions": []
-
           },
-
           "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
-
           "path": "/parties/{$inputs.toIdType}/{$inputs.toIdValue}",
-
           "scriptingEngine": "javascript",
-
           "ignoreCallbacks": true,
-
           "scripts": {
-
             "preRequest": {
-
               "exec": [
-
                 ""
-
               ]
-
             },
-
             "postRequest": {
-
               "exec": [
-
                 ""
-
               ]
-
             }
-
           }
-
         },
-
         {
-
           "id": 4,
-
           "description": "GET_PAYER_ACCOUNTS",
-
           "apiVersion": {
-
             "minorVersion": 0,
-
             "majorVersion": 1,
-
             "type": "central_admin"
-
           },
-
           "operationPath": "/participants/{name}/accounts",
-
           "path": "/participants/{$inputs.mobileSimPayerFsp}/accounts",
-
           "method": "get",
-
           "params": {
-
             "name": "{$inputs.mobileSimPayerFsp}"
-
           },
-
           "url": "{$inputs.HOST_CENTRAL_LEDGER}"
-
         },
-
         {
-
           "id":5,
-
           "description": "test-compl",
-
           "apiVersion": {
-
             "minorVersion": 1,
-
             "majorVersion": 0,
-
             "type": "compl_api_spec_draft-1",
-
             "asynchronous": false,
-
             "additionalApi": true,
-
             "specFile": "spec_files/api_definitions/compl_api_spec_draft-1_0.1/api_spec.yaml",
-
             "callbackMapFile": "spec_files/api_definitions/compl_api_spec_draft-1_0.1/callback_map.json",
-
             "responseMapFile": "spec_files/api_definitions/compl_api_spec_draft-1_0.1/response_map.json",
-
             "jsfRefFile": "spec_files/api_definitions/compl_api_spec_draft-1_0.1/mockRef.json",
-
             "triggerTemplatesFolder": "spec_files/api_definitions/compl_api_spec_draft-1_0.1/trigger_templates"
-
           },
-
           "operationPath": "/compliance-check/{ID}",
-
           "path": "/compliance-check/987654320",
-
           "method": "get",
-
           "params": {
-
             "ID": "987654320"
-
           },
-
           "queryParams": {},
-
           "url": "http://localhost:4040"
-
         }
-
       ]
-
     }
-
   ]
-
 }
