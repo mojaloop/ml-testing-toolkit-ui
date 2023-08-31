@@ -104,8 +104,8 @@ class OutboundService {
         template.inputValues = this.inputValues;
         template.inputValues.toIdValue = idNumber + '';
         // const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        const resp = await axios.post(this.apiBaseUrl + '/compliance-check/987654320/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        return resp;
+        const responses = await axios.post(this.apiBaseUrl + '/compliance-check/987654320/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
+        return responses;
     }
 
     async postQuotes(amount, currency) {
@@ -119,7 +119,7 @@ class OutboundService {
         template.inputValues.fromFirstName = this.inputValues.fromFirstName;
         template.inputValues.fromLastName = this.inputValues.fromLastName;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        // if(typeof response.data === 'object') {
+        //if(typeof response.data === 'object') {
         //   return response.data
         // }
         // return null

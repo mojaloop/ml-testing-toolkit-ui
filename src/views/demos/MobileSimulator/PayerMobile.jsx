@@ -39,6 +39,7 @@ class PayerMobile extends React.Component {
          transfersResponse: {},
          accounts: [],
          selectedCurrency: null,
+         weightedScore: null,
      };
 
 
@@ -130,13 +131,18 @@ class PayerMobile extends React.Component {
      getStageData = () => {
          switch (this.state.stage) {
              case 'getParties':
+             case 'getCompliance':
              case 'postQuotes':
              case 'postTransfers':
                  return <Skeleton active />;
              case 'putParties':
+             case 'putCompliance':
                  return (
                      <Card size='small'>
                          <Row>
+                            <Col span={16}>
+                                {responses.weightedScore > 75 ? (<Text>Match Not Found</Text>) : (<Text>Match Found</Text>)}
+                             </Col>
                              <Col span={8}>
                                  <Text>F.Name:</Text>
                              </Col>
@@ -286,16 +292,8 @@ class PayerMobile extends React.Component {
      handleSearch = async (idNumber) => {
        this.setState({ gettingPartyInfo: true, stage: "getParties" });    
        await this.props.outboundService.getParties(idNumber);    
-       await this.props.outboundService.getCompliance(idNumber).then((res)=>{
-           console.log(res)    
-        /*   var count=48    
-          if (count>50)
-          {
-
-          }*/
-           })
-     
-   
+       this.setState({ gettingPartyInfo: true, stage: "getCompliance" });
+       await this.props.outboundService.getCompliance(idNumber);
      };
  
      handleGetQuote = async e => {
