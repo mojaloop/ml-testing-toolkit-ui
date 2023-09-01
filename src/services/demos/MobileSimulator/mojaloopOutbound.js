@@ -119,7 +119,7 @@ class OutboundService {
         template.inputValues.fromFirstName = this.inputValues.fromFirstName;
         template.inputValues.fromLastName = this.inputValues.fromLastName;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        //if(typeof response.data === 'object') {
+        // if(typeof response.data === 'object') {
         //   return response.data
         // }
         // return null

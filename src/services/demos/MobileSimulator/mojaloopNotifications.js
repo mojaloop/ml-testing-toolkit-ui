@@ -33,7 +33,6 @@ their names indented and be marked with a '-'. Email address can be added
 optionally within square brackets <email>.
 
 * Gates Foundation
-
  
 
 * ModusBox
@@ -43,7 +42,6 @@ optionally within square brackets <email>.
 --------------
 
 ******/
-
  
 
 import socketIOClient from 'socket.io-client';
@@ -51,654 +49,631 @@ import socketIOClient from 'socket.io-client';
 import { getConfig } from '../../../utils/getConfig';
 
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
-
  
 
 class NotificationService {
 
-     logTypes = {
+    logTypes = {
 
-         outbound: {
+        outbound: {
 
-             socket: null,
+            socket: null,
 
-             socketTopic: 'newOutboundLog',
+            socketTopic: 'newOutboundLog',
 
-         },
+        },
 
-         inbound: {
+        inbound: {
 
-             socket: null,
+            socket: null,
 
-             socketTopic: 'newLog',
+            socketTopic: 'newLog',
 
-         },
+        },
 
-         outboundProgress: {
+        outboundProgress: {
 
-             socket: null,
+            socket: null,
 
-             socketTopic: 'outboundProgress',
+            socketTopic: 'outboundProgress',
 
-         },
+        },
 
-     };
-
+    };
  
 
-     notificationEventFunction = () => {};
-
+    notificationEventFunction = () => {};
  
 
-     setNotificationEventListener(notificationEventFunction) {
+    setNotificationEventListener(notificationEventFunction) {
 
-         this.notificationEventFunction = notificationEventFunction;
+        this.notificationEventFunction = notificationEventFunction;
 
-     }
-
+    }
  
 
-     apiBaseUrl = '';
-
+    apiBaseUrl = '';
  
 
-     sessionId = '123';
-
+    sessionId = '123';
  
 
-     constructor() {
+    constructor() {
 
-         const { apiBaseUrl } = getConfig();
+        const { apiBaseUrl } = getConfig();
 
-         this.apiBaseUrl = apiBaseUrl;
+        this.apiBaseUrl = apiBaseUrl;
 
-         this.sessionId = TraceHeaderUtils.generateSessionId();
+        this.sessionId = TraceHeaderUtils.generateSessionId();
 
-         for(const logType of Object.keys(this.logTypes)) {
+        for(const logType of Object.keys(this.logTypes)) {
 
-             const item = this.logTypes[logType];
+            const item = this.logTypes[logType];
 
-             item.socket = socketIOClient(this.apiBaseUrl);
+            item.socket = socketIOClient(this.apiBaseUrl);
 
-             item.socket.on(item.socketTopic + '/' + this.sessionId, log => {
+            item.socket.on(item.socketTopic + '/' + this.sessionId, log => {
 
-                 this.handleNotificationLog({ ...log, internalLogType: logType });
+                this.handleNotificationLog({ ...log, internalLogType: logType });
 
-             });
+            });
 
-         }
+        }
 
-     }
-
+    }
  
 
-     getSessionId() {
+    getSessionId() {
 
-         return this.sessionId;
+        return this.sessionId;
 
-     }
-
+    }
  
 
-     disconnect() {
+    disconnect() {
 
-         for(const logType of Object.keys(this.logTypes)) {
+        for(const logType of Object.keys(this.logTypes)) {
 
-             this.logTypes[logType].socket.disconnect();
+            this.logTypes[logType].socket.disconnect();
 
-         }
+        }
 
-     }
-
+    }
  
 
-     notifyPayerMonitorLog = log => {
+    notifyPayerMonitorLog = log => {
 
-         // Monitoring Logs
+        // Monitoring Logs
 
-         this.notificationEventFunction({
+        this.notificationEventFunction({
 
-             category: 'payerMonitorLog',
+            category: 'payerMonitorLog',
 
-             type: 'log',
+            type: 'log',
 
-             data: {
+            data: {
 
-                 log,
+                log,
 
-             },
+            },
 
-         });
+        });
 
-     };
-
+    };
  
 
-     notifyPayerGetAccounts = progress => {
+    notifyPayerGetAccounts = progress => {
 
-         // Monitoring Logs
+        // Monitoring Logs
 
-         this.notificationEventFunction({
+        this.notificationEventFunction({
 
-             category: 'payer',
+            category: 'payer',
 
-             type: 'accountsUpdate',
+            type: 'accountsUpdate',
 
-             data: {
+            data: {
 
-                 accounts: progress.response.body,
+                accounts: progress.response.body,
 
-             },
+            },
 
-         });
+        });
 
-     };
-
+    };
  
 
-     notifyPayeeMonitorLog = log => {
+    notifyPayeeMonitorLog = log => {
 
-         // Monitoring Logs
+        // Monitoring Logs
 
-         this.notificationEventFunction({
+        this.notificationEventFunction({
 
-             category: 'payeeMonitorLog',
+            category: 'payeeMonitorLog',
 
-             type: 'log',
+            type: 'log',
 
-             data: {
+            data: {
 
-                 log,
+                log,
 
-             },
+            },
 
-         });
+        });
 
-     };
-
+    };
  
 
-     notifySettingsTestCaseProgress = progress => {
+    notifySettingsTestCaseProgress = progress => {
 
-         // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
 
-         const template = require('./template_provisioning.json');
+        const template = require('./template_provisioning.json');
 
-         if(progress.status === 'FINISHED') {
+        if(progress.status === 'FINISHED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'settingsLog',
+                category: 'settingsLog',
 
-                 type: 'testCaseFinished',
+                type: 'testCaseFinished',
 
-                 data: {
+                data: {
 
-                     progress,
+                    progress,
 
-                 },
+                },
 
-             });
+            });
 
-             // progress.totalResult
+            // progress.totalResult
 
-         } else if(progress.status === 'TERMINATED') {
+        } else if(progress.status === 'TERMINATED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'settingsLog',
+                category: 'settingsLog',
 
-                 type: 'testCaseTerminated',
+                type: 'testCaseTerminated',
 
-                 data: {
+                data: {
 
-                     progress,
+                    progress,
 
-                 },
+                },
 
-             });
+            });
 
-         } else {
+        } else {
 
-             const testCase = template.test_cases.find(item => item.id === progress.testCaseId);
+            const testCase = template.test_cases.find(item => item.id === progress.testCaseId);
 
-             if(testCase) {
+            if(testCase) {
 
-                 // let request = testCase.requests.find(item => item.id === progress.requestId)
+                // let request = testCase.requests.find(item => item.id === progress.requestId)
 
-                 // Update total passed count
+                // Update total passed count
 
-                 // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
+                // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
 
-                 // this.state.totalPassedCount += passedCount
+                // this.state.totalPassedCount += passedCount
 
-                 this.notificationEventFunction({
+                this.notificationEventFunction({
 
-                     category: 'settingsLog',
+                    category: 'settingsLog',
 
-                     type: 'testCaseProgress',
+                    type: 'testCaseProgress',
 
-                     data: {
+                    data: {
 
-                         testCaseName: testCase.name,
+                        testCaseName: testCase.name,
 
-                         testCaseRequestCount: testCase.requests.length,
+                        testCaseRequestCount: testCase.requests.length,
 
-                         progress,
+                        progress,
 
-                     },
+                    },
 
-                 });
+                });
 
-             }
+            }
 
-         }
+        }
 
-     };
-
+    };
  
 
-     notifyGetHubConsoleInitValues = progress => {
+    notifyGetHubConsoleInitValues = progress => {
 
-         if(progress.status === 'FINISHED') {
+        if(progress.status === 'FINISHED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'getHubConsoleInitValuesFinished',
+                type: 'getHubConsoleInitValuesFinished',
 
-                 data: {
+                data: {
 
-                     result: progress,
+                    result: progress,
 
-                 },
+                },
 
-             });
+            });
 
-         } else if(progress.status === 'TERMINATED') {
+        } else if(progress.status === 'TERMINATED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'getHubConsoleInitValuesTerminated',
+                type: 'getHubConsoleInitValuesTerminated',
 
-                 data: {
+                data: {
 
-                     result: progress,
+                    result: progress,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-     };
-
+    };
  
 
-     notifyDFSPValues = progress => {
+    notifyDFSPValues = progress => {
 
-         if(progress.status === 'FINISHED') {
+        if(progress.status === 'FINISHED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'getDFSPValuesFinished',
+                type: 'getDFSPValuesFinished',
 
-                 data: {
+                data: {
 
-                     result: progress,
+                    result: progress,
 
-                 },
+                },
 
-             });
+            });
 
-         } else if(progress.status === 'TERMINATED') {
+        } else if(progress.status === 'TERMINATED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'getDFSPValuesTerminated',
+                type: 'getDFSPValuesTerminated',
 
-                 data: {
+                data: {
 
-                     result: progress,
+                    result: progress,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-     };
-
+    };
  
 
-     notifyDFSPAccounts = progress => {
+    notifyDFSPAccounts = progress => {
 
-         if(progress.response.status === 200) {
+        if(progress.response.status === 200) {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'dfspAccountsUpdate',
+                type: 'dfspAccountsUpdate',
 
-                 data: {
+                data: {
 
-                     dfspId: progress.requestSent.params.name,
+                    dfspId: progress.requestSent.params.name,
 
-                     accountsData: progress.response.body,
+                    accountsData: progress.response.body,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-     };
-
+    };
  
 
-     notifyDFSPLimits = progress => {
+    notifyDFSPLimits = progress => {
 
-         if(progress.response.status === 200) {
+        if(progress.response.status === 200) {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'dfspLimitsUpdate',
+                type: 'dfspLimitsUpdate',
 
-                 data: {
+                data: {
 
-                     limitsData: progress.response.body,
+                    limitsData: progress.response.body,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-     };
-
+    };
  
 
-     notifyGetSettlementModels = progress => {
+    notifyGetSettlementModels = progress => {
 
-         if(progress.response.status === 200) {
+        if(progress.response.status === 200) {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'settlementModelsUpdate',
+                type: 'settlementModelsUpdate',
 
-                 data: {
+                data: {
 
-                     settlementModels: progress.response.body,
+                    settlementModels: progress.response.body,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-     };
-
+    };
  
 
-     notifyGetSettlements = progress => {
+    notifyGetSettlements = progress => {
 
-         if(progress.status === 'FINISHED') {
+        if(progress.status === 'FINISHED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'getSettlementsFinished',
+                type: 'getSettlementsFinished',
 
-                 data: {
+                data: {
 
-                     result: progress,
+                    result: progress,
 
-                 },
+                },
 
-             });
+            });
 
-         } else if(progress.status === 'TERMINATED') {
+        } else if(progress.status === 'TERMINATED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'getSettlementsTerminated',
+                type: 'getSettlementsTerminated',
 
-                 data: {
+                data: {
 
-                     result: progress,
+                    result: progress,
 
-                 },
+                },
 
-             });
+            });
 
-         } else {
+        } else {
 
-             if(progress.response.status === 200) {
+            if(progress.response.status === 200) {
 
-                 this.notificationEventFunction({
+                this.notificationEventFunction({
 
-                     category: 'hubConsole',
+                    category: 'hubConsole',
 
-                     type: 'settingsUpdate',
+                    type: 'settingsUpdate',
 
-                     data: {
+                    data: {
 
-                         settlements: progress.response.body,
+                        settlements: progress.response.body,
 
-                     },
+                    },
 
-                 });
+                });
 
-             }
+            }
 
-         }
+        }
 
-     };
-
+    };
  
 
-     notifyGetParticipants = progress => {
+    notifyGetParticipants = progress => {
 
-         if(progress.response.status === 200) {
+        if(progress.response.status === 200) {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'participantsUpdate',
+                type: 'participantsUpdate',
 
-                 data: {
+                data: {
 
-                     participants: progress.response.body,
+                    participants: progress.response.body,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-     };
-
+    };
  
 
-     notifyExecuteSettlement = progress => {
+    notifyExecuteSettlement = progress => {
 
-         if(progress.status === 'FINISHED') {
+        if(progress.status === 'FINISHED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'executeSettlementFinished',
+                type: 'executeSettlementFinished',
 
-                 data: {
+                data: {
 
-                     result: progress,
+                    result: progress,
 
-                 },
+                },
 
-             });
+            });
 
-         } else if(progress.status === 'TERMINATED') {
+        } else if(progress.status === 'TERMINATED') {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'hubConsole',
+                category: 'hubConsole',
 
-                 type: 'executeSettlementTerminated',
+                type: 'executeSettlementTerminated',
 
-                 data: {
+                data: {
 
-                     result: progress,
+                    result: progress,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-     };
-
+    };
  
 
-     handleNotificationLog = log => {
+    handleNotificationLog = log => {
 
-         // console.log(log)
-
+        // console.log(log)
  
 
-         // Handle the outbound progress events
+        // Handle the outbound progress events
 
-         if(log.internalLogType === 'outboundProgress') {
+        if(log.internalLogType === 'outboundProgress') {
 
-             if(log.status === 'FINISHED' || log.status === 'TERMINATED') {
+            if(log.status === 'FINISHED' || log.status === 'TERMINATED') {
 
-                 switch (log.totalResult.name) {
+                switch (log.totalResult.name) {
 
-                     case 'PROVISIONING':
+                    case 'PROVISIONING':
 
-                         this.notifySettingsTestCaseProgress(log);
+                        this.notifySettingsTestCaseProgress(log);
 
-                         break;
+                        break;
 
-                     case 'GET_DFSP_VALUES':
+                    case 'GET_DFSP_VALUES':
 
-                         this.notifyDFSPValues(log);
+                        this.notifyDFSPValues(log);
 
-                         break;
+                        break;
 
-                     case 'GET_HUBCONSOLE_INIT_VALUES':
+                    case 'GET_HUBCONSOLE_INIT_VALUES':
 
-                         this.notifyGetHubConsoleInitValues(log);
+                        this.notifyGetHubConsoleInitValues(log);
 
-                         break;
+                        break;
 
-                     case 'GET_SETTLEMENTS':
+                    case 'GET_SETTLEMENTS':
 
-                         this.notifyGetSettlements(log);
+                        this.notifyGetSettlements(log);
 
-                         break;
+                        break;
 
-                     case 'EXECUTE_SETTLEMENT':
+                    case 'EXECUTE_SETTLEMENT':
 
-                         this.notifyExecuteSettlement(log);
+                        this.notifyExecuteSettlement(log);
 
-                         break;
+                        break;
 
-                 }
+                }
 
-             } else {
+            } else {
 
-                 // By test case name
+                // By test case name
 
-                 switch (log.testCaseName) {
+                switch (log.testCaseName) {
 
-                     case 'PAYER_FSP_PROVISIONING':
+                    case 'PAYER_FSP_PROVISIONING':
 
-                     case 'PAYEE_FSP_PROVISIONING':
+                    case 'PAYEE_FSP_PROVISIONING':
 
-                         this.notifySettingsTestCaseProgress(log);
+                        this.notifySettingsTestCaseProgress(log);
 
-                         break;
+                        break;
 
-                     case 'GET_DFSP_ACCOUNTS':
+                    case 'GET_DFSP_ACCOUNTS':
 
-                         this.notifyDFSPAccounts(log);
+                        this.notifyDFSPAccounts(log);
 
-                         break;
+                        break;
 
-                     case 'GET_DFSP_LIMITS':
+                    case 'GET_DFSP_LIMITS':
 
-                         this.notifyDFSPLimits(log);
+                        this.notifyDFSPLimits(log);
 
-                         break;
+                        break;
 
-                     case 'GET_SETTLED_SETTLEMENTS':
+                    case 'GET_SETTLED_SETTLEMENTS':
 
-                         this.notifyGetSettlements(log);
+                        this.notifyGetSettlements(log);
 
-                         break;
+                        break;
 
-                     case 'GET_PARTICIPANTS':
+                    case 'GET_PARTICIPANTS':
 
-                         this.notifyGetParticipants(log);
+                        this.notifyGetParticipants(log);
 
-                         break;
+                        break;
 
-                     case 'GET_SETTLEMENT_MODELS':
+                    case 'GET_SETTLEMENT_MODELS':
 
-                         this.notifyGetSettlementModels(log);
+                        this.notifyGetSettlementModels(log);
 
-                         break;
+                        break;
 
-                     case 'GET_PAYER_ACCOUNTS':
+                    case 'GET_PAYER_ACCOUNTS':
 
-                         this.notifyPayerGetAccounts(log);
+                        this.notifyPayerGetAccounts(log);
 
-                         break;
+                        break;
 
-                 }
+                }
 
-                 // By request name
+                // By request name
 
-                 switch (log.requestSent.description) {
+                switch (log.requestSent.description) {
 
-                     case 'GET_PAYER_ACCOUNTS':
+                    case 'GET_PAYER_ACCOUNTS':
 
-                         this.notifyPayerGetAccounts(log);
+                        this.notifyPayerGetAccounts(log);
 
-                         break;
+                        break;
 
-                 }
+                }
 
-             }
+            }
 
-             return null;
+            return null;
 
-         }
-
+        }
  
 
-         // Payer Logs
+        // Payer Logs
 
-         // Catch get Parties request
+        // Catch get Parties request
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Sending request') &&
 
@@ -708,31 +683,30 @@ class NotificationService {
 
            log.resource.path.startsWith('/parties/')
 
-         ) {
+        ) {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'getParties',
+                type: 'getParties',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                 },
+                },
 
-             });
+            });
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-         }
-
+        }
  
 
-         // Catch get Parties response
+        // Catch get Parties response
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Received response') &&
 
@@ -742,33 +716,32 @@ class NotificationService {
 
            log.resource.path.startsWith('/parties/')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'getPartiesResponse',
+                type: 'getPartiesResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.message.replace('Received response ', ''),
+                    responseStatus: log.message.replace('Received response ', ''),
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Parties
+        // Catch put Parties
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Request: put') &&
 
@@ -778,37 +751,36 @@ class NotificationService {
 
            log.resource.path.startsWith('/parties/')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'putParties',
+                type: 'putParties',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     party:  log.additionalData &&
+                    party:  log.additionalData &&
 
                              log.additionalData.request &&
 
                              log.additionalData.request.body ? log.additionalData.request.body.party : null,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Parties response
+        // Catch put Parties response
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Response: put') &&
 
@@ -818,35 +790,32 @@ class NotificationService {
 
            log.resource.path.startsWith('/parties/')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'putPartiesResponse',
+                type: 'putPartiesResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response.status + '',
+                    responseStatus: log.additionalData.response.status + '',
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
- 
+        // Catch get Compliance request
 
-         // Catch get Compliance request
-
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Sending request') &&
 
@@ -856,29 +825,29 @@ class NotificationService {
 
            log.resource.path.startsWith('/compliance/')
 
-         ) {
+        ) {
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'getCompliance',
+                type: 'getCompliance',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                 },
+                },
 
-             });
+            });
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-         }
+        }
 
-          // Catch get Compliance response
+        // Catch get Compliance response
 
-          if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
           log.message.startsWith('Received response') &&
 
@@ -909,7 +878,6 @@ class NotificationService {
             });
 
         }
-
  
 
         // Catch put Compliance
@@ -949,7 +917,6 @@ class NotificationService {
             });
 
         }
-
  
 
         // Catch put Compliance response
@@ -985,12 +952,11 @@ class NotificationService {
             });
 
         }
-
  
 
-         // Catch post Quotes request
+        // Catch post Quotes request
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Sending request') &&
 
@@ -1000,33 +966,33 @@ class NotificationService {
 
            log.resource.path.startsWith('/quotes')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'postQuotes',
+                type: 'postQuotes',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     quotesRequest: log.additionalData &&
+                    quotesRequest: log.additionalData &&
 
                                      log.additionalData.request ? log.additionalData.request.body : null,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-         // Catch post Quotes response
+        // Catch post Quotes response
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Received response') &&
 
@@ -1036,33 +1002,32 @@ class NotificationService {
 
            log.resource.path.startsWith('/quotes')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'postQuotesResponse',
+                type: 'postQuotesResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.message.replace('Received response ', ''),
+                    responseStatus: log.message.replace('Received response ', ''),
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Quotes
+        // Catch put Quotes
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Request: put') &&
 
@@ -1072,35 +1037,34 @@ class NotificationService {
 
            log.resource.path.startsWith('/quotes/')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'putQuotes',
+                type: 'putQuotes',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     quotesResponse: log.additionalData &&
+                    quotesResponse: log.additionalData &&
 
                                        log.additionalData.request ? log.additionalData.request.body : null,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Quotes response
+        // Catch put Quotes response
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Response: put') &&
 
@@ -1110,31 +1074,31 @@ class NotificationService {
 
            log.resource.path.startsWith('/quotes/')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'putQuotesResponse',
+                type: 'putQuotesResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response.status + '',
+                    responseStatus: log.additionalData.response.status + '',
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-         // Catch post Transfers request
+        // Catch post Transfers request
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Sending request') &&
 
@@ -1144,33 +1108,33 @@ class NotificationService {
 
            log.resource.path.startsWith('/transfers')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'postTransfers',
+                type: 'postTransfers',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     transfersRequest: log.additionalData &&
+                    transfersRequest: log.additionalData &&
 
                                          log.additionalData.request ? log.additionalData.request.body : null,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-         // Catch post Transfers response
+        // Catch post Transfers response
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Received response') &&
 
@@ -1180,33 +1144,32 @@ class NotificationService {
 
            log.resource.path.startsWith('/transfers')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'postTransfersResponse',
+                type: 'postTransfersResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.message.replace('Received response ', ''),
+                    responseStatus: log.message.replace('Received response ', ''),
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Transfers
+        // Catch put Transfers
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Request: put') &&
 
@@ -1216,35 +1179,34 @@ class NotificationService {
 
            log.resource.path.startsWith('/transfers/')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'putTransfers',
+                type: 'putTransfers',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     transfersResponse: log.additionalData &&
+                    transfersResponse: log.additionalData &&
 
                                          log.additionalData.request ? log.additionalData.request.body : null,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Transfers response
+        // Catch put Transfers response
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Response: put') &&
 
@@ -1254,35 +1216,34 @@ class NotificationService {
 
            log.resource.path.startsWith('/transfers/')
 
-         ) {
+        ) {
 
-             this.notifyPayerMonitorLog(log);
+            this.notifyPayerMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payer',
+                category: 'payer',
 
-                 type: 'putTransfersResponse',
+                type: 'putTransfersResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response.status + '',
+                    responseStatus: log.additionalData.response.status + '',
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // *********** Payee Side Logs ********* //
+        // *********** Payee Side Logs ********* //
 
-         // Catch get Parties request
+        // Catch get Parties request
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Request: get') &&
 
@@ -1292,31 +1253,30 @@ class NotificationService {
 
            log.resource.path.startsWith('/parties/')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeeGetParties',
+                type: 'payeeGetParties',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch get Parties response
+        // Catch get Parties response
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Response: get') &&
 
@@ -1326,31 +1286,31 @@ class NotificationService {
 
            log.resource.path.startsWith('/parties/')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeeGetPartiesResponse',
+                type: 'payeeGetPartiesResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response.status + '',
+                    responseStatus: log.additionalData.response.status + '',
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-         // Catch put Parties request
+        // Catch put Parties request
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Request: put') &&
 
@@ -1360,31 +1320,30 @@ class NotificationService {
 
            log.resource.path.startsWith('/parties/')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePutParties',
+                type: 'payeePutParties',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Parties response
+        // Catch put Parties response
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Response: put') &&
 
@@ -1394,31 +1353,31 @@ class NotificationService {
 
            log.resource.path.startsWith('/parties/')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePutPartiesResponse',
+                type: 'payeePutPartiesResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response.status + ' ' + log.additionalData.response.statusText,
+                    responseStatus: log.additionalData.response.status + ' ' + log.additionalData.response.statusText,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-         // Catch post Quotes request
+        // Catch post Quotes request
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Request: post') &&
 
@@ -1428,33 +1387,32 @@ class NotificationService {
 
            log.resource.path.startsWith('/quotes')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePostQuotes',
+                type: 'payeePostQuotes',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     requestBody: log.additionalData.request.body,
+                    requestBody: log.additionalData.request.body,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch post Quotes response
+        // Catch post Quotes response
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Response: post') &&
 
@@ -1464,31 +1422,31 @@ class NotificationService {
 
            log.resource.path.startsWith('/quotes')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePostQuotesResponse',
+                type: 'payeePostQuotesResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response.status + '',
+                    responseStatus: log.additionalData.response.status + '',
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-         // Catch put Quotes request
+        // Catch put Quotes request
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Request: put') &&
 
@@ -1498,33 +1456,32 @@ class NotificationService {
 
            log.resource.path.startsWith('/quotes/')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePutQuotes',
+                type: 'payeePutQuotes',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     requestBody: log.additionalData.request.body,
+                    requestBody: log.additionalData.request.body,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Quotes response
+        // Catch put Quotes response
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Response: put') &&
 
@@ -1534,33 +1491,33 @@ class NotificationService {
 
            log.resource.path.startsWith('/quotes/')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePutQuotesResponse',
+                type: 'payeePutQuotesResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response &&
+                    responseStatus: log.additionalData.response &&
 
                                      (log.additionalData.response.status + ' ' + log.additionalData.response.statusText),
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-         // Catch post Transfers request
+        // Catch post Transfers request
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Request: post') &&
 
@@ -1570,33 +1527,32 @@ class NotificationService {
 
            log.resource.path.startsWith('/transfers')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePostTransfers',
+                type: 'payeePostTransfers',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     requestBody: log.additionalData.request.body,
+                    requestBody: log.additionalData.request.body,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch post Transfers response
+        // Catch post Transfers response
 
-         if(log.notificationType === 'newLog' &&
+        if(log.notificationType === 'newLog' &&
 
            log.message.startsWith('Response: post') &&
 
@@ -1606,31 +1562,31 @@ class NotificationService {
 
            log.resource.path.startsWith('/transfers')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePostTransfersResponse',
+                type: 'payeePostTransfersResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response.status + '',
+                    responseStatus: log.additionalData.response.status + '',
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-         // Catch put Transfers request
+        // Catch put Transfers request
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Request: put') &&
 
@@ -1640,33 +1596,32 @@ class NotificationService {
 
            log.resource.path.startsWith('/transfers/')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePutTransfers',
+                type: 'payeePutTransfers',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     requestBody: log.additionalData.request.body,
+                    requestBody: log.additionalData.request.body,
 
-                 },
+                },
 
-             });
+            });
 
-         }
-
+        }
  
 
-         // Catch put Transfers response
+        // Catch put Transfers response
 
-         if(log.notificationType === 'newOutboundLog' &&
+        if(log.notificationType === 'newOutboundLog' &&
 
            log.message.startsWith('Response: put') &&
 
@@ -1676,32 +1631,31 @@ class NotificationService {
 
            log.resource.path.startsWith('/transfers/')
 
-         ) {
+        ) {
 
-             this.notifyPayeeMonitorLog(log);
+            this.notifyPayeeMonitorLog(log);
 
-             this.notificationEventFunction({
+            this.notificationEventFunction({
 
-                 category: 'payee',
+                category: 'payee',
 
-                 type: 'payeePutTransfersResponse',
+                type: 'payeePutTransfersResponse',
 
-                 data: {
+                data: {
 
-                     resource: log.resource,
+                    resource: log.resource,
 
-                     responseStatus: log.additionalData.response.status + ' ' + log.additionalData.response.statusText,
+                    responseStatus: log.additionalData.response.status + ' ' + log.additionalData.response.statusText,
 
-                 },
+                },
 
-             });
+            });
 
-         }
+        }
 
-     };
+    };
 
 }
-
  
 
 export default NotificationService;
