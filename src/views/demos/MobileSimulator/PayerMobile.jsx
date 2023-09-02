@@ -1,31 +1,31 @@
 /*****
-License
---------------
-Copyright © 2017 Bill & Melinda Gates Foundation
-The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-Contributors
---------------
-This is the official list of the Mojaloop project contributors for this file.
-Names of the original copyright holders (individuals or organizations)
-should be listed with a '*' in the first column. People who have
-contributed from an organization can be listed under the organization
-that actually holds the copyright for their contributions (see the
-Gates Foundation organization for an example). Those individuals should have
-their names indented and be marked with a '-'. Email address can be added
-optionally within square brackets <email>.
-* Gates Foundation
- 
-* ModusBox
-* Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
---------------
-******/
+ License
+ --------------
+ Copyright © 2017 Bill & Melinda Gates Foundation
+ The Mojaloop files are made available by the Bill & Melinda Gates Foundation under the Apache License, Version 2.0 (the "License") and you may not use these files except in compliance with the License. You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, the Mojaloop files are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ Contributors
+ --------------
+ This is the official list of the Mojaloop project contributors for this file.
+ Names of the original copyright holders (individuals or organizations)
+ should be listed with a '*' in the first column. People who have
+ contributed from an organization can be listed under the organization
+ that actually holds the copyright for their contributions (see the
+ Gates Foundation organization for an example). Those individuals should have
+ their names indented and be marked with a '-'. Email address can be added
+ optionally within square brackets <email>.
+ * Gates Foundation
+
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ --------------
+ ******/
 import React from 'react';
 import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, Select } from 'antd';
 const { Text } = Typography;
 const { Option } = Select;
- 
+
 class PayerMobile extends React.Component {
     state = {
         gettingPartyInfo: false,
@@ -33,28 +33,26 @@ class PayerMobile extends React.Component {
         amount: 100,
         idType: 'MSISDN',
         partyInfo: {},
-
         quotesRequest: {},
         quotesResponse: {},
         transfersResponse: {},
         accounts: [],
-        selectedCurrency: null,
-        weightedScore: null,
+        selectedCurrency: {},
+        weightedScore: 0,
+        showForm: true,
     };
-
 
     componentDidMount = async () => {
     };
- 
+
     handleNotificationEvents = event => {
         switch (event.type) {
             case 'getParties':
             {
                 break;
-            }
+            }    
             case 'getPartiesResponse':
             {
-
                 break;
             }
             case 'putParties':
@@ -63,24 +61,6 @@ class PayerMobile extends React.Component {
                 break;
             }
             case 'putPartiesResponse':
-            {
-                break;
-            }
-            case 'getCompliance':
-            {
-                break;
-
-            }
-            case 'getComplianceResponse':
-            {
-                break;
-            }
-            case 'putCompliance':
-            {
-                this.setState({ gettingPartyInfo: false, stage: 'putParties', partyInfo: event.data.party });
-                break;
-            }
-            case 'putComplianceResponse':
             {
                 break;
             }
@@ -127,58 +107,62 @@ class PayerMobile extends React.Component {
         }
     };
 
-
     getStageData = () => {
         switch (this.state.stage) {
             case 'getParties':
-            case 'getCompliance':
             case 'postQuotes':
             case 'postTransfers':
                 return <Skeleton active />;
             case 'putParties':
-            case 'putCompliance':
                 return (
                     <Card size='small'>
                         <Row>
+                            {/* <Col span={16}>
+                                {response.weightedScore > 75 ? (<Text>Match Not Found</Text>) : (<Text>Match Found</Text>)}
+                            </Col> */}
                             <Col span={16}>
-                                {responses.weightedScore > 75 ? (<Text>Match Not Found</Text>) : (<Text>Match Found</Text>)}
+                                <Text strong>{this.state.weightedScore > 75 ? (<Text>Match Not Found</Text>) : (<Text>Match Found</Text>)}</Text>
+                            </Col>
+                        </Row>
+                        <Col span={24}>
+                            <Row>
+                                <Col span={10}>
+                                    <Text style={{ fontSize: '12px' }}>F.Name:</Text>
+                                </Col>
+                                <Col span={8}>
+                                    <Text strong style={{ fontSize: '12px' }}>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.firstName}</Text>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Row>
+                            <Col span={10}>
+                                <Text style={{ fontSize: '12px' }}>M.Name:</Text>
                             </Col>
                             <Col span={8}>
-                                <Text>F.Name:</Text>
-                            </Col>
-                            <Col span={16}>
-                                <Text strong>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.firstName}</Text>
+                                <Text strong style={{ fontSize: '12px' }}>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.middleName}</Text>
                             </Col>
                         </Row>
                         <Row>
-                            <Col span={8}>
-                                <Text>M.Name:</Text>
+                            <Col span={10}>
+                                <Text style={{ fontSize: '12px' }}>L.Name:</Text>
                             </Col>
-                            <Col span={16}>
-                                <Text strong>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.middleName}</Text>
+                            <Col span={8}>
+                                <Text strong style={{ fontSize: '12px' }}>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.lastName}</Text>
                             </Col>
                         </Row>
                         <Row>
-                            <Col span={8}>
-                                <Text>L.Name:</Text>
+                            <Col span={10}>
+                                <Text style={{ fontSize: '12px' }}>Bank:</Text>
                             </Col>
-                            <Col span={16}>
-                                <Text strong>{this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName && this.state.partyInfo.personalInfo.complexName.lastName}</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={8}>
-                                <Text>Bank:</Text>
-                            </Col>
-                            <Col span={16}>
-                                <Text strong>Green Bank</Text>
+                            <Col span={10}>
+                                <Text strong style={{ fontSize: '12px' }}>Green Bank</Text>
                             </Col>
                         </Row>
                         <Row className='mt-1'>
-                            <Col span={8}><Text strong>Amount:</Text></Col>
+                            <Col span={16}><Text strong style={{ fontSize: '12px' }}>Amount:</Text></Col>
                             <Col span={16}>
                                 <Row className='mt-1'>
-                                    <Col span={24}>
+                                    <Col span={12}>
                                         <InputNumber
                                             className='ml-2'
                                             value={this.state.amount}
@@ -191,10 +175,10 @@ class PayerMobile extends React.Component {
                                     </Col>
                                 </Row>
                                 <Row className='mt-1'>
-                                    <Col span={24}>
+                                    <Col span={12}>
                                         <Select
                                             className='ml-2'
-                                            style={{ width: 120 }}
+                                            style={{ width: 80 }}
                                             placeholder='Currency'
                                             // loading={this.state.getHubConsoleInitValuesProgress}
                                             // disabled={this.state.getHubConsoleInitValuesProgress}
@@ -215,11 +199,11 @@ class PayerMobile extends React.Component {
                             </Col>
                         </Row>
                         <Row className='mt-3'>
-                            <Col span={24} className='text-center'>
-                                <Button type='primary' shape='round' danger disabled={!this.state.selectedCurrency} onClick={this.handleGetQuote}>Get Quote</Button>
+                            <Col span={12} className='text-center'>
+                                <Button type='primary' size='small' shape='round' danger disabled={!this.state.selectedCurrency} onClick={this.handleGetQuote}>Get Quote</Button>
                             </Col>
                         </Row>
- 
+
                     </Card>
                 );
             case 'putQuotes':
@@ -227,7 +211,6 @@ class PayerMobile extends React.Component {
                     <Card size='small'>
                         <Row>
                             <Col span={12}>
-
                                 <Text>Transfer Amount:</Text>
                             </Col>
                             <Col span={12}>
@@ -258,7 +241,7 @@ class PayerMobile extends React.Component {
                                 <Button type='primary' shape='round' success onClick={this.handleSend}>Proceed</Button>
                             </Col>
                         </Row>
- 
+
                     </Card>
                 );
             case 'putTransfers':
@@ -288,84 +271,83 @@ class PayerMobile extends React.Component {
                 return null;
         }
     };
- 
+
     handleSearch = async idNumber => {
-        this.setState({ gettingPartyInfo: true, stage: 'getParties' });    
-        await this.props.outboundService.getParties(idNumber);    
-        this.setState({ gettingPartyInfo: true, stage: 'getCompliance' });
-        await this.props.outboundService.getCompliance(idNumber);
+        this.setState({ gettingPartyInfo: true, stage: 'getParties', showForm: false });
+        await this.props.outboundService.getParties(idNumber);
     };
- 
+
     handleGetQuote = async e => {
         this.setState({ stage: 'postQuotes' });
         await this.props.outboundService.postQuotes(this.state.amount, this.state.selectedCurrency);
     };
- 
+
     handleSend = async e => {
         this.setState({ stage: 'postTransfers' });
         if(this.state.quotesRequest && this.state.quotesResponse) {
             await this.props.outboundService.postTransfers(this.state.quotesResponse.transferAmount.amount, this.state.quotesRequest.transactionId, this.state.quotesResponse.expiration, this.state.quotesResponse.ilpPacket, this.state.quotesResponse.condition);
         }
     };
- 
+
     handleCancel = e => {
         this.setState({ stage: null });
         // this.props.resetEverything()
     };
- 
+
     render() {
         return (
             <>
-                <Row className='ml-2'>
-                    <Col span={24}>
-                        <Text strong>Enter Phone Number</Text>
-                        <Input.Search
-                            placeholder='Phone Number'
-                            loading={this.state.gettingPartyInfo}
-                            defaultValue='987654320'
-                            onSearch={this.handleSearch}
-                        />
-                    </Col>
-                    
-                    <Col span={12}>
-                        <Text strong>Enter First Name</Text>
-                        <Input
-                            placeholder='First Name'
-                        />
-                    </Col>
-                    <Col span={12}>
-                        <Text strong>Enter Last Name</Text>
-                        <Input
-                            placeholder='Last Name'
-                        />
-                    </Col>
-                </Row>
-                <Row className='mt-1'>
-                    <Col span={24}>
-                        <Text strong>Enter Currency</Text>
-                        <Select
-                            className='ml-2'
-                            style={{ width: 120 }}
-                            placeholder='Currency'
-                            defaultActiveFirstOption
-                        >
-                            {
-                                this.state.accounts.filter(item => item.ledgerAccountType === 'POSITION').map(account => {
-                                    return <Option value={account.currency}>{account.currency}</Option>;
-                                })
-                            }
-                        </Select>
-                    </Col>
-                </Row>
+                {this.state.showForm && (
+                    <>
+                        <Row>
+                            <Col span={24}>
+                                <Text strong>Enter First Name</Text>
+                                <Input
+                                    placeholder='First Name' />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={24}>
+                                <Text strong>Enter Last Name</Text>
+                                <Input
+                                    placeholder='Last Name' />
+                            </Col>
+                        </Row>
+                        <Row className='mt-1'>
+                            <Col span={24}>
+                                <Text strong>Enter Currency</Text>
+                                <Select
+                                    className='ml-2'
+                                    style={{ width: 120 }}
+                                    placeholder='Currency'
+                                    // defaultActiveFirstOption
+                                >
+                                    <Option value='BGN'>INR</Option>
+                                    <Option value='INR'>BGN</Option>
+                                    <Option value='USD'>USD</Option>
+                                </Select>
+                            </Col>
+                        </Row>
+                        <Row className='ml-2'>
+                            <Col span={24}>
+                                <Text strong>Enter Phone Number</Text>
+                                <Input.Search
+                                    placeholder='Phone Number'
+                                    loading={this.state.gettingPartyInfo}
+                                    defaultValue='987654320'
+                                    onSearch={this.handleSearch} />
+                            </Col>
+                        </Row></>
+                )}
                 <Row className='mt-1 ml-2'>
                     <Col span={24}>
                         {this.getStageData()}
                     </Col>
                 </Row>
             </>
+            
  
         );
     }
 }
- 
 export default PayerMobile;

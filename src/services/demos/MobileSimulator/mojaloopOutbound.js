@@ -95,17 +95,8 @@ class OutboundService {
         //   return response.data
         // }
         // return null
+        console.log(resp);
         return resp;
-    }
-
-    async getCompliance(idNumber) {
-        const traceId = this.getTraceId();
-        const template = require('./template_getParties.json');
-        template.inputValues = this.inputValues;
-        template.inputValues.toIdValue = idNumber + '';
-        // const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        const responses = await axios.post(this.apiBaseUrl + '/compliance-check/987654320/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        return responses;
     }
 
     async postQuotes(amount, currency) {
