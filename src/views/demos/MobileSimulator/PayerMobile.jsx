@@ -301,30 +301,30 @@ class PayerMobile extends React.Component {
                     <>
                         <Row>
                             <Col span={24}>
-                                <Text strong>Enter First Name</Text>
+                                <Text strong>First Name</Text>
                                 <Input
                                     placeholder='First Name' />
                             </Col>
                         </Row>
                         <Row>
                             <Col span={24}>
-                                <Text strong>Enter Last Name</Text>
+                                <Text strong>Last Name</Text>
                                 <Input
                                     placeholder='Last Name' />
                             </Col>
                         </Row>
                         <Row className='mt-1'>
                             <Col span={24}>
-                                <Text strong>Enter Currency</Text>
+                                <Text strong>Country</Text>
                                 <Select
                                     className='ml-2'
                                     style={{ width: 120 }}
                                     placeholder='Currency'
                                     // defaultActiveFirstOption
                                 >
-                                    <Option value='BGN'>INR</Option>
-                                    <Option value='INR'>BGN</Option>
-                                    <Option value='USD'>USD</Option>
+                                    <Option value='BGN'>IND</Option>
+                                    <Option value='INR'>UK</Option>
+                                    <Option value='USD'>US</Option>
                                 </Select>
                             </Col>
                         </Row>
