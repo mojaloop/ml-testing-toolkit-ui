@@ -308,7 +308,7 @@ class PayerMobile extends React.Component {
                         </Row>
                         <Row>
                             <Col span={24}>
-                                <Text strong>Enter Last Name</Text>
+                                <Text strong>Last Name</Text>
                                 <Input
                                     placeholder='Last Name' />
                             </Col>
@@ -319,7 +319,7 @@ class PayerMobile extends React.Component {
                                 <Select
                                     className='ml-2'
                                     style={{ width: 120 }}
-                                    placeholder='Currency'
+                                    placeholder='country'
                                     // defaultActiveFirstOption
                                 >
                                     <Option value='INR'>IND</Option>
