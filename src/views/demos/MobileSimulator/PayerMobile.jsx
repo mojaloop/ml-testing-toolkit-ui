@@ -355,8 +355,8 @@ class PayerMobile extends React.Component {
                                     placeholder='Currency'
                                     // defaultActiveFirstOption
                                 >
-                                    <Option value='BGN'>IND</Option>
-                                    <Option value='INR'>UK</Option>
+                                    <Option value='INR'>IND</Option>
+                                    <Option value='GBP'>UK</Option>
                                     <Option value='USD'>US</Option>
                                 </Select>
                             </Col>
