@@ -25,6 +25,7 @@ import React from 'react';
 import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, Select } from 'antd';
 const { Text } = Typography;
 const { Option } = Select;
+const { setTimeout } = window;
 
 class PayerMobile extends React.Component {
     state = {
@@ -40,6 +41,7 @@ class PayerMobile extends React.Component {
         selectedCurrency: {},
         weightedScore: 0,
         showForm: true,
+        complianceResponse:{},
     };
 
     componentDidMount = async () => {
@@ -57,10 +59,37 @@ class PayerMobile extends React.Component {
             }
             case 'putParties':
             {
-                this.setState({ gettingPartyInfo: false, stage: 'putParties', partyInfo: event.data.party });
+                if(this.state.complianceResponse && this.state.complianceResponse.weightedScore > 75) {
+                    return (
+                        <Card size='small'>
+                            <Row>
+                                <Col span={16}>
+                                    <Text strong style={{ fontSize: '12px' }}>MATCH NOT FOUND</Text>
+                                </Col>
+                            </Row>
+                        </Card>
+                    );
+                } else {
+                    setTimeout(() => {
+                        this.setState({ gettingPartyInfo: false, stage: 'putParties', partyInfo: event.data.party, complianceResponse: event.data.party });
+                    }, 1500);
+                }
                 break;
             }
             case 'putPartiesResponse':
+            {
+                break;
+            }
+            case 'getCompliance':
+            {
+                this.setState({ stage: 'getCompliance', complianceResponse: event.data.party });
+                break;
+            }
+            case 'getComplianceRequest':
+            {
+                break;
+            }
+            case 'getComplianceResponse':
             {
                 break;
             }
@@ -113,6 +142,18 @@ class PayerMobile extends React.Component {
             case 'postQuotes':
             case 'postTransfers':
                 return <Skeleton active />;
+            case 'getCompliance':
+                return (
+                    <Card size='small'>
+                        <Row>
+                            <Col span={16}>
+                                <Text strong style={{ fontSize: '12px' }}>
+                                    {this.state.complianceResponse && this.state.complianceResponse.weightedScore <= 75 ? 'MATCH FOUND' : 'MATCH NOT FOUND'}
+                                </Text>
+                            </Col>
+                        </Row>
+                    </Card>
+                );
             case 'putParties':
                 return (
                     <Card size='small'>
@@ -154,7 +195,7 @@ class PayerMobile extends React.Component {
                             <Col span={10}>
                                 <Text style={{ fontSize: '12px' }}>Bank:</Text>
                             </Col>
-                            <Col span={10}>
+                            <Col span={14}>
                                 <Text strong style={{ fontSize: '12px' }}>Green Bank</Text>
                             </Col>
                         </Row>

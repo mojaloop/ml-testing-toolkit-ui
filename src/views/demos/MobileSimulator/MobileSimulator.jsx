@@ -149,6 +149,20 @@ class MobileSimulator extends React.Component {
                 }
                 break;
             }
+            case 'getCompliance':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'getComplianceResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
+                }
+                break;
+            }
             case 'postQuotes':
             {
                 if(this.testDiagramRef.current) {

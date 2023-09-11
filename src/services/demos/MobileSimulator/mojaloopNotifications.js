@@ -382,24 +382,6 @@ class NotificationService {
             });
         }
 
-        // Catch get compliance check 
-        // if(log.notificationType === 'newOutboundLog' &&
-        //   log.message.startsWith('Received response') &&
-        //   log.resource &&
-        //   log.resource.method === 'get' &&
-        //   log.resource.path.startsWith('/compliance-check/')
-        // ) {
-        //     this.notifyPayerMonitorLog(log);
-        //     this.notificationEventFunction({
-        //         category: 'payer',
-        //         type: 'getCompliance',
-        //         data: {
-        //             resource: log.resource,
-        //             responseStatus: log.message.replace('Received response ', ''),
-        //         },
-        //     });
-        // }
-
         // Catch put Parties
         if(log.notificationType === 'newLog' &&
           log.message.startsWith('Request: put') &&
@@ -437,6 +419,59 @@ class NotificationService {
                 },
             });
         }
+
+        // Catch get Compliance 
+        if(log.notificationType === 'newLog' &&
+        log.message.startsWith('Response: get') &&
+        log.resource &&
+        log.resource.method === 'get' &&
+        log.resource.path.startsWith('/compliance-check/')
+        ) {
+            this.notifyPayerMonitorLog(log);
+            this.notificationEventFunction({
+                category: 'payer',
+                type: 'getCompliance',
+                data: {
+                    resource: log.resource,
+                    party:  log.additionalData && 
+                            log.additionalData.response ? log.additionalData.response.body : null,
+                },
+            });
+        }
+        // Catch get Compliance request
+        if(log.notificationType === 'newLog' &&
+        log.message.startsWith('Request: get') &&
+        log.resource &&
+        log.resource.method === 'get' &&
+        log.resource.path.startsWith('/compliance-check/')
+        ) {
+            this.notifyPayerMonitorLog(log);
+            this.notificationEventFunction({
+                category: 'payer',
+                type: 'getComplianceRequest',
+                data: {
+                    resource: log.resource,
+                },
+            });
+        }
+        // Catch get Compliance response 
+        if(log.notificationType === 'newOutboundLog' &&
+        log.message.startsWith('Received response') &&
+        log.resource &&
+        log.resource.method === 'get' &&
+        log.resource.path.startsWith('/compliance-check/')
+        ) {
+            this.notifyPayerMonitorLog(log);
+            this.notificationEventFunction({
+                category: 'payer',
+                type: 'getComplianceResponse',
+                data: {
+                    resource: log.resource,
+                    responseStatus: log.message.replace('Received response ', ''),
+                },
+            });
+        }
+      
 
         // Catch post Quotes request
         if(log.notificationType === 'newOutboundLog' &&
