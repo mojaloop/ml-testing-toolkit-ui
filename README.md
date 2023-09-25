@@ -52,7 +52,7 @@ If you run the testing toolkit UI locally, you can find out the port number in t
 You should run testing toolkit backend service to use this UI.
 Please follow this link to learn about backend service.
 
-https://github.com/mojaloop/ml-testing-toolkit/blob/master/README.md
+https://github.com/mojaloop/ml-testing-toolkit/blob/main/README.md
 
 -------
 
@@ -90,8 +90,8 @@ As part of our CI/CD process, we use a combination of CircleCI, standard-version
 npm package and github-release CircleCI orb to automatically trigger our releases
 and image builds. This process essentially mimics a manual tag and release.
 
-On a merge to master, CircleCI is configured to use the mojaloopci github account
+On a merge to main, CircleCI is configured to use the mojaloopci github account
 to push the latest generated CHANGELOG and package version number.
 
-Once those changes are pushed, CircleCI will pull the updated master, tag and
+Once those changes are pushed, CircleCI will pull the updated main, tag and
 push a release triggering another subsequent build that also publishes a docker image.
