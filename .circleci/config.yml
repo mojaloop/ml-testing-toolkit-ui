@@ -523,6 +523,7 @@ jobs:
             docker tag ${DOCKER_ORG:-mojaloop}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_TAG ${DOCKER_ORG:-mojaloop}/$CIRCLE_PROJECT_REPONAME:$RELEASE_TAG
       - run:
           name: Build Docker image for multiple platforms architectures and push to registry
+          no_output_timeout: 30m
           command: |
             export DOCKER_NODE_VERSION="$NVMRC_VERSION-alpine"
             echo "export DOCKER_NODE_VERSION=$NVMRC_VERSION-alpine" >> $BASH_ENV
@@ -587,6 +588,7 @@ jobs:
             docker tag ${DOCKER_ORG:-mojaloop}/$CIRCLE_PROJECT_REPONAME:$CIRCLE_TAG ${DOCKER_ORG:-mojaloop}/$CIRCLE_PROJECT_REPONAME:$RELEASE_TAG
       - run:
           name: Build Docker image for multiple platforms architectures and push to registry
+          no_output_timeout: 30m
           command: |
             export DOCKER_NODE_VERSION="$NVMRC_VERSION-alpine"
             echo "export DOCKER_NODE_VERSION=$NVMRC_VERSION-alpine" >> $BASH_ENV
