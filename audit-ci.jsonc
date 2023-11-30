@@ -62,7 +62,7 @@
     // react-dev-utils>loader-utils. no fix available
     "GHSA-hhq3-ff78-jv3g",
     "GHSA-67hx-6x53-jw92",
-    // Developer vulnerabilities: Babel, react-build, etc
+    // Developer vulnerabilities: dependencies like babel, react-build, etc
     "GHSA-wf5p-g6vw-rhxx",
     "GHSA-x9w5-v3q2-3rhw",
     "GHSA-j7hp-h8jx-5ppr",
