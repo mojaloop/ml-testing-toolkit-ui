@@ -60,6 +60,18 @@
     // json5. Unable to fix using npm audit fix which is updating mermaid causing build issues
     "GHSA-9c47-m6qq-7p4h",
     // react-dev-utils>loader-utils. no fix available
-    "GHSA-hhq3-ff78-jv3g"
+    "GHSA-hhq3-ff78-jv3g",
+    "GHSA-67hx-6x53-jw92",
+    // Developer vulnerabilities: dependencies like babel, react-build, etc
+    "GHSA-wf5p-g6vw-rhxx",
+    "GHSA-x9w5-v3q2-3rhw",
+    "GHSA-j7hp-h8jx-5ppr",
+    "GHSA-7x97-j373-85x5",
+    "GHSA-qqvq-6xgj-jw8g",
+    "GHSA-7fh5-64p2-3v2j",
+    "GHSA-c2qf-rxjj-qqgw",
+    "GHSA-72xf-g2v4-qvf3",
+    "GHSA-j8xg-fqg3-53r7"
+
   ]
 }
