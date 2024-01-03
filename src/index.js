@@ -108,6 +108,9 @@ function App() {
     );
 }
 
+// Will be deprecated in react 18, not sure why it's throwing linting
+// error on react 17.
+// eslint-disable-next-line react/no-deprecated
 ReactDOM.render(
     <App />,
     document.getElementById('root'),
