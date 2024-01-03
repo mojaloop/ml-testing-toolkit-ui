@@ -22,7 +22,7 @@
  --------------
  ******/
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import AdminNavbar from '../components/Navbars/AdminNavbar.jsx';
 import AdminFooter from '../components/Footers/AdminFooter.jsx';
 import Sidebar from '../components/Sidebar/Sidebar.jsx';
@@ -33,6 +33,8 @@ import { getConfig, fetchServerConfig } from '../utils/getConfig';
 import { Layout, Card, Spin, Result, Row, Col } from 'antd';
 
 const { Header, Content } = Layout;
+const location = useLocation();
+const navigate = useNavigate();
 
 class Admin extends React.Component {
     isAuthEnabled = getConfig().isAuthEnabled;
@@ -89,7 +91,7 @@ class Admin extends React.Component {
     getBrandText = path => {
         for(let i = 0; i < routes.length; i++) {
             if(
-                this.props.location.pathname.indexOf(
+                location.pathname.indexOf(
                     routes[i].layout + routes[i].path,
                 ) !== -1
             ) {
@@ -134,7 +136,7 @@ class Admin extends React.Component {
                                         <Layout>
                                             <AdminNavbar
                                                 {...this.props}
-                                                brandText={this.getBrandText(this.props.location.pathname)}
+                                                brandText={this.getBrandText(location.pathname)}
                                             />
                                             <Content>
                                                 <Header
@@ -144,7 +146,7 @@ class Admin extends React.Component {
                                                     }}
                                                 />
                                                 <Card className='shadow ml-4 mr-4 mt-n5'>
-                                                    <Switch>{this.getRoutes(routes)}</Switch>
+                                                    <Routes>{this.getRoutes(routes)}</Routes>
                                                 </Card>
                                             </Content>
                                             <AdminFooter />
@@ -156,7 +158,7 @@ class Admin extends React.Component {
             );
         } else {
             return (
-                <>{this.props.history.push('/login')}</>
+                <>{navigate('/login')}</>
             );
         }
     }

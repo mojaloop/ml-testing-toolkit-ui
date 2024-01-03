@@ -1,9 +1,22 @@
-FROM node:16.15.0-alpine AS builder
+# Arguments
+ARG NODE_VERSION=lts-alpine
+
+# NOTE: Ensure you set NODE_VERSION Build Argument as follows...
+#
+#  export NODE_VERSION="$(cat .nvmrc)-alpine" \
+#  docker build \
+#    --build-arg NODE_VERSION=$NODE_VERSION \
+#    -t mojaloop/ml-testing-toolkit-ui:local \
+#    .
+#
+
+# Build Image
+FROM node:${NODE_VERSION} as builder
+
 WORKDIR /opt/app
 
-RUN apk add --no-cache -t build-dependencies make gcc g++ python3 libtool libressl-dev openssl-dev autoconf automake \
+RUN apk add --no-cache -t build-dependencies make gcc g++ python3 libtool openssl-dev autoconf automake bash \
     && cd $(npm root -g)/npm \
-    && npm config set unsafe-perm true \
     && npm install -g node-gyp
 
 COPY package.json package-lock.json* /opt/app/
@@ -14,7 +27,7 @@ COPY src /opt/app/src
 COPY public /opt/app/public
 COPY .eslintrc tsconfig.json /opt/app/
 
-RUN npm run build
+RUN SKIP_PREFLIGHT_CHECK=true npm run build
 
 FROM nginx:1.16.0-alpine
 WORKDIR /usr/share/nginx/html

@@ -23,10 +23,10 @@
  ******/
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
 import AdminLayout from './layouts/Admin.jsx';
 import { getConfig } from './utils/getConfig';
@@ -85,33 +85,32 @@ function App() {
             {
                 isAuthEnabled
                     ? user
-                        ? <Switch>
-                            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
-                            <Route path='/admin' render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
-                            <Redirect from='/' to='/admin/index' />
-                        </Switch>
-                        : <Switch>
-                            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
-                            <Redirect to='/login' />
-                        </Switch>
-                    : <Switch>
-                        <Route path='/admin' render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
-                        <Route exact path='/mobilesimulator' render={props => <MobileSimulator {...props} />} />
-                        <Route exact path='/payeeapp' render={props => <PayeeAppSimulator {...props} />} />
-                        <Route exact path='/payeemobile' render={props => <PayeeMobileSimulator {...props} />} />
-                        <Route exact path='/demotestrunner' render={props => <DemoTestRunner {...props} />} />
-                        <Route exact path='/demomonitoring' render={props => <DemoMonitoring {...props} />} />
-                        <Redirect from='/' to='/admin/index' />
-                    </Switch>
+                        ? <Routes>
+                            <Route exact path='/login' element={<Login handleLogin={handleLogin} user={user} />} />
+                            <Route path='/admin' element={<AdminLayout handleLogout={handleLogout} />} />
+                            <Navigate from='/' to='/admin/index' />
+                        </Routes>
+                        : <Routes>
+                            <Route exact path='/login' element={<Login handleLogin={handleLogin} user={user} />} />
+                            <Navigate to='/login' />
+                        </Routes>
+                    : <Routes>
+                        <Route path='/admin' element={<AdminLayout handleLogout={handleLogout} />} />
+                        <Route exact path='/mobilesimulator' element={<MobileSimulator  />} />
+                        <Route exact path='/payeeapp' element={<PayeeAppSimulator />} />
+                        <Route exact path='/payeemobile' element={<PayeeMobileSimulator />} />
+                        <Route exact path='/demotestrunner' element={<DemoTestRunner />} />
+                        <Route exact path='/demomonitoring' element={<DemoMonitoring />} />
+                        <Navigate from='/' to='/admin/index' />
+                    </Routes>
             }
         </Router>
     );
 }
 
-ReactDOM.render(
-    <App />,
-    document.getElementById('root'),
-);
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<App />);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

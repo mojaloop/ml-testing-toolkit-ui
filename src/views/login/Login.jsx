@@ -23,7 +23,11 @@
  ******/
 import React from 'react';
 
-import { withRouter } from 'react-router-dom';
+import {
+    useLocation,
+    useNavigate,
+    useParams,
+} from 'react-router-dom';
 import axios from 'axios';
 import { message, Button, Form, Input, Row, Col, Card, Layout } from 'antd';
 import { getConfig } from '../../utils/getConfig';
@@ -31,6 +35,24 @@ import { getConfig } from '../../utils/getConfig';
 import PlainNavbar from '../../components/Navbars/PlainNavbar';
 
 const { Content } = Layout;
+const navigate = useNavigate();
+
+// https://reactrouter.com/en/main/start/faq#what-happened-to-withrouter-i-need-it
+function withRouter(Component) {
+    function ComponentWithRouterProp(props) {
+        let location = useLocation();
+        let navigate = useNavigate();
+        let params = useParams();
+        return (
+            <Component
+                {...props}
+                router={{ location, navigate, params }}
+            />
+        );
+    }
+
+    return ComponentWithRouterProp;
+}
 
 class Login extends React.Component {
     onFinish = async formValues => {
@@ -45,7 +67,7 @@ class Login extends React.Component {
             if(res.status === 200) {
                 this.props.handleLogin(res.data.token.payload);
                 message.success({ content: 'login successful', key: 'login', duration: 1 });
-                this.props.history.push('/admin/index');
+                navigate('/admin/index');
                 return;
             }
         } catch (err) {}
