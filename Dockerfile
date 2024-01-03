@@ -1,4 +1,17 @@
-FROM node:18.17.1-alpine AS builder
+# Arguments
+ARG NODE_VERSION=lts-alpine
+
+# NOTE: Ensure you set NODE_VERSION Build Argument as follows...
+#
+#  export NODE_VERSION="$(cat .nvmrc)-alpine" \
+#  docker build \
+#    --build-arg NODE_VERSION=$NODE_VERSION \
+#    -t mojaloop/ml-testing-toolkit-ui:local \
+#    .
+#
+
+# Build Image
+FROM node:${NODE_VERSION} as builder
 WORKDIR /opt/app
 
 RUN apk add --no-cache -t build-dependencies make gcc g++ python3 libtool openssl-dev autoconf automake bash \

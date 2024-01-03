@@ -106,7 +106,7 @@
   },
   "overrides": {
     "@mojaloop/ml-testing-toolkit-shared-lib": {
-      "json-schema-faker": "0.5.0-rcv.44"
+      "json-schema-faker": "0.5.0-rcv.46"
     }
   },
   "jest": {
