@@ -12,10 +12,13 @@ reject: [
   "@testing-library/jest-dom",
   "@testing-library/react",
   "@testing-library/user-event",
+  "react-markdown",
   # Keeping the bootstrap to the same version because there are many renames in the class names in the recent versions
   "bootstrap",
   # TODO: Mermaid is throwing an error while building if upgraded. Need to investigate the root cause.
   "mermaid",
   # antd v5+ currently suffers from poor performance https://github.com/ant-design/ant-design/issues/39746
   "antd",
+  # jsoneditor-react is not being readily maintained, so peg it's jsoneditor dependency to a specific version
+  "jsoneditor"
 ]
