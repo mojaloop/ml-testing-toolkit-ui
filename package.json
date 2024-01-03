@@ -21,10 +21,10 @@
   },
   "homepage": "https://localhost:6060/",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts --max_old_space_size=4096 build",
-    "test:react": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts --max_old_space_size=4096 build",
+    "test:react": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts test",
+    "eject": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts eject",
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
     "compile-sass": "node-sass src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.css",
     "minify-sass": "node-sass src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.min.css --output-style compressed",
@@ -103,6 +103,11 @@
     "npm-check-updates": "^16.14.4",
     "replace": "^1.2.2",
     "standard-version": "^9.5.0"
+  },
+  "overrides": {
+    "@mojaloop/ml-testing-toolkit-shared-lib": {
+      "json-schema-faker": "0.5.0-rcv.44"
+    }
   },
   "jest": {
     "collectCoverageFrom": [
