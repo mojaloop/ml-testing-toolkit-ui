@@ -5,61 +5,25 @@
   "moderate": true,
   "allowlist": [
     // These are all the exceptions for react, react-scripts and their dependencies as it is very hard to update react version at the moment.
-    "GHSA-whgm-jr23-g3j9",
-    "GHSA-whgm-jr23-g3j9",
-    "GHSA-w8qv-6jwh-64r5",
-    "GHSA-phwq-j96m-2c2q",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-ww39-953v-wcq6",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-cj88-88mr-972w",
-    "GHSA-pfrx-2q88-qq97",
-    "GHSA-c36v-fmgq-m8hx",
-    "GHSA-33f9-j839-rf8h",
-    "GHSA-8fr3-hfg3-gpgp",
-    "GHSA-2r2c-g63r-vccr",
-    "GHSA-x4jg-mjrx-434g",
-    "GHSA-cfm4-qjh2-4765",
-    "GHSA-rp65-9cf3-cjxr",
-    "GHSA-rp65-9cf3-cjxr",
-    "GHSA-g4rg-993r-mgx7",
-    // TODO: d3-color, minimatch - can not be resolved with npm audit fix
-    "GHSA-36jr-mh4h-2g58",
-    "GHSA-f8q6-p94x-37v3",
-    // The following are the react dev utils which can not be updated at the moment
-    "GHSA-76p3-8jx3-jpfq",
-    "GHSA-3rfm-jhwj-7488",
-    // json5. Unable to fix using npm audit fix which is updating mermaid causing build issues
-    "GHSA-9c47-m6qq-7p4h",
-    // react-dev-utils>loader-utils. no fix available
-    "GHSA-hhq3-ff78-jv3g"
+    "GHSA-whgm-jr23-g3j9", // https://github.com/advisories/GHSA-whgm-jr23-g3j9
+    "GHSA-w8qv-6jwh-64r5", // https://github.com/advisories/GHSA-w8qv-6jwh-64r5
+    "GHSA-36jr-mh4h-2g58", // https://github.com/advisories/GHSA-36jr-mh4h-2g58
+    "GHSA-phwq-j96m-2c2q", // https://github.com/advisories/GHSA-phwq-j96m-2c2q
+    "GHSA-ww39-953v-wcq6", // https://github.com/advisories/GHSA-ww39-953v-wcq6
+    "GHSA-c36v-fmgq-m8hx", // https://github.com/advisories/GHSA-c36v-fmgq-m8hx
+    "GHSA-33f9-j839-rf8h", // https://github.com/advisories/GHSA-33f9-j839-rf8h
+    "GHSA-3rfm-jhwj-7488", // https://github.com/advisories/GHSA-3rfm-jhwj-7488
+    "GHSA-hhq3-ff78-jv3g", // https://github.com/advisories/GHSA-hhq3-ff78-jv3g
+    "GHSA-76p3-8jx3-jpfq", // https://github.com/advisories/GHSA-76p3-8jx3-jpfq
+    "GHSA-f8q6-p94x-37v3", // https://github.com/advisories/GHSA-f8q6-p94x-37v3
+    "GHSA-2r2c-g63r-vccr", // https://github.com/advisories/GHSA-2r2c-g63r-vccr
+    "GHSA-cfm4-qjh2-4765", // https://github.com/advisories/GHSA-cfm4-qjh2-4765
+    "GHSA-x4jg-mjrx-434g", // https://github.com/advisories/GHSA-x4jg-mjrx-434g
+    "GHSA-8fr3-hfg3-gpgp", // https://github.com/advisories/GHSA-8fr3-hfg3-gpgp
+    "GHSA-rp65-9cf3-cjxr", // https://github.com/advisories/GHSA-rp65-9cf3-cjxr
+    "GHSA-c2qf-rxjj-qqgw", // https://github.com/advisories/GHSA-c2qf-rxjj-qqgw
+    "GHSA-g4rg-993r-mgx7", // https://github.com/advisories/GHSA-g4rg-993r-mgx7
+    "GHSA-7fh5-64p2-3v2j"  // https://github.com/advisories/GHSA-7fh5-64p2-3v2j
   ]
 }
+
