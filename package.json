@@ -60,7 +60,7 @@
   "dependencies": {
     "@ant-design/colors": "^7.0.2",
     "@ant-design/icons": "^5.2.6",
-    "@mojaloop/ml-testing-toolkit-shared-lib": "^14.0.0",
+    "@mojaloop/ml-testing-toolkit-shared-lib": "^14.0.1",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -103,14 +103,6 @@
     "npm-check-updates": "^16.14.12",
     "replace": "^1.2.2",
     "standard-version": "^9.5.0"
-  },
-  "overrides": {
-    "@mojaloop/ml-testing-toolkit-shared-lib": {
-      "json-schema-faker": "0.5.0-rcv.46"
-    },
-    "react-scripts": {
-      "eslint-plugin-jsx-a11y": "6.6.0"
-    }
   },
   "jest": {
     "collectCoverageFrom": [
