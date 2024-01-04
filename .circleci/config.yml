@@ -286,17 +286,17 @@ jobs:
           name: Build and start the docker containers
           command: |
             ## This is not needed as we are only doing narrow-integration tests.
-            # docker-compose build 
+            # docker-compose build
 
             ## Lets pull only the Services needed for the Integration Test
             docker-compose pull mysql kafka
 
             ## Lets startup only the Services needed for the Integration Test
             docker-compose up -d mysql kafka
-  
+
             ## Check straight away to see if any containers have exited
             docker-compose ps
-  
+
             ## wait for services to be up and running
             npm run wait-4-docker
       - run:
@@ -305,7 +305,7 @@ jobs:
             npm rebuild
             npm run test:int
           environment:
-            ENDPOINT_URL: http://localhost:4545/notification  
+            ENDPOINT_URL: http://localhost:4545/notification
       - store_artifacts:
           path: ./test/results
           destination: test
@@ -336,25 +336,26 @@ jobs:
           path: ./audit/results
           destination: audit
 
-  audit-licenses:
-    executor: default-docker
-    environment:
-      <<: *defaults_environment
-    steps:
-      - run:
-          name: Install general dependencies
-          command: *defaults_docker_Dependencies
-      - run:
-          <<: *defaults_license_scanner
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
-      - run:
-          name: Run the license-scanner
-          command: cd /tmp/license-scanner && pathToRepo=$CIRCLE_WORKING_DIRECTORY make run
-      - store_artifacts:
-          path: /tmp/license-scanner/results
-          destination: licenses
+  # https://github.com/mojaloop/project/issues/3459#issuecomment-1877233923
+  # audit-licenses:
+  #   executor: default-docker
+  #   environment:
+  #     <<: *defaults_environment
+  #   steps:
+  #     - run:
+  #         name: Install general dependencies
+  #         command: *defaults_docker_Dependencies
+  #     - run:
+  #         <<: *defaults_license_scanner
+  #     - checkout
+  #     - restore_cache:
+  #         key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
+  #     - run:
+  #         name: Run the license-scanner
+  #         command: cd /tmp/license-scanner && pathToRepo=$CIRCLE_WORKING_DIRECTORY make run
+  #     - store_artifacts:
+  #         path: /tmp/license-scanner/results
+  #         destination: licenses
 
   build-local:
     executor: default-machine
@@ -585,7 +586,7 @@ jobs:
           at: /tmp
       - run:
           name: Load the pre-built docker image from workspace
-          command: | 
+          command: |
             docker load -i /tmp/docker-image.tar
       - run:
           name: Login to Docker Hub
@@ -766,17 +767,17 @@ workflows:
               ignore:
                 - /feature*/
                 - /bugfix*/
-      - audit-licenses:
-          context: org-global
-          requires:
-            - setup
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore:
-                - /feature*/
-                - /bugfix*/
+      # - audit-licenses:
+      #     context: org-global
+      #     requires:
+      #       - setup
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      #       branches:
+      #         ignore:
+      #           - /feature*/
+      #           - /bugfix*/
       - build-local:
           context: org-global
           requires:
@@ -821,7 +822,7 @@ workflows:
             # - test-coverage
             # - test-integration
             - vulnerability-check
-            - audit-licenses
+            # - audit-licenses
             ## Disabling the license scan because the docker image contains only compiled html and javascript files
             # - license-scan
             - image-scan
@@ -850,7 +851,7 @@ workflows:
             # - test-coverage
             # - test-integration
             - vulnerability-check
-            - audit-licenses
+            # - audit-licenses
             ## Disabling the license scan because the docker image contains only compiled html and javascript files
             # - license-scan
             - image-scan
@@ -871,7 +872,7 @@ workflows:
             # - test-coverage
             # - test-integration
             - vulnerability-check
-            - audit-licenses
+            # - audit-licenses
             ## Disabling the license scan because the docker image contains only compiled html and javascript files
             # - license-scan
             - image-scan
