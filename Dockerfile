@@ -28,7 +28,7 @@ COPY .eslintrc tsconfig.json /opt/app/
 
 RUN npm run build
 
-FROM nginx:1.25.3-alpine
+FROM nginx:1.24-alpine
 WORKDIR /usr/share/nginx/html
 
 # Replace the nginx config files
