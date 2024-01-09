@@ -34,7 +34,6 @@ WORKDIR /usr/share/nginx/html
 # Replace the nginx config files
 RUN rm -f /etc/nginx/conf.d/default.conf /etc/nginx/nginx.conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create a non-root user: ml-user
 RUN adduser -D ml-user
