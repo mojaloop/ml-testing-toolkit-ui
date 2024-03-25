@@ -360,7 +360,7 @@ class PayerMobile extends React.Component {
                 middleName: 'Johannes',
                 lastName: 'Karlsson',
                 dateOfBirth: '1966-06-16',
-                fspId: this.state.userConfig.FSP_ID,
+                fspId: this.state.userConfig.FSPID,
             },
             to: {
                 type: 'CONSUMER',
