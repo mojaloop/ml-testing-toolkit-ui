@@ -20,5 +20,7 @@ reject: [
   # antd v5+ currently suffers from poor performance https://github.com/ant-design/ant-design/issues/39746
   "antd",
   # jsoneditor-react is not being readily maintained, so peg it's jsoneditor dependency to a specific version
-  "jsoneditor"
+  "jsoneditor",
+  # eslint-config-airbnb-typescript update is breaking docker build
+  "eslint-config-airbnb-typescript"
 ]
