@@ -61,6 +61,20 @@ class Demos extends React.Component {
                         <ul>
                             <li>
                                 <a
+                                    href='/payermobile'
+                                    target='_blank'
+                                >
+                  Payer App Simulator
+                                </a>
+                            </li>
+                        </ul>
+                    </Col>
+                </Row>
+                <Row className='my-4'>
+                    <Col span={24}>
+                        <ul>
+                            <li>
+                                <a
                                     href='/demotestrunner'
                                     target='_blank'
                                 >
