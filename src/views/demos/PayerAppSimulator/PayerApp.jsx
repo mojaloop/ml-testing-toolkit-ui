@@ -218,8 +218,9 @@ class PayerMobile extends React.Component {
         transactionHistory: [],
         party: {},
         selectedCurrency: 'KES',
+        selectedIdType: 'MSISDN',
         amount: 10,
-        phoneNumber: '16135551002',
+        receiverId: '16135551002',
         loading: false,
         partyInfo: {},
         transferId: '',
@@ -278,7 +279,7 @@ class PayerMobile extends React.Component {
                     <>
                         <Row className='mt-3'>
                             <Col span={24} className='text-center'>
-                                <Button type='primary' shape='round' danger disabled={!this.state.phoneNumber || !this.state.amount} onClick={this.handleInitiateTransfer} loading={this.state.loading}>Initiate Transfer</Button>
+                                <Button type='primary' shape='round' danger disabled={!this.state.receiverId || !this.state.amount} onClick={this.handleInitiateTransfer} loading={this.state.loading}>Initiate Transfer</Button>
                             </Col>
                         </Row>
                     </>
@@ -363,8 +364,8 @@ class PayerMobile extends React.Component {
             },
             to: {
                 type: 'CONSUMER',
-                idType: 'MSISDN',
-                idValue: this.state.phoneNumber,
+                idType: this.state.selectedIdType,
+                idValue: this.state.receiverId,
                 merchantClassificationCode: 123,
             },
             amountType: 'SEND',
@@ -531,17 +532,40 @@ class PayerMobile extends React.Component {
                 </Row>
                 <Row className='mt-2'>
                     <Col span={24} className='text-left'>
-                        <Row className='ml-2'>
-                            <Col span={24}>
-                                <Text strong>Phone Number</Text>
+                        <Text strong>Receiver ID</Text>
+                        <Row>
+                            <Col span={14}>
                                 <Input
-                                    placeholder='Phone Number'
+                                    placeholder='Receiver ID'
                                     disabled={this.state.currentState !== 'start'}
-                                    value={this.state.phoneNumber}
+                                    value={this.state.receiverId}
                                     onChange={e => {
-                                        this.setState({ phoneNumber: e.target.value });
+                                        this.setState({ receiverId: e.target.value });
                                     }}
                                 />
+                            </Col>
+                            <Col span={10}>
+                                <Select
+                                    className='ml-2'
+                                    style={{ width: 120 }}
+                                    placeholder='Receiver ID Type'
+                                    disabled={this.state.currentState !== 'start'}
+                                    value={this.state.selectedIdType}
+                                    defaultActiveFirstOption
+                                    onChange={idType => {
+                                        this.setState({ selectedIdType: idType });
+                                    }}
+                                >
+                                    <Option value='MSISDN'>MSISDN</Option>
+                                    <Option value='ALIAS'>ALIAS</Option>
+                                    <Option value='ACCOUNT_NO'>ACCOUNT_NO</Option>
+                                    <Option value='EMAIL'>EMAIL</Option>
+                                    <Option value='PERSONAL_ID'>PERSONAL_ID</Option>
+                                    <Option value='BUSINESS'>BUSINESS</Option>
+                                    <Option value='DEVICE'>DEVICE</Option>
+                                    <Option value='ACCOUNT_ID'>ACCOUNT_ID</Option>
+                                    <Option value='IBAN'>IBAN</Option>
+                                </Select>
                             </Col>
                         </Row>
                         <Row className='mt-2 ml-2'>
