@@ -1,0 +1,59 @@
+{
+    "name": "pm4ml_sdk_post_transfer",
+    "test_cases": [
+      {
+        "id": 1,
+        "name": "P2P Transfer Happy Path",
+        "requests": [
+          {
+            "id": 2,
+            "description": "Send transfer",
+            "apiVersion": {
+              "minorVersion": 1,
+              "majorVersion": 2,
+              "type": "mojaloop_connector_outbound"
+            },
+            "operationPath": "/transfers",
+            "path": "/transfers",
+            "method": "post",
+            "body": {
+              "homeTransactionId": "1234",
+              "from": {
+                "type": "CONSUMER",
+                "idType": "MSISDN",
+                "idValue": "{$inputs.SOURCE_PARTY_ID}",
+                "displayName": "string",
+                "firstName": "John",
+                "middleName": "Smith",
+                "lastName": "Doe",
+                "dateOfBirth": "1966-06-16",
+                "fspId": "{$inputs.SOURCE_FSP_ID}"
+              },
+              "to": {
+                "type": "CONSUMER",
+                "idType": "{$inputs.DESTINATION_PARTY_ID_TYPE}",
+                "idValue": "{$inputs.DESTINATION_PARTY_ID_VALUE}"
+              },
+              "amountType": "{$inputs.AMOUNT_TYPE}",
+              "currency": "{$inputs.CURRENCY}",
+              "amount": "{$inputs.AMOUNT}",
+              "transactionType": "TRANSFER",
+              "note": "Note sent to Payee.",
+              "skipPartyLookup": false
+            },
+            "tests": {
+              "assertions": [
+                {
+                  "id": 1,
+                  "description": "Status is 200",
+                  "exec": [
+                    "expect(response.status).to.equal(200)"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }

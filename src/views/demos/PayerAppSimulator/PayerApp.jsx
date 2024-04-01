@@ -22,192 +22,27 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, Typography, notification, Statistic, Card, Table, Tag, Layout, Form, Input, Button, message, InputNumber, Select, Skeleton, Result, Steps } from 'antd';
+import { Row, Col, Typography, notification, Card, Input, Button, InputNumber, Select, Skeleton, Result, Steps } from 'antd';
 
 import { CheckOutlined, LoadingOutlined } from '@ant-design/icons';
 
 import axios from 'axios';
 
-import NotificationService from '../../../services/demos/PayeeAppSimulator/payeeNotifications';
+import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 import { getServerConfig, getConfig } from '../../../utils/getConfig';
+
+import templateSdkPostTransfers from './templateSdkPostTransfers.json';
+templateSdkPostTransfers.inputValues = {};
+
+import templateSdkPutTransfers from './templateSdkPutTransfers.json';
+templateSdkPutTransfers.inputValues = {};
+
+import COUNTRY_CODE_LIST from './countryList.json';
 
 import BrandIcon from './BrandIcon';
 
 const { Text, Title } = Typography;
 const { Option } = Select;
-
-const COUNTRY_CODE_LIST = [
-    'AED',
-    'AFN',
-    'ALL',
-    'AMD',
-    'ANG',
-    'AOA',
-    'ARS',
-    'AUD',
-    'AWG',
-    'AZN',
-    'BAM',
-    'BBD',
-    'BDT',
-    'BGN',
-    'BHD',
-    'BIF',
-    'BMD',
-    'BND',
-    'BOB',
-    'BRL',
-    'BSD',
-    'BTC',
-    'BTN',
-    'BWP',
-    'BYN',
-    'BZD',
-    'CAD',
-    'CDF',
-    'CHF',
-    'CLF',
-    'CLP',
-    'CNH',
-    'CNY',
-    'COP',
-    'CRC',
-    'CUC',
-    'CUP',
-    'CVE',
-    'CZK',
-    'DJF',
-    'DKK',
-    'DOP',
-    'DZD',
-    'EGP',
-    'ERN',
-    'ETB',
-    'EUR',
-    'FJD',
-    'FKP',
-    'GBP',
-    'GEL',
-    'GGP',
-    'GHS',
-    'GIP',
-    'GMD',
-    'GNF',
-    'GTQ',
-    'GYD',
-    'HKD',
-    'HNL',
-    'HRK',
-    'HTG',
-    'HUF',
-    'IDR',
-    'ILS',
-    'IMP',
-    'INR',
-    'IQD',
-    'IRR',
-    'ISK',
-    'JEP',
-    'JMD',
-    'JOD',
-    'JPY',
-    'KES',
-    'KGS',
-    'KHR',
-    'KMF',
-    'KPW',
-    'KRW',
-    'KWD',
-    'KYD',
-    'KZT',
-    'LAK',
-    'LBP',
-    'LKR',
-    'LRD',
-    'LSL',
-    'LYD',
-    'MAD',
-    'MDL',
-    'MGA',
-    'MKD',
-    'MMK',
-    'MNT',
-    'MOP',
-    'MRU',
-    'MUR',
-    'MVR',
-    'MWK',
-    'MXN',
-    'MYR',
-    'MZN',
-    'NAD',
-    'NGN',
-    'NIO',
-    'NOK',
-    'NPR',
-    'NZD',
-    'OMR',
-    'PAB',
-    'PEN',
-    'PGK',
-    'PHP',
-    'PKR',
-    'PLN',
-    'PYG',
-    'QAR',
-    'RON',
-    'RSD',
-    'RUB',
-    'RWF',
-    'SAR',
-    'SBD',
-    'SCR',
-    'SDG',
-    'SEK',
-    'SGD',
-    'SHP',
-    'SLL',
-    'SOS',
-    'SRD',
-    'SSP',
-    'STD',
-    'STN',
-    'SVC',
-    'SYP',
-    'SZL',
-    'THB',
-    'TJS',
-    'TMT',
-    'TND',
-    'TOP',
-    'TRY',
-    'TTD',
-    'TWD',
-    'TZS',
-    'UAH',
-    'UGX',
-    'USD',
-    'UYU',
-    'UZS',
-    'VES',
-    'VND',
-    'VUV',
-    'WST',
-    'XAF',
-    'XAG',
-    'XAU',
-    'XCD',
-    'XDR',
-    'XOF',
-    'XPD',
-    'XPF',
-    'XPT',
-    'YER',
-    'ZAR',
-    'ZMW',
-    'ZWL',
-];
-
 
 class PayerMobile extends React.Component {
     state = {
@@ -219,7 +54,7 @@ class PayerMobile extends React.Component {
         party: {},
         selectedCurrency: 'KES',
         selectedIdType: 'MSISDN',
-        amount: 10,
+        amount: 100,
         receiverId: '16135551002',
         loading: false,
         partyInfo: {},
@@ -346,39 +181,43 @@ class PayerMobile extends React.Component {
         };
     };
 
+    _getTraceId() {
+        const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix();
+        const currentEndToEndId = TraceHeaderUtils.generateEndToEndId();
+        const sessionId = '123';
+        return traceIdPrefix + sessionId + currentEndToEndId;
+    }
+
+    _getTtkBackendAPIUrl = () => {
+        const { apiBaseUrl } = getConfig();
+        const traceId = this._getTraceId();
+        return `${apiBaseUrl}/api/outbound/template/${traceId}?sync=true`;
+    };
+
     handleInitiateTransfer = async e => {
         this.setState({ loading: true });
 
-        const requestBody = {
-            homeTransactionId: '1234',
-            from: {
-                type: 'CONSUMER',
-                idType: 'MSISDN',
-                idValue: '16135551001',
-                displayName: 'string',
-                firstName: 'Henrik',
-                middleName: 'Johannes',
-                lastName: 'Karlsson',
-                dateOfBirth: '1966-06-16',
-                fspId: this.state.userConfig.FSPID,
-            },
-            to: {
-                type: 'CONSUMER',
-                idType: this.state.selectedIdType,
-                idValue: this.state.receiverId,
-                merchantClassificationCode: 123,
-            },
-            amountType: 'SEND',
-            currency: this.state.selectedCurrency,
-            amount: this.state.amount,
-            transactionType: 'TRANSFER',
-            note: 'Note sent to Payee.',
-            skipPartyLookup: false,
+        templateSdkPostTransfers.inputValues = {
+            AMOUNT_TYPE: 'SEND',
+            AMOUNT: this.state.amount + '',
+            CURRENCY: this.state.selectedCurrency,
+            SOURCE_PARTY_ID: '16135551001',
+            DESTINATION_PARTY_ID_TYPE: this.state.selectedIdType,
+            DESTINATION_PARTY_ID_VALUE: this.state.receiverId,
+            SOURCE_FSP_ID: this.state.userConfig.FSPID,
         };
         let newState = {};
         try {
-            const environmentRes = await axios.post(`${this.state.sdkOutboundApiBaseUrl}/transfers`, requestBody);
-            newState = this._constructStateFromResponse(environmentRes.data);
+            const resp = await axios.post(
+                this._getTtkBackendAPIUrl(),
+                templateSdkPostTransfers,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+            newState = this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body);
             newState.loading = false;
         } catch (err) {
             console.log(err);
@@ -392,15 +231,24 @@ class PayerMobile extends React.Component {
 
     handleAcceptance = async acceptanceType => {
         this.setState({ loading: true });
-        const transferId = this.state.transferId;
 
-        const requestBody = {};
-        requestBody[acceptanceType] = true;
+        templateSdkPutTransfers.inputValues = {
+            TRANSFER_ID: this.state.transferId,
+            ACCEPTANCE_TYPE: acceptanceType,
+        };
         
         let newState = {};
         try {
-            const environmentRes = await axios.put(`${this.state.sdkOutboundApiBaseUrl}/transfers/${transferId}`, requestBody);
-            newState = this._constructStateFromResponse(environmentRes.data);
+            const resp = await axios.post(
+                this._getTtkBackendAPIUrl(),
+                templateSdkPutTransfers,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+            newState = this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body);
             newState.loading = false;
         } catch (err) {
             console.log(err);
@@ -411,17 +259,6 @@ class PayerMobile extends React.Component {
     };
 
     getStepItems = () => {
-        // const steps = [
-        //     { title: 'Finished', description: 'asdf' },
-        //     {
-        //         title: 'In Progress',
-        //         description: 'asdf',
-        //     },
-        //     {
-        //         title: 'Waiting',
-        //         description: 'asdf',
-        //     },
-        // ];
         const steps = [];
         if(this.state.currentState == 'start' && this.state.loading) {
             steps.push({
@@ -449,7 +286,7 @@ class PayerMobile extends React.Component {
         if(this.state.fxQuoteResponse && this.state.fxQuoteResponse.conversionTerms && this.state.fxQuoteResponse.conversionTerms.sourceAmount && this.state.fxQuoteResponse.conversionTerms.targetAmount) {
             steps.push({
                 title: 'Conversion Terms',
-                description: <>Sending {this.state.fxQuoteResponse.conversionTerms.sourceAmount.currency} {this.state.fxQuoteResponse.conversionTerms.sourceAmount.amount}<br />Payee receives {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {this.state.fxQuoteResponse.conversionTerms.targetAmount.amount}</>,
+                description: <>Sending Amount: {this.state.fxQuoteResponse.conversionTerms.sourceAmount.currency} {this.state.fxQuoteResponse.conversionTerms.sourceAmount.amount}<br />Conversion fee: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {Math.round(this.state.fxQuoteResponse.conversionTerms.charges.reduce((acc, obj) => acc + Number(obj.targetAmount.amount), 0))}<br />Converted Amount: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {this.state.fxQuoteResponse.conversionTerms.targetAmount.amount}</>,
                 status: 'finish',
             });
         }
