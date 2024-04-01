@@ -1,0 +1,40 @@
+{
+    "name": "pm4ml_sdk_post_transfer",
+    "test_cases": [
+      {
+        "id": 1,
+        "name": "P2P Transfer Happy Path",
+        "requests": [
+          {
+            "id": 2,
+            "description": "Transfer Followup",
+            "apiVersion": {
+              "minorVersion": 1,
+              "majorVersion": 2,
+              "type": "mojaloop_connector_outbound"
+            },
+            "operationPath": "/transfers/{transferId}",
+            "path": "/transfers/{$inputs.TRANSFER_ID}",
+            "method": "put",
+            "params": {
+              "transferId": "{$inputs.TRANSFER_ID}"
+            },
+            "body": {
+              "{$inputs.ACCEPTANCE_TYPE}": true
+            },
+            "tests": {
+              "assertions": [
+                {
+                  "id": 1,
+                  "description": "Status is 200",
+                  "exec": [
+                    "expect(response.status).to.equal(200)"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
