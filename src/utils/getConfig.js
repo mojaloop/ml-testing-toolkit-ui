@@ -54,7 +54,7 @@ export const getConfig = () => {
         payerAppSimulatorBrandConfig.icon = PAYER_SIM_BRAND_ICON;
     }
 
-    return { apiBaseUrl, isAuthEnabled, payerAppSimulatorBrandConfig };
+    return { apiBaseUrl, isAuthEnabled, payerAppSimulatorBrandConfig, payeeAppSimulatorBrandConfig };
 };
 
 export const getServerConfig = async () => {
