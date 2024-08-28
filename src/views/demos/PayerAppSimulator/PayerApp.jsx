@@ -55,7 +55,7 @@ class PayerMobile extends React.Component {
         selectedCurrency: 'ZMW',
         selectedIdType: 'MSISDN',
         amount: 10,
-        receiverId: '18889991003',
+        receiverId: '265987654321',
         loading: false,
         partyInfo: {},
         transferId: '',
