@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.5.2](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.1...v15.5.2) (2024-08-28)
+
+
+### Bug Fixes
+
+* env variable ([#193](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/193)) ([7c0d07a](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/7c0d07a05b28bbf13df99e6e8b7380fa734d2c16))
+
 ### [15.5.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.0...v15.5.1) (2024-08-28)
 
 
