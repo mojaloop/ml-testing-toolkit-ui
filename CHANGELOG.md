@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.5.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.0...v15.5.1) (2024-08-28)
+
+
+### Bug Fixes
+
+* payer sim brand icon ([#191](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/191)) ([a0efd80](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/a0efd80a2710ec282d35d8a3a0a57ced2f27a7d2))
+
 ## [15.5.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.4.2...v15.5.0) (2024-04-01)
 
 
