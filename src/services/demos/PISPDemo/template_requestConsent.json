@@ -1,0 +1,51 @@
+{
+    "name": "request_consent",
+    "test_cases": [
+      {
+        "id": 7,
+        "name": "request_consent - Request Consent for Third-party Transaction",
+        "requests": [
+          {
+            "id": 1,
+            "description": "Request Consent",
+            "apiVersion": {
+              "minorVersion": 1,
+              "majorVersion": 0,
+              "type": "thirdparty_sdk_outbound"
+            },
+            "operationPath": "/linking/request-consent",
+            "method": "post",
+            "headers": {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            "params": {},
+            "url": "{$inputs.HOST_API}",
+            "ignoreCallbacks": false,
+            "body": {
+              "consentRequestId": "{$inputs.consentRequestId}",
+              "toIdType": "MSISDN",
+              "toIdValue": "{$inputs.phoneNumber}",
+              "accounts": [
+                {
+                  "accountId": "{$inputs.accountId}",
+                  "currency": "{$inputs.currency}"
+                }
+              ],
+              "callbackEndpoint": "{$inputs.callbackUrl}"
+            },
+            "scriptingEngine": "javascript",
+            "scripts": {
+              "preRequest": {
+                "exec": []
+              },
+              "postRequest": {
+                "exec": []
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  

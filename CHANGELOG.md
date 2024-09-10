@@ -2,27 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [15.5.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.2...v15.5.3) (2024-08-28)
-
-
-### Bug Fixes
-
-* config ([#194](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/194)) ([38c8848](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/38c8848307e9d8f9e3d34eb9b25cf2dec82168f1))
-
-### [15.5.2](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.1...v15.5.2) (2024-08-28)
-
-
-### Bug Fixes
-
-* env variable ([#193](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/193)) ([7c0d07a](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/7c0d07a05b28bbf13df99e6e8b7380fa734d2c16))
-
-### [15.5.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.0...v15.5.1) (2024-08-28)
-
-
-### Bug Fixes
-
-* payer sim brand icon ([#191](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/191)) ([a0efd80](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/a0efd80a2710ec282d35d8a3a0a57ced2f27a7d2))
-
 ## [15.5.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.4.2...v15.5.0) (2024-04-01)
 
 

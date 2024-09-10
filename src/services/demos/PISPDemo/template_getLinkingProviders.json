@@ -1,0 +1,39 @@
+{
+    "name": "multi",
+    "test_cases": [
+      {
+        "id": 5,
+        "name": "get_linking_providers - Get Providers",
+        "requests": [
+          {
+            "id": 1,
+            "description": "Get Linking Providers",
+            "apiVersion": {
+              "minorVersion": 1,
+              "majorVersion": 0,
+              "type": "thirdparty_sdk_outbound"
+            },
+            "operationPath": "/linking/providers",
+            "method": "get",
+            "headers": {
+              "Accept": "application/json"
+            },
+            "params": {},
+            "url": "{$inputs.HOST_API}",
+            "ignoreCallbacks": false,
+            "body": {},
+            "scriptingEngine": "javascript",
+            "scripts": {
+              "preRequest": {
+                "exec": []
+              },
+              "postRequest": {
+                "exec": []
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  

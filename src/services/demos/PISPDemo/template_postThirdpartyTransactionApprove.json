@@ -1,0 +1,47 @@
+{
+    "name": "multi",
+    "test_cases": [
+      {
+        "id": 3,
+        "name": "post_thirdpartyTransaction_approve - Approve Transaction",
+        "requests": [
+          {
+            "id": 1,
+            "description": "Post Thirdparty Transaction Approve",
+            "apiVersion": {
+              "minorVersion": 1,
+              "majorVersion": 0,
+              "type": "thirdparty_sdk_outbound"
+            },
+            "operationPath": "/thirdpartyTransaction/{ID}/approve",
+            "method": "post",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            "params": {
+              "ID": "{$request.params.ID}"
+            },
+            "url": "{$inputs.HOST_API}",
+            "ignoreCallbacks": false,
+            "body": {
+              "transactionStatus": {
+                "transactionId": "c51ec534-ee48-4575-b6a9-ead2955b8069",
+                "transactionRequestState": "ACCEPTED"
+              }
+            },
+            "scriptingEngine": "javascript",
+            "scripts": {
+              "preRequest": {
+                "exec": []
+              },
+              "postRequest": {
+                "exec": []
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  

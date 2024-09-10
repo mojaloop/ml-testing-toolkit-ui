@@ -1,0 +1,48 @@
+{
+    "name": "multi",
+    "test_cases": [
+      {
+        "id": 2,
+        "name": "post_thirdpartyTransaction_initiate - Initiate Transaction",
+        "requests": [
+          {
+            "id": 1,
+            "description": "Post Thirdparty Transaction Initiate",
+            "apiVersion": {
+              "minorVersion": 1,
+              "majorVersion": 0,
+              "type": "thirdparty_sdk_outbound"
+            },
+            "operationPath": "/thirdpartyTransaction/{ID}/initiate",
+            "method": "post",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            "params": {
+              "ID": "{$request.params.ID}"
+            },
+            "url": "{$inputs.HOST_API}",
+            "ignoreCallbacks": false,
+            "body": {
+              "authorization": {
+                "authorizationRequestId": "5f8ee7f9-290f-4e03-ae1c-1e81ecf398df",
+                "transactionRequestId": "{$request.params.ID}",
+                "challenge": "<base64 encoded binary - the encoded challenge>"
+              }
+            },
+            "scriptingEngine": "javascript",
+            "scripts": {
+              "preRequest": {
+                "exec": []
+              },
+              "postRequest": {
+                "exec": []
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  

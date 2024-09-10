@@ -182,7 +182,7 @@ class SequenceDiagram extends React.Component {
                         }
                     </Col>
                 </Row>
-                <Row style={{ 'min-height': '200px' }}>
+                <Row style={{ minHeight: '200px' }}>
                     <Col className='text-center' span={24}>
                         <div
                             ref={div => {

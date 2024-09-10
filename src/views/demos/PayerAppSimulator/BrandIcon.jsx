@@ -32,8 +32,8 @@ class BrandIcon extends React.Component {
 
     constructor() {
         super();
-        const { payerAppSimulatorBrandConfig } = getConfig();
-        this.state.image = payerAppSimulatorBrandConfig.icon;
+        const { payeeAppSimulatorBrandConfig } = getConfig();
+        this.state.image = payeeAppSimulatorBrandConfig.icon;
     }
 
     render() {

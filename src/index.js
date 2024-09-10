@@ -25,6 +25,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
+import { format } from 'util';
 
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
@@ -41,6 +42,7 @@ import PayeeMobileSimulator from './views/demos/PayeeAppSimulator/PayeeMobile';
 import PayerMobileSimulator from './views/demos/PayerAppSimulator/PayerMobile';
 import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
 import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx';
+import PISPDemo from './views/demos/PISPDemo/MobileSimulator';
 
 import axios from 'axios';
 
@@ -103,6 +105,7 @@ function App() {
                         <Route exact path='/payermobile' render={props => <PayerMobileSimulator {...props} />} />
                         <Route exact path='/demotestrunner' render={props => <DemoTestRunner {...props} />} />
                         <Route exact path='/demomonitoring' render={props => <DemoMonitoring {...props} />} />
+                        <Route exact path='/pispdemo' render={props => <PISPDemo {...props} />} />
                         <Redirect from='/' to='/admin/index' />
                     </Switch>
             }

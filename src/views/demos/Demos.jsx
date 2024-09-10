@@ -98,6 +98,20 @@ class Demos extends React.Component {
                         </ul>
                     </Col>
                 </Row>
+                <Row className='my-4'>
+                    <Col span={24}>
+                        <ul>
+                            <li>
+                                <a
+                                    href='/pispdemo'
+                                    target='_blank'
+                                >
+                  PISP Demo App
+                                </a>
+                            </li>
+                        </ul>
+                    </Col>
+                </Row>
             </>
         );
     }

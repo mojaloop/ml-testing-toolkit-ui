@@ -22,6 +22,7 @@
  --------------
  ******/
 import React from 'react';
+import _ from 'lodash';
 
 import { Row, Col, Tag, Collapse, Card, Typography } from 'antd';
 
