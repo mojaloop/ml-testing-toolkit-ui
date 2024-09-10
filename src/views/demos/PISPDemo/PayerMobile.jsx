@@ -21,10 +21,10 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, Input, Typography, Card, Button, Result, Select, message } from 'antd';
+import { Row, Col, Input, Card, Button, Result, Select, message } from 'antd';
 import axios from 'axios';
 
-const { Text } = Typography;
+// const { Text } = Typography;
 const { Option } = Select;
 
 class PayerMobile extends React.Component {
@@ -63,10 +63,10 @@ class PayerMobile extends React.Component {
         // initial setup here
     };
 
-    proceedToNextStage = (nextStage) => {
+    proceedToNextStage = nextStage => {
         this.setState(prevState => ({
             previousStage: prevState.stage,
-            stage: nextStage
+            stage: nextStage,
         }));
     };
 
@@ -76,10 +76,10 @@ class PayerMobile extends React.Component {
         try {
             const response = await axios.get('http://localhost:4040/linking/providers');
 
-            if (response && response.data) {
+            if(response && response.data) {
                 const { providers, currentState } = response.data;
 
-                if (currentState === 'providersLookupSuccess') {
+                if(currentState === 'providersLookupSuccess') {
                     this.setState({ dfspList: providers, gettingPartyInfo: false });
                     this.proceedToNextStage('selectDFSP');
                 } else {
@@ -99,12 +99,12 @@ class PayerMobile extends React.Component {
     fetchLinkedAccounts = async () => {
         const { userId, fspId } = this.state;
 
-        if (!userId || userId.length < 10) {
+        if(!userId || userId.length < 10) {
             message.error('User ID must be at least 10 digits');
             return;
         }
 
-        if (!fspId) {
+        if(!fspId) {
             message.error('FSP ID cannot be empty');
             return;
         }
@@ -112,16 +112,16 @@ class PayerMobile extends React.Component {
         try {
             const response = await axios.get(`/linking/accounts/${fspId}/${userId}`);
 
-            if (response && response.data && Array.isArray(response.data.accounts) && response.data.accounts.length > 0) {
+            if(response && response.data && Array.isArray(response.data.accounts) && response.data.accounts.length > 0) {
                 this.setState({ linkedAccounts: response.data.accounts, userIdSubmitted: true });
                 this.proceedToNextStage('selectAccount');
-                console.log(`Linked Accounts:`, response.data.accounts);
+                console.log('Linked Accounts:', response.data.accounts);
             } else {
                 message.error('No linked accounts found');
             }
         } catch (error) {
             console.error('Error fetching linked accounts:', error);
-            if (error.response) {
+            if(error.response) {
                 message.error(`Failed to fetch linked accounts: ${error.response.statusText || 'Unknown error'}`);
             } else {
                 message.error('Failed to fetch linked accounts');
@@ -137,17 +137,17 @@ class PayerMobile extends React.Component {
     handleRequestConsent = async () => {
         const { userId, selectedAccount, selectedDfsp } = this.state;
     
-        if (!userId || userId.length < 10) {
+        if(!userId || userId.length < 10) {
             message.error('User ID must be at least 10 digits');
             return;
         }
     
-        if (!selectedAccount) {
+        if(!selectedAccount) {
             message.error('Please select an account');
             return;
         }
     
-        if (!selectedDfsp) {
+        if(!selectedDfsp) {
             message.error('Please select a DFSP');
             return;
         }
@@ -162,26 +162,26 @@ class PayerMobile extends React.Component {
                         accountNickname: 'SpeXXXXXXXXnt',
                         id: selectedAccount,
                         currency: 'USD',
-                        address: selectedAccount 
-                    }
+                        address: selectedAccount, 
+                    },
                 ],
                 actions: ['ACCOUNTS_TRANSFER'],
                 userId,
-                callbackUri: 'pisp-app://callback'
+                callbackUri: 'pisp-app://callback',
             };
     
             const response = await axios.post('/linking/request-consent', payload, {
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                },
             });
     
             console.log('Consent request response:', response.data);
     
-            if (response.data.currentState === 'OTPAuthenticationChannelResponseReceived') {
+            if(response.data.currentState === 'OTPAuthenticationChannelResponseReceived') {
                 this.setState({
                     consentRequestId: payload.consentRequestId,
-                    stage: 'enterOTP'
+                    stage: 'enterOTP',
                 });
             } else {
                 message.error('Unexpected consent request response state');
@@ -194,7 +194,7 @@ class PayerMobile extends React.Component {
 
     handleOtpVerification = async () => {
         const { otp } = this.state;
-        if (otp.length < 6) {
+        if(otp.length < 6) {
             message.error('OTP must be at least 6 digits');
             return;
         }
@@ -208,8 +208,8 @@ class PayerMobile extends React.Component {
         this.proceedToNextStage('enterPayeePhone');
     };
 
-    handleSearch = async (payeePhone) => {
-        if (payeePhone.length !== 10) {
+    handleSearch = async payeePhone => {
+        if(payeePhone.length !== 10) {
             message.error('Payee phone number must be 10 digits');
             return;
         }
@@ -222,15 +222,15 @@ class PayerMobile extends React.Component {
                 transactionRequestId,
                 payee: {
                     partyIdType: 'MSISDN',
-                    partyIdentifier: payeePhone
-                }
+                    partyIdentifier: payeePhone,
+                },
             };
 
             const resp = await axios.post('/thirdpartyTransaction/partyLookup', payload, {
-                withCredentials: true
+                withCredentials: true,
             });
 
-            if (resp && resp.data) {
+            if(resp && resp.data) {
                 const { currentState, party, errorInformation } = resp.data;
 
                 switch (currentState) {
@@ -242,9 +242,9 @@ class PayerMobile extends React.Component {
                                 middleName: party.name ? party.name.split(' ')[1] : 'Pierre',
                                 lastName: party.name ? party.name.split(' ')[2] : '',
                                 fspId: party.partyIdInfo?.fspId || 'Green Bank',
-                                partyIdInfo: party.partyIdInfo || {}
+                                partyIdInfo: party.partyIdInfo || {},
                             },
-                            gettingPartyInfo: false
+                            gettingPartyInfo: false,
                         });
                         break;
 
@@ -281,17 +281,17 @@ class PayerMobile extends React.Component {
     handleGetQuote = async () => {
         const { payeePhone, amount, selectedCurrency } = this.state;
 
-        if (!payeePhone || payeePhone.length !== 10) {
+        if(!payeePhone || payeePhone.length !== 10) {
             message.error('Payee phone number must be 10 digits');
             return;
         }
 
-        if (!amount || amount <= 0) {
+        if(!amount || amount <= 0) {
             message.error('Amount is required and must be greater than 0');
             return;
         }
 
-        if (!selectedCurrency) {
+        if(!selectedCurrency) {
             message.error('Currency is required');
             return;
         }
@@ -300,12 +300,12 @@ class PayerMobile extends React.Component {
             const { partyInfo, userId, selectedDfsp, transactionRequestId } = this.state;
 
             // Validate partyInfo
-            if (!partyInfo || !partyInfo.partyIdInfo) {
+            if(!partyInfo || !partyInfo.partyIdInfo) {
                 throw new Error('Party information is missing');
             }
 
             // Validate userId
-            if (!userId || userId.length < 10) {
+            if(!userId || userId.length < 10) {
                 throw new Error('Payer partyIdentifier must be at least 10 digits');
             }
 
@@ -314,41 +314,41 @@ class PayerMobile extends React.Component {
                     name: `${partyInfo.firstName} ${partyInfo.middleName} ${partyInfo.lastName}`.trim(),
                     partyIdInfo: {
                         fspId: partyInfo.fspId,
-                        partyIdType: "MSISDN",
-                        partyIdentifier: payeePhone
-                    }
+                        partyIdType: 'MSISDN',
+                        partyIdentifier: payeePhone,
+                    },
                 },
                 payer: {
-                    partyIdType: "THIRD_PARTY_LINK",
+                    partyIdType: 'THIRD_PARTY_LINK',
                     partyIdentifier: userId,
-                    fspId: selectedDfsp
+                    fspId: selectedDfsp,
                 },
-                amountType: "RECEIVE",
+                amountType: 'RECEIVE',
                 amount: {
                     currency: selectedCurrency,
-                    amount: amount.toString()
+                    amount: amount.toString(),
                 },
                 transactionType: {
-                    scenario: "DEPOSIT",
-                    initiator: "PAYER",
-                    initiatorType: "CONSUMER"
+                    scenario: 'DEPOSIT',
+                    initiator: 'PAYER',
+                    initiatorType: 'CONSUMER',
                 },
-                expiration: new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 minutes from now
+                expiration: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutes from now
             };
 
             // Debugging logs
             console.log('Payload:', payload);
             console.log('userId:', userId);
             console.log('payer:', {
-                partyIdType: "THIRD_PARTY_LINK",
+                partyIdType: 'THIRD_PARTY_LINK',
                 partyIdentifier: userId,
-                fspId: selectedDfsp
+                fspId: selectedDfsp,
             });
 
             const response = await axios.post(`/thirdpartyTransaction/${transactionRequestId}/initiate`, payload, {
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                },
             });
 
             // Debugging response
@@ -376,18 +376,18 @@ class PayerMobile extends React.Component {
 
     handlePinSubmit = async () => {
         const { pin } = this.state;
-        if (pin.length < 4) {
+        if(pin.length < 4) {
             message.error('Pin must be at least 4 digits');
             return;
         }
 
         try {
-            const { pin, transactionRequestId, quotesResponse, transferAmount, transferCurrency, amount, selectedCurrency } = this.state;
+            const { transactionRequestId, transferAmount, transferCurrency, amount, selectedCurrency } = this.state;
 
             const signedPayload = 'SIGNED_PAYLOAD_DATA'; // Replace with actual signed payload data
             const signedPayloadType = 'GENERIC';
 
-            if (!signedPayload || !signedPayloadType) {
+            if(!signedPayload || !signedPayloadType) {
                 throw new Error('signedPayload or signedPayloadType is missing from quotesResponse.authorization');
             }
 
@@ -395,20 +395,20 @@ class PayerMobile extends React.Component {
                 authorizationResponse: {
                     signedPayload: {
                         signedPayloadType: signedPayloadType,
-                        genericSignedPayload: signedPayload
+                        genericSignedPayload: signedPayload,
                     },
-                    responseType: "ACCEPTED"
-                }
+                    responseType: 'ACCEPTED',
+                },
             };
 
             const response = await axios.post(`/thirdpartyTransaction/${transactionRequestId}/approve`,
                 payload,
                 {
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
-                    withCredentials: true
-                }
+                    withCredentials: true,
+                },
             );
 
             console.log('Approval response:', response.data);
@@ -416,7 +416,7 @@ class PayerMobile extends React.Component {
             this.setState({
                 transfersResponse: response.data,
                 transferAmount,
-                transferCurrency
+                transferCurrency,
             });
 
             // Send message to PayeeMobile
@@ -424,9 +424,9 @@ class PayerMobile extends React.Component {
                 type: 'PAYMENT_SUCCESS',
                 amount: {
                     amount: amount,
-                    currency: selectedCurrency
+                    currency: selectedCurrency,
                 },
-                payerName: 'Pratap'
+                payerName: 'Pratap',
             }, '*');
 
             this.proceedToNextStage('postTransfers');
@@ -441,7 +441,7 @@ class PayerMobile extends React.Component {
     };
 
     renderStageContent = () => {
-        const { stage, dfspList, accounts, userId, otp, payeePhone, gettingPartyInfo, partyInfo, amount, selectedCurrency, quotesResponse, pin, showPin, transferAmount, transferCurrency, linkedAccounts, userIdSubmitted, selectedAccountLabel } = this.state;
+        const { stage, dfspList, userId, otp, payeePhone, gettingPartyInfo, partyInfo, amount, selectedCurrency, quotesResponse, pin, showPin, linkedAccounts } = this.state;
 
         return (
             <Card size='small'>
@@ -463,11 +463,11 @@ class PayerMobile extends React.Component {
                         <Select
                             style={{ width: '100%', fontSize: '16px', color: 'black'  }}
                             placeholder={<span style={{ color: 'black' }}>Select DFSP</span>} 
-                            onChange={(value) => this.setState({ selectedDfsp: value })}
+                            onChange={value => this.setState({ selectedDfsp: value })}
                             value={this.state.selectedDfsp}
                             dropdownStyle={{ color: 'black' }} 
                         >
-                            {dfspList.map((dfsp) => (
+                            {dfspList.map(dfsp => (
                                 <Option key={dfsp} value={dfsp}>{dfsp}</Option>
                             ))}
                         </Select>
@@ -483,7 +483,7 @@ class PayerMobile extends React.Component {
                         <Input
                             style={{ width: '100%', fontSize: '16px', color: 'black' }}
                             value={userId}
-                            onChange={(e) => this.setState({ userId: e.target.value })}
+                            onChange={e => this.setState({ userId: e.target.value })}
                             placeholder='Enter 10 digit User ID'
                         />
                         {userId.length >= 10 && (
@@ -498,22 +498,22 @@ class PayerMobile extends React.Component {
                             style={{ 
                                 width: '100%', 
                                 fontSize: '9px', 
-                                color: 'black'  // Ensure selected text is black
+                                color: 'black',  // Ensure selected text is black
                             }}
                             placeholder={<span style={{ color: 'black' }}>Select Account</span>}  // Darker placeholder text
                             labelInValue
-                            onChange={(option) => this.setState({
+                            onChange={option => this.setState({
                                 selectedAccount: option.value,
-                                selectedAccountLabel: option.label
+                                selectedAccountLabel: option.label,
                             })}
                             value={this.state.selectedAccount ? {
                                 value: this.state.selectedAccount,
                                 label: this.state.selectedAccountLabel || 
-                                `${linkedAccounts.find(account => account.address === this.state.selectedAccount)?.accountNickname} - ${linkedAccounts.find(account)?.currency}`
+                                `${linkedAccounts.find(account => account.address === this.state.selectedAccount)?.accountNickname} - ${linkedAccounts.find(account)?.currency}`,
                             } : undefined}
                             dropdownStyle={{ color: 'black' }}  // Ensure dropdown options are dark
                         >
-                            {linkedAccounts.map((account) => (
+                            {linkedAccounts.map(account => (
                                 <Option key={account.address} value={account.address}>
                                     {`${account.accountNickname} - ${account.currency}`}
                                 </Option>
@@ -529,162 +529,162 @@ class PayerMobile extends React.Component {
                 )}
 
     
-                    {stage === 'enterOTP' && (
-                        <Card size='small'>
-                            <h3 style={{ fontSize: '20px' }}>Approve Transfers</h3>
-                            <Input
-                                style={{ width: '100%', fontSize: '16px' }}
-                                value={otp}
-                                onChange={(e) => this.setState({ otp: e.target.value })}
-                                placeholder='6 digit OTP    '
-                            />
-                            {otp.length >= 6 && (
-                                <Button type='primary' onClick={this.handleOtpVerification} className='mt-2'>Verify OTP</Button>
-                            )}
-                        </Card>
-                    )}
-                    {stage === 'passCredential' && (
-                        <Card size='small'>
-                            <h3 style={{ fontSize: '20px' }}>Authorizating Credentials...</h3>
-                            <Button type='primary' onClick={this.handlePassCredential}>Next</Button>
-                        </Card>
-                    )}
-                    {stage === 'enterPayeePhone' && (
-                        <Card size='small'>
-                            <h3 style={{ fontSize: '15px' }}>Enter Payee Identifier</h3>
-                            <Input.Search
-                                value={payeePhone}
-                                onChange={(e) => this.setState({ payeePhone: e.target.value })}
-                                placeholder='10 digit phone number'
-                                onSearch={() => this.handleSearch(payeePhone)}
-                                loading={gettingPartyInfo}
-                            />
-                            {partyInfo && (
-                                <div style={{ textAlign: 'left' }}>
-                                    <h3 style={{ fontSize: '15px', marginTop: '4px' }}>Party Info</h3>
-                                    <p style={{ marginBottom: '8px' }}>
-                                        <strong>Name:</strong> {`${partyInfo.firstName || ''} ${partyInfo.middleName || ''} ${partyInfo.lastName || ''}`}
-                                    </p>
-                                    <p style={{ marginBottom: '16px' }}>
-                                        <strong>Bank:</strong> {partyInfo.fspId}
-                                    </p>
-                                    <div style={{ marginBottom: '16px' }}>
-                                        <Input
-                                            type="number"
-                                            value={amount}
-                                            onChange={(e) => this.setState({ amount: e.target.value })}
-                                            placeholder='Enter Amount'
-                                            addonBefore="Amount"
-                                            style={{ width: '100%' }}
-                                        />
-                                    </div>
-                                    <div style={{ marginBottom: '16px' }}>
-                                        <Select
-                                            style={{ width: '100%' }}
-                                            value={selectedCurrency}
-                                            onChange={(value) => this.setState({ selectedCurrency: value })}
-                                            placeholder="Select Currency"
-                                        >
-                                            <Option value="INR">INR</Option>
-                                            <Option value="USD">USD</Option>
-                                        </Select>
-                                    </div>
-                                    {payeePhone.length === 10 && amount > 0 && selectedCurrency && (
-                                        <Button
-                                            type='primary'
-                                            onClick={this.handleGetQuote}
-                                            style={{ width: '100%' }}
-                                        >
-                                            Get Quote
-                                        </Button>
-                                    )}
-                                </div>
-                            )}
-                        </Card>
-                    )}
-                    {stage === 'postQuotes' && (
-                        <Card size='small'>
-                            <h3 style={{ fontSize: '18px', textAlign: 'center' }}>Quote Details</h3>
-    
-                            {/* Display relevant transaction details */}
-                            <Row className='mt-3'>
-                                {/* Transfer Amount */}
-                                {quotesResponse?.authorization?.transferAmount && (
-                                    <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
-                                        <p><strong>Transfer Amount: </strong>{amount} {selectedCurrency}</p>
-                                    </Col>
-                                )}
-    
-                                {/* Payee FSP */}
-                                {quotesResponse?.authorization?.payee?.partyIdInfo?.fspId && (
-                                    <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
-                                        <p><strong>Payee FSP: </strong>{quotesResponse.authorization.payee.partyIdInfo.fspId}</p>
-                                    </Col>
-                                )}
-    
-                                {/* Payer FSP */}
-                                {quotesResponse?.authorization?.payer?.fspId && (
-                                    <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
-                                        <p><strong>Payer FSP: </strong>{quotesResponse.authorization.payer.fspId}</p>
-                                    </Col>
-                                )}
-    
-                                {/* Expiration */}
-                                {quotesResponse?.authorization?.expiration && (
-                                    <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
-                                        <p><strong>Expiration: </strong>{new Date(quotesResponse.authorization.expiration).toLocaleString()}</p>
-                                    </Col>
-                                )}
-                            </Row>
-    
-                            {/* Cancel and Proceed Buttons */}
-                            <Row className='mt-3'>
-                                <Col span={12} style={{ textAlign: 'left' }}> {/* Left aligned buttons */}
-                                    <Button type='default' onClick={this.handleCancel}>Cancel</Button>
-                                </Col>
-                                <Col span={12} style={{ textAlign: 'left' }}> {/* Left aligned buttons */}
-                                    <Button type='primary' onClick={this.handleSend}>Approve</Button>
-                                </Col>
-                            </Row>
-                        </Card>
-                    )}
-    
-                    {stage === 'enterPin' && (
-                        <Card size='small'>
-                            <h3 style={{ fontSize: '20px', textAlign: 'center' }}>Enter Pin</h3>
-                            <Input.Password
-                                value={pin}
-                                onChange={(e) => this.setState({ pin: e.target.value })}
-                                placeholder='Enter PIN'
-                                visibilityToggle={{
-                                    visible: showPin,
-                                    onVisibleChange: this.togglePinVisibility,
-                                }}
-                            />
-                            {pin.length >= 4 && (
-                                <Button type='primary' onClick={this.handlePinSubmit} className='mt-2'>Submit</Button>
-                            )}
-                        </Card>
-                    )}
-    
-                    {stage === 'postTransfers' && (
-                        <Result
-                            status="success"
-                            title="Payment Successful"
-                            subTitle={amount && selectedCurrency && partyInfo?.firstName ? `Your payment of ${amount} ${selectedCurrency} was sent successfully to ${partyInfo.firstName}.` : 'Your payment was processed successfully.'}
+                {stage === 'enterOTP' && (
+                    <Card size='small'>
+                        <h3 style={{ fontSize: '20px' }}>Approve Transfers</h3>
+                        <Input
+                            style={{ width: '100%', fontSize: '16px' }}
+                            value={otp}
+                            onChange={e => this.setState({ otp: e.target.value })}
+                            placeholder='6 digit OTP    '
                         />
-                    )}
-                </Card>
-            );
-        };
+                        {otp.length >= 6 && (
+                            <Button type='primary' onClick={this.handleOtpVerification} className='mt-2'>Verify OTP</Button>
+                        )}
+                    </Card>
+                )}
+                {stage === 'passCredential' && (
+                    <Card size='small'>
+                        <h3 style={{ fontSize: '20px' }}>Authorizating Credentials...</h3>
+                        <Button type='primary' onClick={this.handlePassCredential}>Next</Button>
+                    </Card>
+                )}
+                {stage === 'enterPayeePhone' && (
+                    <Card size='small'>
+                        <h3 style={{ fontSize: '15px' }}>Enter Payee Identifier</h3>
+                        <Input.Search
+                            value={payeePhone}
+                            onChange={e => this.setState({ payeePhone: e.target.value })}
+                            placeholder='10 digit phone number'
+                            onSearch={() => this.handleSearch(payeePhone)}
+                            loading={gettingPartyInfo}
+                        />
+                        {partyInfo && (
+                            <div style={{ textAlign: 'left' }}>
+                                <h3 style={{ fontSize: '15px', marginTop: '4px' }}>Party Info</h3>
+                                <p style={{ marginBottom: '8px' }}>
+                                    <strong>Name:</strong> {`${partyInfo.firstName || ''} ${partyInfo.middleName || ''} ${partyInfo.lastName || ''}`}
+                                </p>
+                                <p style={{ marginBottom: '16px' }}>
+                                    <strong>Bank:</strong> {partyInfo.fspId}
+                                </p>
+                                <div style={{ marginBottom: '16px' }}>
+                                    <Input
+                                        type="number"
+                                        value={amount}
+                                        onChange={e => this.setState({ amount: e.target.value })}
+                                        placeholder='Enter Amount'
+                                        addonBefore="Amount"
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '16px' }}>
+                                    <Select
+                                        style={{ width: '100%' }}
+                                        value={selectedCurrency}
+                                        onChange={value => this.setState({ selectedCurrency: value })}
+                                        placeholder="Select Currency"
+                                    >
+                                        <Option value="INR">INR</Option>
+                                        <Option value="USD">USD</Option>
+                                    </Select>
+                                </div>
+                                {payeePhone.length === 10 && amount > 0 && selectedCurrency && (
+                                    <Button
+                                        type='primary'
+                                        onClick={this.handleGetQuote}
+                                        style={{ width: '100%' }}
+                                    >
+                                            Get Quote
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+                    </Card>
+                )}
+                {stage === 'postQuotes' && (
+                    <Card size='small'>
+                        <h3 style={{ fontSize: '18px', textAlign: 'center' }}>Quote Details</h3>
     
-        render() {
-            return (
-                <div className='payer-mobile'>
-                    {this.renderStageContent()}
-                </div>
-            );
-        }
+                        {/* Display relevant transaction details */}
+                        <Row className='mt-3'>
+                            {/* Transfer Amount */}
+                            {quotesResponse?.authorization?.transferAmount && (
+                                <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
+                                    <p><strong>Transfer Amount: </strong>{amount} {selectedCurrency}</p>
+                                </Col>
+                            )}
+    
+                            {/* Payee FSP */}
+                            {quotesResponse?.authorization?.payee?.partyIdInfo?.fspId && (
+                                <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
+                                    <p><strong>Payee FSP: </strong>{quotesResponse.authorization.payee.partyIdInfo.fspId}</p>
+                                </Col>
+                            )}
+    
+                            {/* Payer FSP */}
+                            {quotesResponse?.authorization?.payer?.fspId && (
+                                <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
+                                    <p><strong>Payer FSP: </strong>{quotesResponse.authorization.payer.fspId}</p>
+                                </Col>
+                            )}
+    
+                            {/* Expiration */}
+                            {quotesResponse?.authorization?.expiration && (
+                                <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
+                                    <p><strong>Expiration: </strong>{new Date(quotesResponse.authorization.expiration).toLocaleString()}</p>
+                                </Col>
+                            )}
+                        </Row>
+    
+                        {/* Cancel and Proceed Buttons */}
+                        <Row className='mt-3'>
+                            <Col span={12} style={{ textAlign: 'left' }}> {/* Left aligned buttons */}
+                                <Button type='default' onClick={this.handleCancel}>Cancel</Button>
+                            </Col>
+                            <Col span={12} style={{ textAlign: 'left' }}> {/* Left aligned buttons */}
+                                <Button type='primary' onClick={this.handleSend}>Approve</Button>
+                            </Col>
+                        </Row>
+                    </Card>
+                )}
+    
+                {stage === 'enterPin' && (
+                    <Card size='small'>
+                        <h3 style={{ fontSize: '20px', textAlign: 'center' }}>Enter Pin</h3>
+                        <Input.Password
+                            value={pin}
+                            onChange={e => this.setState({ pin: e.target.value })}
+                            placeholder='Enter PIN'
+                            visibilityToggle={{
+                                visible: showPin,
+                                onVisibleChange: this.togglePinVisibility,
+                            }}
+                        />
+                        {pin.length >= 4 && (
+                            <Button type='primary' onClick={this.handlePinSubmit} className='mt-2'>Submit</Button>
+                        )}
+                    </Card>
+                )}
+    
+                {stage === 'postTransfers' && (
+                    <Result
+                        status="success"
+                        title="Payment Successful"
+                        subTitle={amount && selectedCurrency && partyInfo?.firstName ? `Your payment of ${amount} ${selectedCurrency} was sent successfully to ${partyInfo.firstName}.` : 'Your payment was processed successfully.'}
+                    />
+                )}
+            </Card>
+        );
+    };
+    
+    render() {
+        return (
+            <div className='payer-mobile'>
+                {this.renderStageContent()}
+            </div>
+        );
     }
+}
     
-    export default PayerMobile;
+export default PayerMobile;

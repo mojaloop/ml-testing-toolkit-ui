@@ -20,98 +20,97 @@
   * Pratap Pawar <iampratappawar@gmail.com> (Original Author)
  --------------
  ******/
- import React from 'react';
- import { Row, Col } from 'antd';
- import mermaid from 'mermaid';
+import React from 'react';
+import { Row, Col } from 'antd';
+import mermaid from 'mermaid';
  
- class TestDiagram extends React.Component {
-     constructor() {
-         super();
-         this.state = {
-             logs: [],
-             lastLogTime: null,
-             sequenceItems: [],
-             seqSteps: '',
-         };
-         this.seqDiagContainer = React.createRef();
-     }
+class TestDiagram extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            logs: [],
+            lastLogTime: null,
+            sequenceItems: [],
+            seqSteps: '',
+        };
+        this.seqDiagContainer = React.createRef();
+    }
  
-     componentDidMount = async () => {
-         this.resetWelcomeMessage();
-     };
+    componentDidMount = async () => {
+        this.resetWelcomeMessage();
+    };
  
-     clearSequence = async () => {
-         this.setState({ seqSteps: '' }, this.refreshSequenceDiagram);
-     };
+    clearSequence = async () => {
+        this.setState({ seqSteps: '' }, this.refreshSequenceDiagram);
+    };
  
-     addSequence = async (source, destination, message, options = { dashed: false, erroneous: false, activation: { mode: null, peer: null } }) => {
-         const dashedStyle = options.dashed ? '-' : '';
-         let newSeqSteps = `${this.state.seqSteps}${source}-${dashedStyle}>>${destination}: ${message}\n`;
+    addSequence = async (source, destination, message, options = { dashed: false, erroneous: false, activation: { mode: null, peer: null } }) => {
+        const dashedStyle = options.dashed ? '-' : '';
+        let newSeqSteps = `${this.state.seqSteps}${source}-${dashedStyle}>>${destination}: ${message}\n`;
  
-         if (options.activation && options.activation.mode && options.activation.peer && (options.activation.mode === 'activate' || options.activation.mode === 'deactivate')) {
-             if (options.activation.peer === 'source') {
-                 newSeqSteps += `${options.activation.mode} ${source}\n`;
-             } else if (options.activation.peer === 'destination') {
-                 newSeqSteps += `${options.activation.mode} ${destination}\n`;
-             } else if (options.activation.peer === 'both') {
-                 newSeqSteps += `${options.activation.mode} ${source}\n`;
-                 newSeqSteps += `${options.activation.mode} ${destination}\n`;
-             }
-         }
+        if(options.activation && options.activation.mode && options.activation.peer && (options.activation.mode === 'activate' || options.activation.mode === 'deactivate')) {
+            if(options.activation.peer === 'source') {
+                newSeqSteps += `${options.activation.mode} ${source}\n`;
+            } else if(options.activation.peer === 'destination') {
+                newSeqSteps += `${options.activation.mode} ${destination}\n`;
+            } else if(options.activation.peer === 'both') {
+                newSeqSteps += `${options.activation.mode} ${source}\n`;
+                newSeqSteps += `${options.activation.mode} ${destination}\n`;
+            }
+        }
  
-         this.setState({ seqSteps: newSeqSteps }, this.refreshSequenceDiagram);
-     };
+        this.setState({ seqSteps: newSeqSteps }, this.refreshSequenceDiagram);
+    };
  
-     addNoteOver = async (source, destination, message) => {
-         const newSeqSteps = `${this.state.seqSteps}Note over ${source},${destination}: ${message}\n`;
-         this.setState({ seqSteps: newSeqSteps }, this.refreshSequenceDiagram);
-     };
+    addNoteOver = async (source, destination, message) => {
+        const newSeqSteps = `${this.state.seqSteps}Note over ${source},${destination}: ${message}\n`;
+        this.setState({ seqSteps: newSeqSteps }, this.refreshSequenceDiagram);
+    };
  
-     addCustomSequence = async (seqText) => {
-         const newSeqSteps = `${this.state.seqSteps}${seqText}\n`;
-         this.setState({ seqSteps: newSeqSteps }, this.refreshSequenceDiagram);
-     };
+    addCustomSequence = async seqText => {
+        const newSeqSteps = `${this.state.seqSteps}${seqText}\n`;
+        this.setState({ seqSteps: newSeqSteps }, this.refreshSequenceDiagram);
+    };
  
-     refreshSequenceDiagram = async () => {
-         const container = this.seqDiagContainer.current;
-         if (container) {
-             container.removeAttribute('data-processed');
-             const code = 'sequenceDiagram\n' + this.state.seqSteps;
-             try {
-                 mermaid.parse(code);
-                 container.innerHTML = code;
-                 mermaid.init(undefined, container);
-             } catch (e) {
-                 console.error('Diagram generation error', e.str || e.message);
-             }
-         }
-     };
+    refreshSequenceDiagram = async () => {
+        const container = this.seqDiagContainer.current;
+        if(container) {
+            container.removeAttribute('data-processed');
+            const code = 'sequenceDiagram\n' + this.state.seqSteps;
+            try {
+                mermaid.parse(code);
+                container.innerHTML = code;
+                mermaid.init(undefined, container);
+            } catch (e) {
+                console.error('Diagram generation error', e.str || e.message);
+            }
+        }
+    };
  
-     handleClearLogs = () => {
-         this.setState({ sequenceItems: [], seqSteps: '' }, this.resetWelcomeMessage);
-     };
+    handleClearLogs = () => {
+        this.setState({ sequenceItems: [], seqSteps: '' }, this.resetWelcomeMessage);
+    };
  
-     resetWelcomeMessage = () => {
-         const container = this.seqDiagContainer.current;
-         if (container) {
-             container.innerHTML = '';
-         }
-     };
+    resetWelcomeMessage = () => {
+        const container = this.seqDiagContainer.current;
+        if(container) {
+            container.innerHTML = '';
+        }
+    };
  
-     render() {
-         return (
-             <>
-                 <Row style={{ minHeight: '200px' }}>
-                     <Col className="text-center" span={24}>
-                         <div
-                             ref={this.seqDiagContainer}
-                         />
-                     </Col>
-                 </Row>
-             </>
-         );
-     }
- }
+    render() {
+        return (
+            <>
+                <Row style={{ minHeight: '200px' }}>
+                    <Col className="text-center" span={24}>
+                        <div
+                            ref={this.seqDiagContainer}
+                        />
+                    </Col>
+                </Row>
+            </>
+        );
+    }
+}
  
- export default TestDiagram;
- 
+export default TestDiagram;

@@ -20,69 +20,69 @@
   * Pratap Pawar <iampratappawar@gmail.com> (Original Author)
  --------------
  ******/
- import React from 'react';
- import { Row, Col, Typography, Result } from 'antd';
- const { Title } = Typography;
+import React from 'react';
+import { Row, Col, Typography, Result } from 'antd';
+const { Title } = Typography;
  
- class PayeeMobile extends React.Component {
-     state = {
-         receivedAmount: null,
-         payerName: null,
-         stage: null,
-     };
+class PayeeMobile extends React.Component {
+    state = {
+        receivedAmount: null,
+        payerName: null,
+        stage: null,
+    };
  
-     componentDidMount() {
-         window.addEventListener('message', this.handlePaymentSuccess);
-     }
+    componentDidMount() {
+        window.addEventListener('message', this.handlePaymentSuccess);
+    }
  
-     componentWillUnmount() {
-         window.removeEventListener('message', this.handlePaymentSuccess);
-     }
+    componentWillUnmount() {
+        window.removeEventListener('message', this.handlePaymentSuccess);
+    }
  
-     handlePaymentSuccess = (event) => {
-         if (event.data && event.data.type === 'PAYMENT_SUCCESS') {
-             console.log('Received payment success message:', event.data);
-             this.setState({
-                 receivedAmount: event.data.amount,
-                 payerName: event.data.payerName,
-                 stage: 'paymentSuccess'
-             });
-         }
-     };
+    handlePaymentSuccess = event => {
+        if(event.data && event.data.type === 'PAYMENT_SUCCESS') {
+            console.log('Received payment success message:', event.data);
+            this.setState({
+                receivedAmount: event.data.amount,
+                payerName: event.data.payerName,
+                stage: 'paymentSuccess',
+            });
+        }
+    };
  
-     getStageData = () => {
-         switch (this.state.stage) {
-             case 'paymentSuccess':
-                 return (
-                     <Row className='mt-2'>
-                         <Col span={24} className='text-center'>
-                             <Result
-                                 status='success'
-                                 title={`Received Payment`}
-                                 subTitle={`Received ${this.state.receivedAmount.amount} ${this.state.receivedAmount.currency} from ${this.state.payerName}`}
-                             />
-                         </Col>
-                     </Row>
-                 );
-             default:
-                 return (
-                     <Row className='mt-4'>
-                         <Col span={24} className='text-center'>
-                             <Title level={3}>Welcome</Title>
-                         </Col>
-                     </Row>
-                 );
-         }
-     };
+    getStageData = () => {
+        switch (this.state.stage) {
+            case 'paymentSuccess':
+                return (
+                    <Row className='mt-2'>
+                        <Col span={24} className='text-center'>
+                            <Result
+                                status='success'
+                                title={'Received Payment'}
+                                subTitle={`Received ${this.state.receivedAmount.amount} ${this.state.receivedAmount.currency} from ${this.state.payerName}`}
+                            />
+                        </Col>
+                    </Row>
+                );
+            default:
+                return (
+                    <Row className='mt-4'>
+                        <Col span={24} className='text-center'>
+                            <Title level={3}>Welcome</Title>
+                        </Col>
+                    </Row>
+                );
+        }
+    };
  
-     render() {
-         return (
-             <>
-                 <Row className='mt-4' />
-                 {this.getStageData()}
-             </>
-         );
-     }
- }
+    render() {
+        return (
+            <>
+                <Row className='mt-4' />
+                {this.getStageData()}
+            </>
+        );
+    }
+}
  
- export default PayeeMobile;
+export default PayeeMobile;

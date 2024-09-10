@@ -161,14 +161,14 @@ class OutboundService {
 
 
     async getLinkingProviders() {
-        const traceId = this.getTraceId();
+        // const traceId = this.getTraceId();
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const template = require('./template_getLinkingProviders.json');
         template.inputValues = this.inputValues;
     
         // POST request directly to localhost:4040/linking/providers
         const resp = await axios.post('http://localhost:4040/linking/providers', template, {
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
         });
         
         return resp;
@@ -230,15 +230,15 @@ class OutboundService {
                 transactionRequestId: transactionRequestId, // Ensure this method or value is properly defined
                 payee: {
                     partyIdType: 'MSISDN', // Assuming 'MSISDN' is the required type
-                    partyIdentifier: partyId + '' // Convert partyId to a string if necessary
-                }
+                    partyIdentifier: partyId + '', // Convert partyId to a string if necessary
+                },
             };
     
             // Post the request
             const resp = await axios.post(
                 'http://localhost:4040/thirdpartyTransaction/partyLookup',
                 payload,
-                { headers: { 'Content-Type': 'application/json' } }
+                { headers: { 'Content-Type': 'application/json' } },
             );
             return resp;
         } catch (error) {
@@ -260,7 +260,6 @@ class OutboundService {
     }
     
 }
-
     
 
 export default OutboundService;

@@ -20,281 +20,281 @@
   * Pratap Pawar <iampratappawar@gmail.com> (Original Author)
  --------------
  ******/
- import React from 'react';
- import { Row, Col, Drawer, Button, Typography, Modal, Tabs } from 'antd';
- import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
- import 'antd/dist/antd.css';
- import mobile_left from '../../../assets/img/mobile_pisp_1_iphone.png';
- import mobile_right from '../../../assets/img/mobile_pisp_2_iphone.png';
+import React from 'react';
+import { Row, Col, Button, Modal, Tabs } from 'antd';
+import { SettingOutlined } from '@ant-design/icons';
+import 'antd/dist/antd.css';
+import mobile_left from '../../../assets/img/mobile_pisp_1_iphone.png';
+import mobile_right from '../../../assets/img/mobile_pisp_2_iphone.png';
  
- import PayerMobile from './PayerMobile.jsx';
- import PayeeMobile from './PayeeMobile.jsx';
- import TestDiagram from './TestDiagram.jsx';
- import TestMonitor from './TestMonitor.jsx';
- import Settings from './Settings.jsx';
- import HUBConsole from './HUBConsole.jsx';
- import NotificationService from '../../../services/demos/PISPDemo/mojaloopNotifications';
- import OutboundService from '../../../services/demos/PISPDemo/mojaloopOutbound';
- import { getServerConfig } from '../../../utils/getConfig';
+import PayerMobile from './PayerMobile.jsx';
+import PayeeMobile from './PayeeMobile.jsx';
+import TestDiagram from './TestDiagram.jsx';
+// import TestMonitor from './TestMonitor.jsx';
+import Settings from './Settings.jsx';
+import HUBConsole from './HUBConsole.jsx';
+import NotificationService from '../../../services/demos/PISPDemo/mojaloopNotifications';
+import OutboundService from '../../../services/demos/PISPDemo/mojaloopOutbound';
+import { getServerConfig } from '../../../utils/getConfig';
  
- const { Text } = Typography;
- const { TabPane } = Tabs;
+// const { Text } = Typography;
+const { TabPane } = Tabs;
  
- class MobileSimulator extends React.Component {
-     state = {
-         payerName: 'Pink Bank',
-         hubName: 'Mojaloop Switch',
-         payeeName: 'Green Bank',
-         payerLogsDrawerVisible: false,
-         payeeLogsDrawerVisible: false,
-         showSettings: false,
-         hubConsoleEnabled: false,
-     };
+class MobileSimulator extends React.Component {
+    state = {
+        payerName: 'Pink Bank',
+        hubName: 'Mojaloop Switch',
+        payeeName: 'Green Bank',
+        payerLogsDrawerVisible: false,
+        payeeLogsDrawerVisible: false,
+        showSettings: false,
+        hubConsoleEnabled: false,
+    };
  
-     constructor() {
-         super();
-         this.payerMobileRef = React.createRef();
-         this.payeeMobileRef = React.createRef();
-         this.testDiagramRef = React.createRef();
-         this.payerMonitorRef = React.createRef();
-         this.payeeMonitorRef = React.createRef();
-         this.settingsRef = React.createRef();
-         this.hubConsoleRef = React.createRef();
-         this.notificationServiceObj = new NotificationService();
-         const sessionId = this.notificationServiceObj.getSessionId();
-         this.outboundServiceObj = new OutboundService(sessionId);
-     }
+    constructor() {
+        super();
+        this.payerMobileRef = React.createRef();
+        this.payeeMobileRef = React.createRef();
+        this.testDiagramRef = React.createRef();
+        this.payerMonitorRef = React.createRef();
+        this.payeeMonitorRef = React.createRef();
+        this.settingsRef = React.createRef();
+        this.hubConsoleRef = React.createRef();
+        this.notificationServiceObj = new NotificationService();
+        const sessionId = this.notificationServiceObj.getSessionId();
+        this.outboundServiceObj = new OutboundService(sessionId);
+    }
  
-     componentDidMount = async () => {
-         this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents);
-         this.fetchConfiguration();
-     };
+    componentDidMount = async () => {
+        this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents);
+        this.fetchConfiguration();
+    };
  
-     componentWillUnmount = () => {
-         this.notificationServiceObj.disconnect();
-     };
+    componentWillUnmount = () => {
+        this.notificationServiceObj.disconnect();
+    };
  
-     fetchConfiguration = async () => {
-         const { userConfigRuntime } = await getServerConfig();
-         const hubConsoleEnabled = userConfigRuntime && userConfigRuntime.UI_CONFIGURATION && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR.HUB_CONSOLE_ENABLED;
-         this.setState({ hubConsoleEnabled });
-     };
+    fetchConfiguration = async () => {
+        const { userConfigRuntime } = await getServerConfig();
+        const hubConsoleEnabled = userConfigRuntime && userConfigRuntime.UI_CONFIGURATION && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR && userConfigRuntime.UI_CONFIGURATION.MOBILE_SIMULATOR.HUB_CONSOLE_ENABLED;
+        this.setState({ hubConsoleEnabled });
+    };
  
-     handleNotificationEvents = event => {
-         if(event.category === 'payer') {
-             if(this.payerMobileRef.current)
-                 this.payerMobileRef.current.handleNotificationEvents(event);
-             this.updateSequenceDiagram(event);
-         } else if(event.category === 'payee') {
-             if(this.payeeMobileRef.current)
-                 this.payeeMobileRef.current.handleNotificationEvents(event);
-             this.updateSequenceDiagram(event);
-         } else if(event.category === 'payerMonitorLog') {
-             if(this.payerMonitorRef.current)
-                 this.payerMonitorRef.current.appendLog(event.data.log);
-         } else if(event.category === 'payeeMonitorLog') {
-             if(this.payeeMonitorRef.current)
-                 this.payeeMonitorRef.current.appendLog(event.data.log);
-         } else if(event.category === 'settingsLog') {
-             if(this.settingsRef.current)
-                 this.settingsRef.current.handleNotificationEvents(event);
-         } else if(event.category === 'hubConsole') {
-             if(this.hubConsoleRef.current)
-                 this.hubConsoleRef.current.handleNotificationEvents(event);
-         }
-     };
+    handleNotificationEvents = event => {
+        if(event.category === 'payer') {
+            if(this.payerMobileRef.current)
+                this.payerMobileRef.current.handleNotificationEvents(event);
+            this.updateSequenceDiagram(event);
+        } else if(event.category === 'payee') {
+            if(this.payeeMobileRef.current)
+                this.payeeMobileRef.current.handleNotificationEvents(event);
+            this.updateSequenceDiagram(event);
+        } else if(event.category === 'payerMonitorLog') {
+            if(this.payerMonitorRef.current)
+                this.payerMonitorRef.current.appendLog(event.data.log);
+        } else if(event.category === 'payeeMonitorLog') {
+            if(this.payeeMonitorRef.current)
+                this.payeeMonitorRef.current.appendLog(event.data.log);
+        } else if(event.category === 'settingsLog') {
+            if(this.settingsRef.current)
+                this.settingsRef.current.handleNotificationEvents(event);
+        } else if(event.category === 'hubConsole') {
+            if(this.hubConsoleRef.current)
+                this.hubConsoleRef.current.handleNotificationEvents(event);
+        }
+    };
  
-     clearEverything = () => {
-         if(this.testDiagramRef.current) {
-             this.testDiagramRef.current.clearSequence();
-         }
-         if(this.payerMonitorRef.current) {
-             this.payerMonitorRef.current.clearLogs();
-         }
-         if(this.payeeMonitorRef.current) {
-             this.payeeMonitorRef.current.clearLogs();
-         }
-     };
+    clearEverything = () => {
+        if(this.testDiagramRef.current) {
+            this.testDiagramRef.current.clearSequence();
+        }
+        if(this.payerMonitorRef.current) {
+            this.payerMonitorRef.current.clearLogs();
+        }
+        if(this.payeeMonitorRef.current) {
+            this.payeeMonitorRef.current.clearLogs();
+        }
+    };
  
-     updateSequenceDiagram = event => {
-         switch (event.type) {
-             // Payer Side Events
-             case 'getParties':
-             {
-                 this.clearEverything();
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-                 }
-                 break;
-             }
-             case 'getPartiesResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'putParties':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'putPartiesResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
-                 }
-                 break;
-             }
-             case 'postQuotes':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addNoteOver(this.state.payerName, this.state.payeeName, 'Quotes');
-                     this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-                 }
-                 break;
-             }
-             case 'postQuotesResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'putQuotes':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'putQuotesResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
-                 }
-                 break;
-             }
-             case 'postTransfers':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addNoteOver(this.state.payerName, this.state.payeeName, 'Transfer');
-                     this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-                 }
-                 break;
-             }
-             case 'postTransfersResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'putTransfers':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'putTransfersResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
-                 }
-                 break;
-             }
+    updateSequenceDiagram = event => {
+        switch (event.type) {
+            // Payer Side Events
+            case 'getParties':
+            {
+                this.clearEverything();
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                }
+                break;
+            }
+            case 'getPartiesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putParties':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putPartiesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
+                }
+                break;
+            }
+            case 'postQuotes':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addNoteOver(this.state.payerName, this.state.payeeName, 'Quotes');
+                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                }
+                break;
+            }
+            case 'postQuotesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putQuotes':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putQuotesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
+                }
+                break;
+            }
+            case 'postTransfers':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addNoteOver(this.state.payerName, this.state.payeeName, 'Transfer');
+                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                }
+                break;
+            }
+            case 'postTransfersResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putTransfers':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putTransfersResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payerName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
+                }
+                break;
+            }
  
-             // Payee Side Events
-             case 'payeeGetParties':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addCustomSequence(`rect rgb(255, 245, 173)\n${this.state.hubName}-->>${this.state.hubName}: Oracle Lookup\nend\n`);
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'payeeGetPartiesResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
-                 }
-                 break;
-             }
-             case 'payeePutParties':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
-                 }
-                 break;
-             }
-             case 'payeePutPartiesResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'payeePostQuotes':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'payeePostQuotesResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
-                 }
-                 break;
-             }
-             case 'payeePutQuotes':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
-                 }
-                 break;
-             }
-             case 'payeePutQuotesResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'payeePostTransfers':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                 }
-                 break;
-             }
-             case 'payeePostTransfersResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
-                 }
-                 break;
-             }
-             case 'payeePutTransfers':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
-                 }
-                 break;
-             }
-             case 'payeePutTransfersResponse':
-             {
-                 if(this.testDiagramRef.current) {
-                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                 }
-                 break;
-             }
-         }
-     };
+            // Payee Side Events
+            case 'payeeGetParties':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addCustomSequence(`rect rgb(255, 245, 173)\n${this.state.hubName}-->>${this.state.hubName}: Oracle Lookup\nend\n`);
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'payeeGetPartiesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
+                }
+                break;
+            }
+            case 'payeePutParties':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
+                }
+                break;
+            }
+            case 'payeePutPartiesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'payeePostQuotes':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'payeePostQuotesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
+                }
+                break;
+            }
+            case 'payeePutQuotes':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
+                }
+                break;
+            }
+            case 'payeePutQuotesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'payeePostTransfers':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'payeePostTransfersResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
+                }
+                break;
+            }
+            case 'payeePutTransfers':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payeeName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
+                }
+                break;
+            }
+            case 'payeePutTransfersResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
+        }
+    };
  
     render() {
         return (
