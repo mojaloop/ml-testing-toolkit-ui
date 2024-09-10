@@ -5,11 +5,14 @@
 ### 1.1 With Docker
 
 This is the easiest way to run the self testing toolkit ui.
+
 The following software should be installed on your system to run the toolkit.
+
 * Git
 * Docker
 
 Please execute the following lines to build and run the application. 
+
 ```bash
 git clone https://github.com/mojaloop/ml-testing-toolkit-ui
 cd ml-testing-toolkit-ui
@@ -27,10 +30,12 @@ docker-compose up
 ### 1.2 Running locally
 
 The following software should be installed on your system to run the toolkit ui locally.
+
 * Git
 * NodeJS
   
 Please execute the following lines to run the toolkit ui.
+
 ```
 git clone https://github.com/mojaloop/ml-testing-toolkit-ui.git
 cd ml-testing-toolkit-ui
@@ -46,6 +51,7 @@ If you run the testing toolkit UI locally, you can find out the port number in t
 
 You should run testing toolkit backend service to use this UI.
 Please follow this link to learn about backend service.
+
 https://github.com/mojaloop/ml-testing-toolkit/blob/main/README.md
 
 -------
@@ -55,11 +61,13 @@ https://github.com/mojaloop/ml-testing-toolkit/blob/main/README.md
 We use `npm-audit-resolver` along with `npm audit` to check dependencies for node vulnerabilities, and keep track of resolved dependencies with an `audit-resolve.json` file.
 
 To start a new resolution process, run:
+
 ```bash
 npm run audit:resolve
 ```
 
 You can then check to see if the CI will pass based on the current dependencies with:
+
 ```bash
 npm run audit:check
 ```
