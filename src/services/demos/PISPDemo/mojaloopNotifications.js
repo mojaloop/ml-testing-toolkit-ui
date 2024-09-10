@@ -108,46 +108,6 @@ class NotificationService {
         });
     };
 
-    notifySettingsTestCaseProgress = progress => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const template = require('./template_provisioning.json');
-        if(progress.status === 'FINISHED') {
-            this.notificationEventFunction({
-                category: 'settingsLog',
-                type: 'testCaseFinished',
-                data: {
-                    progress,
-                },
-            });
-            // progress.totalResult
-        } else if(progress.status === 'TERMINATED') {
-            this.notificationEventFunction({
-                category: 'settingsLog',
-                type: 'testCaseTerminated',
-                data: {
-                    progress,
-                },
-            });
-        } else {
-            const testCase = template.test_cases.find(item => item.id === progress.testCaseId);
-            if(testCase) {
-                // let request = testCase.requests.find(item => item.id === progress.requestId)
-                // Update total passed count
-                // const passedCount = (progress.testResult) ? progress.testResult.passedCount : 0
-                // this.state.totalPassedCount += passedCount
-                this.notificationEventFunction({
-                    category: 'settingsLog',
-                    type: 'testCaseProgress',
-                    data: {
-                        testCaseName: testCase.name,
-                        testCaseRequestCount: testCase.requests.length,
-                        progress,
-                    },
-                });
-            }
-        }
-    };
-
     notifyGetHubConsoleInitValues = progress => {
         if(progress.status === 'FINISHED') {
             this.notificationEventFunction({
