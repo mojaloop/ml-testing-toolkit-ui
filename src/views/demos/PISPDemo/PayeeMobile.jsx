@@ -58,7 +58,7 @@ class PayeeMobile extends React.Component {
                         <Col span={24} className='text-center'>
                             <Result
                                 status='success'
-                                title={'Received Payment'}
+                                title={<span style={{ fontSize: '20px' }}>Received Payment</span>}
                                 subTitle={`Received ${this.state.receivedAmount.amount} ${this.state.receivedAmount.currency} from ${this.state.payerName}`}
                             />
                         </Col>

@@ -446,22 +446,22 @@ class PayerMobile extends React.Component {
         return (
             <Card size='small'>
                 {stage !== null && stage !== 'enterPayeePhone' && stage !== 'postTransfers' && (
-                    <Button type='default' onClick={this.handleBack} style={{ marginBottom: '1em' }}>
+                    <Button type='default' onClick={this.handleBack} style={{ marginBottom: '1em', fontSize: '12px'  }}>
                         Back
                     </Button>
                 )}
                 {stage === null && (
                     <Row className='mt-3'>
                         <Col span={24} className='text-center'>
-                            <Button type='primary' shape='round' onClick={this.fetchDFSPs}>Link your account</Button>
+                            <Button type='primary' shape='round' onClick={this.fetchDFSPs} >Link your account</Button>
                         </Col>
                     </Row>
                 )}
                 {stage === 'selectDFSP' && (
                     <Card size='small'>
-                        <h3 style={{ fontSize: '20px' }}>Select DFSP</h3>
+                        <h5 style={{ fontSize: '14px' }}>Select DFSP</h5>
                         <Select
-                            style={{ width: '100%', fontSize: '16px', color: 'black'  }}
+                            style={{ width: '100%', fontSize: '12px', color: 'black'  }}
                             placeholder={<span style={{ color: 'black' }}>Select DFSP</span>} 
                             onChange={value => this.setState({ selectedDfsp: value })}
                             value={this.state.selectedDfsp}
@@ -472,35 +472,35 @@ class PayerMobile extends React.Component {
                             ))}
                         </Select>
                         {this.state.selectedDfsp && (
-                            <Button type='primary' onClick={this.fetchAccounts} className='mt-2'>Next</Button>
+                            <Button type='primary' onClick={this.fetchAccounts} className='mt-2' style={{ fontSize: '12px' }}>Next</Button>
                         )}
                     </Card>
                 )}
 
                 {stage === 'enterUserId' && (
                     <Card size='small'>
-                        <h3 style={{ fontSize: '20px' }}>Enter User Id</h3>
+                        <h5 style={{ fontSize: '14px' }}>Enter User Id</h5>
                         <Input
-                            style={{ width: '100%', fontSize: '16px', color: 'black' }}
+                            style={{ width: '100%', fontSize: '12px', color: 'black' }}
                             value={userId}
                             onChange={e => this.setState({ userId: e.target.value })}
                             placeholder='Enter 10 digit User ID'
                         />
                         {userId.length >= 10 && (
-                            <Button type='primary' onClick={this.fetchLinkedAccounts} className='mt-2'>Next</Button>
+                            <Button type='primary' onClick={this.fetchLinkedAccounts} className='mt-2' style={{ fontSize: '12px' }}>Next</Button>
                         )}
                     </Card>
                 )}
                 {stage === 'selectAccount' && (
                     <Card size='small'>
-                        <h3 style={{ fontSize: '20px' }}>Select Account</h3>
+                        <h3 style={{ fontSize: '14px' }}>Select Account</h3>
                         <Select
                             style={{ 
                                 width: '100%', 
                                 fontSize: '9px', 
                                 color: 'black',  // Ensure selected text is black
                             }}
-                            placeholder={<span style={{ color: 'black' }}>Select Account</span>}  // Darker placeholder text
+                            placeholder={<span style={{ color: 'black', fontSize: '12px'  }}>Select Account</span>}  // Darker placeholder text
                             labelInValue
                             onChange={option => this.setState({
                                 selectedAccount: option.value,
@@ -511,7 +511,7 @@ class PayerMobile extends React.Component {
                                 label: this.state.selectedAccountLabel || 
                                 `${linkedAccounts.find(account => account.address === this.state.selectedAccount)?.accountNickname} - ${linkedAccounts.find(account)?.currency}`,
                             } : undefined}
-                            dropdownStyle={{ color: 'black' }}  // Ensure dropdown options are dark
+                            dropdownStyle={{ color: 'black', fontSize: '10px'  }}  // Ensure dropdown options are dark
                         >
                             {linkedAccounts.map(account => (
                                 <Option key={account.address} value={account.address}>
@@ -521,7 +521,7 @@ class PayerMobile extends React.Component {
                         </Select>
 
                         {this.state.selectedAccount && (
-                            <Button type='primary' onClick={this.handleRequestConsent} className='mt-2'>
+                            <Button type='primary' onClick={this.handleRequestConsent} className='mt-2' style={{ fontSize: '12px' }}> 
                                 Next
                             </Button>
                         )}
@@ -531,27 +531,27 @@ class PayerMobile extends React.Component {
     
                 {stage === 'enterOTP' && (
                     <Card size='small'>
-                        <h3 style={{ fontSize: '20px' }}>Approve Transfers</h3>
+                        <h3 style={{ fontSize: '14px' }}>Approve Transfers</h3>
                         <Input
-                            style={{ width: '100%', fontSize: '16px' }}
+                            style={{ width: '100%', fontSize: '12px' }}
                             value={otp}
                             onChange={e => this.setState({ otp: e.target.value })}
                             placeholder='6 digit OTP    '
                         />
                         {otp.length >= 6 && (
-                            <Button type='primary' onClick={this.handleOtpVerification} className='mt-2'>Verify OTP</Button>
+                            <Button type='primary' onClick={this.handleOtpVerification} className='mt-2' style={{ fontSize: '12px' }}>Verify OTP</Button>
                         )}
                     </Card>
                 )}
                 {stage === 'passCredential' && (
                     <Card size='small'>
-                        <h3 style={{ fontSize: '20px' }}>Authorizating Credentials...</h3>
-                        <Button type='primary' onClick={this.handlePassCredential}>Next</Button>
+                        <h3 style={{ fontSize: '14px' }}>Authorizating Credentials...</h3>
+                        <Button type='primary' onClick={this.handlePassCredential} style={{ fontSize: '12px' }}>Next</Button>
                     </Card>
                 )}
                 {stage === 'enterPayeePhone' && (
                     <Card size='small'>
-                        <h3 style={{ fontSize: '15px' }}>Enter Payee Identifier</h3>
+                        <h3 style={{ fontSize: '14px' }}>Enter Payee Identifier</h3>
                         <Input.Search
                             value={payeePhone}
                             onChange={e => this.setState({ payeePhone: e.target.value })}
@@ -561,26 +561,26 @@ class PayerMobile extends React.Component {
                         />
                         {partyInfo && (
                             <div style={{ textAlign: 'left' }}>
-                                <h3 style={{ fontSize: '15px', marginTop: '4px' }}>Party Info</h3>
-                                <p style={{ marginBottom: '8px' }}>
+                                <h3 style={{ fontSize: '14px', marginTop: '4px', fontSize: '10px' }}>Party Info</h3>
+                                <p style={{ marginBottom: '8px', fontSize: '10px' }}>
                                     <strong>Name:</strong> {`${partyInfo.firstName || ''} ${partyInfo.middleName || ''} ${partyInfo.lastName || ''}`}
                                 </p>
-                                <p style={{ marginBottom: '16px' }}>
+                                <p style={{ marginBottom: '14px', fontSize: '10px' }}>
                                     <strong>Bank:</strong> {partyInfo.fspId}
                                 </p>
-                                <div style={{ marginBottom: '16px' }}>
+                                <div style={{ marginBottom: '14px',fontSize: '10px'  }}>
                                     <Input
                                         type="number"
                                         value={amount}
                                         onChange={e => this.setState({ amount: e.target.value })}
                                         placeholder='Enter Amount'
                                         addonBefore="Amount"
-                                        style={{ width: '100%' }}
+                                        style={{ width: '100%', fontSize: '10px' }}
                                     />
                                 </div>
-                                <div style={{ marginBottom: '16px' }}>
+                                <div style={{ marginBottom: '14px', fontSize: '10px' }}>
                                     <Select
-                                        style={{ width: '100%' }}
+                                        style={{ width: '100%', fontSize: '10px' }}
                                         value={selectedCurrency}
                                         onChange={value => this.setState({ selectedCurrency: value })}
                                         placeholder="Select Currency"
@@ -610,28 +610,28 @@ class PayerMobile extends React.Component {
                         <Row className='mt-3'>
                             {/* Transfer Amount */}
                             {quotesResponse?.authorization?.transferAmount && (
-                                <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
+                                <Col span={24} style={{ textAlign: 'left', fontSize: '10px'  }}> {/* Aligns content to the left */}
                                     <p><strong>Transfer Amount: </strong>{amount} {selectedCurrency}</p>
                                 </Col>
                             )}
     
                             {/* Payee FSP */}
                             {quotesResponse?.authorization?.payee?.partyIdInfo?.fspId && (
-                                <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
+                                <Col span={24} style={{ textAlign: 'left', fontSize: '10px' }}> {/* Aligns content to the left */}
                                     <p><strong>Payee FSP: </strong>{quotesResponse.authorization.payee.partyIdInfo.fspId}</p>
                                 </Col>
                             )}
     
                             {/* Payer FSP */}
                             {quotesResponse?.authorization?.payer?.fspId && (
-                                <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
+                                <Col span={24} style={{ textAlign: 'left', fontSize: '10px' }}> {/* Aligns content to the left */}
                                     <p><strong>Payer FSP: </strong>{quotesResponse.authorization.payer.fspId}</p>
                                 </Col>
                             )}
     
                             {/* Expiration */}
                             {quotesResponse?.authorization?.expiration && (
-                                <Col span={24} style={{ textAlign: 'left' }}> {/* Aligns content to the left */}
+                                <Col span={24} style={{ textAlign: 'left', fontSize: '10px' }}> {/* Aligns content to the left */}
                                     <p><strong>Expiration: </strong>{new Date(quotesResponse.authorization.expiration).toLocaleString()}</p>
                                 </Col>
                             )}
@@ -639,10 +639,10 @@ class PayerMobile extends React.Component {
     
                         {/* Cancel and Proceed Buttons */}
                         <Row className='mt-3'>
-                            <Col span={12} style={{ textAlign: 'left' }}> {/* Left aligned buttons */}
+                            <Col span={12} style={{ textAlign: 'left', fontSize: '10px' }}> {/* Left aligned buttons */}
                                 <Button type='default' onClick={this.handleCancel}>Cancel</Button>
                             </Col>
-                            <Col span={12} style={{ textAlign: 'left' }}> {/* Left aligned buttons */}
+                            <Col span={12} style={{ textAlign: 'left', fontSize: '10px' }}> {/* Left aligned buttons */}
                                 <Button type='primary' onClick={this.handleSend}>Approve</Button>
                             </Col>
                         </Row>
@@ -651,7 +651,7 @@ class PayerMobile extends React.Component {
     
                 {stage === 'enterPin' && (
                     <Card size='small'>
-                        <h3 style={{ fontSize: '20px', textAlign: 'center' }}>Enter Pin</h3>
+                        <h3 style={{ fontSize: '14px', textAlign: 'center' }}>Enter Pin</h3>
                         <Input.Password
                             value={pin}
                             onChange={e => this.setState({ pin: e.target.value })}
@@ -662,7 +662,7 @@ class PayerMobile extends React.Component {
                             }}
                         />
                         {pin.length >= 4 && (
-                            <Button type='primary' onClick={this.handlePinSubmit} className='mt-2'>Submit</Button>
+                            <Button type='primary' onClick={this.handlePinSubmit} className='mt-2' style={{ fontSize: '12px' }} >Submit</Button>
                         )}
                     </Card>
                 )}
@@ -670,7 +670,7 @@ class PayerMobile extends React.Component {
                 {stage === 'postTransfers' && (
                     <Result
                         status="success"
-                        title="Payment Successful"
+                        title={<span style={{ fontSize: '20px' }}>Payment Successful</span>}
                         subTitle={amount && selectedCurrency && partyInfo?.firstName ? `Your payment of ${amount} ${selectedCurrency} was sent successfully to ${partyInfo.firstName}.` : 'Your payment was processed successfully.'}
                     />
                 )}

@@ -32,10 +32,10 @@ This guide will walk you through the steps to set up and run the PISP (Payment I
 
 5. Start the development server:
    ```
-   PORT=6060 HOST=localhost ./node_modules/.bin/react-scripts start
+   PORT=6061 HOST=localhost ./node_modules/.bin/react-scripts start
    ```
 
-   The UI should now be running at `http://localhost:6060`.
+   The UI should now be running at `http://localhost:6061`.
 
 ## Step 2: Set up the PISP TTK Sandbox
 
@@ -50,7 +50,7 @@ Once both the ML Testing Toolkit UI and the PISP TTK Sandbox are running:
 
 1. Open your web browser and navigate to:
    ```
-   http://localhost:6060/pispdemo
+   http://localhost:6061/pispdemo
    ```
 
 2. You should now be able to interact with the PISP Demonstration.
