@@ -568,7 +568,7 @@ class PayerMobile extends React.Component {
                                 <p style={{ marginBottom: '14px', fontSize: '10px' }}>
                                     <strong>Bank:</strong> {partyInfo.fspId}
                                 </p>
-                                <div style={{ marginBottom: '14px',fontSize: '10px'  }}>
+                                <div style={{ marginBottom: '14px', fontSize: '10px'  }}>
                                     <Input
                                         type="number"
                                         value={amount}
