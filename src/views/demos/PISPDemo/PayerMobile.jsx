@@ -615,7 +615,7 @@ class PayerMobile extends React.Component {
                                 </Col>
                             )}
     
-                            {/* Payee FSP  */}
+                            {/* Payee FSP */}
                             {quotesResponse?.authorization?.payee?.partyIdInfo?.fspId && (
                                 <Col span={24} style={{ textAlign: 'left', fontSize: '10px' }}> {/* Aligns content to the left */}
                                     <p><strong>Payee FSP: </strong>{quotesResponse.authorization.payee.partyIdInfo.fspId}</p>
