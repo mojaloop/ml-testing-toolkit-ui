@@ -22,7 +22,6 @@
  --------------
  ******/
 import React from 'react';
-
 import { Row, Col, Tag, Collapse, Card, Typography } from 'antd';
 
 import { TTKColors } from '../../utils/styleHelpers';

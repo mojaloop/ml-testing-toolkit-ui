@@ -30,7 +30,7 @@ class Dashboard extends React.Component {
         return (
             <>
 
-                <Row style={{ 'min-height': '200px' }}>
+                <Row style={{ minHeight: '200px' }}>
                     <Col className='text-center' span={24}>
                         <h4><br /><br /><br />Welcome to Testing Toolkit</h4>
                     </Col>

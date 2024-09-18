@@ -95,3 +95,5 @@ to push the latest generated CHANGELOG and package version number.
 
 Once those changes are pushed, CircleCI will pull the updated main, tag and
 push a release triggering another subsequent build that also publishes a docker image.
+
+## [PISP Demonstration Setup Guide (click here)](./src/views/demos/PISPDemo/PISP-Instructions.md)

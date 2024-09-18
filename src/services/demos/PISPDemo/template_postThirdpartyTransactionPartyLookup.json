@@ -1,0 +1,48 @@
+{
+    "name": "multi",
+    "test_cases": [
+      {
+        "id": 1,
+        "name": "post_thirdpartyTransaction_partyLookup - Party Lookup",
+        "requests": [
+          {
+            "id": 1,
+            "description": "Post Thirdparty Transaction Party Lookup",
+            "apiVersion": {
+              "minorVersion": 1,
+              "majorVersion": 0,
+              "type": "thirdparty_sdk_outbound"
+            },
+            "operationPath": "/thirdpartyTransaction/partyLookup",
+            "method": "post",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            "params": {},
+            "url": "{$inputs.HOST_API}",
+            "ignoreCallbacks": false,
+            "body": {
+              "payee": {
+                "partyIdInfo": {
+                  "partyIdType": "{$request.body.payee.partyIdType}",
+                  "partyIdentifier": "{$request.body.payee.partyIdentifier}",
+                  "fspId": "pispA"
+                }
+              }
+            },
+            "scriptingEngine": "javascript",
+            "scripts": {
+              "preRequest": {
+                "exec": []
+              },
+              "postRequest": {
+                "exec": []
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  
