@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.6.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.3...v15.6.0) (2024-09-19)
+
+
+### Features
+
+* **203:** adding pisp demonstration ([#196](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/196)) ([bf1c77b](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/bf1c77b4b790c93bc8c15df5622db72a6a4e4202))
+
 ### [15.5.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.2...v15.5.3) (2024-08-28)
 
 
