@@ -264,6 +264,7 @@ class OutboundRequest extends React.Component {
                         request.status.response = progress.response;
                         request.status.callback = progress.callback;
                         request.status.requestSent = progress.requestSent;
+                        request.status.transformedRequest = progress.transformedRequest;
                         request.status.additionalInfo = progress.additionalInfo;
                         request.status.testResult = progress.testResult;
                     } else if(progress.status === 'ERROR') {
@@ -271,6 +272,7 @@ class OutboundRequest extends React.Component {
                         request.status.response = progress.response;
                         request.status.callback = progress.callback;
                         request.status.requestSent = progress.requestSent;
+                        request.status.transformedRequest = progress.transformedRequest;
                         request.status.additionalInfo = progress.additionalInfo;
                         request.status.testResult = progress.testResult;
                         // Clear the waiting status of the remaining requests
