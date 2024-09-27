@@ -229,8 +229,9 @@ class OutboundRequest extends React.Component {
         this.startAutoSaveTimer();
     };
 
-    handleInputValuesChange = newInputValues => {
-        this.setState({ inputValues: newInputValues });
+    handleEnvironmentChange = newEnvironment => {
+        this.state.template.options = { ...newEnvironment.options };
+        this.setState({ inputValues: newEnvironment.inputValues });
     };
 
     handleIncomingProgress = progress => {
@@ -1000,7 +1001,7 @@ class OutboundRequest extends React.Component {
                     visible={this.state.environmentManagerVisible}
                 >
                     <EnvironmentManager
-                        onChange={this.handleInputValuesChange}
+                        onChange={this.handleEnvironmentChange}
                     />
                 </Drawer>
 
