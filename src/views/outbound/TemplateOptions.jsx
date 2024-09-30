@@ -46,6 +46,16 @@ class TemplateOptions extends React.Component {
                     onChange={e => this.props.onChange(itemName, +e.target.value)}
                 />
             );
+        } else if(itemName === 'generateIDType') {
+            return (
+                <Radio.Group
+                    onChange={e => this.props.onChange(itemName, e.target.value)}
+                    value={this.props.values[itemName]}
+                >
+                    <Radio value={'uuid'}>UUID</Radio>
+                    <Radio value={'ulid'}>ULID</Radio>
+                </Radio.Group>
+            );
         } else if(itemName === 'transformerName') {
             return (
                 <Radio.Group

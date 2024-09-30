@@ -608,8 +608,8 @@ class TestCaseEditor extends React.Component {
                 if(item.status && item.status.requestSent) {
                     requestShow = item.status.requestSent;
                     suffixRequestBody = ' Sent';
-                    if(item.status && item.status.transformedRequest && item.status.transformedRequest.body) {
-                        requestShow.body = item.status.transformedRequest.body;
+                    if(item.status && item.status.transformedRequest && !_.isEmpty(item.status.transformedRequest)) {
+                        requestShow = item.status.transformedRequest;
                     }
                 } else {
                     requestShow = item;

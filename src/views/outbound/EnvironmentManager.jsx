@@ -37,6 +37,7 @@ const { Panel } = Collapse;
 const DEFAULT_OPTIONS = {
     breakOnError: false,
     transformerName: 'none',
+    generateIDType: 'ulid',
 };
 
 function download(content, fileName, contentType) {
