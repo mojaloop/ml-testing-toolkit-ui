@@ -924,13 +924,85 @@ class TestCaseEditor extends React.Component {
                                             {
                                                 item.status.callback
                                                     ? (
-                                                        <>
-                                                            <h4>Callback</h4>
-                                                            <pre>{JSON.stringify(item.status.callback, null, 2)}</pre>
-                                                        </>
+                                                        <Card size='small' title={'Callback'} className='mb-2'>
+                                                            {
+                                                                item.status.callback?.url
+                                                                    ? <Text code><b>URL:</b> {item.status.callback?.url}</Text>
+                                                                    : null
+                                                            }
+                                                            {
+                                                                item.status.callback?.headers || item.status.callback?.originalHeaders
+                                                                    ? (
+                                                                        <Tabs defaultActiveKey='1'>
+                                                                            {
+                                                                                item.status.callback?.headers
+                                                                                    ? (
+                                                                                        <TabPane tab='Headers' key='1'>
+                                                                                            <Text>
+                                                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                                                    {JSON.stringify(item.status.callback.headers, null, 2)}
+                                                                                                </pre>
+                                                                                            </Text>
+                                                                                        </TabPane>
+                                                                                    )
+                                                                                    : null
+                                                                            }
+                                                                            {
+                                                                                item.status.callback?.originalHeaders
+                                                                                    ? (
+                                                                                        <TabPane tab='Original Headers' key='2'>
+                                                                                            <Text>
+                                                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                                                    {JSON.stringify(item.status.callback.originalHeaders, null, 2)}
+                                                                                                </pre>
+                                                                                            </Text>
+                                                                                        </TabPane>
+                                                                                    )
+                                                                                    : null
+                                                                            }
+                                                                        </Tabs>
+                                                                    )
+                                                                    : null
+                                                            }
+                                                            {
+                                                                item.status.callback?.body || item.status.callback?.originalBody
+                                                                    ? (
+                                                                        <Tabs defaultActiveKey='1'>
+                                                                            {
+                                                                                item.status.callback?.body
+                                                                                    ? (
+                                                                                        <TabPane tab='Body' key='1'>
+                                                                                            <Text>
+                                                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                                                    {JSON.stringify(item.status.callback.body, null, 2)}
+                                                                                                </pre>
+                                                                                            </Text>
+                                                                                        </TabPane>
+                                                                                    )
+                                                                                    : null
+                                                                            }
+                                                                            {
+                                                                                item.status.callback?.originalBody
+                                                                                    ? (
+                                                                                        <TabPane tab='Original Body' key='2'>
+                                                                                            <Text>
+                                                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                                                    {JSON.stringify(item.status.callback.originalBody, null, 2)}
+                                                                                                </pre>
+                                                                                            </Text>
+                                                                                        </TabPane>
+                                                                                    )
+                                                                                    : null
+                                                                            }
+                                                                        </Tabs>
+                                                                    )
+                                                                    : null
+                                                            }
+                                                        </Card>
                                                     )
                                                     : null
                                             }
+                                            
                                         </TabPane>
                                     )
                                     : null
