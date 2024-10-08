@@ -29,7 +29,7 @@ import InputValues from './InputValues';
 import TemplateOptions from './TemplateOptions';
 import _ from 'lodash';
 
-import { Row, Col, Table, Button, message, Input, Dropdown, Menu, Collapse, Popover, Tabs, ConfigProvider } from 'antd';
+import { Row, Col, Table, Button, message, Input, Dropdown, Menu, Collapse, Popover, Tabs } from 'antd';
 import { DownOutlined, FileOutlined } from '@ant-design/icons';
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
