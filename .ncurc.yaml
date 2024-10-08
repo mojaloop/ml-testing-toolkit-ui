@@ -22,5 +22,7 @@ reject: [
   # jsoneditor-react is not being readily maintained, so peg it's jsoneditor dependency to a specific version
   "jsoneditor",
   # eslint-config-airbnb-typescript update is breaking docker build
-  "eslint-config-airbnb-typescript"
+  "eslint-config-airbnb-typescript",
+  # Updating redoc breaking the build
+  "redoc"
 ]
