@@ -229,8 +229,9 @@ class OutboundRequest extends React.Component {
         this.startAutoSaveTimer();
     };
 
-    handleInputValuesChange = newInputValues => {
-        this.setState({ inputValues: newInputValues });
+    handleEnvironmentChange = newEnvironment => {
+        this.state.template.options = { ...newEnvironment.options };
+        this.setState({ inputValues: newEnvironment.inputValues });
     };
 
     handleIncomingProgress = progress => {
@@ -264,6 +265,7 @@ class OutboundRequest extends React.Component {
                         request.status.response = progress.response;
                         request.status.callback = progress.callback;
                         request.status.requestSent = progress.requestSent;
+                        request.status.transformedRequest = progress.transformedRequest;
                         request.status.additionalInfo = progress.additionalInfo;
                         request.status.testResult = progress.testResult;
                     } else if(progress.status === 'ERROR') {
@@ -271,6 +273,7 @@ class OutboundRequest extends React.Component {
                         request.status.response = progress.response;
                         request.status.callback = progress.callback;
                         request.status.requestSent = progress.requestSent;
+                        request.status.transformedRequest = progress.transformedRequest;
                         request.status.additionalInfo = progress.additionalInfo;
                         request.status.testResult = progress.testResult;
                         // Clear the waiting status of the remaining requests
@@ -998,7 +1001,7 @@ class OutboundRequest extends React.Component {
                     visible={this.state.environmentManagerVisible}
                 >
                     <EnvironmentManager
-                        onChange={this.handleInputValuesChange}
+                        onChange={this.handleEnvironmentChange}
                     />
                 </Drawer>
 

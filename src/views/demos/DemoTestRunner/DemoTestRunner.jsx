@@ -141,8 +141,9 @@ class OutboundRequest extends React.Component {
         this.startAutoSaveTimer();
     };
 
-    handleInputValuesChange = newInputValues => {
-        this.setState({ inputValues: newInputValues });
+    handleEnvironmentChange = newInputValues => {
+        this.state.template.options = { ...newEnvironment.options };
+        this.setState({ inputValues: newInputValues.inputValues });
     };
 
     handleIncomingProgress = progress => {
@@ -445,7 +446,7 @@ class OutboundRequest extends React.Component {
                         <Col span={24}>
                             <Card title='Environment Manager' size='small'>
                                 <EnvironmentManager
-                                    onChange={this.handleInputValuesChange}
+                                    onChange={this.handleEnvironmentChange}
                                 />
                             </Card>
                         </Col>

@@ -26,11 +26,19 @@ import { getConfig, getUserConfig } from '../../utils/getConfig';
 import axios from 'axios';
 import { LocalDB } from '../../services/localDB/LocalDB';
 import InputValues from './InputValues';
+import TemplateOptions from './TemplateOptions';
+import _ from 'lodash';
 
-import { Row, Col, Table, Button, message, Input, Dropdown, Menu, Collapse, Popover } from 'antd';
+import { Row, Col, Table, Button, message, Input, Dropdown, Menu, Collapse, Popover, Tabs } from 'antd';
 import { DownOutlined, FileOutlined } from '@ant-design/icons';
-
+const { TabPane } = Tabs;
 const { Panel } = Collapse;
+
+const DEFAULT_OPTIONS = {
+    breakOnError: false,
+    transformerName: 'none',
+    generateIDType: 'ulid',
+};
 
 function download(content, fileName, contentType) {
     const a = document.createElement('a');
@@ -152,16 +160,17 @@ class EnvironmentManager extends React.Component {
                 },
             });
             if(resp.data && resp.data.body && resp.data.body.inputValues) {
-                this.addLocalEnvironment(environmentFileName, resp.data.body.inputValues);
+                this.addLocalEnvironment(environmentFileName, resp.data.body.inputValues, resp.data.body.options);
                 this.changeSelectedEnvironmentIndex(this.state.localEnvironments.length - 1);
             }
         }
     };
 
-    addLocalEnvironment = (environmentFileName, inputValues) => {
+    addLocalEnvironment = (environmentFileName, inputValues, options = {}) => {
         this.state.localEnvironments.push({
             name: environmentFileName,
             inputValues,
+            options: _.merge(DEFAULT_OPTIONS, options),
         });
         this.autoSave = true;
         this.forceUpdate();
@@ -193,6 +202,7 @@ class EnvironmentManager extends React.Component {
     handleDownloadEnvironment = key => {
         const contentObj = {
             inputValues: this.state.localEnvironments[key].inputValues,
+            options: this.state.localEnvironments[key].options,
         };
         download(JSON.stringify(contentObj, null, 2), this.state.localEnvironments[key].name, 'text/plain');
     };
@@ -205,7 +215,7 @@ class EnvironmentManager extends React.Component {
             try {
                 const templateContent = JSON.parse(content);
                 if(templateContent.inputValues) {
-                    this.addLocalEnvironment(file_to_read.name, templateContent.inputValues);
+                    this.addLocalEnvironment(file_to_read.name, templateContent.inputValues, templateContent.options);
                     message.success({ content: 'Environment Loaded', key: 'importFileProgress', duration: 2 });
                 } else {
                     message.error({ content: 'Input Values not found in the file', key: 'importFileProgress', duration: 2 });
@@ -219,6 +229,13 @@ class EnvironmentManager extends React.Component {
 
     handleInputValuesChange = (name, value) => {
         this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues[name] = value;
+        this.notifyChangeEnvironment();
+        this.autoSave = true;
+        this.forceUpdate();
+    };
+
+    handleOptionsChange = (name, value) => {
+        this.state.localEnvironments[this.state.selectedEnvironmentIndex].options[name] = value;
         this.notifyChangeEnvironment();
         this.autoSave = true;
         this.forceUpdate();
@@ -240,7 +257,7 @@ class EnvironmentManager extends React.Component {
 
     notifyChangeEnvironment = () => {
         if(this.state.localEnvironments[this.state.selectedEnvironmentIndex]) {
-            this.props.onChange(this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues);
+            this.props.onChange(this.state.localEnvironments[this.state.selectedEnvironmentIndex]);
         }
     };
 
@@ -452,11 +469,30 @@ class EnvironmentManager extends React.Component {
                 </Row>
                 <Row>
                     <Col span={24}>
-                        {
-                            this.state.localEnvironments[this.state.selectedEnvironmentIndex]
-                                ? <InputValues values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues : {}} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
-                                : null
-                        }
+                        <Tabs defaultActiveKey='1' type='card'>
+                            <TabPane tab='Input Values' key='1'>
+                                {
+                                    this.state.localEnvironments[this.state.selectedEnvironmentIndex]
+                                        ? <InputValues values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues : {}} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
+                                        : null
+                                }
+                            </TabPane>
+                            <TabPane tab='Options' key='2'
+                                theme={{
+                                    token: {
+                                        // Seed Token
+                                        colorPrimary: '#00b96b',
+                                        cardBg: 'red',
+                                    },
+                                }}
+                            >
+                                {
+                                    this.state.localEnvironments[this.state.selectedEnvironmentIndex]
+                                        ? <TemplateOptions values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].options : {}} onChange={this.handleOptionsChange} />
+                                        : null
+                                }
+                            </TabPane>
+                        </Tabs>
                     </Col>
                 </Row>
             </>

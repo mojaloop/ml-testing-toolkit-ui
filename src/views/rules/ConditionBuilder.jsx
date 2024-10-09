@@ -340,6 +340,8 @@ class Condition extends React.Component {
                     operatorList.push({ displayName: 'Not Equal', name: 'notEqual' });
                     operatorList.push({ displayName: 'In', name: 'in' });
                     operatorList.push({ displayName: 'Not In', name: 'notIn' });
+                    operatorList.push({ displayName: 'Includes', name: 'includesString' });
+                    operatorList.push({ displayName: 'Excludes', name: 'excludesString' });
                 }
             } else if(this.state.selectedFact.type === 'integer') {
                 operatorList.push({ displayName: 'Equal', name: 'equal' });
