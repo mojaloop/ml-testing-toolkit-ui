@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [16.0.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.6.0...v16.0.0) (2024-10-09)
+
+
+### Features
+
+* test case payload transformation iso20022 ([#210](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/210)) ([20284bd](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/20284bde48e77d09e2c38496ef56f8a1fef8737c))
+
 ## [15.6.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.5.3...v15.6.0) (2024-09-19)
 
 
