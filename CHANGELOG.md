@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.0.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.0.0...v16.0.1) (2024-10-30)
+
+
+### Bug Fixes
+
+* payer mobile sim name display ([#214](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/214)) ([13ee124](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/13ee1247420ffcd977d31ea661af5cc849c444fd))
+
 ## [16.0.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v15.6.0...v16.0.0) (2024-10-09)
 
 
