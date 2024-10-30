@@ -52,10 +52,10 @@ class PayerMobile extends React.Component {
         balance: {},
         transactionHistory: [],
         party: {},
-        selectedCurrency: 'KES',
+        selectedCurrency: 'ZMW',
         selectedIdType: 'MSISDN',
-        amount: 100,
-        receiverId: '16135551002',
+        amount: 10,
+        receiverId: '16665551002',
         loading: false,
         partyInfo: {},
         transferId: '',
@@ -272,6 +272,12 @@ class PayerMobile extends React.Component {
             steps.push({
                 title: 'Party Info',
                 description: this.state.partyInfo.personalInfo.complexName.firstName + ' ' + (this.state.partyInfo.personalInfo.complexName.middleName || '') + ' ' + this.state.partyInfo.personalInfo.complexName.lastName + ' @ ' + this.state.partyInfo.partyIdInfo.fspId,
+                status: 'finish',
+            });
+        } else if(this.state.partyInfo && this.state.partyInfo.name) {
+            steps.push({
+                title: 'Party Info',
+                description: this.state.partyInfo.name + ' @ ' + this.state.partyInfo.partyIdInfo.fspId,
                 status: 'finish',
             });
         }
