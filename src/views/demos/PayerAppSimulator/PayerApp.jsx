@@ -290,9 +290,13 @@ class PayerMobile extends React.Component {
             });
         }
         if(this.state.fxQuoteResponse && this.state.fxQuoteResponse.conversionTerms && this.state.fxQuoteResponse.conversionTerms.sourceAmount && this.state.fxQuoteResponse.conversionTerms.targetAmount) {
+            let conversionFee = 0;
+            if(this.state.fxQuoteResponse.conversionTerms.charges) {
+                conversionFee = Math.round(this.state.fxQuoteResponse.conversionTerms.charges.reduce((acc, obj) => acc + Number(obj.targetAmount.amount), 0));
+            }
             steps.push({
                 title: 'Conversion Terms',
-                description: <>Sending Amount: {this.state.fxQuoteResponse.conversionTerms.sourceAmount.currency} {this.state.fxQuoteResponse.conversionTerms.sourceAmount.amount}<br />Conversion fee: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {Math.round(this.state.fxQuoteResponse.conversionTerms.charges.reduce((acc, obj) => acc + Number(obj.targetAmount.amount), 0))}<br />Converted Amount: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {this.state.fxQuoteResponse.conversionTerms.targetAmount.amount}</>,
+                description: <>Sending Amount: {this.state.fxQuoteResponse.conversionTerms.sourceAmount.currency} {this.state.fxQuoteResponse.conversionTerms.sourceAmount.amount}<br />Conversion fee: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {conversionFee}<br />Converted Amount: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {this.state.fxQuoteResponse.conversionTerms.targetAmount.amount}</>,
                 status: 'finish',
             });
         }
