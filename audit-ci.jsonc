@@ -35,6 +35,7 @@
     "GHSA-c7qv-q95q-8v27",
     "GHSA-gx9m-whjm-85jf",
     "GHSA-m4gq-x24j-jpmf",
-    "GHSA-pppg-cpfq-h7wr"
+    "GHSA-pppg-cpfq-h7wr",
+    "GHSA-p3vf-v8qc-cwcr" // https://github.com/advisories/GHSA-p3vf-v8qc-cwcr
   ]
 }

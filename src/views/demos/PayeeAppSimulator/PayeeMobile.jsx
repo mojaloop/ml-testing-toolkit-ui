@@ -33,16 +33,16 @@ class MobileAppWrapper extends React.Component {
             <>
                 <div
                     style={{
-                        width: '45vh',
-                        height: '90vh',
+                        width: 'min(100vw,50vh)',
+                        height: 'min(100vh,200vw)',
                         backgroundImage: `url(${mobile_bg})`,
-                        backgroundSize: '45vh',
+                        backgroundSize: 'contain',
                         backgroundRepeat: 'no-repeat',
-                        paddingTop: '10vh',
-                        paddingLeft: '4vh',
+                        paddingTop: 'min(10vh,20vw)',
+                        paddingLeft: 'min(4vh,8vw)',
                     }}
                 >
-                    <div style={{ width: '37vh', height: '72vh', overflow: 'scroll' }}>
+                    <div style={{ width: '90%', height: '90%', overflow: 'hidden' }}>
                         <PayeeApp
                             notificationProperties={{
                                 top: 100,
