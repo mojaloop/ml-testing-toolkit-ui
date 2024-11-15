@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.0.4](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.0.3...v16.0.4) (2024-11-15)
+
+
+### Bug Fixes
+
+* CSS responsive to width and height ([#219](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/219)) ([521a3eb](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/521a3eba8d5168071f399e9804ca8765924b83b8))
+
 ### [16.0.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.0.2...v16.0.3) (2024-11-13)
 
 
