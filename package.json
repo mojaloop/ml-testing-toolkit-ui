@@ -65,7 +65,7 @@
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "ace-builds": "^1.36.4",
+    "ace-builds": "^1.36.5",
     "ajv": "^8.17.1",
     "antd": "^4.24.7",
     "array-move": "^4.0.0",
