@@ -5,37 +5,7 @@
   "moderate": true,
   "allowlist": [
     // These are all the exceptions for react, react-scripts and their dependencies as it is very hard to update react version at the moment.
-    "GHSA-whgm-jr23-g3j9", // https://github.com/advisories/GHSA-whgm-jr23-g3j9
-    "GHSA-w8qv-6jwh-64r5", // https://github.com/advisories/GHSA-w8qv-6jwh-64r5
-    "GHSA-36jr-mh4h-2g58", // https://github.com/advisories/GHSA-36jr-mh4h-2g58
-    "GHSA-phwq-j96m-2c2q", // https://github.com/advisories/GHSA-phwq-j96m-2c2q
-    "GHSA-c36v-fmgq-m8hx", // https://github.com/advisories/GHSA-c36v-fmgq-m8hx
-    "GHSA-33f9-j839-rf8h", // https://github.com/advisories/GHSA-33f9-j839-rf8h
-    "GHSA-3rfm-jhwj-7488", // https://github.com/advisories/GHSA-3rfm-jhwj-7488
-    "GHSA-hhq3-ff78-jv3g", // https://github.com/advisories/GHSA-hhq3-ff78-jv3g
-    "GHSA-76p3-8jx3-jpfq", // https://github.com/advisories/GHSA-76p3-8jx3-jpfq
-    "GHSA-f8q6-p94x-37v3", // https://github.com/advisories/GHSA-f8q6-p94x-37v3
-    "GHSA-2r2c-g63r-vccr", // https://github.com/advisories/GHSA-2r2c-g63r-vccr
-    "GHSA-cfm4-qjh2-4765", // https://github.com/advisories/GHSA-cfm4-qjh2-4765
-    "GHSA-x4jg-mjrx-434g", // https://github.com/advisories/GHSA-x4jg-mjrx-434g
-    "GHSA-8fr3-hfg3-gpgp", // https://github.com/advisories/GHSA-8fr3-hfg3-gpgp
-    "GHSA-rp65-9cf3-cjxr", // https://github.com/advisories/GHSA-rp65-9cf3-cjxr
-    "GHSA-c2qf-rxjj-qqgw", // https://github.com/advisories/GHSA-c2qf-rxjj-qqgw
-    "GHSA-g4rg-993r-mgx7", // https://github.com/advisories/GHSA-g4rg-993r-mgx7
-    "GHSA-7fh5-64p2-3v2j", // https://github.com/advisories/GHSA-7fh5-64p2-3v2j
-    "GHSA-wr3j-pwj9-hqq6", // https://github.com/advisories/GHSA-wr3j-pwj9-hqq6
     "GHSA-2p57-rm9w-gvfp", // https://github.com/advisories/GHSA-2p57-rm9w-gvfp
-    "GHSA-35jh-r3h4-6jhm", // https://github.com/advisories/GHSA-35jh-r3h4-6jhm
-    "GHSA-952p-6rrq-rcjv", // https://github.com/advisories/GHSA-952p-6rrq-rcjv
-    "GHSA-ghr5-ch3p-vcr6", // https://github.com/advisories/GHSA-ghr5-ch3p-vcr6
-    "GHSA-grv7-fg5c-xmjg", // https://github.com/advisories/GHSA-grv7-fg5c-xmjg
-    "GHSA-mmhx-hmjr-r674", // https://github.com/advisories/GHSA-mmhx-hmjr-r674
-    "GHSA-vc8w-jr9v-vj7f",  // https://github.com/advisories/GHSA-vc8w-jr9v-vj7f
-    "GHSA-gcx4-mw62-g8wm",  // https://github.com/advisories/GHSA-gcx4-mw62-g8wm
-    "GHSA-c7qv-q95q-8v27",
-    "GHSA-gx9m-whjm-85jf",
-    "GHSA-m4gq-x24j-jpmf",
-    "GHSA-pppg-cpfq-h7wr",
-    "GHSA-p3vf-v8qc-cwcr" // https://github.com/advisories/GHSA-p3vf-v8qc-cwcr
+    "GHSA-35jh-r3h4-6jhm" // https://github.com/advisories/GHSA-35jh-r3h4-6jhm
   ]
 }
