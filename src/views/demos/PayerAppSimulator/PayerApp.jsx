@@ -54,6 +54,7 @@ class PayerMobile extends React.Component {
         party: {},
         selectedCurrency: 'ZMW',
         selectedIdType: 'MSISDN',
+        selectedAmountType: 'SEND',
         amount: 10,
         receiverId: '16665551002',
         loading: false,
@@ -198,7 +199,7 @@ class PayerMobile extends React.Component {
         this.setState({ loading: true });
 
         templateSdkPostTransfers.inputValues = {
-            AMOUNT_TYPE: 'SEND',
+            AMOUNT_TYPE: this.state.selectedAmountType,
             AMOUNT: this.state.amount + '',
             CURRENCY: this.state.selectedCurrency,
             SOURCE_PARTY_ID: '16135551001',
@@ -430,7 +431,7 @@ class PayerMobile extends React.Component {
                                 />
                                 <Select
                                     className='ml-2'
-                                    style={{ width: 120 }}
+                                    style={{ width: 80 }}
                                     placeholder='Currency'
                                     disabled={this.state.currentState !== 'start'}
                                     value={this.state.selectedCurrency}
@@ -444,6 +445,20 @@ class PayerMobile extends React.Component {
                                             return <Option key={index} value={countryCode}>{countryCode}</Option>;
                                         })
                                     }
+                                </Select>
+                                <Select
+                                    className='ml-2'
+                                    style={{ width: 100 }}
+                                    placeholder='Amount Type'
+                                    disabled={this.state.currentState !== 'start'}
+                                    value={this.state.selectedAmountType}
+                                    defaultActiveFirstOption
+                                    onChange={amountType => {
+                                        this.setState({ selectedAmountType: amountType });
+                                    }}
+                                >
+                                    <Option key={1} value='SEND'>SEND</Option>
+                                    <Option key={2} value='RECEIVE'>RECEIVE</Option>
                                 </Select>
                             </Col>
                         </Row>
