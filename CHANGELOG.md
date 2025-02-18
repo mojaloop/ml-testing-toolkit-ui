@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [16.1.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.0.4...v16.1.0) (2025-02-18)
+
+
+### Features
+
+* amount type in payer sim ([#223](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/223)) ([9f862af](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/9f862aff295c3d5e67b32656cb0191697c6956ee))
+
 ### [16.0.4](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.0.3...v16.0.4) (2024-11-15)
 
 
