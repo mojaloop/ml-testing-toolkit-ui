@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.1.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.1.0...v16.1.1) (2025-02-19)
+
+
+### Bug Fixes
+
+* broken release due to deps ([#224](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/224)) ([7090268](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/709026859c1695b099d9b6e8c8192962ac1a465f))
+
 ## [16.1.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.0.4...v16.1.0) (2025-02-18)
 
 
