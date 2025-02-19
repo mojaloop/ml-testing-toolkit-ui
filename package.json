@@ -61,7 +61,7 @@
   "dependencies": {
     "@ant-design/colors": "^7.2.0",
     "@ant-design/icons": "^5.6.1",
-    "@mojaloop/ml-testing-toolkit-shared-lib": "^14.0.1",
+    "@mojaloop/ml-testing-toolkit-shared-lib": "14.0.1",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
