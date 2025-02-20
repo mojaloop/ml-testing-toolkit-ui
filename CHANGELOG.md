@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.1.2](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.1.1...v16.1.2) (2025-02-20)
+
 ### [16.1.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.1.0...v16.1.1) (2025-02-19)
 
 
