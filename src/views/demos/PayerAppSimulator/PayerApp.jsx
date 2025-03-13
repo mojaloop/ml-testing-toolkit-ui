@@ -27,7 +27,7 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, Typography, notification, Card, Input, Button, InputNumber, Select, Skeleton, Result, Steps } from 'antd';
+import { Row, Col, Typography, notification, Card, Input, Button, InputNumber, Select, Skeleton, Result, Steps, Popover } from 'antd';
 
 import { CheckOutlined, LoadingOutlined } from '@ant-design/icons';
 
@@ -49,27 +49,35 @@ import BrandIcon from './BrandIcon';
 const { Text, Title } = Typography;
 const { Option } = Select;
 
+const TraceWrap = ({ children, trace }) =>
+    <Popover
+        content={<div>trace-id: <a href={trace.traceUrl} target='_blank' rel='noreferrer'>{trace.traceId}</a></div>}
+    >
+        {children}
+    </Popover>;
+
+const initialState = {
+    receivedAmount: null,
+    payeeReceiveAmount: null,
+    payerComplexName: null,
+    balance: {},
+    transactionHistory: [],
+    party: {},
+    selectedCurrency: 'ZMW',
+    selectedIdType: 'MSISDN',
+    selectedAmountType: 'SEND',
+    amount: 10,
+    receiverId: '16665551002',
+    loading: false,
+    partyInfo: {},
+    transferId: '',
+    currentState: 'start',
+    errorMessage: '',
+    userConfig: {},
+    sdkOutboundApiBaseUrl: '',
+};
 class PayerMobile extends React.Component {
-    state = {
-        receivedAmount: null,
-        payeeReceiveAmount: null,
-        payerComplexName: null,
-        balance: {},
-        transactionHistory: [],
-        party: {},
-        selectedCurrency: 'ZMW',
-        selectedIdType: 'MSISDN',
-        selectedAmountType: 'SEND',
-        amount: 10,
-        receiverId: '16665551002',
-        loading: false,
-        partyInfo: {},
-        transferId: '',
-        currentState: 'start',
-        errorMessage: '',
-        userConfig: {},
-        sdkOutboundApiBaseUrl: '',
-    };
+    state = initialState;
 
     componentDidMount = async () => {
         const { userConfigRuntime } = await getServerConfig();
@@ -91,7 +99,7 @@ class PayerMobile extends React.Component {
     };
 
     resetState = () => {
-        this.setState({ receivedAmount: null, payeeReceiveAmount: null, payerComplexName: null, currentState: 'start' });
+        this.setState(initialState);
     };
 
     handleNotificationEvents = event => {
@@ -152,38 +160,52 @@ class PayerMobile extends React.Component {
                     </Row>
                 );
             case 'COMPLETED':
+            case 'ERROR_OCCURRED':
+                const restart = [
+                    <Button key="restart" type='primary' shape='round' danger onClick={this.resetState} style={{ position:'fixed', top: '5vh', left: '5vh' }}>Restart</Button>,
+                ];
                 return (
-                    <Row>
-                        <Col span={24} className='text-center'>
-                            {
-                                this.state.transfersResponse && this.state.transfersResponse.transferState === 'COMMITTED'
-                                    ? (
-                                        <Result
-                                            status='success'
-                                        />
-                                    )
-                                    : (
-                                        <Result
-                                            status='error'
-                                        />
-                                    )
-                            }
-                        </Col>
-                    </Row>
+                    this.state.transfersResponse && this.state.transfersResponse.transferState === 'COMMITTED'
+                        ? (
+                            <Result
+                                extra={restart}
+                                status='success'
+                            />
+                        )
+                        : (
+                            <Result
+                                extra={restart}
+                                status='error'
+                            />
+                        )
                 );
             default:
                 return null;
         }
     };
 
-    _constructStateFromResponse = responseData => {
+    _constructStateFromResponse = (responseData, { traceId, traceUrl } = {}) => {
         return {
-            partyInfo: responseData?.getPartiesResponse?.body?.party,
-            quoteResponse: responseData?.quoteResponse?.body,
-            fxQuoteResponse: responseData?.fxQuoteResponse?.body,
-            transfersResponse: responseData?.fulfil?.body,
+            partyInfo: responseData?.getPartiesResponse?.body?.party && { ...responseData?.getPartiesResponse?.body?.party, traceId, traceUrl },
+            quoteResponse: responseData?.quoteResponse?.body && { ...responseData?.quoteResponse?.body, traceId, traceUrl },
+            fxQuoteResponse: responseData?.fxQuoteResponse?.body && { ...responseData?.fxQuoteResponse?.body, traceId, traceUrl },
+            transfersResponse: responseData?.fulfil?.body && { ...responseData?.fulfil?.body, traceId, traceUrl },
             currentState: responseData?.currentState,
             transferId: responseData?.transferId,
+        };
+    };
+
+    _constructStateFromError = request => {
+        const content = <div>
+            <div>trace-id: <a href={request.traceUrl} target='_blank' rel='noreferrer'>{request.traceId}</a></div>
+            <pre>{JSON.stringify(request?.response?.body, null, 2)}</pre>
+        </div>;
+        return {
+            errorMessage:
+                <Popover content={content} title="Error Details">
+                    {request?.response?.body?.errorInformation?.errorDescription ?? 'Unexpected error'}
+                </Popover>,
+            currentState: 'ERROR_OCCURRED',
         };
     };
 
@@ -223,7 +245,9 @@ class PayerMobile extends React.Component {
                     },
                 },
             );
-            newState = this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body);
+            newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
+                ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
+                : this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0]);
             newState.loading = false;
         } catch (err) {
             console.log(err);
@@ -242,7 +266,7 @@ class PayerMobile extends React.Component {
             TRANSFER_ID: this.state.transferId,
             ACCEPTANCE_TYPE: acceptanceType,
         };
-        
+
         let newState = {};
         try {
             const resp = await axios.post(
@@ -277,13 +301,17 @@ class PayerMobile extends React.Component {
         if(this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName) {
             steps.push({
                 title: 'Party Info',
-                description: this.state.partyInfo.personalInfo.complexName.firstName + ' ' + (this.state.partyInfo.personalInfo.complexName.middleName || '') + ' ' + this.state.partyInfo.personalInfo.complexName.lastName + ' @ ' + this.state.partyInfo.partyIdInfo.fspId,
+                description: <TraceWrap trace={this.state.partyInfo}>{
+                    this.state.partyInfo.personalInfo.complexName.firstName + ' ' + (this.state.partyInfo.personalInfo.complexName.middleName || '') + ' ' + this.state.partyInfo.personalInfo.complexName.lastName + ' @ ' + this.state.partyInfo.partyIdInfo.fspId
+                }</TraceWrap>,
                 status: 'finish',
             });
         } else if(this.state.partyInfo && this.state.partyInfo.name) {
             steps.push({
                 title: 'Party Info',
-                description: this.state.partyInfo.name + ' @ ' + this.state.partyInfo.partyIdInfo.fspId,
+                description: <TraceWrap trace={this.state.partyInfo}>{
+                    this.state.partyInfo.name + ' @ ' + this.state.partyInfo.partyIdInfo.fspId
+                }</TraceWrap>,
                 status: 'finish',
             });
         }
@@ -302,7 +330,9 @@ class PayerMobile extends React.Component {
             }
             steps.push({
                 title: 'Conversion Terms',
-                description: <>Sending Amount: {this.state.fxQuoteResponse.conversionTerms.sourceAmount.currency} {this.state.fxQuoteResponse.conversionTerms.sourceAmount.amount}<br />Conversion fee: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {conversionFee}<br />Converted Amount: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {this.state.fxQuoteResponse.conversionTerms.targetAmount.amount}</>,
+                description: <TraceWrap trace={this.state.fxQuoteResponse}>{
+                    <>Sending Amount: {this.state.fxQuoteResponse.conversionTerms.sourceAmount.currency} {this.state.fxQuoteResponse.conversionTerms.sourceAmount.amount}<br />Conversion fee: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {conversionFee}<br />Converted Amount: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {this.state.fxQuoteResponse.conversionTerms.targetAmount.amount}</>
+                }</TraceWrap>,
                 status: 'finish',
             });
         }
@@ -319,7 +349,9 @@ class PayerMobile extends React.Component {
             const payeeFspCurrency = this.state.quoteResponse.payeeFspFee?.currency || this.state.quoteResponse.transferAmount.currency;
             steps.push({
                 title: 'Quote',
-                description: <>Payee FSP fee is {payeeFspCurrency} {payeeFspFee}<br />Payee receives {this.state.quoteResponse.transferAmount.currency + ' ' + this.state.quoteResponse.transferAmount.amount}</>,
+                description: <TraceWrap trace={this.state.quoteResponse}>{
+                    <>Payee FSP fee is {payeeFspCurrency} {payeeFspFee}<br />Payee receives {this.state.quoteResponse.transferAmount.currency + ' ' + this.state.quoteResponse.transferAmount.amount}</>
+                }</TraceWrap>,
                 status: 'finish',
             });
         }
@@ -334,14 +366,14 @@ class PayerMobile extends React.Component {
         if(this.state.transfersResponse && this.state.transfersResponse.transferState && this.state.transfersResponse.transferState === 'COMMITTED') {
             steps.push({
                 title: 'Transfer Successful',
-                description: <>Sent amount successfully</>,
+                description: <TraceWrap trace={this.state.transfersResponse}>Sent amount successfully</TraceWrap>,
                 status: 'finish',
             });
         }
         if(this.state.transfersResponse && this.state.transfersResponse.transferState && this.state.transfersResponse.transferState !== 'COMMITTED') {
             steps.push({
                 title: 'Transfer Failed',
-                description: <>Failed to send amount</>,
+                description: <TraceWrap trace={this.state.transfersResponse}>Failed to send amount</TraceWrap>,
                 status: 'error',
             });
         }
