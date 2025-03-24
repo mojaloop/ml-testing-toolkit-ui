@@ -197,13 +197,13 @@ class PayerMobile extends React.Component {
 
     _constructStateFromError = request => {
         const content = <div>
-            <div>trace-id: <a href={request.traceUrl} target='_blank' rel='noreferrer'>{request.traceId}</a></div>
+            <div>trace-id: <a href={request.traceUrl} target='grafana'>{request.traceId}</a></div>
             <pre>{JSON.stringify(request?.response?.body, null, 2)}</pre>
         </div>;
         return {
             errorMessage:
                 <Popover content={content} title="Error Details">
-                    {request?.response?.body?.errorInformation?.errorDescription ?? 'Unexpected error'}
+                    {request?.response?.body?.errorInformation?.errorDescription ?? request?.response?.statusText ?? 'Unexpected error'}
                 </Popover>,
             currentState: 'ERROR_OCCURRED',
         };
@@ -212,7 +212,7 @@ class PayerMobile extends React.Component {
     _getTraceId() {
         const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix();
         const currentEndToEndId = TraceHeaderUtils.generateEndToEndId();
-        const sessionId = '123';
+        const sessionId = TraceHeaderUtils.generateSessionId();
         return traceIdPrefix + sessionId + currentEndToEndId;
     }
 
