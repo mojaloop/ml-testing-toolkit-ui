@@ -29,10 +29,11 @@
  ******/
 import React from 'react';
 import _ from 'lodash';
+import { generateShortName } from '../../utils/nameConversions';
 
 // core components
 
-import { Spin, Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Card, Button, Radio, Affix, Typography, Alert, Switch, Checkbox } from 'antd';
+import { Spin, Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Card, Button, Radio, Affix, Typography, Alert, Switch, Checkbox, InputNumber } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretLeftFilled } from '@ant-design/icons';
 import 'jsoneditor-react/es/editor.min.css';
@@ -42,6 +43,7 @@ import 'brace/theme/tomorrow_night_blue';
 import axios from 'axios';
 import './fixAce.css';
 import RequestBuilder from './RequestBuilder';
+import RequestDetailsBuilder from './RequestDetailsBuilder';
 import { FetchUtils } from './FetchUtils';
 import TestAssertions from './TestAssertions';
 import ServerLogsViewer from './ServerLogsViewer';
@@ -376,39 +378,50 @@ class RequestGenerator extends React.Component {
 
         return (
             <Spin size='large' spinning={this.state.isLoading}>
-                <Row>
-                    <Col span={24}>
-                        <Button
-                            className='float-right'
-                            type='primary'
-                            danger
-                            onClick={async () => {
-                                await this.props.onDelete(this.props.request.id);
-                                await this.fetchRequest();
-                            }}
-                        >
-              Delete
-                        </Button>
-                        <Popover
-                            className='float-right mr-2'
-                            content={renameRequestDialogContent}
-                            title='Enter new description'
-                            trigger='click'
-                            visible={this.state.renameRequestDialogVisible}
-                            onVisibleChange={visible => this.setState({ renameRequestDialogVisible: visible })}
-                        >
-                            <Button>Rename</Button>
-                        </Popover>
-                        <Button
-                            className='float-right mr-2'
-                            type='dashed'
-                            onClick={() => { this.props.onDuplicate(this.props.request.id); }}
-                        >
-              Duplicate
-                        </Button>
+                <Card size='small' title='' className='mb-2'>
+                    <Row>
+                        <Col span={24}>
+                            <Button
+                                className='float-right'
+                                type='primary'
+                                danger
+                                onClick={async () => {
+                                    await this.props.onDelete(this.props.request.id);
+                                    await this.fetchRequest();
+                                }}
+                            >
+                Delete
+                            </Button>
+                            <Popover
+                                className='float-right mr-2'
+                                content={renameRequestDialogContent}
+                                title='Enter new description'
+                                trigger='click'
+                                visible={this.state.renameRequestDialogVisible}
+                                onVisibleChange={visible => this.setState({ renameRequestDialogVisible: visible })}
+                            >
+                                <Button>Rename</Button>
+                            </Popover>
+                            <Button
+                                className='float-right mr-2'
+                                type='dashed'
+                                onClick={() => { this.props.onDuplicate(this.props.request.id); }}
+                            >
+                Duplicate
+                            </Button>
 
-                    </Col>
-                </Row>
+                        </Col>
+                    </Row>
+                    <Row className='mt-2'>
+                        <Col span={24}>
+                            <RequestDetailsBuilder
+                                request={this.props.request}
+                                inputValues={this.props.inputValues}
+                                onChange={this.handleRequestChange}
+                            />
+                        </Col>
+                    </Row>
+                </Card>
                 <Row className='mt-2'>
                     <Col span={24}>
                         {
@@ -624,26 +637,42 @@ class TestCaseEditor extends React.Component {
                         <Tabs defaultActiveKey='1'>
                             <TabPane tab='Request' key='1'>
                                 <>
-                                    <Card size='small' title='Enabled' className='mb-2'>
-                                        <Switch
-                                            size='default'
-                                            checked={!item.disabled}
-                                            className='mt-1'
-                                            onChange={enabled => {
-                                                const disabled = !enabled;
-                                                console.log(startIndex);
-                                                console.log(index);
-                                                console.log(disabled);
-                                                this.props.testCase.requests[startIndex + index].disabled = disabled;
-                                                this.forceUpdate();
-                                            }}
-                                        />
-                                    </Card>
-                                    <Card size='small' title='Meta Data' className='mb-2'>
-                                        <MetadataEditor
-                                            values={item.meta}
-                                            onChange={this.props.onChange}
-                                        />
+                                    <Card size='small' title='' className='mb-2'>
+                                        <Row>
+                                            <Col span={6}>
+                                                <Text>Request ID</Text>
+                                            </Col>
+                                            <Col span={18}>
+                                                <Text strong>{item.id}</Text>
+                                            </Col>
+                                        </Row>
+                                        <Row className='mt-2'>
+                                            <Col span={6}>
+                                                <Text>Enabled</Text>
+                                            </Col>
+                                            <Col span={18}>
+                                                <Switch
+                                                    size='default'
+                                                    checked={!item.disabled}
+                                                    onChange={enabled => {
+                                                        const disabled = !enabled;
+                                                        this.props.testCase.requests[startIndex + index].disabled = disabled;
+                                                        this.forceUpdate();
+                                                    }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        <Row className='mt-2'>
+                                            <Col span={6}>
+                                                <Text>Metadata</Text>
+                                            </Col>
+                                            <Col span={18}>
+                                                <MetadataEditor
+                                                    values={item.meta}
+                                                    onChange={this.props.onChange}
+                                                />
+                                            </Col>
+                                        </Row>
                                     </Card>
                                     {
                                         item.status && item.status.progressStatus == 'SKIPPED'
@@ -1055,15 +1084,42 @@ class TestCaseEditor extends React.Component {
         if(!this.props.testCase.requests) {
             this.props.testCase.requests = [];
         }
-        // Find highest request id to determine the new ID
-        const maxId = +this.props.testCase.requests.reduce(function (m, k) { return k.id > m ? k.id : m; }, 0);
 
-        this.props.testCase.requests.push({ id: maxId + 1, description });
+        const shortName = generateShortName(description);
+
+        this.props.testCase.requests.push({ id: shortName, description });
         this.forceUpdate();
     };
 
     handleBreakOnErrorChange = checked => {
-        this.props.testCase.breakOnError = checked;
+        if(checked) {
+            if(!this.props.testCase.options) {
+                this.props.testCase.options = {};
+            }
+            this.props.testCase.options.breakOnError = checked;
+        } else if(this.props.testCase.options?.breakOnError) {
+            delete this.props.testCase.options.breakOnError;
+        }
+        this.props.onChange();
+    };
+
+    handleExecutionOrderCheckboxChange = checked => {
+        if(checked) {
+            if(!this.props.testCase.options) {
+                this.props.testCase.options = {};
+            }
+            this.props.testCase.options.executionOrder = -1;
+        } else if(this.props.testCase.options?.executionOrder) {
+            delete this.props.testCase.options.executionOrder;
+        }
+        this.props.onChange();
+    };
+
+    handleExecutionOrderChange = executionOrder => {
+        if(!this.props.testCase.options) {
+            this.props.testCase.options = {};
+        }
+        this.props.testCase.options.executionOrder = executionOrder;
         this.props.onChange();
     };
 
@@ -1077,11 +1133,9 @@ class TestCaseEditor extends React.Component {
         // Find the request to duplicate
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         const { id, description, ...otherProps } = this.props.testCase.requests.find(item => item.id == requestId);
-        // Find maximum ID for creating a new request
-        const maxId = +this.props.testCase.requests.reduce(function (m, k) { return k.id > m ? k.id : m; }, 0);
         const clonedProps = JSON.parse(JSON.stringify(otherProps));
 
-        this.props.testCase.requests.push({ id: maxId + 1, description: description + ' Copy', ...clonedProps });
+        this.props.testCase.requests.push({ id: id + '-copy', description: description + ' Copy', ...clonedProps });
         this.forceUpdate();
     };
 
@@ -1203,13 +1257,32 @@ class TestCaseEditor extends React.Component {
                                                     </Button>
                                                 </Popover>
                                                 <Checkbox
-                                                    className='ml-2 mt-1 float-right'
+                                                    className='ml-4 mt-1 float-right'
                                                     onClick={e => {
                                                         this.handleBreakOnErrorChange(e.target.checked);
                                                     }}
-                                                    checked={this.props.testCase.breakOnError}
+                                                    checked={this.props.testCase.options?.breakOnError}
                                                 >
                                                     Skip remaining requests on error
+                                                </Checkbox>
+                                                <InputNumber
+                                                    className='float-right'
+                                                    value={this.props.testCase.options?.executionOrder}
+                                                    disabled={this.props.testCase.options?.executionOrder === undefined}
+                                                    onChange={newNumber => {
+                                                        this.handleExecutionOrderChange(newNumber);
+                                                    }}
+                                                    // formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    // parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                                                />
+                                                <Checkbox
+                                                    className='ml-2 mt-1 float-right'
+                                                    onClick={e => {
+                                                        this.handleExecutionOrderCheckboxChange(e.target.checked);
+                                                    }}
+                                                    checked={this.props.testCase.options?.executionOrder !== undefined}
+                                                >
+                                                    Execution Order
                                                 </Checkbox>
                                             </Col>
                                         </Row>

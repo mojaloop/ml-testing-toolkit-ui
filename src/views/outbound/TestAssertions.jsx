@@ -33,7 +33,7 @@ import _ from 'lodash';
 // core components
 import axios from 'axios';
 // import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { Select, Input, Tooltip, Tag, Popover, message, Row, Col, Collapse, Modal, Switch, Button } from 'antd';
+import { Select, Input, Tooltip, Tag, Popover, message, Row, Col, Collapse, Modal, Switch, Button, Typography } from 'antd';
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
@@ -42,6 +42,7 @@ import 'antd/dist/antd.css';
 // import './index.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
 import AceEditor from 'react-ace';
+import { EditOutlined, SaveOutlined } from '@ant-design/icons';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-eclipse';
 import { getConfig } from '../../utils/getConfig';
@@ -58,6 +59,7 @@ const ajv = new Ajv({ allErrors: true });
 
 const { Option } = Select;
 const { Panel } = Collapse;
+const { Text } = Typography;
 
 export class ConfigurableParameter extends React.Component {
     constructor() {
@@ -459,6 +461,9 @@ class AssertionEditor extends React.Component {
             assertionDescription: '',
             assertionRawEditorEnable: false,
             reOrderingEnabled: false,
+            assertionIdEditDisabled: true,
+            assertionIdValidationError: '',
+            assertionId: '',
         };
     }
 
@@ -476,7 +481,7 @@ class AssertionEditor extends React.Component {
             await this.fetchAllApiData(selectedApiVersion.type, selectedApiVersion.majorVersion + '.' + selectedApiVersion.minorVersion);
         }
         const assertionDescription = this.props.assertion.description;
-        this.setState({ selectedResource, selectedApiVersion, assertionDescription });
+        this.setState({ selectedResource, selectedApiVersion, assertionDescription, assertionId: this.props.assertion.id });
     };
 
     fetchAllApiData = async (apiType, version) => {
@@ -550,8 +555,8 @@ class AssertionEditor extends React.Component {
     };
 
     onEditorChange = newValue => {
-        const execArray = newValue.split('\n');
-        this.props.onChange(this.props.itemKey, execArray);
+        const exec = newValue.split('\n');
+        this.props.onChange(this.props.itemKey, { ...this.props.assertion, exec });
     };
 
     handleAddExpectationSave = newExpectation => {
@@ -580,6 +585,29 @@ class AssertionEditor extends React.Component {
         const editor = this.refs.assertionAceEditor.editor;
         const selection = editor.selection.getRange();
         editor.session.replace(selection, newText);
+    };
+
+    handleAssertionIdChange = e => {
+        const assertionId = e.target.value;
+        // Validate the assertion ID to be a string with only alphanumeric characters, underscore and dash
+        if(!/^[a-zA-Z0-9_-]*$/.test(e.target.value)) {
+            this.setState({ assertionId, assertionIdValidationError: 'Assertion ID should contain only alphanumeric characters, underscore and dash' });
+        } else {
+            this.setState({ assertionId, assertionIdValidationError: '' });
+        }
+    };
+
+    handleAssertionIdEditClick = () => {
+        this.setState({ assertionIdEditDisabled: false });
+    };
+
+    handleAssertionIdSaveClick = () => {
+        if(this.state.assertionId !== this.props.assertion.id) {
+            this.props.assertion.id = this.state.assertionId;
+            this.state.assertionIdEditDisabled = true;
+            this.props.onChange(this.props.itemKey, { ...this.props.assertion, id: this.props.assertion.id });
+        }
+        this.setState({ assertionIdEditDisabled: true });
     };
 
     render() {
@@ -693,6 +721,32 @@ class AssertionEditor extends React.Component {
                             : null
                     }
                 </Modal>
+                <Row>
+                    <Col span={24}>
+                        <Input
+                            className='float-left mb-2'
+                            placeholder="Assertion ID"
+                            size="small"
+                            style={{ width: '300px' }}
+                            disabled={this.state.assertionIdEditDisabled}
+                            value={this.state.assertionId}
+                            addonAfter={
+                                this.state.assertionIdEditDisabled ? (
+                                    <EditOutlined
+                                        onClick={this.handleAssertionIdEditClick}
+                                    />
+                                ) : (
+                                    <SaveOutlined
+                                        style={{ visibility: this.state.assertionIdValidationError ? 'hidden' : 'visible' }}
+                                        onClick={this.handleAssertionIdSaveClick}
+                                    />
+                                )
+                            }
+                            onChange={this.handleAssertionIdChange}
+                        />
+                        <Text type='danger'>{this.state.assertionIdValidationError}</Text>
+                    </Col>
+                </Row>
 
                 <Popover
                     className='float-left mb-2'
@@ -785,7 +839,7 @@ export class TestAssertions extends React.Component {
         //   delete this.props.request.params
         // }
 
-        this.props.request.tests.assertions[key].exec = newAssertion;
+        this.props.request.tests.assertions[key] = newAssertion;
         this.props.onChange(this.props.request);
     };
 

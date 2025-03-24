@@ -30,7 +30,7 @@ import React from 'react';
 import _ from 'lodash';
 
 import { Row, Col, Tag, Dropdown, Menu, message, Input, Collapse, Card, Button, Typography, Switch } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { MoreOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import MetadataEditor from './MetadataEditor';
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
@@ -50,6 +50,9 @@ class TestCaseViewer extends React.Component {
             renameTestCase: false,
             testCaseName: '',
             testCaseRequestsReorderingEnabled: false,
+            testCaseIdEditDisabled: true,
+            testCaseIdValidationError: '',
+            testCaseId: '',
         };
     }
 
@@ -62,7 +65,16 @@ class TestCaseViewer extends React.Component {
                 info: this.props.testCase.name,
             };
         }
-        this.setState({ testCaseName: this.props.testCase.name });
+        this.setState({
+            testCaseName: this.props.testCase.name,
+            testCaseId: this.props.testCase.id,
+        });
+    };
+
+    componentDidUpdate = () => {
+        if(this.state.testCaseIdEditDisabled && this.props.testCase.id !== this.state.testCaseId) {
+            this.setState({ testCaseId: this.props.testCase.id });
+        }
     };
 
     getTestCaseItems = () => {
@@ -148,6 +160,29 @@ class TestCaseViewer extends React.Component {
             this.props.testCase.requests[requestIndex].disabled = disabled;
         }
         this.props.onDisableRequests(disabled, requestIndex);
+    };
+
+    handleTestCaseIdChange = e => {
+        const testCaseId = e.target.value;
+        // Validate the testCase ID to be a string with only alphanumeric characters, underscore and dash
+        if(!/^[a-zA-Z0-9_-]*$/.test(e.target.value)) {
+            this.setState({ testCaseId, testCaseIdValidationError: 'TestCase ID should contain only alphanumeric characters, underscore and dash' });
+        } else {
+            this.setState({ testCaseId, testCaseIdValidationError: '' });
+        }
+    };
+
+    handleTestCaseIdEditClick = () => {
+        this.setState({ testCaseIdEditDisabled: false });
+    };
+
+    handleTestCaseIdSaveClick = () => {
+        if(this.state.testCaseId !== this.props.testCase.id) {
+            this.props.testCase.id = this.state.testCaseId;
+            this.state.testCaseIdEditDisabled = true;
+            this.props.onChange();
+        }
+        this.setState({ testCaseIdEditDisabled: true });
     };
 
     onTestCaseRequestsSortEnd = ({ oldIndex, newIndex }) => {
@@ -250,14 +285,6 @@ class TestCaseViewer extends React.Component {
         const testCaseRenaming = (
             <Title
                 level={4}
-                editable={{
-                    tooltip: 'click to edit test case name',
-                    onChange: newTestCaseName => {
-                        if(this.props.testCase.name !== newTestCaseName) {
-                            this.handleTestCaseRename(newTestCaseName);
-                        }
-                    },
-                }}
             >
                 <Switch
                     size='small'
@@ -371,11 +398,43 @@ class TestCaseViewer extends React.Component {
                                     )
                             }
                             {
+                                this.props.testCase.id
+                                    ? (
+                                        <Row>
+                                            <Col span={24}>
+                                                <Text>Testcase ID: </Text>
+                                                <Input
+                                                    placeholder="Testcase ID"
+                                                    size="small"
+                                                    style={{ width: '300px' }}
+                                                    disabled={this.state.testCaseIdEditDisabled}
+                                                    value={this.state.testCaseId}
+                                                    addonAfter={
+                                                        this.state.testCaseIdEditDisabled ? (
+                                                            <EditOutlined
+                                                                onClick={this.handleTestCaseIdEditClick}
+                                                            />
+                                                        ) : (
+                                                            <SaveOutlined
+                                                                style={{ visibility: this.state.testCaseIdValidationError ? 'hidden' : 'visible' }}
+                                                                onClick={this.handleTestCaseIdSaveClick}
+                                                            />
+                                                        )
+                                                    }
+                                                    onChange={this.handleTestCaseIdChange}
+                                                />
+                                                <Text type='danger'>{this.state.testCaseIdValidationError}</Text>
+                                            </Col>
+                                        </Row>
+                                    )
+                                    : null
+                            }
+                            {
                                 this.props.testCase.fileInfo.path
                                     ? (
                                         <Row>
                                             <Col span={24}>
-                                                <Text strong>File path: {this.props.testCase.fileInfo.path.toString()}</Text>
+                                                <Text>File path: {this.props.testCase.fileInfo.path.toString()}</Text>
                                             </Col>
                                         </Row>
                                     )
