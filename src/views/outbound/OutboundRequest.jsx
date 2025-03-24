@@ -43,6 +43,7 @@ import IterationRunner from './IterationRunner';
 import FileDownload from 'js-file-download';
 import FileManager from './FileManager.jsx';
 import EnvironmentManager from './EnvironmentManager';
+import { generateShortName } from '../../utils/nameConversions';
 
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 
@@ -396,7 +397,16 @@ class OutboundRequest extends React.Component {
         const { test_cases, ...remainingTestCaseProps } = template;
         let newTestCases = test_cases;
         if(test_cases) {
+            const testCaseIds = new Set();
+            let i = 0;
             newTestCases = test_cases.map(testCase => {
+                // Check if testCase.id is unique, append a suffix if not
+                let testCaseId = testCase.id;
+                if(testCaseIds.has(testCase.id)) {
+                    testCaseId = testCase.id + '-' + i;
+                    i = i + 1;
+                }
+                testCaseIds.add(testCaseId);
                 if(testCase.requests) {
                     const { requests, ...remainingProps } = testCase;
                     const newRequests = requests.map(item => {
@@ -408,9 +418,9 @@ class OutboundRequest extends React.Component {
                             return newRequest;
                         }
                     });
-                    return { ...remainingProps, requests: newRequests };
+                    return { ...remainingProps, requests: newRequests, id: testCaseId };
                 } else {
-                    return testCase;
+                    return { ...testCase, id: testCaseId };
                 }
             });
         }
@@ -424,9 +434,8 @@ class OutboundRequest extends React.Component {
             if(!fileTemplate.test_cases) {
                 fileTemplate.test_cases = [];
             }
-            // Find highest request id to determine the new ID
-            const maxId = +fileTemplate.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m; }, 0);
-            fileTemplate.test_cases.push({ id: maxId + 1, name: testCaseName, requests: [] });
+            const shortName = generateShortName(testCaseName);
+            fileTemplate.test_cases.push({ id: shortName, name: testCaseName, requests: [] });
             this.regenerateTemplate(this.state.additionalData);
             this.forceUpdate();
             this.autoSave = true;
@@ -522,8 +531,7 @@ class OutboundRequest extends React.Component {
             if(testCases[i].requests === undefined) {
                 testCases[i].requests = [];
             }
-            const testCaseRef = testCases[i];
-            this.state.template.test_cases.push({ ...testCaseRef, id: i + 1 });
+            this.state.template.test_cases.push(testCases[i]);
         }
         // this.state.template.test_cases = testCases.map((item, index) => { return { ...item, id: index + 1} })
         const folders = additionalData.selectedFiles.filter(x => x.slice((x.lastIndexOf('.') - 1 >>> 0) + 2) == '');
@@ -626,15 +634,12 @@ class OutboundRequest extends React.Component {
         if(fileSelected) {
             const fileTemplate = fileSelected.content;
 
-            // Find highest request id to determine the new ID
-            const maxId = +fileTemplate.test_cases.reduce(function (m, k) { return k.id > m ? k.id : m; }, 0);
-
             // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             const { id, name, ...otherProps } = fileTemplate.test_cases[testCaseIndex];
             // Deep copy other properties
             const clonedProps = JSON.parse(JSON.stringify(otherProps));
 
-            fileTemplate.test_cases.push({ id: maxId + 1, name: name + ' Copy', ...clonedProps });
+            fileTemplate.test_cases.push({ id: id + '-copy', name: name + ' Copy', ...clonedProps });
 
             this.regenerateTemplate(this.state.additionalData);
             this.forceUpdate();
