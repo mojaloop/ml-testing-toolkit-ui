@@ -595,11 +595,11 @@ class AssertionEditor extends React.Component {
         } else {
             this.setState({ assertionId, assertionIdValidationError: '' });
         }
-    }
+    };
 
     handleAssertionIdEditClick = () => {
         this.setState({ assertionIdEditDisabled: false });
-    }
+    };
 
     handleAssertionIdSaveClick = () => {
         if(this.state.assertionId !== this.props.assertion.id) {
@@ -608,7 +608,7 @@ class AssertionEditor extends React.Component {
             this.props.onChange(this.props.itemKey, { ...this.props.assertion, id: this.props.assertion.id });
         }
         this.setState({ assertionIdEditDisabled: true });
-    }
+    };
 
     render() {
         const renameAssertionDialogContent = (

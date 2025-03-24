@@ -170,11 +170,11 @@ class TestCaseViewer extends React.Component {
         } else {
             this.setState({ testCaseId, testCaseIdValidationError: '' });
         }
-    }
+    };
 
     handleTestCaseIdEditClick = () => {
         this.setState({ testCaseIdEditDisabled: false });
-    }
+    };
 
     handleTestCaseIdSaveClick = () => {
         if(this.state.testCaseId !== this.props.testCase.id) {
@@ -183,7 +183,7 @@ class TestCaseViewer extends React.Component {
             this.props.onChange();
         }
         this.setState({ testCaseIdEditDisabled: true });
-    }
+    };
 
     onTestCaseRequestsSortEnd = ({ oldIndex, newIndex }) => {
         // Change the position in array

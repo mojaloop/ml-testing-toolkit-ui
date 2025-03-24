@@ -66,11 +66,11 @@ class RequestDetailsBuilder extends React.Component {
         } else {
             this.setState({ requestId, requestIdValidationError: '' });
         }
-    }
+    };
 
     handleRequestIdEditClick = () => {
         this.setState({ requestIdEditDisabled: false });
-    }
+    };
 
     handleRequestIdSaveClick = () => {
         if(this.state.requestId !== this.props.request.id) {
@@ -79,16 +79,16 @@ class RequestDetailsBuilder extends React.Component {
             this.props.onChange();
         }
         this.setState({ requestIdEditDisabled: true });
-    }
+    };
 
     handleRequestDescriptionChange = e => {
         const requestDescription = e.target.value;
         this.setState({ requestDescription });
-    }
+    };
 
     handleRequestDescriptionEditClick = () => {
         this.setState({ requestDescriptionEditDisabled: false });
-    }
+    };
 
     handleRequestDescriptionSaveClick = () => {
         if(this.state.requestDescription !== this.props.request.description) {
@@ -97,7 +97,7 @@ class RequestDetailsBuilder extends React.Component {
             this.props.onChange();
         }
         this.setState({ requestDescriptionEditDisabled: true });
-    }
+    };
 
     render() {
         return (
