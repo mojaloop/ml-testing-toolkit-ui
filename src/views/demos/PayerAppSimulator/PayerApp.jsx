@@ -229,7 +229,9 @@ class PayerMobile extends React.Component {
         return {
             errorMessage:
                 <Popover content={content} title="Error Details">
-                    {request?.response?.body?.errorInformation?.errorDescription ?? request?.response?.statusText ?? 'Unexpected error'}
+                    {request?.response?.body?.errorInformation?.errorDescription
+                        ?? request?.response?.body?.transferState?.lastError?.mojaloopError?.errorInformation?.errorDescription
+                        ?? request?.response?.statusText ?? 'Unexpected error'}
                 </Popover>,
             currentState: 'ERROR_OCCURRED',
         };
