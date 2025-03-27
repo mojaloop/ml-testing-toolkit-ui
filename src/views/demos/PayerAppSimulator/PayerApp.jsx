@@ -70,6 +70,9 @@ const initialState = {
     receiverId: '16665551002',
     loading: false,
     partyInfo: {},
+    quoteResponse: {},
+    fxQuoteResponse: {},
+    transfersResponse: {},
     transferId: '',
     currentState: 'start',
     errorMessage: '',
@@ -184,15 +187,38 @@ class PayerMobile extends React.Component {
         }
     };
 
-    _constructStateFromResponse = (responseData, { traceId, traceUrl } = {}) => {
-        return {
-            partyInfo: responseData?.getPartiesResponse?.body?.party && { ...responseData?.getPartiesResponse?.body?.party, traceId, traceUrl },
-            quoteResponse: responseData?.quoteResponse?.body && { ...responseData?.quoteResponse?.body, traceId, traceUrl },
-            fxQuoteResponse: responseData?.fxQuoteResponse?.body && { ...responseData?.fxQuoteResponse?.body, traceId, traceUrl },
-            transfersResponse: responseData?.fulfil?.body && { ...responseData?.fulfil?.body, traceId, traceUrl },
-            currentState: responseData?.currentState,
-            transferId: responseData?.transferId,
-        };
+    _constructStateFromResponse = (responseData, { traceId, traceUrl } = {}, type = 'error') => {
+        switch (type) {
+            case 'start':
+                return {
+                    partyInfo: { ...responseData?.getPartiesResponse?.body?.party, traceId, traceUrl },
+                    currentState: responseData?.currentState,
+                    transferId: responseData?.transferId,
+                };
+            case 'acceptParty':
+                return {
+                    fxQuoteResponse: { ...responseData?.fxQuoteResponse?.body, traceId, traceUrl },
+                    currentState: responseData?.currentState,
+                    transferId: responseData?.transferId,
+                };
+            case 'acceptConversion':
+                return {
+                    quoteResponse: { ...responseData?.quoteResponse?.body, traceId, traceUrl },
+                    currentState: responseData?.currentState,
+                    transferId: responseData?.transferId,
+                };
+            case 'acceptQuote':
+                return {
+                    transfersResponse: { ...responseData?.fulfil?.body, traceId, traceUrl },
+                    currentState: responseData?.currentState,
+                    transferId: responseData?.transferId,
+                };
+            default:
+                return {
+                    currentState: responseData?.currentState,
+                    transferId: responseData?.transferId,
+                };
+        }
     };
 
     _constructStateFromError = request => {
@@ -247,7 +273,7 @@ class PayerMobile extends React.Component {
             );
             newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
                 ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
-                : this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0]);
+                : this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0], 'start');
             newState.loading = false;
         } catch (err) {
             console.log(err);
@@ -278,7 +304,9 @@ class PayerMobile extends React.Component {
                     },
                 },
             );
-            newState = this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body);
+            newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
+                ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
+                : this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0], acceptanceType);
             newState.loading = false;
         } catch (err) {
             console.log(err);
