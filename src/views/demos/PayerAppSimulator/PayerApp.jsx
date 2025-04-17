@@ -49,7 +49,7 @@ import BrandIcon from './BrandIcon';
 const { Text, Title } = Typography;
 const { Option } = Select;
 
-const TraceWrap = ({ children, trace }) =>
+const TraceWrap = ({ children, trace = {} }) =>
     <Popover
         content={<div>trace-id: <a href={trace.traceUrl} target='_blank' rel='noreferrer'>{trace.traceId}</a></div>}
     >
@@ -196,10 +196,10 @@ class PayerMobile extends React.Component {
             currentState: responseData?.currentState,
             transferId: responseData?.transferId,
         };
-        if(result.partyInfo && !oldState.partyInfo) Object.assign(result.partyInfo, { traceId, traceUrl });
-        if(result.fxQuoteResponse && !oldState.fxQuoteResponse) Object.assign(result.fxQuoteResponse, { traceId, traceUrl });
-        if(result.quoteResponse && !oldState.quoteResponse) Object.assign(result.quoteResponse, { traceId, traceUrl });
-        if(result.transfersResponse && !oldState.transfersResponse) Object.assign(result.transfersResponse, { traceId, traceUrl });
+        if(result.partyInfo) result.partyInfo.trace = oldState.partyInfo?.trace || { traceId, traceUrl };
+        if(result.fxQuoteResponse) result.fxQuoteResponse = oldState.fxQuoteResponse?.state || { traceId, traceUrl };
+        if(result.quoteResponse) result.quoteResponse = oldState.quoteResponse?.state || { traceId, traceUrl };
+        if(result.transfersResponse) result.transfersResponse = oldState.transfersResponse?.state || { traceId, traceUrl };
         return result;
     };
 
@@ -317,7 +317,7 @@ class PayerMobile extends React.Component {
         if(this.state.partyInfo && this.state.partyInfo.personalInfo && this.state.partyInfo.personalInfo.complexName) {
             steps.push({
                 title: 'Party Info',
-                description: <TraceWrap trace={this.state.partyInfo}>{
+                description: <TraceWrap trace={this.state.partyInfo.trace}>{
                     this.state.partyInfo.personalInfo.complexName.firstName + ' ' + (this.state.partyInfo.personalInfo.complexName.middleName || '') + ' ' + this.state.partyInfo.personalInfo.complexName.lastName + ' @ ' + this.state.partyInfo.partyIdInfo.fspId
                 }</TraceWrap>,
                 status: 'finish',
@@ -325,7 +325,7 @@ class PayerMobile extends React.Component {
         } else if(this.state.partyInfo && this.state.partyInfo.name) {
             steps.push({
                 title: 'Party Info',
-                description: <TraceWrap trace={this.state.partyInfo}>{
+                description: <TraceWrap trace={this.state.partyInfo.trace}>{
                     this.state.partyInfo.name + ' @ ' + this.state.partyInfo.partyIdInfo.fspId
                 }</TraceWrap>,
                 status: 'finish',
@@ -346,7 +346,7 @@ class PayerMobile extends React.Component {
             }
             steps.push({
                 title: 'Conversion Terms',
-                description: <TraceWrap trace={this.state.fxQuoteResponse}>{
+                description: <TraceWrap trace={this.state.fxQuoteResponse.trace}>{
                     <>Sending Amount: {this.state.fxQuoteResponse.conversionTerms.sourceAmount.currency} {this.state.fxQuoteResponse.conversionTerms.sourceAmount.amount}<br />Conversion fee: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {conversionFee}<br />Converted Amount: {this.state.fxQuoteResponse.conversionTerms.targetAmount.currency} {this.state.fxQuoteResponse.conversionTerms.targetAmount.amount}</>
                 }</TraceWrap>,
                 status: 'finish',
@@ -365,7 +365,7 @@ class PayerMobile extends React.Component {
             const payeeFspCurrency = this.state.quoteResponse.payeeFspFee?.currency || this.state.quoteResponse.transferAmount.currency;
             steps.push({
                 title: 'Quote',
-                description: <TraceWrap trace={this.state.quoteResponse}>{
+                description: <TraceWrap trace={this.state.quoteResponse.trace}>{
                     <>Payee FSP fee is {payeeFspCurrency} {payeeFspFee}<br />Payee receives {this.state.quoteResponse.transferAmount.currency + ' ' + this.state.quoteResponse.transferAmount.amount}</>
                 }</TraceWrap>,
                 status: 'finish',
@@ -382,14 +382,14 @@ class PayerMobile extends React.Component {
         if(this.state.transfersResponse && this.state.transfersResponse.transferState && this.state.transfersResponse.transferState === 'COMMITTED') {
             steps.push({
                 title: 'Transfer Successful',
-                description: <TraceWrap trace={this.state.transfersResponse}>Sent amount successfully</TraceWrap>,
+                description: <TraceWrap trace={this.state.transfersResponse.trace}>Sent amount successfully</TraceWrap>,
                 status: 'finish',
             });
         }
         if(this.state.transfersResponse && this.state.transfersResponse.transferState && this.state.transfersResponse.transferState !== 'COMMITTED') {
             steps.push({
                 title: 'Transfer Failed',
-                description: <TraceWrap trace={this.state.transfersResponse}>Failed to send amount</TraceWrap>,
+                description: <TraceWrap trace={this.state.transfersResponse.trace}>Failed to send amount</TraceWrap>,
                 status: 'error',
             });
         }
