@@ -197,9 +197,9 @@ class PayerMobile extends React.Component {
             transferId: responseData?.transferId,
         };
         if(result.partyInfo) result.partyInfo.trace = oldState.partyInfo?.trace || { traceId, traceUrl };
-        if(result.fxQuoteResponse) result.fxQuoteResponse = oldState.fxQuoteResponse?.state || { traceId, traceUrl };
-        if(result.quoteResponse) result.quoteResponse = oldState.quoteResponse?.state || { traceId, traceUrl };
-        if(result.transfersResponse) result.transfersResponse = oldState.transfersResponse?.state || { traceId, traceUrl };
+        if(result.fxQuoteResponse) result.fxQuoteResponse.trace = oldState.fxQuoteResponse?.trace || { traceId, traceUrl };
+        if(result.quoteResponse) result.quoteResponse.trace = oldState.quoteResponse?.trace || { traceId, traceUrl };
+        if(result.transfersResponse) result.transfersResponse.trace = oldState.transfersResponse?.trace || { traceId, traceUrl };
         return result;
     };
 
