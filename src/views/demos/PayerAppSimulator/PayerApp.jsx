@@ -187,38 +187,20 @@ class PayerMobile extends React.Component {
         }
     };
 
-    _constructStateFromResponse = (responseData, { traceId, traceUrl } = {}, type = 'error') => {
-        switch (type) {
-            case 'start':
-                return {
-                    partyInfo: { ...responseData?.getPartiesResponse?.body?.party, traceId, traceUrl },
-                    currentState: responseData?.currentState,
-                    transferId: responseData?.transferId,
-                };
-            case 'acceptParty':
-                return {
-                    fxQuoteResponse: { ...responseData?.fxQuoteResponse?.body, traceId, traceUrl },
-                    currentState: responseData?.currentState,
-                    transferId: responseData?.transferId,
-                };
-            case 'acceptConversion':
-                return {
-                    quoteResponse: { ...responseData?.quoteResponse?.body, traceId, traceUrl },
-                    currentState: responseData?.currentState,
-                    transferId: responseData?.transferId,
-                };
-            case 'acceptQuote':
-                return {
-                    transfersResponse: { ...responseData?.fulfil?.body, traceId, traceUrl },
-                    currentState: responseData?.currentState,
-                    transferId: responseData?.transferId,
-                };
-            default:
-                return {
-                    currentState: responseData?.currentState,
-                    transferId: responseData?.transferId,
-                };
-        }
+    _constructStateFromResponse = (oldState, responseData, { traceId, traceUrl } = {}) => {
+        const result = {
+            partyInfo: responseData?.getPartiesResponse?.body?.party,
+            quoteResponse: responseData?.quoteResponse?.body,
+            fxQuoteResponse: responseData?.fxQuoteResponse?.body,
+            transfersResponse: responseData?.fulfil?.body,
+            currentState: responseData?.currentState,
+            transferId: responseData?.transferId,
+        };
+        if(result.partyInfo && !oldState.partyInfo) assign(result.partyInfo, { traceId, traceUrl });
+        if(result.fxQuoteResponse && !oldState.fxQuoteResponse) assign(result.fxQuoteResponse, { traceId, traceUrl });
+        if(result.quoteResponse && !oldState.quoteResponse) assign(result.quoteResponse, { traceId, traceUrl });
+        if(result.transfersResponse && !oldState.transfersResponse) assign(result.transfersResponse, { traceId, traceUrl });
+        return result;
     };
 
     _constructStateFromError = request => {
@@ -262,29 +244,31 @@ class PayerMobile extends React.Component {
             DESTINATION_PARTY_ID_VALUE: this.state.receiverId,
             SOURCE_FSP_ID: this.state.userConfig.FSPID,
         };
-        let newState = {};
-        try {
-            const resp = await axios.post(
-                this._getTtkBackendAPIUrl(),
-                templateSdkPostTransfers,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
+        this.setState(oldState => {
+            let newState = {};
+            try {
+                const resp = await axios.post(
+                    this._getTtkBackendAPIUrl(),
+                    templateSdkPostTransfers,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
                     },
-                },
-            );
-            newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
-                ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
-                : this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0], 'start');
-            newState.loading = false;
-        } catch (err) {
-            console.log(err);
-            const responseData = err.response.data.transferState;
-            newState = this._constructStateFromResponse(responseData);
-            newState.errorMessage = responseData.lastError?.mojaloopError?.errorInformation?.errorDescription || 'Error occurred';
-            newState.loading = false;
-        }
-        this.setState(newState);
+                );
+                newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
+                    ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
+                    : this._constructStateFromResponse(oldState, resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0]);
+                newState.loading = false;
+            } catch (err) {
+                console.log(err);
+                const responseData = err.response.data.transferState;
+                newState = this._constructStateFromResponse(oldState, responseData);
+                newState.errorMessage = responseData.lastError?.mojaloopError?.errorInformation?.errorDescription || 'Error occurred';
+                newState.loading = false;
+            }
+            return newState;
+        });
     };
 
     handleAcceptance = async acceptanceType => {
@@ -295,27 +279,28 @@ class PayerMobile extends React.Component {
             ACCEPTANCE_TYPE: acceptanceType,
         };
 
-        let newState = {};
-        try {
-            const resp = await axios.post(
-                this._getTtkBackendAPIUrl(),
-                templateSdkPutTransfers,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
+        this.setState(oldState => {
+            let newState = {};
+            try {
+                const resp = await axios.post(
+                    this._getTtkBackendAPIUrl(),
+                    templateSdkPutTransfers,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
                     },
-                },
-            );
-            newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
-                ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
-                : this._constructStateFromResponse(resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0], acceptanceType);
-            newState.loading = false;
-        } catch (err) {
-            console.log(err);
-            newState.loading = false;
-        }
-
-        this.setState(newState);
+                );
+                newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
+                    ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
+                    : this._constructStateFromResponse(oldState, resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0]);
+                newState.loading = false;
+            } catch (err) {
+                console.log(err);
+                newState.loading = false;
+            }
+            return newState;
+        });
     };
 
     getStepItems = () => {
