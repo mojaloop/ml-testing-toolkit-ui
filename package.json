@@ -1,6 +1,6 @@
 {
   "name": "ml-testing-toolkit-ui",
-  "version": "16.3.0-snapshot.11",
+  "version": "16.3.0",
   "description": "Mojaloop Testing Toolkit Web User Interface",
   "main": "index.js",
   "proxy": "http://localhost:4040",
