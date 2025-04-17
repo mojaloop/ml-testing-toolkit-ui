@@ -244,31 +244,33 @@ class PayerMobile extends React.Component {
             DESTINATION_PARTY_ID_VALUE: this.state.receiverId,
             SOURCE_FSP_ID: this.state.userConfig.FSPID,
         };
-        this.setState(oldState => {
-            let newState = {};
-            try {
-                const resp = await axios.post(
-                    this._getTtkBackendAPIUrl(),
-                    templateSdkPostTransfers,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+        try {
+            const resp = await axios.post(
+                this._getTtkBackendAPIUrl(),
+                templateSdkPostTransfers,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
                     },
-                );
-                newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
+                },
+            );
+            this.setState(oldState => {
+                const newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
                     ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
                     : this._constructStateFromResponse(oldState, resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0]);
                 newState.loading = false;
-            } catch (err) {
-                console.log(err);
-                const responseData = err.response.data.transferState;
-                newState = this._constructStateFromResponse(oldState, responseData);
+                return newState;
+            });
+        } catch (err) {
+            console.log(err);
+            const responseData = err.response.data.transferState;
+            this.setState(oldState => {
+                const newState = this._constructStateFromResponse(oldState, responseData);
                 newState.errorMessage = responseData.lastError?.mojaloopError?.errorInformation?.errorDescription || 'Error occurred';
                 newState.loading = false;
-            }
-            return newState;
-        });
+                return newState;
+            });
+        }
     };
 
     handleAcceptance = async acceptanceType => {
@@ -279,28 +281,27 @@ class PayerMobile extends React.Component {
             ACCEPTANCE_TYPE: acceptanceType,
         };
 
-        this.setState(oldState => {
-            let newState = {};
-            try {
-                const resp = await axios.post(
-                    this._getTtkBackendAPIUrl(),
-                    templateSdkPutTransfers,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+        try {
+            const resp = await axios.post(
+                this._getTtkBackendAPIUrl(),
+                templateSdkPutTransfers,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
                     },
-                );
-                newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
+                },
+            );
+            this.setState(oldState => {
+                const newState = resp.data.test_cases[0]?.requests[0]?.response?.status >= 300
                     ? this._constructStateFromError(resp.data.test_cases[0]?.requests[0])
                     : this._constructStateFromResponse(oldState, resp.data.test_cases[0]?.requests[0]?.response?.body, resp.data.test_cases[0]?.requests[0]);
                 newState.loading = false;
-            } catch (err) {
-                console.log(err);
-                newState.loading = false;
-            }
-            return newState;
-        });
+                return newState;
+            });
+        } catch (err) {
+            console.log(err);
+            this.setState({ loading: false });
+        }
     };
 
     getStepItems = () => {
