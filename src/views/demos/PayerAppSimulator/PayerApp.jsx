@@ -196,10 +196,10 @@ class PayerMobile extends React.Component {
             currentState: responseData?.currentState,
             transferId: responseData?.transferId,
         };
-        if(result.partyInfo && !oldState.partyInfo) assign(result.partyInfo, { traceId, traceUrl });
-        if(result.fxQuoteResponse && !oldState.fxQuoteResponse) assign(result.fxQuoteResponse, { traceId, traceUrl });
-        if(result.quoteResponse && !oldState.quoteResponse) assign(result.quoteResponse, { traceId, traceUrl });
-        if(result.transfersResponse && !oldState.transfersResponse) assign(result.transfersResponse, { traceId, traceUrl });
+        if(result.partyInfo && !oldState.partyInfo) Object.assign(result.partyInfo, { traceId, traceUrl });
+        if(result.fxQuoteResponse && !oldState.fxQuoteResponse) Object.assign(result.fxQuoteResponse, { traceId, traceUrl });
+        if(result.quoteResponse && !oldState.quoteResponse) Object.assign(result.quoteResponse, { traceId, traceUrl });
+        if(result.transfersResponse && !oldState.transfersResponse) Object.assign(result.transfersResponse, { traceId, traceUrl });
         return result;
     };
 
