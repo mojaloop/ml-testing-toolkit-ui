@@ -1,6 +1,6 @@
 {
     "plugins": ["@typescript-eslint", "import"],
-    "extends": ["airbnb-typescript", "plugin:react/recommended"],
+    "extends": ["airbnb-typescript"],
     "parser": "@typescript-eslint/parser",
     "ignorePatterns": ["src/test"],
     "parserOptions": {
@@ -8,7 +8,7 @@
       "sourceType": "module"
     },
     "settings": {
-      "import/resolver": "node" 
+      "import/resolver": "node"
     },
     "rules": {
       "indent": [
@@ -85,7 +85,7 @@
       } }],
       "arrow-parens": ["error", "as-needed"],
       "import/extensions": [
-        "error", 
+        "error",
         {
           "js": "never",
           "ts": "never",
