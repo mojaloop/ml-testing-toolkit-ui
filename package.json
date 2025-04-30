@@ -90,7 +90,7 @@
     "react-app-rewired": "^2.2.1",
     "react-dom": "^18",
     "react-markdown": "8.0.7",
-    "react-refresh": "^0.17.0",
+    "react-refresh": "^0.11.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "5.0.1",
     "react-sortable-hoc": "^2.0.0",
@@ -113,7 +113,9 @@
     "replace": "^1.2.2",
     "standard-version": "^9.5.0",
     "stream-http": "^3.2.0",
-    "typescript": "5.8.3"
+    "typescript": "^4",
+    "url": "0.11.4",
+    "util": "0.12.5"
   },
   "jest": {
     "collectCoverageFrom": [
