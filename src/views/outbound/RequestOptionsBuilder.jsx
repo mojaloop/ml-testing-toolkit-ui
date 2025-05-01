@@ -99,6 +99,23 @@ class RequestOptionsBuilder extends React.Component {
                                 </Col>
                             </Row>
                             <Row className='mt-2'>
+                                <Col span={8}>
+                                    <Text strong>Delays between retries</Text>
+                                    <Tooltip placement='topLeft' title='Comma separated list of delays in milliseconds. The first delay is used for the first retry, the second delay is used for the second retry, and so on. If there are more retries than delays, the last delay is used for the remaining retries.'>
+                                        <QuestionCircleTwoTone style={{ paddingLeft: '4px', fontSize: '20px' }} />
+                                    </Tooltip>
+                                </Col>
+                                <Col span={16}>
+                                    <Input
+                                        placeholder='delays' value={this.props.request.retriesDelay}
+                                        onChange={e => {
+                                            this.props.request.retriesDelay = e.target.value;
+                                            this.props.onChange();
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                            <Row className='mt-2'>
                                 <Col span={24}>
                                     <Checkbox
                                         checked={this.state.overrideCheckboxSelected}
