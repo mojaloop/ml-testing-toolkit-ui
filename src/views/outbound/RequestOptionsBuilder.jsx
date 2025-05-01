@@ -29,7 +29,7 @@
 import React from 'react';
 import _ from 'lodash';
 
-import { Input, Tooltip, Tag, Card, Checkbox, Row, Col, Typography } from 'antd';
+import { Input, InputNumber, Tooltip, Tag, Card, Checkbox, Row, Col, Typography } from 'antd';
 import { QuestionCircleTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
@@ -80,6 +80,41 @@ class RequestOptionsBuilder extends React.Component {
                 <Row className='mb-2'>
                     <Col span={24}>
                         <Card size='small' title='Options'>
+                            <Row className='mt-2'>
+                                <Col span={8}>
+                                    <Text strong>Number of retries</Text>
+                                    <Tooltip placement='topLeft' title='Idempotent requests can be retried until the assertions pass. Specify the number of times the request will be retried.'>
+                                        <QuestionCircleTwoTone style={{ paddingLeft: '4px', fontSize: '20px' }} />
+                                    </Tooltip>
+                                </Col>
+                                <Col span={16}>
+                                    <InputNumber
+                                        min={0}
+                                        placeholder='retries' value={this.props.request.retries}
+                                        onChange={value => {
+                                            this.props.request.retries = value;
+                                            this.props.onChange();
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                            <Row className='mt-2'>
+                                <Col span={8}>
+                                    <Text strong>Delays between retries</Text>
+                                    <Tooltip placement='topLeft' title='Comma separated list of delays in milliseconds. The first delay is used for the first retry, the second delay is used for the second retry, and so on. If there are more retries than delays, the last delay is used for the remaining retries.'>
+                                        <QuestionCircleTwoTone style={{ paddingLeft: '4px', fontSize: '20px' }} />
+                                    </Tooltip>
+                                </Col>
+                                <Col span={16}>
+                                    <Input
+                                        placeholder='delays' value={this.props.request.retriesDelay}
+                                        onChange={e => {
+                                            this.props.request.retriesDelay = e.target.value;
+                                            this.props.onChange();
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
                             <Row className='mt-2'>
                                 <Col span={24}>
                                     <Checkbox
