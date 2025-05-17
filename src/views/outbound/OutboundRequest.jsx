@@ -32,9 +32,8 @@ import React from 'react';
 import socketIOClient from 'socket.io-client';
 import mermaid from 'mermaid';
 import { getServerConfig, getConfig } from '../../utils/getConfig';
-import { Input, Row, Col, Affix, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox } from 'antd';
+import { Input, Row, Col, Affix, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, App, ConfigProvider } from 'antd';
 import { CaretRightFilled, CaretLeftFilled } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseEditor from './TestCaseEditor';
 import TestCaseViewer from './TestCaseViewer';
@@ -47,7 +46,7 @@ import { generateShortName } from '../../utils/nameConversions';
 
 import { FolderParser, TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import SortableList from '../../components/SortableList';
 
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 
@@ -63,7 +62,6 @@ if(window && window.require) {
 }
 
 const { Panel } = Collapse;
-const { TabPane } = Tabs;
 const { Text } = Typography;
 
 function buildFileSelector(multi = false, directory = false) {
@@ -215,7 +213,7 @@ class OutboundRequest extends React.Component {
             this.state.labelsManager.selectedLabels = labelsManager.selectedLabels;
             this.state.labelsManager.selectedFiles = labelsManager.selectedFiles;
         }
-        if(this.state.labelsManager.labels.length === 0 && this.state.userConfig.LABELS && this.state.userConfig.LABELS.length > 0) {
+        if(this.state.labelsManager.labels.length === 0 && this.state.userConfig && this.state.userConfig.LABELS && this.state.userConfig.LABELS.length > 0) {
             this.state.labelsManager.labels.push(...this.state.userConfig.LABELS);
         }
         if(!this.state.labelsManager.mapping && this.state.folderData) {
@@ -837,10 +835,12 @@ class OutboundRequest extends React.Component {
         return dataSource;
     };
 
-    onTestCaseSortEnd = ({ oldIndex, newIndex }) => {
-        // Change the position in array
-        this.state.tempReorderedTestCases = arrayMove(this.state.tempReorderedTestCases, oldIndex, newIndex);
-        this.setState({ curTestCasesUpdated: true });
+    onSortEnd = ({ oldIndex, newIndex }) => {
+        const newItems = arrayMove(this.state.tempReorderedTestCases, oldIndex, newIndex);
+        this.setState({
+            curTestCasesUpdated: true,
+            tempReorderedTestCases: newItems,
+        });
     };
 
     getSingleFileSelected = () => {
@@ -877,7 +877,37 @@ class OutboundRequest extends React.Component {
         return result;
     };
 
+    renderItem = item => (
+        <div className="test-case-item">
+            {item.name}
+        </div>
+    );
+
     render() {
+        const renameRequestDialogContent = (
+            <>
+                <Input
+                    placeholder='Description'
+                    type='text'
+                    value={this.state.newRequestDescription}
+                    onChange={e => { this.setState({ newRequestDescription: e.target.value }); }}
+                />
+                <Button
+                    className='text-right mt-2'
+                    color='success'
+                    href='#pablo'
+                    onClick={() => {
+                        this.props.request.description = this.state.newRequestDescription;
+                        this.setState({ description: this.state.newRequestDescription, renameRequestDialogVisible: false });
+                        this.props.onChange(this.props.request);
+                    }}
+                    size='sm'
+                >
+          Save
+                </Button>
+            </>
+        );
+
         const createNewTestCaseDialogContent = (
             <>
                 <Input
@@ -965,446 +995,474 @@ class OutboundRequest extends React.Component {
             );
         };
 
-        const SortableRuleItem = SortableElement(({ value }) => <Panel header={value.name} />);
-
-        const SortableRuleList = SortableContainer(({ items }) => {
-            return (
-                <Collapse>
-                    {items.map((value, index) => (
-                        <SortableRuleItem key={`item-${value.id}`} index={index} value={value} />
-                    ))}
-                </Collapse>
-            );
-        });
-
         return (
-            <>
-                <Drawer
-                    title='File Browser'
-                    placement='left'
-                    width={600}
-                    closable={false}
-                    onClose={() => {
-                        this.setState({ fileBrowserVisible: false });
-                    }}
-                    visible={this.state.fileBrowserVisible}
-                >
-                    <FileManager
-                        folderData={this.state.folderData}
-                        selectedFiles={this.state.additionalData.selectedFiles}
-                        labelsManager={this.state.labelsManager}
-                        onChange={this.handleFileManagerContentChange}
-                        ref={this.fileManagerRef}
-                        ipcRenderer={ipcRenderer}
-                    />
-                </Drawer>
-                <Drawer
-                    title='Environment Manager'
-                    forceRender
-                    placement='right'
-                    width={800}
-                    closable={false}
-                    zIndex={1100}
-                    onClose={() => {
-                        this.setState({ environmentManagerVisible: false });
-                    }}
-                    visible={this.state.environmentManagerVisible}
-                >
-                    <EnvironmentManager
-                        onChange={this.handleEnvironmentChange}
-                    />
-                </Drawer>
-
-                <Modal
-                    centered
-                    destroyOnClose
-                    forceRender
-                    title='Template'
-                    className='w-50 p-3'
-                    visible={!!this.state.showTemplate}
-                    footer={null}
-                    onCancel={() => { this.setState({ showTemplate: false }); }}
-                >
-                    <pre>{JSON.stringify(this.convertTemplate({ ...this.state.template, inputValues: this.state.inputValues }), null, 2)}</pre>
-                </Modal>
-                <Modal
-                    style={{ top: 20 }}
-                    destroyOnClose
-                    forceRender
-                    width='90%'
-                    title='Iteration Runner'
-                    visible={!!this.state.showIterationRunner}
-                    footer={null}
-                    onCancel={() => { this.setState({ showIterationRunner: false }); }}
-                >
-                    <IterationRunner
-                        template={this.convertTemplate({ ...this.state.template, inputValues: this.state.inputValues })}
-                        sessionId={this.state.sessionId}
-                        ref={this.iterationRunnerRef}
-                    />
-                </Modal>
-                <Modal
-                    centered
-                    destroyOnClose
-                    forceRender
-                    title='Sequence Diagram'
-                    className='w-50 p-3'
-                    visible={!!this.state.sequenceDiagramVisible}
-                    footer={null}
-                    onCancel={() => { this.seqDiagContainer.innerHTML = ''; this.setState({ sequenceDiagramVisible: false }); }}
-                >
-                    <div
-                        ref={div => {
-                            this.seqDiagContainer = div;
-                        }}
-                    />
-                </Modal>
-                <Modal
-                    style={{ top: 20 }}
-                    bodyStyle={{ height: '85vh', 'overflow-y': 'auto' }}
-                    destroyOnClose
-                    forceRender
-                    title={this.state.showTestCaseIndex != null ? this.state.template.test_cases[this.state.showTestCaseIndex].name : ''}
-                    width='90%'
-                    visible={this.state.showTestCaseIndex != null}
-                    footer={null}
-                    keyboard={false}
-                    maskClosable={false}
-                    onCancel={() => { this.setState({ showTestCaseIndex: null }); }}
-                >
-                    {
-                        this.state.showTestCaseIndex != null
-                            ? (
-                                <TestCaseEditor
-                                    testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
-                                    inputValues={this.state.inputValues}
-                                    userConfig={this.state.userConfig}
-                                    logs={this.state.testCaseEditorLogs}
-                                    onChange={this.handleTestCaseChange}
-                                    onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex); }}
-                                    traceID={this.state.lastOutgoingRequestID}
-                                    onOpenEnvironmentManager={() => { this.setState({ environmentManagerVisible: true }); }}
-                                />
-                            )
-                            : null
+            <ConfigProvider
+                theme={{
+                    components: {
+                        ResizeObserver: {
+                            // Enable ResizeObserver.Collection
+                            collection: true
+                        }
                     }
-                </Modal>
+                }}
+            >
+                <App>
+                    <Drawer
+                        title='File Browser'
+                        placement='left'
+                        width={600}
+                        closable={false}
+                        onClose={() => {
+                            this.setState({ fileBrowserVisible: false });
+                        }}
+                        open={this.state.fileBrowserVisible}
+                    >
+                        <FileManager
+                            folderData={this.state.folderData}
+                            selectedFiles={this.state.additionalData.selectedFiles}
+                            labelsManager={this.state.labelsManager}
+                            onChange={this.handleFileManagerContentChange}
+                            ref={this.fileManagerRef}
+                            ipcRenderer={ipcRenderer}
+                        />
+                    </Drawer>
+                    <Drawer
+                        title='Environment Manager'
+                        forceRender
+                        placement='right'
+                        width={800}
+                        closable={false}
+                        zIndex={1100}
+                        onClose={() => {
+                            this.setState({ environmentManagerVisible: false });
+                        }}
+                        open={this.state.environmentManagerVisible}
+                    >
+                        <EnvironmentManager
+                            onChange={this.handleEnvironmentChange}
+                        />
+                    </Drawer>
 
-                <Row>
-                    <Col span={24}>
-                        <Affix offsetTop={2}>
-                            <Row align='top'>
-                                <Col span={12}>
-                                    <Button
-                                        type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
-                                            this.setState({ fileBrowserVisible: true });
-                                        }}
-                                    >
-                                        <Text style={{ color: 'white', fontWeight: 'bold' }}>Collections Manager</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
-                                    </Button>
-                                </Col>
-                                <Col span={12}>
-                                    <Button
-                                        type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
-                                            this.setState({ environmentManagerVisible: true });
-                                        }}
-                                    >
-                                        <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Environment Manager</Text>
-                                    </Button>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col span={24}>
-                                    <Card className='mb-4'>
-                                        <Row>
-                                            <Col span={10} />
-                                            <Col span={4} className='text-center'>
-                                                {
-                                                    this.state.totalAssertionsCount > 0
-                                                        ? (
-                                                            <>
-                                                                <Row>
-                                                                    <Col span={24}>
-                                                                        <Progress percent={Math.round((this.state.totalPassedCount + this.state.totalFailedCount) * 100 / this.state.totalAssertionsCount)} width={50} format={() => (this.state.totalPassedCount + this.state.totalFailedCount) + ' / ' + this.state.totalAssertionsCount} />
-                                                                    </Col>
-                                                                </Row>
-                                                                <Row className='mt-4'>
-                                                                    <Col span={8}>
-                                                                        <Badge count='PASSED' style={{ backgroundColor: TTKColors.assertionPassed }}>
-                                                                            <Progress type='circle' width={50} status='success' percent={100} format={() => this.state.totalPassedCount} />
-                                                                        </Badge>
-                                                                    </Col>
-                                                                    <Col span={8}>
-                                                                        <Badge count='FAILED' style={{ backgroundColor: TTKColors.assertionFailed }}>
-                                                                            <Progress type='circle' width={50} status='exception' percent={100} format={() => this.state.totalFailedCount} />
-                                                                        </Badge>
-                                                                    </Col>
-                                                                    <Col span={8}>
-                                                                        <Badge count='TOTAL' style={{ backgroundColor: '#108ee9' }}>
-                                                                            <Progress type='circle' width={50} status='normal' percent={100} format={() => this.state.totalAssertionsCount} />
-                                                                        </Badge>
-                                                                    </Col>
-                                                                </Row>
-                                                            </>
-                                                        )
-                                                        : null
-                                                }
+                    <Modal
+                        centered
+                        destroyOnHidden
+                        forceRender
+                        title='Template'
+                        className='w-50 p-3'
+                        open={!!this.state.showTemplate}
+                        footer={null}
+                        onCancel={() => { this.setState({ showTemplate: false }); }}
+                    >
+                        <pre>{JSON.stringify(this.convertTemplate({ ...this.state.template, inputValues: this.state.inputValues }), null, 2)}</pre>
+                    </Modal>
+                    <Modal
+                        style={{ top: 20 }}
+                        styles={{ body: { height: '85vh', overflowY: 'auto' } }}
+                        destroyOnHidden
+                        forceRender
+                        title='Iteration Runner'
+                        open={!!this.state.showIterationRunner}
+                        footer={null}
+                        onCancel={() => { this.setState({ showIterationRunner: false }); }}
+                    >
+                        <IterationRunner
+                            template={this.convertTemplate({ ...this.state.template, inputValues: this.state.inputValues })}
+                            sessionId={this.state.sessionId}
+                            ref={this.iterationRunnerRef}
+                        />
+                    </Modal>
+                    <Modal
+                        centered
+                        destroyOnHidden
+                        forceRender
+                        title='Sequence Diagram'
+                        className='w-50 p-3'
+                        open={!!this.state.sequenceDiagramVisible}
+                        footer={null}
+                        onCancel={() => { this.seqDiagContainer.innerHTML = ''; this.setState({ sequenceDiagramVisible: false }); }}
+                    >
+                        <div
+                            ref={div => {
+                                this.seqDiagContainer = div;
+                            }}
+                        />
+                    </Modal>
+                    <Modal
+                        style={{ top: 20 }}
+                        styles={{ body: { height: '85vh', overflowY: 'auto' } }}
+                        destroyOnHidden
+                        forceRender
+                        title={this.state.showTestCaseIndex != null ? this.state.template.test_cases[this.state.showTestCaseIndex].name : ''}
+                        width='90%'
+                        open={this.state.showTestCaseIndex != null}
+                        footer={null}
+                        keyboard={false}
+                        maskClosable={false}
+                        onCancel={() => { this.setState({ showTestCaseIndex: null }); }}
+                    >
+                        {
+                            this.state.showTestCaseIndex != null
+                                ? (
+                                    <TestCaseEditor
+                                        testCase={this.state.template.test_cases[this.state.showTestCaseIndex]}
+                                        inputValues={this.state.inputValues}
+                                        userConfig={this.state.userConfig}
+                                        logs={this.state.testCaseEditorLogs}
+                                        onChange={this.handleTestCaseChange}
+                                        onSend={() => { this.handleSendSingleTestCase(this.state.showTestCaseIndex); }}
+                                        traceID={this.state.lastOutgoingRequestID}
+                                        onOpenEnvironmentManager={() => { this.setState({ environmentManagerVisible: true }); }}
+                                    />
+                                )
+                                : null
+                        }
+                    </Modal>
+
+                    <Row>
+                        <Col span={24}>
+                            <ConfigProvider
+                                theme={{
+                                    components: {
+                                        Affix: {
+                                            // Configure Affix-specific settings
+                                            className: 'custom-affix-wrapper'
+                                        }
+                                    }
+                                }}
+                            >
+                                <App>
+                                    <Affix offsetTop={2}>
+                                        <Row align='top'>
+                                            <Col span={12}>
+                                                <Button
+                                                    type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
+                                                        this.setState({ fileBrowserVisible: true });
+                                                    }}
+                                                >
+                                                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Collections Manager</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
+                                                </Button>
                                             </Col>
-                                            <Col span={10}>
-                                                <Row>
-                                                    <Col span='24'>
-                                                        <Button
-                                                            className='float-right'
-                                                            type='primary'
-                                                            danger
-                                                            onClick={this.handleSendStopClick}
-                                                        >
-                                                            {this.state.sendingOutboundRequestID ? (this.state.resetExecutionOptionEnabled ? 'Reset' : 'Stop') : 'Run'}
-                                                        </Button>
-                                                        <Button
-                                                            className='float-right mr-2'
-                                                            type='dashed'
-                                                            danger
-                                                            onClick={() => { this.setState({ showIterationRunner: true }); }}
-                                                        >
-                              Iteration Runner
-                                                        </Button>
-                                                        <Button
-                                                            className='float-right mr-2'
-                                                            type='dashed'
-                                                            onClick={() => { this.setState({ showTemplate: true }); }}
-                                                        >
-                              Show Current Template
-                                                        </Button>
-                                                        {
-                                                            getConfig().isAuthEnabled
-                                                                ? <>
-                                                                    <Button
-                                                                        className='float-right' type='primary' danger onClick={async e => {
-                                                                            this.setState({ historyReportsLocal: await this.historyReportsLocal() });
-                                                                            this.setState({ historyReportsVisible: true });
-                                                                        }}
-                                                                    >
-                                    Reports History
-                                                                    </Button>
-                                                                    {
-                                                                        this.state.historyReportsVisible
-                                                                            ? <Modal
-                                                                                title='Reports History'
-                                                                                visible={this.state.historyReportsVisible}
-                                                                                width='70%'
-                                                                                onOk={() => {
-                                                                                    this.setState({ historyReportsVisible: false });
-                                                                                }}
-                                                                                onCancel={() => {
-                                                                                    this.setState({ historyReportsVisible: false });
-                                                                                }}
-                                                                            >
-                                                                                <Row>
-                                                                                    <Col>
-                                                                                        <Table
-                                                                                            columns={this.state.historyReportsColumns}
-                                                                                            dataSource={this.historyReportsDataSource()}
-                                                                                        />
-                                                                                    </Col>
-                                                                                </Row>
-                                                                            </Modal>
-                                                                            : null
-                                                                    }
-                                                                </>
-                                                                : null
-                                                        }
-                                                        {
-                                                            this.state.template.test_cases
-                                                                ? (
-                                                                    <Checkbox
-                                                                        className='ml-2 mt-1 float-right'
-                                                                        onClick={e => {
-                                                                            this.handleBreakOnErrorChange(e.target.checked);
-                                                                        }}
-                                                                        checked={this.state.template.options?.breakOnError}
-                                                                    >
-                                                                        Break test run on error
-                                                                    </Checkbox>
-                                                                )
-                                                                : null
-                                                        }
-                                                    </Col>
-                                                </Row>
-                                                <Row className='mt-2' justify="end">
-                                                    <Col span='6'>
-                                                        <Checkbox
-                                                            className='ml-2 mt-1 float-right'
-                                                            onChange={this.handleReportSaveToDB}
-                                                            checked={this.state.template.saveReport}
-                                                        >
-                                    Save Report to DB
-                                                        </Checkbox>
-                                                    </Col>
-                                                    <Col span='12'>
-                                                        {
-                                                            this.state.template.saveReport
-                                                                ? (
-                                                                    <Input
-                                                                        className='mr-2'
-                                                                        defaultValue="multi"
-                                                                        value={this.state.template.name}
-                                                                        onChange={this.handleReportFileName}
-                                                                        addonBefore="Report Name"
-                                                                    />
-                                                                ) : null
-                                                        }
-                                                    </Col>
-                                                </Row>
-                                                <Row className='mt-2'>
-                                                    <Col span='24'>
-                                                        {
-                                                            this.state.testReport
-                                                                ? <Dropdown overlay={this.downloadReportMenu()}>
+                                            <Col span={12}>
+                                                <Button
+                                                    type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
+                                                        this.setState({ environmentManagerVisible: true });
+                                                    }}
+                                                >
+                                                    <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Environment Manager</Text>
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col span={24}>
+                                                <Card className='mb-4'>
+                                                    <Row>
+                                                        <Col span={10} />
+                                                        <Col span={4} className='text-center'>
+                                                            {
+                                                                this.state.totalAssertionsCount > 0
+                                                                    ? (
+                                                                        <>
+                                                                            <Row>
+                                                                                <Col span={24}>
+                                                                                    <Progress percent={Math.round((this.state.totalPassedCount + this.state.totalFailedCount) * 100 / this.state.totalAssertionsCount)} width={50} format={() => (this.state.totalPassedCount + this.state.totalFailedCount) + ' / ' + this.state.totalAssertionsCount} />
+                                                                                </Col>
+                                                                            </Row>
+                                                                            <Row className='mt-4'>
+                                                                                <Col span={8}>
+                                                                                    <Badge count='PASSED' style={{ backgroundColor: TTKColors.assertionPassed }}>
+                                                                                        <Progress type='circle' width={50} status='success' percent={100} format={() => this.state.totalPassedCount} />
+                                                                                    </Badge>
+                                                                                </Col>
+                                                                                <Col span={8}>
+                                                                                    <Badge count='FAILED' style={{ backgroundColor: TTKColors.assertionFailed }}>
+                                                                                        <Progress type='circle' width={50} status='exception' percent={100} format={() => this.state.totalFailedCount} />
+                                                                                    </Badge>
+                                                                                </Col>
+                                                                                <Col span={8}>
+                                                                                    <Badge count='TOTAL' style={{ backgroundColor: '#108ee9' }}>
+                                                                                        <Progress type='circle' width={50} status='normal' percent={100} format={() => this.state.totalAssertionsCount} />
+                                                                                    </Badge>
+                                                                                </Col>
+                                                                            </Row>
+                                                                        </>
+                                                                    )
+                                                                    : null
+                                                            }
+                                                        </Col>
+                                                        <Col span={10}>
+                                                            <Row>
+                                                                <Col span='24'>
                                                                     <Button
                                                                         className='float-right'
                                                                         type='primary'
-                                                                        shape='round'
-                                                                        onClick={e => e.preventDefault()}
+                                                                        danger
+                                                                        onClick={this.handleSendStopClick}
                                                                     >
-                                    Download Report
+                                                                        {this.state.sendingOutboundRequestID ? (this.state.resetExecutionOptionEnabled ? 'Reset' : 'Stop') : 'Run'}
                                                                     </Button>
-                                                                </Dropdown>
-                                                                : null
-                                                        }
-                                                    </Col>
-                                                </Row>
+                                                                    <Button
+                                                                        className='float-right mr-2'
+                                                                        type='dashed'
+                                                                        danger
+                                                                        onClick={() => { this.setState({ showIterationRunner: true }); }}
+                                                                    >
+                                                                      Iteration Runner
+                                                                    </Button>
+                                                                    <Button
+                                                                        className='float-right mr-2'
+                                                                        type='dashed'
+                                                                        onClick={() => { this.setState({ showTemplate: true }); }}
+                                                                    >
+                                                                      Show Current Template
+                                                                    </Button>,
+                                                                    {
+                                                                        getConfig().isAuthEnabled
+                                                                            ? <>
+                                                                                <Button
+                                                                                    className='float-right' type='primary' danger onClick={async e => {
+                                                                                        this.setState({ historyReportsLocal: await this.historyReportsLocal() });
+                                                                                        this.setState({ historyReportsVisible: true });
+                                                                                    }}
+                                                                                >
+                                                                    Reports History
+                                                                                </Button>
+                                                                                {
+                                                                                    this.state.historyReportsVisible
+                                                                                        ? <Modal
+                                                                                            title='Reports History'
+                                                                                            open={this.state.historyReportsVisible}
+                                                                                            width='70%'
+                                                                                            destroyOnHidden
+                                                                                            onOk={() => {
+                                                                                                this.setState({ historyReportsVisible: false });
+                                                                                            }}
+                                                                                            onCancel={() => {
+                                                                                                this.setState({ historyReportsVisible: false });
+                                                                                            }}
+                                                                                        >
+                                                                                            <Row>
+                                                                                                <Col>
+                                                                                                    <Table
+                                                                                                        columns={this.state.historyReportsColumns}
+                                                                                                        dataSource={this.historyReportsDataSource()}
+                                                                                                    />
+                                                                                                </Col>
+                                                                                            </Row>
+                                                                                        </Modal>
+                                                                                        : null
+                                                                                }
+                                                                            </>
+                                                                            : null
+                                                                    }
+                                                                    {
+                                                                        this.state.template.test_cases
+                                                                            ? (
+                                                                                <Checkbox
+                                                                                    className='ml-2 mt-1 float-right'
+                                                                                    onClick={e => {
+                                                                                        this.handleBreakOnErrorChange(e.target.checked);
+                                                                                    }}
+                                                                                    checked={this.state.template.options?.breakOnError}
+                                                                                >
+                                                                                    Break test run on error
+                                                                                </Checkbox>
+                                                                            )
+                                                                            : null
+                                                                    }
+                                                                </Col>
+                                                            </Row>
+                                                            <Row className='mt-2' justify="end">
+                                                                <Col span='6'>
+                                                                    <Checkbox
+                                                                        className='ml-2 mt-1 float-right'
+                                                                        onChange={this.handleReportSaveToDB}
+                                                                        checked={this.state.template.saveReport}
+                                                                    >
+                                                                    Save Report to DB
+                                                                    </Checkbox>
+                                                                </Col>
+                                                                <Col span='12'>
+                                                                    {
+                                                                        this.state.template.saveReport
+                                                                            ? (
+                                                                                <Input
+                                                                                    className='mr-2'
+                                                                                    defaultValue="multi"
+                                                                                    value={this.state.template.name}
+                                                                                    onChange={this.handleReportFileName}
+                                                                                    addonBefore="Report Name"
+                                                                                />
+                                                                            ) : null
+                                                                    }
+                                                                </Col>
+                                                            </Row>
+                                                            <Row className='mt-2'>
+                                                                <Col span='24'>
+                                                                    {
+                                                                        this.state.testReport
+                                                                            ? <Dropdown overlay={this.downloadReportMenu()}>
+                                                                                <Button
+                                                                                    className='float-right'
+                                                                                    type='primary'
+                                                                                    shape='round'
+                                                                                    onClick={e => e.preventDefault()}
+                                                                                >
+                                                                    Download Report
+                                                                                </Button>
+                                                                            </Dropdown>
+                                                                            : null
+                                                                    }
+                                                                </Col>
+                                                            </Row>
+                                                        </Col>
+                                                    </Row>
+                                                </Card>
                                             </Col>
                                         </Row>
-                                    </Card>
-                                </Col>
-                            </Row>
-                        </Affix>
-                        <Row>
-                            <Col span={24}>
-                                <Tabs defaultActiveKey='1'>
-                                    <TabPane tab='Test Cases' key='1'>
-                                        <Row className='mb-2'>
-                                            <Col span={24}>
-                                                {
-                                                    this.state.template.test_cases && this.state.template.test_cases.length > 0
-                                                        ? <Dropdown overlay={this.downloadDefinitionMenu()}>
-                                                            <Button
-                                                                className='float-right'
-                                                                type='primary'
-                                                                shape='round'
-                                                                onClick={e => e.preventDefault()}
-                                                            >
-                                Download Definition
-                                                            </Button>
-                                                        </Dropdown>
-                                                        : null
-                                                }
-                                                <Popover
-                                                    className='float-right mr-2'
-                                                    content={getSaveTemplateDialogContent(1)}
-                                                    title='Enter filename to save'
-                                                    trigger='click'
-                                                    visible={this.state.saveTemplateTestcasesDialogVisible}
-                                                    onVisibleChange={visible => this.setState({ saveTemplateTestcasesDialogVisible: visible })}
-                                                >
-                                                    <Button
-                                                        className='float-right'
-                                                        type='default'
-                                                    >
-                            Export Loaded Testcases
-                                                    </Button>
-                                                </Popover>
-                                                <Popover
-                                                    content={createNewTestCaseDialogContent}
-                                                    className='mr-2'
-                                                    title='Enter a name for the template'
-                                                    trigger='click'
-                                                    visible={this.state.createNewTestCaseDialogVisible}
-                                                    onVisibleChange={visible => this.setState({ createNewTestCaseDialogVisible: visible })}
-                                                >
-                                                    <Button
-                                                        type='primary'
-                                                    >
-                            Add Test Case
-                                                    </Button>
-                                                </Popover>
-                                                {
-                                                    this.state.testCaseReorderingEnabled
-                                                        ? (
-                                                            <>
+                                    </Affix>
+                                </App>
+                            </ConfigProvider>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={24}>
+                            <Tabs defaultActiveKey='1' items={[
+                                {
+                                    key: '1',
+                                    label: 'Test Cases',
+                                    children: (
+                                        <>
+                                            <Row className='mb-2'>
+                                                <Col span={24}>
+                                                    {
+                                                        this.state.template.test_cases && this.state.template.test_cases.length > 0
+                                                            ? <Dropdown overlay={this.downloadDefinitionMenu()}>
                                                                 <Button
-                                                                    className='text-right'
-                                                                    type='dashed'
-                                                                    danger
-                                                                    onClick={async () => {
-                                                                        if(this.state.curTestCasesUpdated) {
+                                                                    className='float-right'
+                                                                    type='primary'
+                                                                    shape='round'
+                                                                    onClick={e => e.preventDefault()}
+                                                                >
+                                                    Download Definition
+                                                                </Button>
+                                                            </Dropdown>
+                                                            : null
+                                                    }
+                                                    <Popover
+                                                        className='float-right mr-2'
+                                                        content={getSaveTemplateDialogContent(1)}
+                                                        title='Enter filename to save'
+                                                        trigger='click'
+                                                        open={this.state.saveTemplateTestcasesDialogVisible}
+                                                        onOpenChange={visible => this.setState({ saveTemplateTestcasesDialogVisible: visible })}
+                                                    >
+                                                        <Button
+                                                            className='float-right'
+                                                            type='default'
+                                                        >
+                                                    Export Loaded Testcases
+                                                        </Button>
+                                                    </Popover>
+                                                    <Popover
+                                                        content={createNewTestCaseDialogContent}
+                                                        className='mr-2'
+                                                        title='Enter a name for the template'
+                                                        trigger='click'
+                                                        open={this.state.createNewTestCaseDialogVisible}
+                                                        onOpenChange={visible => this.setState({ createNewTestCaseDialogVisible: visible })}
+                                                    >
+                                                        <Button
+                                                            type='primary'
+                                                        >
+                                                    Add Test Case
+                                                        </Button>
+                                                    </Popover>
+                                                    {
+                                                        this.state.testCaseReorderingEnabled
+                                                            ? (
+                                                                <>
+                                                                    <Button
+                                                                        className='text-right'
+                                                                        type='dashed'
+                                                                        danger
+                                                                        onClick={async () => {
+                                                                            if(this.state.curTestCasesUpdated) {
+                                                                                const fileSelected = this.getSingleFileSelected();
+                                                                                fileSelected.content.test_cases = this.state.tempReorderedTestCases;
+                                                                                this.regenerateTemplate(this.state.additionalData);
+                                                                                this.setState({ curTestCasesUpdated: false, tempReorderedTestCases: [] });
+                                                                                this.autoSaveFolderData(this.state.folderData);
+                                                                            } else {
+                                                                                message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 });
+                                                                            }
+                                                                            this.setState({ testCaseReorderingEnabled: false });
+                                                                        }}
+                                                                    >
+                                                      Apply Reordering
+                                                                    </Button>
+                                                                    <Button
+                                                                        className='text-right ml-2'
+                                                                        type='dashed'
+                                                                        onClick={async () => {
+                                                                            this.setState({ curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: [] });
+                                                                        }}
+                                                                    >
+                                                      Cancel Reordering
+                                                                    </Button>
+                                                                </>
+                                                            )
+                                                            : (
+                                                                this.state.additionalData && this.state.additionalData.selectedFiles
+                                                                    ? <Button
+                                                                        className='text-right'
+                                                                        type='default'
+                                                                        onClick={() => {
                                                                             const fileSelected = this.getSingleFileSelected();
-                                                                            fileSelected.content.test_cases = this.state.tempReorderedTestCases;
-                                                                            this.regenerateTemplate(this.state.additionalData);
-                                                                            this.setState({ curTestCasesUpdated: false, tempReorderedTestCases: [] });
-                                                                            this.autoSaveFolderData(this.state.folderData);
-                                                                        } else {
-                                                                            message.error({ content: 'No changes found', key: 'TestCaseRequestsReordering', duration: 3 });
-                                                                        }
-                                                                        this.setState({ testCaseReorderingEnabled: false });
-                                                                    }}
-                                                                >
-                                  Apply Reordering
-                                                                </Button>
-                                                                <Button
-                                                                    className='text-right ml-2'
-                                                                    type='dashed'
-                                                                    onClick={async () => {
-                                                                        this.setState({ curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: [] });
-                                                                    }}
-                                                                >
-                                  Cancel Reordering
-                                                                </Button>
-                                                            </>
-                                                        )
-                                                        : (
-                                                            this.state.additionalData && this.state.additionalData.selectedFiles
-                                                                ? <Button
-                                                                    className='text-right'
-                                                                    type='default'
-                                                                    onClick={() => {
-                                                                        const fileSelected = this.getSingleFileSelected();
-                                                                        if(fileSelected) {
-                                                                            this.setState({ tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true });
-                                                                        } else {
-                                                                            message.error('ERROR: Only one file should be selected to reorder the testcases');
-                                                                        }
-                                                                    }}
-                                                                >
-                                    Reorder Test Cases
-                                                                </Button>
-                                                                : null
-                                                        )
-                                                }
-                                            </Col>
-                                        </Row>
-                                        {
-                                            this.state.testCaseReorderingEnabled
-                                                ? (
-                                                    <SortableRuleList items={this.state.tempReorderedTestCases} onSortEnd={this.onTestCaseSortEnd} />
-                                                )
-                                                : (
-                                                    <>
-                                                        {this.getTestCaseItems()}
-                                                    </>
-                                                )
-                                        }
-                                    </TabPane>
-                                    <TabPane tab='Demo View' key='2'>
-                                        {this.getTestCaseDemoItems()}
-                                    </TabPane>
-                                </Tabs>
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
-            </>
+                                                                            if(fileSelected) {
+                                                                                this.setState({ tempReorderedTestCases: [...this.state.template.test_cases], testCaseReorderingEnabled: true });
+                                                                            } else {
+                                                                                message.error('ERROR: Only one file should be selected to reorder the testcases');
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                      Reorder Test Cases
+                                                                    </Button>
+                                                                    : null
+                                                            )
+                                                    }
+                                                </Col>
+                                            </Row>
+                                            {
+                                                this.state.testCaseReorderingEnabled
+                                                    ? (
+                                                        <SortableList
+                                                            items={this.state.tempReorderedTestCases.map((testCase, index) => ({
+                                                                ...testCase,
+                                                                id: testCase.id || `testcase-${index}`,
+                                                            }))}
+                                                            onSortEnd={this.onSortEnd}
+                                                            renderItem={this.renderItem}
+                                                        />
+                                                    )
+                                                    : (
+                                                        <>
+                                                            {this.getTestCaseItems()}
+                                                        </>
+                                                    )
+                                            }
+                                        </>
+                                    )
+                                },
+                                {
+                                    key: '2',
+                                    label: 'Demo View',
+                                    children: this.getTestCaseDemoItems()
+                                }
+                            ]} />
+                        </Col>
+                    </Row>
+                </App>
+            </ConfigProvider>
         );
     }
 }

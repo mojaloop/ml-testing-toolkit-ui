@@ -29,7 +29,6 @@
 
 import React from 'react';
 import { Input, Row, Col, Card, Checkbox, Radio, Typography } from 'antd';
-import 'antd/dist/antd.css';
 
 const { Text } = Typography;
 

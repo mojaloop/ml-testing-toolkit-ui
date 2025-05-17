@@ -566,7 +566,7 @@ class PayerMobile extends React.Component {
                         />
                         {partyInfo && (
                             <div style={{ textAlign: 'left' }}>
-                                <h3 style={{ fontSize: '14px', marginTop: '4px', fontSize: '10px' }}>Party Info</h3>
+                                <h3 style={{ marginTop: '4px', fontSize: '10px' }}>Party Info</h3>
                                 <p style={{ marginBottom: '8px', fontSize: '10px' }}>
                                     <strong>Name:</strong> {`${partyInfo.firstName || ''} ${partyInfo.middleName || ''} ${partyInfo.lastName || ''}`}
                                 </p>

@@ -29,11 +29,10 @@
 import React from 'react';
 import _ from 'lodash';
 import { Select, Row, Col, Button, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, Checkbox, message, Typography } from 'antd';
-import 'antd/dist/antd.css';
 import { FactDataGenerator, FactSelect } from './BuilderTools.jsx';
+import { HeaderInputComponent } from '../common/EventBuildHelper';
 
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
+import { JsonEditor as Editor } from '../../views/outbound/JsonEditorWrapper';
 import ace from 'brace';
 import 'brace/mode/json';
 import 'brace/theme/github';
@@ -44,7 +43,7 @@ const ajv = new Ajv({ allErrors: true });
 const { Option } = Select;
 const { Text } = Typography;
 
-class ConfigurableParameter extends React.Component {
+class EventResponseConfigurableParameter extends React.Component {
     constructor() {
         super();
         this.state = {
@@ -313,7 +312,7 @@ class FixedCallbackBuilder extends React.Component {
                 const key = k;
                 k += 1;
                 headerItems.push(
-                    <HeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.allHeadersObject[item.name] ? this.allHeadersObject[item.name].description : null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />,
+                    <EventResponseHeaderInputComponent key={key} itemKey={item.name} name={item.name} value={item.value} description={this.allHeadersObject[item.name] ? this.allHeadersObject[item.name].description : null} rootParameters={this.props.rootParameters} resourceDefinition={this.props.resourceDefinition} onChange={this.handleHeaderItemChange} onDelete={this.handleHeaderItemDelete} />,
                 );
             }
         }
@@ -385,7 +384,7 @@ class FixedCallbackBuilder extends React.Component {
             <>
                 <Row>
                     <Col span={24}>
-                        <ConfigurableParameter
+                        <EventResponseConfigurableParameter
                             onChange={this.handleAddConfigParam}
                             rootParameters={this.props.rootParameters}
                             resourceDefinition={this.props.resourceDefinition}
@@ -516,7 +515,7 @@ class FixedCallbackBuilder extends React.Component {
     }
 }
 
-class HeaderInputComponent extends React.Component {
+class EventResponseHeaderInputComponent extends React.Component {
     constructor() {
         super();
         this.state = {
@@ -559,7 +558,7 @@ class HeaderInputComponent extends React.Component {
 
     render() {
         const content = (
-            <ConfigurableParameter
+            <EventResponseConfigurableParameter
                 name={this.props.name}
                 value={this.props.value}
                 onChange={this.handleAddConfigParam}

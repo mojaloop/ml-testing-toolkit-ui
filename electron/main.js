@@ -40,7 +40,8 @@ const writeFileAsync = promisify(fs.writeFile)
 const renameFileAsync = promisify(fs.rename)
 const mkdirAsync = promisify(fs.mkdir)
 
-const WEB_URL = 'http://localhost:3000/admin/outbound_request'
+const isDev = process.env.NODE_ENV === 'development'
+const WEB_URL = isDev ? 'http://localhost:3000/admin/outbound_request' : 'http://localhost:6060/admin/outbound_request'
 const MASTERFILE_NAME = 'master.json'
 let globalFilePath = null
 let mainWindow
@@ -95,7 +96,8 @@ function createWindow () {
     height: 1200,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false
     }
   })
 
@@ -103,14 +105,16 @@ function createWindow () {
   // mainWindow.loadFile('index.html')
   mainWindow.loadURL(WEB_URL)
 
+  if (isDev) {
+    mainWindow.webContents.openDevTools()
+  }
+
   // Script execution on renderer
   // let contents = mainWindow.webContents
   // contents.executeJavaScript('localStorage.getItem("folderData")', true)
   // .then((result) => {
   //   console.og(result)
   // })
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished

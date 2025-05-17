@@ -30,7 +30,6 @@
 import React from 'react';
 import { Input, Row, Col, Button, Card } from 'antd';
 import { DeleteTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 
 class ArrayInputValues extends React.Component {
     state = {

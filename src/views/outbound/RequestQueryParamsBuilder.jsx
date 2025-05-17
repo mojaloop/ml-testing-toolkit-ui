@@ -31,10 +31,9 @@ import _ from 'lodash';
 
 import { Input, Tooltip, Tag, Card, Popover, Row, Col, Switch, Button, Typography } from 'antd';
 import { DeleteTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 
 // import './index.css';
-import 'jsoneditor-react/es/editor.min.css';
+import '../outbound/jsoneditor-react-compat';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
@@ -145,8 +144,8 @@ class RequestQueryParamsBuilder extends React.Component {
                                                 content={addQueryParamDialogContent}
                                                 title='Enter name for the parameter'
                                                 trigger='click'
-                                                visible={this.state.addQueryParamDialogVisible}
-                                                onVisibleChange={visible => this.setState({ addQueryParamDialogVisible: true })}
+                                                open={this.state.addQueryParamDialogVisible}
+                                                onOpenChange={visible => this.setState({ addQueryParamDialogVisible: true })}
                                             >
                                                 <Button
                                                     type='primary'

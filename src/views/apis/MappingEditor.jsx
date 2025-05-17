@@ -29,7 +29,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { Select, Row, Col, Button, Typography, Input, Tabs } from 'antd';
-import 'jsoneditor-react/es/editor.min.css';
+import '../outbound/jsoneditor-react-compat';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';

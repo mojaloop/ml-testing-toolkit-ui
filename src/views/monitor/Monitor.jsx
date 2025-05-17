@@ -36,8 +36,6 @@ import { Tabs } from 'antd';
 import ActivityLog from './ActivityLog';
 import SequenceDiagram from './SequenceDiagram';
 
-const { TabPane } = Tabs;
-
 class Monitor extends React.Component {
     newState = {
         timeline: {
@@ -101,16 +99,23 @@ class Monitor extends React.Component {
     };
 
     render() {
-        return (
-            <Tabs type='card' defaultActiveKey='1'>
-                <TabPane tab='Activity Log' key='1' forceRender>
-                    <ActivityLog ref={this.activityLogRef} />
-                </TabPane>
-                <TabPane tab='Sequence Diagram' key='2' forceRender>
-                    <SequenceDiagram ref={this.sequenceDiagramRef} />
-                </TabPane>
-            </Tabs>
+        const tabItems = [
+            {
+                key: '1',
+                label: 'Activity Log',
+                children: <ActivityLog ref={this.activityLogRef} />,
+                forceRender: true
+            },
+            {
+                key: '2',
+                label: 'Sequence Diagram',
+                children: <SequenceDiagram ref={this.sequenceDiagramRef} />,
+                forceRender: true
+            }
+        ];
 
+        return (
+            <Tabs type='card' defaultActiveKey='1' items={tabItems} />
         );
     }
 }

@@ -28,8 +28,7 @@
  ******/
 import React from 'react';
 import { TreeSelect } from 'antd';
-import 'antd/dist/antd.css';
-const { mock } = require('mock-json-schema');
+import { mock } from 'mock-json-schema';
 import _ from 'lodash';
 
 const getSchema = contentObj => {

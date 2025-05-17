@@ -30,7 +30,6 @@
 import React from 'react';
 import { Input, Row, Col, Checkbox, Typography } from 'antd';
 import { EditTwoTone, SaveTwoTone, CloseSquareTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 import ReactMarkdown from 'react-markdown';
 
 const { Text } = Typography;

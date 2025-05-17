@@ -107,9 +107,11 @@ class TimelineSet extends React.Component {
                     <TimelineItem key={item.id} info={item} logs={this.props.logSetObj.secondaryItemsObj[item.id]} />
                 );
             } else {
-                return (
-                    <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '16px' }} />} color='red'><br /><br /></Timeline.Item>
-                );
+                return {
+                    dot: <ClockCircleOutlined style={{ fontSize: '16px' }} />, 
+                    color: 'red',
+                    children: <><br /><br /></>
+                };
             }
         });
     };
@@ -128,9 +130,7 @@ class TimelineSet extends React.Component {
                         this.state.logsVisible
                             ? (
                                 <Card>
-                                    <Timeline reverse={false}>
-                                        {this.getTimelineItems()}
-                                    </Timeline>
+                                    <Timeline reverse={false} items={this.getTimelineItems()} />
                                 </Card>
                             )
                             : null
@@ -218,15 +218,16 @@ class ActivityLog extends React.Component {
     getTimelineSets = () => {
         return this.state.incomingItemsArr.map(item => {
             if(item) {
-                return (
-                    <Timeline.Item position={this.state.incomingItemsObj[item].position}>
-                        <TimelineSet key={item.id} info={item} logSetObj={this.state.incomingItemsObj[item]} />
-                    </Timeline.Item>
-                );
+                return {
+                    position: this.state.incomingItemsObj[item].position,
+                    children: <TimelineSet key={item} info={item} logSetObj={this.state.incomingItemsObj[item]} />
+                };
             } else {
-                return (
-                    <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '16px' }} />} color='red'><br /><br /></Timeline.Item>
-                );
+                return {
+                    dot: <ClockCircleOutlined style={{ fontSize: '16px' }} />,
+                    color: 'red',
+                    children: <><br /><br /></>
+                };
             }
         });
     };
@@ -254,9 +255,12 @@ class ActivityLog extends React.Component {
                 </Row>
                 <Row>
                     <Col span={24}>
-                        <Timeline mode='alternate' reverse pending='Monitoring...'>
-                            {this.getTimelineSets()}
-                        </Timeline>
+                        <Timeline 
+                            mode='alternate' 
+                            reverse 
+                            pending='Monitoring...'
+                            items={this.getTimelineSets()}
+                        />
                     </Col>
                 </Row>
             </>

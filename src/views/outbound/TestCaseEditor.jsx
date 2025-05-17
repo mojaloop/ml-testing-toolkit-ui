@@ -33,10 +33,10 @@ import { generateShortName } from '../../utils/nameConversions';
 
 // core components
 
-import { Spin, Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Card, Button, Radio, Affix, Typography, Alert, Switch, Checkbox, InputNumber } from 'antd';
+import { Spin, Select, Input, Row, Col, Steps, Tabs, Popover, Badge, Descriptions, Card, Button, Radio, Affix, Typography, Alert, Switch, Checkbox, InputNumber, App } from 'antd';
 
 import { RightCircleOutlined, CodeFilled, HistoryOutlined, CaretLeftFilled } from '@ant-design/icons';
-import 'jsoneditor-react/es/editor.min.css';
+import '../outbound/jsoneditor-react-compat';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
@@ -58,7 +58,6 @@ import MetadataEditor from './MetadataEditor';
 
 const { Option } = Select;
 const { Step } = Steps;
-const { TabPane } = Tabs;
 const { Text, Paragraph } = Typography;
 
 class ResourceSelector extends React.Component {
@@ -397,8 +396,8 @@ class RequestGenerator extends React.Component {
                                 content={renameRequestDialogContent}
                                 title='Enter new description'
                                 trigger='click'
-                                visible={this.state.renameRequestDialogVisible}
-                                onVisibleChange={visible => this.setState({ renameRequestDialogVisible: visible })}
+                                open={this.state.renameRequestDialogVisible}
+                                onOpenChange={visible => this.setState({ renameRequestDialogVisible: visible })}
                             >
                                 <Button>Rename</Button>
                             </Popover>
@@ -634,130 +633,141 @@ class TestCaseEditor extends React.Component {
                 }
                 return (
                     <Col span={24 / (this.props.testCase.requests.length ? (endIndex - startIndex) : 1)}>
-                        <Tabs defaultActiveKey='1'>
-                            <TabPane tab='Request' key='1'>
-                                <>
-                                    <Card size='small' title='' className='mb-2'>
-                                        <Row>
-                                            <Col span={6}>
-                                                <Text>Request ID</Text>
-                                            </Col>
-                                            <Col span={18}>
-                                                <Text strong>{item.id}</Text>
-                                            </Col>
-                                        </Row>
-                                        <Row className='mt-2'>
-                                            <Col span={6}>
-                                                <Text>Enabled</Text>
-                                            </Col>
-                                            <Col span={18}>
-                                                <Switch
-                                                    size='default'
-                                                    checked={!item.disabled}
-                                                    onChange={enabled => {
-                                                        const disabled = !enabled;
-                                                        this.props.testCase.requests[startIndex + index].disabled = disabled;
-                                                        this.forceUpdate();
-                                                    }}
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row className='mt-2'>
-                                            <Col span={6}>
-                                                <Text>Metadata</Text>
-                                            </Col>
-                                            <Col span={18}>
-                                                <MetadataEditor
-                                                    values={item.meta}
-                                                    onChange={this.props.onChange}
-                                                />
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                    {
-                                        item.status && item.status.progressStatus == 'SKIPPED'
-                                            ? (
-                                                <Alert
-                                                    message='Request Skipped'
-                                                    type='warning'
-                                                    showIcon
-                                                    className='mb-2'
-                                                />
-                                            )
-                                            : null
-                                    }
-                                    {
-                                        requestShow.headers
-                                            ? (
-                                                <Card size='small' title={'Header' + suffixRequestBody} className='mb-2'>
-                                                    <Descriptions bordered column={1} size='small'>
-                                                        {this.getObjectAsDescriptions(requestShow.headers)}
-                                                    </Descriptions>
-                                                </Card>
-                                            )
-                                            : null
-                                    }
-                                    {
-                                        requestShow.body
-                                            ? (
-                                                <Card size='small' className='mb-2' title={'Body' + suffixRequestBody}>
-                                                    <Text>
-                                                        <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
-                                                            {JSON.stringify(requestShow.body, null, 2)}
-                                                        </pre>
-                                                    </Text>
-                                                </Card>
-                                            )
-                                            : null
-                                    }
-                                    {
-                                        item.status && item.status.additionalInfo && item.status.additionalInfo.curlRequest
-                                            ? (
-                                                <>
-                                                    <Card size='small' className='mb-2' title='CURL command'>
-                                                        <Paragraph
-                                                            copyable={
-                                                                {
-                                                                    text: item.status.additionalInfo.curlRequest,
-                                                                }
-                                                            }
-                                                        >
-                                                            <pre
-                                                                style={
-                                                                    {
-                                                                        overflow: 'scroll',
-                                                                        'white-space': 'pre-wrap',
-                                                                        backgroundColor: '#111111',
-                                                                        color: 'white',
-                                                                        minHeight: '50px',
-                                                                        maxHeight: '300px',
+                        <Tabs 
+                            defaultActiveKey='1'
+                            items={[
+                                {
+                                    key: '1',
+                                    label: 'Request',
+                                    children: (
+                                        <>
+                                            <Card size='small' title='' className='mb-2'>
+                                                <Row>
+                                                    <Col span={6}>
+                                                        <Text>Request ID</Text>
+                                                    </Col>
+                                                    <Col span={18}>
+                                                        <Text strong>{item.id}</Text>
+                                                    </Col>
+                                                </Row>
+                                                <Row className='mt-2'>
+                                                    <Col span={6}>
+                                                        <Text>Enabled</Text>
+                                                    </Col>
+                                                    <Col span={18}>
+                                                        <Switch
+                                                            size='default'
+                                                            checked={!item.disabled}
+                                                            onChange={enabled => {
+                                                                const disabled = !enabled;
+                                                                this.props.testCase.requests[startIndex + index].disabled = disabled;
+                                                                this.forceUpdate();
+                                                            }}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                                <Row className='mt-2'>
+                                                    <Col span={6}>
+                                                        <Text>Metadata</Text>
+                                                    </Col>
+                                                    <Col span={18}>
+                                                        <MetadataEditor
+                                                            values={item.meta}
+                                                            onChange={this.props.onChange}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            </Card>
+                                            {
+                                                item.status && item.status.progressStatus == 'SKIPPED'
+                                                    ? (
+                                                        <Alert
+                                                            message='Request Skipped'
+                                                            type='warning'
+                                                            showIcon
+                                                            className='mb-2'
+                                                        />
+                                                    )
+                                                    : null
+                                            }
+                                            {
+                                                requestShow.headers
+                                                    ? (
+                                                        <Card size='small' title={'Header' + suffixRequestBody} className='mb-2'>
+                                                            <Descriptions bordered column={1} size='small'>
+                                                                {this.getObjectAsDescriptions(requestShow.headers)}
+                                                            </Descriptions>
+                                                        </Card>
+                                                    )
+                                                    : null
+                                            }
+                                            {
+                                                requestShow.body
+                                                    ? (
+                                                        <Card size='small' className='mb-2' title={'Body' + suffixRequestBody}>
+                                                            <Text>
+                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                    {JSON.stringify(requestShow.body, null, 2)}
+                                                                </pre>
+                                                            </Text>
+                                                        </Card>
+                                                    )
+                                                    : null
+                                            }
+                                            {
+                                                item.status && item.status.additionalInfo && item.status.additionalInfo.curlRequest
+                                                    ? (
+                                                        <>
+                                                            <Card size='small' className='mb-2' title='CURL command'>
+                                                                <Paragraph
+                                                                    copyable={
+                                                                        {
+                                                                            text: item.status.additionalInfo.curlRequest,
+                                                                        }
                                                                     }
-                                                                }
-                                                            >
-                                                                {this.prettyPrintCURL(item.status.additionalInfo.curlRequest)}
-                                                            </pre>
-                                                        </Paragraph>
-                                                    </Card>
-                                                </>
-                                            )
-                                            : null
-                                    }
-                                </>
-                            </TabPane>
-                            <TabPane tab='Editor' key='2'>
-                                <RequestGenerator
-                                    request={item}
-                                    allRequests={this.props.testCase.requests}
-                                    inputValues={this.props.inputValues}
-                                    onChange={this.props.onChange}
-                                    onDelete={this.handleRequestDelete}
-                                    onDuplicate={this.handleRequestDuplicate}
-                                />
-                            </TabPane>
-                            {
-                                this.props.userConfig && this.props.userConfig.ADVANCED_FEATURES_ENABLED
-                                    ? (
-                                        <TabPane tab='Scripts' key='3'>
+                                                                >
+                                                                    <pre
+                                                                        style={
+                                                                            {
+                                                                                overflow: 'scroll',
+                                                                                'white-space': 'pre-wrap',
+                                                                                backgroundColor: '#111111',
+                                                                                color: 'white',
+                                                                                minHeight: '50px',
+                                                                                maxHeight: '300px',
+                                                                            }
+                                                                        }
+                                                                    >
+                                                                        {this.prettyPrintCURL(item.status.additionalInfo.curlRequest)}
+                                                                    </pre>
+                                                                </Paragraph>
+                                                            </Card>
+                                                        </>
+                                                    )
+                                                    : null
+                                            }
+                                        </>
+                                    )
+                                },
+                                {
+                                    key: '2',
+                                    label: 'Editor',
+                                    children: (
+                                        <RequestGenerator
+                                            request={item}
+                                            allRequests={this.props.testCase.requests}
+                                            inputValues={this.props.inputValues}
+                                            onChange={this.props.onChange}
+                                            onDelete={this.handleRequestDelete}
+                                            onDuplicate={this.handleRequestDuplicate}
+                                        />
+                                    )
+                                },
+                                this.props.userConfig && this.props.userConfig.ADVANCED_FEATURES_ENABLED ? {
+                                    key: '3',
+                                    label: 'Scripts',
+                                    children: (
+                                        <>
                                             <Row>
                                                 <Col span={24}>
                                                     <Radio.Group
@@ -774,70 +784,80 @@ class TestCaseEditor extends React.Component {
                                             </Row>
                                             <Row className='mt-2'>
                                                 <Col span={24}>
-                                                    <Tabs type='card' defaultActiveKey='1'>
-                                                        <TabPane tab='Pre-request' key='1'>
-                                                            <AceEditor
-                                                                ref='preReqScriptAceEditor'
-                                                                mode='javascript'
-                                                                theme='eclipse'
-                                                                width='100%'
-                                                                value={item.scripts && item.scripts.preRequest ? item.scripts.preRequest.exec.join('\n') : ''}
-                                                                onChange={newScript => {
-                                                                    if(!item.scripts) {
-                                                                        item.scripts = {};
-                                                                    }
-                                                                    if(!item.scripts.preRequest) {
-                                                                        item.scripts.preRequest = {};
-                                                                    }
-                                                                    item.scripts.preRequest.exec = newScript.split('\n');
-                                                                    this.props.onChange(item);
-                                                                }}
-                                                                name='UNIQUE_ID_OF_DIV'
-                                                                wrapEnabled
-                                                                showPrintMargin
-                                                                showGutter
-                                                                tabSize={2}
-                                                                enableBasicAutocompletion
-                                                                enableLiveAutocompletion
-                                                            />
-                                                        </TabPane>
-                                                        <TabPane tab='Post-request' key='2'>
-                                                            <AceEditor
-                                                                ref='postReqScriptAceEditor'
-                                                                mode='javascript'
-                                                                theme='eclipse'
-                                                                width='100%'
-                                                                value={item.scripts && item.scripts.postRequest ? item.scripts.postRequest.exec.join('\n') : ''}
-                                                                onChange={newScript => {
-                                                                    if(!item.scripts) {
-                                                                        item.scripts = {};
-                                                                    }
-                                                                    if(!item.scripts.postRequest) {
-                                                                        item.scripts.postRequest = {};
-                                                                    }
-                                                                    item.scripts.postRequest.exec = newScript.split('\n');
-                                                                    this.props.onChange(item);
-                                                                }}
-                                                                name='UNIQUE_ID_OF_DIV'
-                                                                wrapEnabled
-                                                                showPrintMargin
-                                                                showGutter
-                                                                tabSize={2}
-                                                                enableBasicAutocompletion
-                                                                enableLiveAutocompletion
-                                                            />
-                                                        </TabPane>
-                                                        {
-                                                            item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution
-                                                                ? (
-                                                                    <TabPane
-                                                                        tab={
-                                                                            <span>
-                                                                                <CodeFilled />
-                                        Console Logs
-                                                                            </span>
-                                                                        } key='3'
-                                                                    >
+                                                    <Tabs 
+                                                        type='card' 
+                                                        defaultActiveKey='1'
+                                                        items={[
+                                                            {
+                                                                key: '1',
+                                                                label: 'Pre-request',
+                                                                children: (
+                                                                    <AceEditor
+                                                                        ref='preReqScriptAceEditor'
+                                                                        mode='javascript'
+                                                                        theme='eclipse'
+                                                                        width='100%'
+                                                                        value={item.scripts && item.scripts.preRequest ? item.scripts.preRequest.exec.join('\n') : ''}
+                                                                        onChange={newScript => {
+                                                                            if(!item.scripts) {
+                                                                                item.scripts = {};
+                                                                            }
+                                                                            if(!item.scripts.preRequest) {
+                                                                                item.scripts.preRequest = {};
+                                                                            }
+                                                                            item.scripts.preRequest.exec = newScript.split('\n');
+                                                                            this.props.onChange(item);
+                                                                        }}
+                                                                        name='UNIQUE_ID_OF_DIV'
+                                                                        wrapEnabled
+                                                                        showPrintMargin
+                                                                        showGutter
+                                                                        tabSize={2}
+                                                                        enableBasicAutocompletion
+                                                                        enableLiveAutocompletion
+                                                                    />
+                                                                )
+                                                            },
+                                                            {
+                                                                key: '2',
+                                                                label: 'Post-request',
+                                                                children: (
+                                                                    <AceEditor
+                                                                        ref='postReqScriptAceEditor'
+                                                                        mode='javascript'
+                                                                        theme='eclipse'
+                                                                        width='100%'
+                                                                        value={item.scripts && item.scripts.postRequest ? item.scripts.postRequest.exec.join('\n') : ''}
+                                                                        onChange={newScript => {
+                                                                            if(!item.scripts) {
+                                                                                item.scripts = {};
+                                                                            }
+                                                                            if(!item.scripts.postRequest) {
+                                                                                item.scripts.postRequest = {};
+                                                                            }
+                                                                            item.scripts.postRequest.exec = newScript.split('\n');
+                                                                            this.props.onChange(item);
+                                                                        }}
+                                                                        name='UNIQUE_ID_OF_DIV'
+                                                                        wrapEnabled
+                                                                        showPrintMargin
+                                                                        showGutter
+                                                                        tabSize={2}
+                                                                        enableBasicAutocompletion
+                                                                        enableLiveAutocompletion
+                                                                    />
+                                                                )
+                                                            },
+                                                            item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution ? {
+                                                                key: '3',
+                                                                label: (
+                                                                    <span>
+                                                                        <CodeFilled />
+                                                                        Console Logs
+                                                                    </span>
+                                                                ),
+                                                                children: (
+                                                                    <>
                                                                         <strong>Pre Request Log:</strong>
                                                                         <br />
                                                                         <Text>
@@ -875,21 +895,19 @@ class TestCaseEditor extends React.Component {
                                                                                 {this.printConsoleLog(this.getPostRequestScriptConsoleLog(item))}
                                                                             </pre>
                                                                         </Text>
-                                                                    </TabPane>
+                                                                    </>
                                                                 )
-                                                                : null
-                                                        }
-                                                        {
-                                                            item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution
-                                                                ? (
-                                                                    <TabPane
-                                                                        tab={
-                                                                            <span>
-                                                                                <HistoryOutlined />
-                                        Environment State
-                                                                            </span>
-                                                                        } key='4'
-                                                                    >
+                                                            } : null,
+                                                            item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution ? {
+                                                                key: '4',
+                                                                label: (
+                                                                    <span>
+                                                                        <HistoryOutlined />
+                                                                        Environment State
+                                                                    </span>
+                                                                ),
+                                                                children: (
+                                                                    <>
                                                                         <strong>Pre Request Environment State:</strong>
                                                                         <br />
                                                                         <Card className='mb-2'>
@@ -921,30 +939,34 @@ class TestCaseEditor extends React.Component {
                                                                                     )
                                                                             }
                                                                         </Card>
-                                                                    </TabPane>
+                                                                    </>
                                                                 )
-                                                                : null
-                                                        }
-                                                    </Tabs>
+                                                            } : null
+                                                        ].filter(Boolean)}
+                                                    />
                                                 </Col>
                                             </Row>
-                                        </TabPane>
+                                        </>
                                     )
-                                    : null
-                            }
-                            <TabPane tab={(<Badge offset={[20, 0]} style={{ backgroundColor: testStatusColor }} count={testStatus}>Tests</Badge>)} key='4'>
-                                <TestAssertions
-                                    request={item}
-                                    allRequests={this.props.testCase.requests}
-                                    inputValues={this.props.inputValues}
-                                    onChange={this.props.onChange}
-                                    onDelete={this.handleRequestDelete}
-                                />
-                            </TabPane>
-                            {
-                                item.status && item.status.response
-                                    ? (
-                                        <TabPane tab='Response' key='5'>
+                                } : null,
+                                {
+                                    key: '4',
+                                    label: (<Badge offset={[20, 0]} style={{ backgroundColor: testStatusColor }} count={testStatus}>Tests</Badge>),
+                                    children: (
+                                        <TestAssertions
+                                            request={item}
+                                            allRequests={this.props.testCase.requests}
+                                            inputValues={this.props.inputValues}
+                                            onChange={this.props.onChange}
+                                            onDelete={this.handleRequestDelete}
+                                        />
+                                    )
+                                },
+                                item.status && item.status.response ? {
+                                    key: '5',
+                                    label: 'Response',
+                                    children: (
+                                        <>
                                             {
                                                 item.status.response
                                                     ? (
@@ -967,68 +989,66 @@ class TestCaseEditor extends React.Component {
                                                             {
                                                                 item.status.callback?.headers || item.status.callback?.originalHeaders
                                                                     ? (
-                                                                        <Tabs defaultActiveKey='1'>
-                                                                            {
-                                                                                item.status.callback?.headers
-                                                                                    ? (
-                                                                                        <TabPane tab='Headers' key='1'>
-                                                                                            <Text>
-                                                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
-                                                                                                    {JSON.stringify(item.status.callback.headers, null, 2)}
-                                                                                                </pre>
-                                                                                            </Text>
-                                                                                        </TabPane>
+                                                                        <Tabs 
+                                                                            defaultActiveKey='1'
+                                                                            items={[
+                                                                                item.status.callback?.headers ? {
+                                                                                    key: '1',
+                                                                                    label: 'Headers',
+                                                                                    children: (
+                                                                                        <Text>
+                                                                                            <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                                                {JSON.stringify(item.status.callback.headers, null, 2)}
+                                                                                            </pre>
+                                                                                        </Text>
                                                                                     )
-                                                                                    : null
-                                                                            }
-                                                                            {
-                                                                                item.status.callback?.originalHeaders
-                                                                                    ? (
-                                                                                        <TabPane tab='Original Headers' key='2'>
-                                                                                            <Text>
-                                                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
-                                                                                                    {JSON.stringify(item.status.callback.originalHeaders, null, 2)}
-                                                                                                </pre>
-                                                                                            </Text>
-                                                                                        </TabPane>
+                                                                                } : null,
+                                                                                item.status.callback?.originalHeaders ? {
+                                                                                    key: '2',
+                                                                                    label: 'Original Headers',
+                                                                                    children: (
+                                                                                        <Text>
+                                                                                            <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                                                {JSON.stringify(item.status.callback.originalHeaders, null, 2)}
+                                                                                            </pre>
+                                                                                        </Text>
                                                                                     )
-                                                                                    : null
-                                                                            }
-                                                                        </Tabs>
+                                                                                } : null
+                                                                            ].filter(Boolean)}
+                                                                        />
                                                                     )
                                                                     : null
                                                             }
                                                             {
                                                                 item.status.callback?.body || item.status.callback?.originalBody
                                                                     ? (
-                                                                        <Tabs defaultActiveKey='1'>
-                                                                            {
-                                                                                item.status.callback?.body
-                                                                                    ? (
-                                                                                        <TabPane tab='Body' key='1'>
-                                                                                            <Text>
-                                                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
-                                                                                                    {JSON.stringify(item.status.callback.body, null, 2)}
-                                                                                                </pre>
-                                                                                            </Text>
-                                                                                        </TabPane>
+                                                                        <Tabs 
+                                                                            defaultActiveKey='1'
+                                                                            items={[
+                                                                                item.status.callback?.body ? {
+                                                                                    key: '1',
+                                                                                    label: 'Body',
+                                                                                    children: (
+                                                                                        <Text>
+                                                                                            <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                                                {JSON.stringify(item.status.callback.body, null, 2)}
+                                                                                            </pre>
+                                                                                        </Text>
                                                                                     )
-                                                                                    : null
-                                                                            }
-                                                                            {
-                                                                                item.status.callback?.originalBody
-                                                                                    ? (
-                                                                                        <TabPane tab='Original Body' key='2'>
-                                                                                            <Text>
-                                                                                                <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
-                                                                                                    {JSON.stringify(item.status.callback.originalBody, null, 2)}
-                                                                                                </pre>
-                                                                                            </Text>
-                                                                                        </TabPane>
+                                                                                } : null,
+                                                                                item.status.callback?.originalBody ? {
+                                                                                    key: '2',
+                                                                                    label: 'Original Body',
+                                                                                    children: (
+                                                                                        <Text>
+                                                                                            <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                                                {JSON.stringify(item.status.callback.originalBody, null, 2)}
+                                                                                            </pre>
+                                                                                        </Text>
                                                                                     )
-                                                                                    : null
-                                                                            }
-                                                                        </Tabs>
+                                                                                } : null
+                                                                            ].filter(Boolean)}
+                                                                        />
                                                                     )
                                                                     : null
                                                             }
@@ -1037,11 +1057,11 @@ class TestCaseEditor extends React.Component {
                                                     : null
                                             }
                                             
-                                        </TabPane>
+                                        </>
                                     )
-                                    : null
-                            }
-                        </Tabs>
+                                } : null
+                            ].filter(Boolean)}
+                        />
                         {/* {
               item.status && (item.status.state === 'waiting' || item.status.state === 'process')
               ? (<Skeleton paragraph={ {rows: 10} } active />)
@@ -1200,124 +1220,126 @@ class TestCaseEditor extends React.Component {
         };
 
         return (
-            <div
-                style={{ height: '100%', 'overflow-y': 'auto' }}
-                ref={div => {
-                    this.containerRef = div;
-                }}
-            >
-                <Row>
-                    <Col span={24}>
-                        <Affix target={() => this.containerRef}>
-                            <Row>
-                                <Col span={24}>
-                                    <Card size='small'>
-                                        <Row align='top'>
-                                            <Col span={18}>
-                                                <MetadataEditor
-                                                    values={this.props.testCase.meta}
-                                                    onChange={this.props.onChange}
-                                                />
-                                            </Col>
-                                            <Col span={6}>
-                                                <Button
-                                                    type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
-                                                        this.props.onOpenEnvironmentManager();
-                                                    }}
-                                                >
-                                                    <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Environment Manager</Text>
-                                                </Button>
-                                            </Col>
-                                        </Row>
-                                        <Row align='top'>
-                                            <Col span={24}>
-                                                <div className='float-right'>
+            <App>
+                <div
+                    style={{ height: '100%', 'overflow-y': 'auto' }}
+                    ref={div => {
+                        this.containerRef = div;
+                    }}
+                >
+                    <Row>
+                        <Col span={24}>
+                            <Affix target={() => this.containerRef}>
+                                <Row>
+                                    <Col span={24}>
+                                        <Card size='small'>
+                                            <Row align='top'>
+                                                <Col span={18}>
+                                                    <MetadataEditor
+                                                        values={this.props.testCase.meta}
+                                                        onChange={this.props.onChange}
+                                                    />
+                                                </Col>
+                                                <Col span={6}>
                                                     <Button
-                                                        className='ml-2'
-                                                        type='primary'
-                                                        danger
-                                                        onClick={() => {
-                                                            this.props.onSend();
+                                                        type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
+                                                            this.props.onOpenEnvironmentManager();
                                                         }}
                                                     >
+                                                        <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Environment Manager</Text>
+                                                    </Button>
+                                                </Col>
+                                            </Row>
+                                            <Row align='top'>
+                                                <Col span={24}>
+                                                    <div className='float-right'>
+                                                        <Button
+                                                            className='ml-2'
+                                                            type='primary'
+                                                            danger
+                                                            onClick={() => {
+                                                                this.props.onSend();
+                                                            }}
+                                                        >
                             Send
-                                                    </Button>
-                                                </div>
-                                                <Popover
-                                                    content={addNewRequestDialogContent}
-                                                    title='Enter a description for the request'
-                                                    trigger='click'
-                                                    visible={this.state.addNewRequestDialogVisible}
-                                                    onVisibleChange={visible => this.setState({ addNewRequestDialogVisible: visible })}
-                                                >
-                                                    <Button
-                                                        type='primary'
+                                                        </Button>
+                                                    </div>
+                                                    <Popover
+                                                        content={addNewRequestDialogContent}
+                                                        title='Enter a description for the request'
+                                                        trigger='click'
+                                                        open={this.state.addNewRequestDialogVisible}
+                                                        onOpenChange={visible => this.setState({ addNewRequestDialogVisible: visible })}
                                                     >
+                                                        <Button
+                                                            type='primary'
+                                                        >
                             Add New Request
-                                                    </Button>
-                                                </Popover>
-                                                <Checkbox
-                                                    className='ml-4 mt-1 float-right'
-                                                    onClick={e => {
-                                                        this.handleBreakOnErrorChange(e.target.checked);
-                                                    }}
-                                                    checked={this.props.testCase.options?.breakOnError}
-                                                >
-                                                    Skip remaining requests on error
-                                                </Checkbox>
-                                                <InputNumber
-                                                    className='float-right'
-                                                    value={this.props.testCase.options?.executionOrder}
-                                                    disabled={this.props.testCase.options?.executionOrder === undefined}
-                                                    onChange={newNumber => {
-                                                        this.handleExecutionOrderChange(newNumber);
-                                                    }}
-                                                    // formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                    // parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                                                />
-                                                <Checkbox
-                                                    className='ml-2 mt-1 float-right'
-                                                    onClick={e => {
-                                                        this.handleExecutionOrderCheckboxChange(e.target.checked);
-                                                    }}
-                                                    checked={this.props.testCase.options?.executionOrder !== undefined}
-                                                >
-                                                    Execution Order
-                                                </Checkbox>
-                                            </Col>
-                                        </Row>
+                                                        </Button>
+                                                    </Popover>
+                                                    <Checkbox
+                                                        className='ml-4 mt-1 float-right'
+                                                        onClick={e => {
+                                                            this.handleBreakOnErrorChange(e.target.checked);
+                                                        }}
+                                                        checked={this.props.testCase.options?.breakOnError}
+                                                    >
+                                                        Skip remaining requests on error
+                                                    </Checkbox>
+                                                    <InputNumber
+                                                        className='float-right'
+                                                        value={this.props.testCase.options?.executionOrder}
+                                                        disabled={this.props.testCase.options?.executionOrder === undefined}
+                                                        onChange={newNumber => {
+                                                            this.handleExecutionOrderChange(newNumber);
+                                                        }}
+                                                        // formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                        // parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                                                    />
+                                                    <Checkbox
+                                                        className='ml-2 mt-1 float-right'
+                                                        onClick={e => {
+                                                            this.handleExecutionOrderCheckboxChange(e.target.checked);
+                                                        }}
+                                                        checked={this.props.testCase.options?.executionOrder !== undefined}
+                                                    >
+                                                        Execution Order
+                                                    </Checkbox>
+                                                </Col>
+                                            </Row>
+                                        </Card>
+                                    </Col>
+                                </Row>
+                            </Affix>
+                        </Col>
+                    </Row>
+                    {
+                        this.props.traceID
+                            ? <Row>
+                                <Col span={24}>
+                                    <ServerLogsViewer traceID={this.props.traceID} userConfig={this.props.userConfig} />
+                                </Col>
+                            </Row>
+                            : null
+                    }
+                    {
+                        this.props.logs.length
+                            ? <Row className='mt-4'>
+                                <Col span={24}>
+                                    <Card>
+                                        <ServerLogsViewer logs={this.props.logs} />
                                     </Card>
                                 </Col>
                             </Row>
-                        </Affix>
-                    </Col>
-                </Row>
-                {
-                    this.props.traceID
-                        ? <Row>
-                            <Col span={24}>
-                                <ServerLogsViewer traceID={this.props.traceID} userConfig={this.props.userConfig} />
-                            </Col>
-                        </Row>
-                        : null
-                }
-                {
-                    this.props.logs.length
-                        ? <Row className='mt-4'>
-                            <Col span={24}>
-                                <Card>
-                                    <ServerLogsViewer logs={this.props.logs} />
-                                </Card>
-                            </Col>
-                        </Row>
-                        : null
-                }
-                <Row>
-                    <Col span={24}>
-                        {getHorizontalGroups()}
-                    </Col>
-                </Row>
-            </div>
+                            : null
+                    }
+                    <Row>
+                        <Col span={24}>
+                            {getHorizontalGroups()}
+                        </Col>
+                    </Row>
+                </div>
+            </App>
         );
     }
 }

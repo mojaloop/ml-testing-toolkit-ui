@@ -364,140 +364,150 @@ class EnvironmentManager extends React.Component {
                             onChange={key => {
                                 this.setState({ environmentOptionsVisible: (key[0] == 1) });
                             }}
-                        >
-                            <Panel header={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].name : 'Choose environment'} key='1'>
-                                <Row>
-                                    <Col span={24}>
-                                        <Button
-                                            type='default'
-                                            info
-                                            onClick={e => {
-                                                e.preventDefault();
-                                                this.environmentFileSelector.click();
-                                            }}
-                                        >
-                      Import File
-                                        </Button>
-                                        <Button
-                                            className='ml-2'
-                                            type='primary'
-                                            onClick={() => {
-                                                this.handleDownloadEnvironment(this.state.selectedEnvironmentIndex);
-                                            }}
-                                            disabled={this.state.selectedEnvironmentIndex === null}
-                                        >
-                      Download
-                                        </Button>
-                                        <Dropdown
-                                            className='ml-2 float-right'
-                                            zIndex={1101}
-                                            overlay={menu}
-                                            trigger={['click']}
-                                            onVisibleChange={visible => {
-                                                if(visible) {
-                                                    this.handleImportServer();
-                                                }
-                                            }}
-                                        >
-                                            <Button
-                                                type='primary'
-                                                shape='round'
-                                                danger
-                                            >
-                        Import from Server <DownOutlined />
-                                            </Button>
-                                        </Dropdown>
-                                    </Col>
-                                </Row>
-                                <Row className='mt-2'>
-                                    <Col span={24}>
-                                        <Button
-                                            type='primary'
-                                            danger
-                                            onClick={() => {
-                                                this.handleDeleteEnvironment(this.state.selectedEnvironmentIndex);
-                                                this.changeSelectedEnvironmentIndex(null);
-                                            }}
-                                            disabled={this.state.selectedEnvironmentIndex === null}
-                                        >
-                      Delete
-                                        </Button>
-                                        <Button
-                                            className='ml-2'
-                                            type='dashed'
-                                            onClick={() => {
-                                                this.handleDuplicateEnvironment(this.state.selectedEnvironmentIndex);
-                                            }}
-                                            disabled={this.state.selectedEnvironmentIndex === null}
-                                        >
-                      Duplicate
-                                        </Button>
-                                        <Popover
-                                            content={getRenameDialogContent()}
-                                            title='Enter new name'
-                                            trigger='click'
-                                            visible={this.state.renameEnvironementDialogVisible}
-                                            zIndex={1101}
-                                            onVisibleChange={visible => {
-                                                if(visible) {
-                                                    this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name });
-                                                }
-                                                this.setState({ renameEnvironementDialogVisible: visible });
-                                            }}
-                                        >
-                                            <Button
-                                                className='ml-2'
-                                                type='default'
-                                                disabled={this.state.selectedEnvironmentIndex === null}
-                                            >
-                        Rename
-                                            </Button>
-                                        </Popover>
-                                    </Col>
-                                </Row>
-                                <Row className='mt-2'>
-                                    <Col span={24}>
-                                        <Table
-                                            rowSelection={{
-                                                type: 'radio',
-                                                ...rowSelection,
-                                            }}
-                                            columns={columns}
-                                            dataSource={data}
-                                            pagination={false}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Panel>
-                        </Collapse>
+                            items={[
+                                {
+                                    key: '1',
+                                    label: this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].name : 'Choose environment',
+                                    children: (
+                                        <>
+                                            <Row>
+                                                <Col span={24}>
+                                                    <Button
+                                                        type='default'
+                                                        info
+                                                        onClick={e => {
+                                                            e.preventDefault();
+                                                            this.environmentFileSelector.click();
+                                                        }}
+                                                    >
+                                  Import File
+                                                    </Button>
+                                                    <Button
+                                                        className='ml-2'
+                                                        type='primary'
+                                                        onClick={() => {
+                                                            this.handleDownloadEnvironment(this.state.selectedEnvironmentIndex);
+                                                        }}
+                                                        disabled={this.state.selectedEnvironmentIndex === null}
+                                                    >
+                                  Download
+                                                    </Button>
+                                                    <Dropdown
+                                                        className='ml-2 float-right'
+                                                        zIndex={1101}
+                                                        overlay={menu}
+                                                        trigger={['click']}
+                                                        onVisibleChange={visible => {
+                                                            if(visible) {
+                                                                this.handleImportServer();
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Button
+                                                            type='primary'
+                                                            shape='round'
+                                                            danger
+                                                        >
+                                    Import from Server <DownOutlined />
+                                                        </Button>
+                                                    </Dropdown>
+                                                </Col>
+                                            </Row>
+                                            <Row className='mt-2'>
+                                                <Col span={24}>
+                                                    <Button
+                                                        type='primary'
+                                                        danger
+                                                        onClick={() => {
+                                                            this.handleDeleteEnvironment(this.state.selectedEnvironmentIndex);
+                                                            this.changeSelectedEnvironmentIndex(null);
+                                                        }}
+                                                        disabled={this.state.selectedEnvironmentIndex === null}
+                                                    >
+                                  Delete
+                                                    </Button>
+                                                    <Button
+                                                        className='ml-2'
+                                                        type='dashed'
+                                                        onClick={() => {
+                                                            this.handleDuplicateEnvironment(this.state.selectedEnvironmentIndex);
+                                                        }}
+                                                        disabled={this.state.selectedEnvironmentIndex === null}
+                                                    >
+                                  Duplicate
+                                                    </Button>
+                                                    <Popover
+                                                        content={getRenameDialogContent()}
+                                                        title='Enter new name'
+                                                        trigger='click'
+                                                        open={this.state.renameEnvironementDialogVisible}
+                                                        zIndex={1101}
+                                                        onOpenChange={visible => {
+                                                            if(visible) {
+                                                                this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name });
+                                                            }
+                                                            this.setState({ renameEnvironementDialogVisible: visible });
+                                                        }}
+                                                    >
+                                                        <Button
+                                                            className='ml-2'
+                                                            type='default'
+                                                            disabled={this.state.selectedEnvironmentIndex === null}
+                                                        >
+                                    Rename
+                                                        </Button>
+                                                    </Popover>
+                                                </Col>
+                                            </Row>
+                                            <Row className='mt-2'>
+                                                <Col span={24}>
+                                                    <Table
+                                                        rowSelection={{
+                                                            type: 'radio',
+                                                            ...rowSelection,
+                                                        }}
+                                                        columns={columns}
+                                                        dataSource={data}
+                                                        pagination={false}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        </>
+                                    )
+                                }
+                            ]}
+                        />
                     </Col>
                 </Row>
                 <Row>
                     <Col span={24}>
-                        <Tabs defaultActiveKey='1' type='card'>
-                            <TabPane tab='Input Values' key='1'>
+                        <Tabs 
+                            defaultActiveKey='1' 
+                            type='card'
+                            items={[
                                 {
-                                    this.state.localEnvironments[this.state.selectedEnvironmentIndex]
+                                    key: '1',
+                                    label: 'Input Values',
+                                    children: this.state.localEnvironments[this.state.selectedEnvironmentIndex]
                                         ? <InputValues values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues : {}} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
                                         : null
-                                }
-                            </TabPane>
-                            <TabPane tab='Options' key='2'
-                                theme={{
-                                    token: {
-                                        // Seed Token
-                                        colorPrimary: '#00b96b',
-                                        cardBg: 'red',
-                                    },
-                                }}
-                            >
+                                },
                                 {
-                                    this.state.localEnvironments[this.state.selectedEnvironmentIndex]
+                                    key: '2',
+                                    label: 'Options',
+                                    children: this.state.localEnvironments[this.state.selectedEnvironmentIndex]
                                         ? <TemplateOptions values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].options : {}} onChange={this.handleOptionsChange} />
-                                        : null
+                                        : null,
+                                    theme: {
+                                        token: {
+                                            // Seed Token
+                                            colorPrimary: '#00b96b',
+                                            cardBg: 'red',
+                                        },
+                                    }
                                 }
-                            </TabPane>
-                        </Tabs>
+                            ]}
+                        />
                     </Col>
                 </Row>
             </>

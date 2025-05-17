@@ -31,11 +31,10 @@ import _ from 'lodash';
 
 import { Spin, Select, Input, Tooltip, Tag, Menu, Dropdown, Card, Popover, message, Row, Col, Switch, Button, Typography } from 'antd';
 import { DeleteTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 
 // import './index.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
-import 'jsoneditor-react/es/editor.min.css';
+import '../outbound/jsoneditor-react-compat';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
@@ -370,8 +369,8 @@ class RequestHeaderBodyBuilder extends React.Component {
                                                                 content={addCustomHeaderDialogContent}
                                                                 title='Enter name for the header'
                                                                 trigger='click'
-                                                                visible={this.state.addCustomHeaderDialogVisible}
-                                                                onVisibleChange={visible => this.setState({ addCustomHeaderDialogVisible: true })}
+                                                                open={this.state.addCustomHeaderDialogVisible}
+                                                                onOpenChange={visible => this.setState({ addCustomHeaderDialogVisible: true })}
                                                             >
                                                                 <Button
                                                                     color='warning'

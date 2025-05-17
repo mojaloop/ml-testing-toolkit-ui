@@ -26,96 +26,108 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 import { Layout, Row, Col, Menu, Typography } from 'antd';
-import logo from '../../assets/img/mojaloop.png';
+import * as AntIcons from '@ant-design/icons';
+import mojaLoopLogo from '../../assets/img/mojaloop.png';
 
 const { Title } = Typography;
 const { Sider } = Layout;
 
-class Sidebar extends React.Component {
-    state = {
-        collapseOpen: false,
-    };
-
-    constructor(props) {
-        super(props);
-        this.activeRoute.bind(this);
-    }
+const Sidebar = ({ routes, logo }) => {
+    const [collapseOpen, setCollapseOpen] = useState(false);
+    const location = useLocation();
 
     // verifies if routeName is the one active (in browser input)
-    activeRoute(routeName) {
-        return this.props.location.pathname.indexOf(routeName) > -1 ? 'active' : '';
-    }
+    const activeRoute = (routeName) => {
+        return location.pathname.indexOf(routeName) > -1 ? 'active' : '';
+    };
 
     // toggles collapse between opened and closed (true/false)
-    toggleCollapse = () => {
-        this.setState({
-            collapseOpen: !this.state.collapseOpen,
-        });
+    const toggleCollapse = () => {
+        setCollapseOpen(!collapseOpen);
     };
 
     // closes the collapse
-    closeCollapse = () => {
-        this.setState({
-            collapseOpen: false,
-        });
+    const closeCollapse = () => {
+        setCollapseOpen(false);
     };
 
-    // creates the links that appear in the left menu / Sidebar
-    createLinks = routes => {
+    // Render icon from iconType string
+    const renderIcon = (iconType) => {
+        if (!iconType) return null;
+        
+        const IconComponent = AntIcons[iconType];
+        if (IconComponent) {
+            return <IconComponent />;
+        }
+        return null;
+    };
+
+    // creates menu items for the Ant Design Menu
+    const menuItems = useMemo(() => {
         return routes.map((prop, key) => {
-            return (
-                <Menu.Item key={key} icon={prop.icon}>
+            const fullPath = prop.layout + prop.path;
+            return {
+                key: fullPath,
+                icon: renderIcon(prop.iconType),
+                label: (
                     <Link
-                        className='d-none d-lg-inline-block'
-                        to={prop.layout + prop.path}
+                        to={fullPath}
+                        style={{ display: 'block', width: '100%' }}
                     >
-                        {prop.name}<br /> {prop.subTitle}
+                        {prop.name}
+                        {prop.subTitle && <div>{prop.subTitle}</div>}
                     </Link>
-                </Menu.Item>
-            );
+                )
+            };
         });
+    }, [routes]);
+
+    // Find the active route key based on the current location path
+    const findActiveRouteKey = () => {
+        const pathname = location.pathname;
+        const route = routes.find(route => 
+            pathname.startsWith(route.layout + route.path)
+        );
+        return route ? route.layout + route.path : '/admin/index';
     };
 
-    render() {
-        const { routes } = this.props;
-
-        return (
-            <Sider
-                width={250}
-                style={{
-                    height: '100vh',
-                    background: '#fff',
-                }}
-            >
-                <Row className='pt-0'>
-                    <Col span={4} />
-                    <Col span={16} className='text-center'>
-                        <img
-                            alt='Mojaloop'
-                            className='img-fluid'
-                            src={logo}
-                        />
-                    </Col>
-                    <Col span={4} />
-                </Row>
-                <Row>
-                    <Col span={24} className='text-center'>
-                        <Title level={4} style={{ color: '#293e5d' }}>Testing Toolkit</Title>
-                    </Col>
-                </Row>
-                <Menu
-                    className='mt-4' mode='inline'
-                    selectedKeys={[this.state.current]}
-                >
-                    {this.createLinks(routes)}
-                </Menu>
-            </Sider>
-        );
-    }
-}
+    return (
+        <Sider
+            width={250}
+            style={{
+                height: '100vh',
+                background: '#fff',
+            }}
+        >
+            <Row className='pt-0'>
+                <Col span={4} />
+                <Col span={16} className='text-center'>
+                    <img
+                        alt='Mojaloop'
+                        className='img-fluid'
+                        src={logo.imgSrc || mojaLoopLogo}
+                    />
+                </Col>
+                <Col span={4} />
+            </Row>
+            <Row>
+                <Col span={24} className='text-center'>
+                    <Title level={4} style={{ color: '#293e5d' }}>Testing Toolkit</Title>
+                </Col>
+            </Row>
+            <Menu
+                className='mt-4'
+                mode='inline'
+                selectedKeys={[findActiveRouteKey()]}
+                defaultSelectedKeys={['/admin/index']}
+                items={menuItems}
+            />
+        </Sider>
+    );
+};
 
 export default Sidebar;

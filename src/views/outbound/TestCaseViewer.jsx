@@ -32,8 +32,7 @@ import _ from 'lodash';
 import { Row, Col, Tag, Dropdown, Menu, message, Input, Collapse, Card, Button, Typography, Switch } from 'antd';
 import { MoreOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import MetadataEditor from './MetadataEditor';
-
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import SortableList from '../../components/SortableList';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 
 import { TTKColors } from '../../utils/styleHelpers';
@@ -269,19 +268,6 @@ class TestCaseViewer extends React.Component {
             </Menu>
         );
 
-        const SortableRuleItem = SortableElement(({ value }) => <Panel header={value.description} />);
-
-        const SortableRuleList = SortableContainer(({ items }) => {
-            console.log(items);
-            return (
-                <Collapse>
-                    {items.map((value, index) => (
-                        <SortableRuleItem key={`item-${value.id}`} index={index} value={value} />
-                    ))}
-                </Collapse>
-            );
-        });
-
         const testCaseRenaming = (
             <Title
                 level={4}
@@ -371,7 +357,7 @@ class TestCaseViewer extends React.Component {
                                                     }}
                                                 >
                       Edit
-                                                </Button>
+                                                </Button>,
                                                 {
                                                     this.state.testCaseRequestsReorderingEnabled && (this.props.testCase.requests && this.props.testCase.requests.length > 0)
                                                         ? (
@@ -463,7 +449,16 @@ class TestCaseViewer extends React.Component {
                                 {
                                     this.state.testCaseRequestsReorderingEnabled
                                         ? (
-                                            <SortableRuleList items={this.props.testCase.requests} onSortEnd={this.onTestCaseRequestsSortEnd} />
+                                            <SortableList
+                                                items={this.props.testCase.requests.map((request, index) => ({
+                                                    ...request,
+                                                    id: request.id || `request-${index}`,
+                                                }))}
+                                                onSortEnd={this.onTestCaseRequestsSortEnd}
+                                                renderItem={item => (
+                                                    <Panel header={item.description} />
+                                                )}
+                                            />
                                         )
                                         : (
                                             <>

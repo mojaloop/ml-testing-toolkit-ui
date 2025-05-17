@@ -30,7 +30,6 @@
 import React from 'react';
 import { Input, Row, Col, message, Popover, Button, Card, Checkbox, Radio, Typography } from 'antd';
 import { DeleteTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 
 const { Text } = Typography;
 
@@ -169,8 +168,8 @@ class InputValues extends React.Component {
                                         title='Enter a new name'
                                         trigger='click'
                                         zIndex={1101}
-                                        visible={this.state.addInputValueDialogVisible}
-                                        onVisibleChange={visible => this.setState({ addInputValueDialogVisible: visible })}
+                                        open={this.state.addInputValueDialogVisible}
+                                        onOpenChange={visible => this.setState({ addInputValueDialogVisible: visible })}
                                     >
                                         <Button
                                             className='text-right float-right'
