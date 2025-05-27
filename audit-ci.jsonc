@@ -4,7 +4,7 @@
   // Only use one of ["low": true, "moderate": true, "high": true, "critical": true]
   "moderate": true,
   "allowlist": [
-    // These are all the exceptions for react, react-scripts and their dependencies as it is very hard to update react version at the moment.
+    // These are security exceptions for React and its dependencies
     "GHSA-whgm-jr23-g3j9", // https://github.com/advisories/GHSA-whgm-jr23-g3j9
     "GHSA-w8qv-6jwh-64r5", // https://github.com/advisories/GHSA-w8qv-6jwh-64r5
     "GHSA-36jr-mh4h-2g58", // https://github.com/advisories/GHSA-36jr-mh4h-2g58

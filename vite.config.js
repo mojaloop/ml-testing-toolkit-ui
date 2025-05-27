@@ -36,7 +36,6 @@ export default defineConfig({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-    'process.env.PUBLIC_URL': JSON.stringify('/'),
   },
   server: {
     port: 3000,
