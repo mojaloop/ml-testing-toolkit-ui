@@ -69,12 +69,12 @@ const Admin = () => {
             setState({ 
                 isConnectionError: true, 
                 connectionErrorMessage: err.message, 
-                isLoading: false 
+                isLoading: false, 
             });
         }
     };
 
-    const getRoutes = (routes) => {
+    const getRoutes = routes => {
         return routes.map((prop, key) => {
             if(prop.layout === '/admin') {
                 return (
@@ -90,7 +90,7 @@ const Admin = () => {
         });
     };
 
-    const getBrandText = (path) => {
+    const getBrandText = path => {
         for(let i = 0; i < routes.length; i++) {
             if(
                 path.indexOf(

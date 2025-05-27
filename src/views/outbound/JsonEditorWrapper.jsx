@@ -37,5 +37,5 @@ import EnhancedJsonEditor from './EnhancedJsonEditor';
 export const JsonEditor = EnhancedJsonEditor;
 
 export default {
-  JsonEditor,
+    JsonEditor,
 }; 

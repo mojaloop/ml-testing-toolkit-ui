@@ -44,256 +44,256 @@ const { Text } = Typography;
  * but built on top of react-ace for React 19 compatibility
  */
 const EnhancedJsonEditor = forwardRef((props, ref) => {
-  const {
-    value = {},
-    onChange = () => {},
-    schema = null,
-    mode = 'code',
-    theme = 'ace/theme/tomorrow_night_blue',
-    search = false,
-    statusBar = false,
-    navigationBar = false,
-    ajv = null,
-    ace = null
-  } = props;
+    const {
+        value = {},
+        onChange = () => {},
+        schema = null,
+        mode = 'code',
+        theme = 'ace/theme/tomorrow_night_blue',
+        search = false,
+        statusBar = false,
+        navigationBar = false,
+        ajv = null,
+        ace = null,
+    } = props;
 
-  const [editorText, setEditorText] = useState('');
-  const [errors, setErrors] = useState([]);
-  const [editorHeight, setEditorHeight] = useState('400px');
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const editorRef = useRef(null);
-  const containerRef = useRef(null);
+    const [editorText, setEditorText] = useState('');
+    const [errors, setErrors] = useState([]);
+    const [editorHeight, setEditorHeight] = useState('400px');
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const editorRef = useRef(null);
+    const containerRef = useRef(null);
 
-  // Convert object to string if needed
-  useEffect(() => {
-    try {
-      const stringValue = typeof value === 'string' 
-        ? value 
-        : JSON.stringify(value, null, 2);
-      setEditorText(stringValue);
-      validateJson(stringValue);
-    } catch (err) {
-      setErrors([err.message]);
-    }
-  }, [value]);
-
-  // Expose methods via ref
-  useImperativeHandle(ref, () => ({
-    get: () => {
-      try {
-        return JSON.parse(editorText);
-      } catch (e) {
-        return null;
-      }
-    },
-    set: (json) => {
-      try {
-        const stringValue = typeof json === 'string' 
-          ? json 
-          : JSON.stringify(json, null, 2);
-        setEditorText(stringValue);
-        validateJson(stringValue);
-      } catch (err) {
-        setErrors([err.message]);
-      }
-    },
-    focus: () => {
-      if (editorRef.current) {
-        editorRef.current.editor.focus();
-      }
-    },
-    getEditor: () => editorRef.current?.editor,
-    toggleFullscreen: () => {
-      setIsFullscreen(!isFullscreen);
-    }
-  }));
-
-  const validateJson = (text) => {
-    try {
-      // Parse the JSON
-      const parsedJson = JSON.parse(text);
-      
-      // Validate against schema if provided and ajv is available
-      if (schema && ajv) {
-        const validate = ajv.compile(schema);
-        const valid = validate(parsedJson);
-        if (!valid) {
-          setErrors(validate.errors.map(error => 
-            `${error.dataPath} ${error.message}`
-          ));
-          return false;
+    // Convert object to string if needed
+    useEffect(() => {
+        try {
+            const stringValue = typeof value === 'string' 
+                ? value 
+                : JSON.stringify(value, null, 2);
+            setEditorText(stringValue);
+            validateJson(stringValue);
+        } catch (err) {
+            setErrors([err.message]);
         }
-      }
-      
-      // Clear errors if validation passes
-      setErrors([]);
-      return true;
-    } catch (err) {
-      setErrors([err.message]);
-      return false;
-    }
-  };
+    }, [value]);
 
-  const handleChange = (newText) => {
-    setEditorText(newText);
-    try {
-      const newJsonObject = JSON.parse(newText);
+    // Expose methods via ref
+    useImperativeHandle(ref, () => ({
+        get: () => {
+            try {
+                return JSON.parse(editorText);
+            } catch (e) {
+                return null;
+            }
+        },
+        set: json => {
+            try {
+                const stringValue = typeof json === 'string' 
+                    ? json 
+                    : JSON.stringify(json, null, 2);
+                setEditorText(stringValue);
+                validateJson(stringValue);
+            } catch (err) {
+                setErrors([err.message]);
+            }
+        },
+        focus: () => {
+            if(editorRef.current) {
+                editorRef.current.editor.focus();
+            }
+        },
+        getEditor: () => editorRef.current?.editor,
+        toggleFullscreen: () => {
+            setIsFullscreen(!isFullscreen);
+        },
+    }));
+
+    const validateJson = text => {
+        try {
+            // Parse the JSON
+            const parsedJson = JSON.parse(text);
       
-      // Validate against schema if provided and ajv is available
-      if (schema && ajv) {
-        const validate = ajv.compile(schema);
-        const valid = validate(newJsonObject);
-        if (!valid) {
-          setErrors(validate.errors.map(error => 
-            `${error.dataPath} ${error.message}`
-          ));
-          return;
+            // Validate against schema if provided and ajv is available
+            if(schema && ajv) {
+                const validate = ajv.compile(schema);
+                const valid = validate(parsedJson);
+                if(!valid) {
+                    setErrors(validate.errors.map(error => 
+                        `${error.dataPath} ${error.message}`,
+                    ));
+                    return false;
+                }
+            }
+      
+            // Clear errors if validation passes
+            setErrors([]);
+            return true;
+        } catch (err) {
+            setErrors([err.message]);
+            return false;
         }
-      }
-      
-      setErrors([]);
-      onChange(newJsonObject);
-    } catch (err) {
-      setErrors([err.message]);
-    }
-  };
-
-  // Handle fullscreen toggle
-  useEffect(() => {
-    if (isFullscreen) {
-      document.body.style.overflow = 'hidden';
-      setEditorHeight('calc(100vh - 100px)');
-    } else {
-      document.body.style.overflow = '';
-      setEditorHeight('400px');
-    }
-    
-    // Ensure editor resizes correctly
-    if (editorRef.current) {
-      setTimeout(() => {
-        editorRef.current.editor.resize();
-      }, 100);
-    }
-    
-    return () => {
-      document.body.style.overflow = '';
     };
-  }, [isFullscreen]);
 
-  const renderErrorMessages = () => {
-    return errors.map((error, index) => (
-      <div key={index}>
-        <Text mark>{error}</Text>
-      </div>
-    ));
-  };
+    const handleChange = newText => {
+        setEditorText(newText);
+        try {
+            const newJsonObject = JSON.parse(newText);
+      
+            // Validate against schema if provided and ajv is available
+            if(schema && ajv) {
+                const validate = ajv.compile(schema);
+                const valid = validate(newJsonObject);
+                if(!valid) {
+                    setErrors(validate.errors.map(error => 
+                        `${error.dataPath} ${error.message}`,
+                    ));
+                    return;
+                }
+            }
+      
+            setErrors([]);
+            onChange(newJsonObject);
+        } catch (err) {
+            setErrors([err.message]);
+        }
+    };
 
-  // Format the JSON for readability
-  const formatJson = () => {
-    try {
-      const formatted = JSON.stringify(JSON.parse(editorText), null, 2);
-      setEditorText(formatted);
-      validateJson(formatted);
-    } catch (err) {
-      // Do nothing, the error is already captured
-    }
-  };
+    // Handle fullscreen toggle
+    useEffect(() => {
+        if(isFullscreen) {
+            document.body.style.overflow = 'hidden';
+            setEditorHeight('calc(100vh - 100px)');
+        } else {
+            document.body.style.overflow = '';
+            setEditorHeight('400px');
+        }
+    
+        // Ensure editor resizes correctly
+        if(editorRef.current) {
+            setTimeout(() => {
+                editorRef.current.editor.resize();
+            }, 100);
+        }
+    
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isFullscreen]);
 
-  const effectiveTheme = theme.replace('ace/theme/', '');
+    const renderErrorMessages = () => {
+        return errors.map((error, index) => (
+            <div key={index}>
+                <Text mark>{error}</Text>
+            </div>
+        ));
+    };
 
-  return (
-    <div 
-      ref={containerRef} 
-      className={`enhanced-json-editor ${isFullscreen ? 'fullscreen' : ''}`}
-    >
-      {navigationBar && (
-        <Row className="editor-navigation-bar">
-          <Col span={24}>
-            <Space>
-              <Tooltip title="Format JSON">
-                <Button 
-                  size="small" 
-                  onClick={formatJson}
-                  disabled={errors.length > 0}
-                >
+    // Format the JSON for readability
+    const formatJson = () => {
+        try {
+            const formatted = JSON.stringify(JSON.parse(editorText), null, 2);
+            setEditorText(formatted);
+            validateJson(formatted);
+        } catch (err) {
+            // Do nothing, the error is already captured
+        }
+    };
+
+    const effectiveTheme = theme.replace('ace/theme/', '');
+
+    return (
+        <div 
+            ref={containerRef} 
+            className={`enhanced-json-editor ${isFullscreen ? 'fullscreen' : ''}`}
+        >
+            {navigationBar && (
+                <Row className="editor-navigation-bar">
+                    <Col span={24}>
+                        <Space>
+                            <Tooltip title="Format JSON">
+                                <Button 
+                                    size="small" 
+                                    onClick={formatJson}
+                                    disabled={errors.length > 0}
+                                >
                   Format
-                </Button>
-              </Tooltip>
-              <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
-                <Button 
-                  size="small" 
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                >
-                  {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                </Button>
-              </Tooltip>
-            </Space>
-          </Col>
-        </Row>
-      )}
-      
-      <Row>
-        <Col span={24}>
-          <AceEditor
-            ref={editorRef}
-            mode="json"
-            theme={effectiveTheme}
-            width="100%"
-            height={editorHeight}
-            value={editorText}
-            onChange={handleChange}
-            name={`json-editor-${Math.random().toString(36).substring(7)}`}
-            wrapEnabled
-            showPrintMargin
-            showGutter
-            tabSize={2}
-            enableBasicAutocompletion
-            enableLiveAutocompletion
-            setOptions={{
-              useWorker: false, // Disable worker to avoid CORS issues
-              showLineNumbers: true,
-            }}
-          />
-        </Col>
-      </Row>
-      
-      {(statusBar || errors.length > 0) && (
-        <Row className="editor-status-bar">
-          <Col span={24}>
-            {errors.length > 0 ? (
-              <>
-                <Row>
-                  <Col span={24}>
-                    <Tag color="red">Invalid JSON - Changes not saved</Tag>
-                  </Col>
+                                </Button>
+                            </Tooltip>
+                            <Tooltip title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}>
+                                <Button 
+                                    size="small" 
+                                    onClick={() => setIsFullscreen(!isFullscreen)}
+                                >
+                                    {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                                </Button>
+                            </Tooltip>
+                        </Space>
+                    </Col>
                 </Row>
-                <Row className="mt-1">
-                  <Col span={24}>
-                    {renderErrorMessages()}
-                  </Col>
-                </Row>
-              </>
-            ) : statusBar && (
-              <Tag color="green">Valid JSON</Tag>
             )}
-          </Col>
-        </Row>
-      )}
-    </div>
-  );
+      
+            <Row>
+                <Col span={24}>
+                    <AceEditor
+                        ref={editorRef}
+                        mode="json"
+                        theme={effectiveTheme}
+                        width="100%"
+                        height={editorHeight}
+                        value={editorText}
+                        onChange={handleChange}
+                        name={`json-editor-${Math.random().toString(36).substring(7)}`}
+                        wrapEnabled
+                        showPrintMargin
+                        showGutter
+                        tabSize={2}
+                        enableBasicAutocompletion
+                        enableLiveAutocompletion
+                        setOptions={{
+                            useWorker: false, // Disable worker to avoid CORS issues
+                            showLineNumbers: true,
+                        }}
+                    />
+                </Col>
+            </Row>
+      
+            {(statusBar || errors.length > 0) && (
+                <Row className="editor-status-bar">
+                    <Col span={24}>
+                        {errors.length > 0 ? (
+                            <>
+                                <Row>
+                                    <Col span={24}>
+                                        <Tag color="red">Invalid JSON - Changes not saved</Tag>
+                                    </Col>
+                                </Row>
+                                <Row className="mt-1">
+                                    <Col span={24}>
+                                        {renderErrorMessages()}
+                                    </Col>
+                                </Row>
+                            </>
+                        ) : statusBar && (
+                            <Tag color="green">Valid JSON</Tag>
+                        )}
+                    </Col>
+                </Row>
+            )}
+        </div>
+    );
 });
 
 EnhancedJsonEditor.propTypes = {
-  value: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.string]),
-  onChange: PropTypes.func,
-  schema: PropTypes.object,
-  mode: PropTypes.string,
-  theme: PropTypes.string,
-  search: PropTypes.bool,
-  statusBar: PropTypes.bool,
-  navigationBar: PropTypes.bool,
-  ajv: PropTypes.object,
-  ace: PropTypes.object
+    value: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.string]),
+    onChange: PropTypes.func,
+    schema: PropTypes.object,
+    mode: PropTypes.string,
+    theme: PropTypes.string,
+    search: PropTypes.bool,
+    statusBar: PropTypes.bool,
+    navigationBar: PropTypes.bool,
+    ajv: PropTypes.object,
+    ace: PropTypes.object,
 };
 
 EnhancedJsonEditor.displayName = 'EnhancedJsonEditor';

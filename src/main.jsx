@@ -61,30 +61,30 @@ if(process.env.NODE_ENV === 'development') {
     };
 }
 
-console.log("Mojaloop Testing Toolkit UI is loading...");
+console.log('Mojaloop Testing Toolkit UI is loading...');
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  <React.StrictMode>
-    <App>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/mobile-simulator" element={<MobileSimulator />} />
-          <Route path="/payee-app-simulator" element={<PayeeAppSimulator />} />
-          <Route path="/payee-mobile-simulator" element={<PayeeMobileSimulator />} />
-          <Route path="/payer-mobile-simulator" element={<PayerMobileSimulator />} />
-          <Route path="/demo-test-runner" element={<DemoTestRunner />} />
-          <Route path="/demo-monitoring" element={<DemoMonitoring />} />
-          <Route path="/pisp-demo" element={<PISPDemo />} />
-          <Route path="/admin/*" element={<AdminLayout />} />
-          <Route path="/" element={<Navigate to="/admin/outbound_request" replace />} />
-          <Route path="*" element={<Navigate to="/admin" replace />} />
-        </Routes>
-      </Router>
-    </App>
-  </React.StrictMode>
+    <React.StrictMode>
+        <App>
+            <Router>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/mobile-simulator" element={<MobileSimulator />} />
+                    <Route path="/payee-app-simulator" element={<PayeeAppSimulator />} />
+                    <Route path="/payee-mobile-simulator" element={<PayeeMobileSimulator />} />
+                    <Route path="/payer-mobile-simulator" element={<PayerMobileSimulator />} />
+                    <Route path="/demo-test-runner" element={<DemoTestRunner />} />
+                    <Route path="/demo-monitoring" element={<DemoMonitoring />} />
+                    <Route path="/pisp-demo" element={<PISPDemo />} />
+                    <Route path="/admin/*" element={<AdminLayout />} />
+                    <Route path="/" element={<Navigate to="/admin/outbound_request" replace />} />
+                    <Route path="*" element={<Navigate to="/admin" replace />} />
+                </Routes>
+            </Router>
+        </App>
+    </React.StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function

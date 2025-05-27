@@ -747,7 +747,7 @@ class TestCaseEditor extends React.Component {
                                                     : null
                                             }
                                         </>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: '2',
@@ -761,7 +761,7 @@ class TestCaseEditor extends React.Component {
                                             onDelete={this.handleRequestDelete}
                                             onDuplicate={this.handleRequestDuplicate}
                                         />
-                                    )
+                                    ),
                                 },
                                 this.props.userConfig && this.props.userConfig.ADVANCED_FEATURES_ENABLED ? {
                                     key: '3',
@@ -816,7 +816,7 @@ class TestCaseEditor extends React.Component {
                                                                         enableBasicAutocompletion
                                                                         enableLiveAutocompletion
                                                                     />
-                                                                )
+                                                                ),
                                                             },
                                                             {
                                                                 key: '2',
@@ -846,7 +846,7 @@ class TestCaseEditor extends React.Component {
                                                                         enableBasicAutocompletion
                                                                         enableLiveAutocompletion
                                                                     />
-                                                                )
+                                                                ),
                                                             },
                                                             item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution ? {
                                                                 key: '3',
@@ -896,7 +896,7 @@ class TestCaseEditor extends React.Component {
                                                                             </pre>
                                                                         </Text>
                                                                     </>
-                                                                )
+                                                                ),
                                                             } : null,
                                                             item.status && item.status.additionalInfo && item.status.additionalInfo.scriptsExecution ? {
                                                                 key: '4',
@@ -940,14 +940,14 @@ class TestCaseEditor extends React.Component {
                                                                             }
                                                                         </Card>
                                                                     </>
-                                                                )
-                                                            } : null
+                                                                ),
+                                                            } : null,
                                                         ].filter(Boolean)}
                                                     />
                                                 </Col>
                                             </Row>
                                         </>
-                                    )
+                                    ),
                                 } : null,
                                 {
                                     key: '4',
@@ -960,7 +960,7 @@ class TestCaseEditor extends React.Component {
                                             onChange={this.props.onChange}
                                             onDelete={this.handleRequestDelete}
                                         />
-                                    )
+                                    ),
                                 },
                                 item.status && item.status.response ? {
                                     key: '5',
@@ -1001,7 +1001,7 @@ class TestCaseEditor extends React.Component {
                                                                                                 {JSON.stringify(item.status.callback.headers, null, 2)}
                                                                                             </pre>
                                                                                         </Text>
-                                                                                    )
+                                                                                    ),
                                                                                 } : null,
                                                                                 item.status.callback?.originalHeaders ? {
                                                                                     key: '2',
@@ -1012,8 +1012,8 @@ class TestCaseEditor extends React.Component {
                                                                                                 {JSON.stringify(item.status.callback.originalHeaders, null, 2)}
                                                                                             </pre>
                                                                                         </Text>
-                                                                                    )
-                                                                                } : null
+                                                                                    ),
+                                                                                } : null,
                                                                             ].filter(Boolean)}
                                                                         />
                                                                     )
@@ -1034,7 +1034,7 @@ class TestCaseEditor extends React.Component {
                                                                                                 {JSON.stringify(item.status.callback.body, null, 2)}
                                                                                             </pre>
                                                                                         </Text>
-                                                                                    )
+                                                                                    ),
                                                                                 } : null,
                                                                                 item.status.callback?.originalBody ? {
                                                                                     key: '2',
@@ -1045,8 +1045,8 @@ class TestCaseEditor extends React.Component {
                                                                                                 {JSON.stringify(item.status.callback.originalBody, null, 2)}
                                                                                             </pre>
                                                                                         </Text>
-                                                                                    )
-                                                                                } : null
+                                                                                    ),
+                                                                                } : null,
                                                                             ].filter(Boolean)}
                                                                         />
                                                                     )
@@ -1058,8 +1058,8 @@ class TestCaseEditor extends React.Component {
                                             }
                                             
                                         </>
-                                    )
-                                } : null
+                                    ),
+                                } : null,
                             ].filter(Boolean)}
                         />
                         {/* {

@@ -1001,9 +1001,9 @@ class OutboundRequest extends React.Component {
                     components: {
                         ResizeObserver: {
                             // Enable ResizeObserver.Collection
-                            collection: true
-                        }
-                    }
+                            collection: true,
+                        },
+                    },
                 }}
             >
                 <App>
@@ -1125,9 +1125,9 @@ class OutboundRequest extends React.Component {
                                     components: {
                                         Affix: {
                                             // Configure Affix-specific settings
-                                            className: 'custom-affix-wrapper'
-                                        }
-                                    }
+                                            className: 'custom-affix-wrapper',
+                                        },
+                                    },
                                 }}
                             >
                                 <App>
@@ -1451,13 +1451,13 @@ class OutboundRequest extends React.Component {
                                                     )
                                             }
                                         </>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: '2',
                                     label: 'Demo View',
-                                    children: this.getTestCaseDemoItems()
-                                }
+                                    children: this.getTestCaseDemoItems(),
+                                },
                             ]} />
                         </Col>
                     </Row>

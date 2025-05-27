@@ -110,7 +110,7 @@ class TimelineSet extends React.Component {
                 return {
                     dot: <ClockCircleOutlined style={{ fontSize: '16px' }} />, 
                     color: 'red',
-                    children: <><br /><br /></>
+                    children: <><br /><br /></>,
                 };
             }
         });
@@ -220,13 +220,13 @@ class ActivityLog extends React.Component {
             if(item) {
                 return {
                     position: this.state.incomingItemsObj[item].position,
-                    children: <TimelineSet key={item} info={item} logSetObj={this.state.incomingItemsObj[item]} />
+                    children: <TimelineSet key={item} info={item} logSetObj={this.state.incomingItemsObj[item]} />,
                 };
             } else {
                 return {
                     dot: <ClockCircleOutlined style={{ fontSize: '16px' }} />,
                     color: 'red',
-                    children: <><br /><br /></>
+                    children: <><br /><br /></>,
                 };
             }
         });

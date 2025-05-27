@@ -877,7 +877,7 @@ export class TestAssertions extends React.Component {
                             />
                         </Col>
                     </Row>
-                )
+                ),
             };
         });
     };

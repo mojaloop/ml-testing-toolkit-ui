@@ -41,7 +41,7 @@ const Sidebar = ({ routes, logo }) => {
     const location = useLocation();
 
     // verifies if routeName is the one active (in browser input)
-    const activeRoute = (routeName) => {
+    const activeRoute = routeName => {
         return location.pathname.indexOf(routeName) > -1 ? 'active' : '';
     };
 
@@ -56,11 +56,11 @@ const Sidebar = ({ routes, logo }) => {
     };
 
     // Render icon from iconType string
-    const renderIcon = (iconType) => {
-        if (!iconType) return null;
+    const renderIcon = iconType => {
+        if(!iconType) return null;
         
         const IconComponent = AntIcons[iconType];
-        if (IconComponent) {
+        if(IconComponent) {
             return <IconComponent />;
         }
         return null;
@@ -81,7 +81,7 @@ const Sidebar = ({ routes, logo }) => {
                         {prop.name}
                         {prop.subTitle && <div>{prop.subTitle}</div>}
                     </Link>
-                )
+                ),
             };
         });
     }, [routes]);
@@ -90,7 +90,7 @@ const Sidebar = ({ routes, logo }) => {
     const findActiveRouteKey = () => {
         const pathname = location.pathname;
         const route = routes.find(route => 
-            pathname.startsWith(route.layout + route.path)
+            pathname.startsWith(route.layout + route.path),
         );
         return route ? route.layout + route.path : '/admin/index';
     };

@@ -473,8 +473,8 @@ class EnvironmentManager extends React.Component {
                                                 </Col>
                                             </Row>
                                         </>
-                                    )
-                                }
+                                    ),
+                                },
                             ]}
                         />
                     </Col>
@@ -490,7 +490,7 @@ class EnvironmentManager extends React.Component {
                                     label: 'Input Values',
                                     children: this.state.localEnvironments[this.state.selectedEnvironmentIndex]
                                         ? <InputValues values={this.state.localEnvironments[this.state.selectedEnvironmentIndex] ? this.state.localEnvironments[this.state.selectedEnvironmentIndex].inputValues : {}} onChange={this.handleInputValuesChange} onDelete={this.handleInputValuesDelete} />
-                                        : null
+                                        : null,
                                 },
                                 {
                                     key: '2',
@@ -504,8 +504,8 @@ class EnvironmentManager extends React.Component {
                                             colorPrimary: '#00b96b',
                                             cardBg: 'red',
                                         },
-                                    }
-                                }
+                                    },
+                                },
                             ]}
                         />
                     </Col>

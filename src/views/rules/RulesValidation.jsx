@@ -101,7 +101,7 @@ class RulesValidation extends React.Component {
             const isActive = (ruleFile === this.state.activeRulesFile);
             return {
                 key: ruleFile,
-                label: <>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</>
+                label: <>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</>,
             };
         });
     };
@@ -174,7 +174,7 @@ class RulesValidation extends React.Component {
                             </Col>
                         </Row>
                     </>
-                )
+                ),
             };
         });
     };
@@ -399,7 +399,7 @@ class RulesValidation extends React.Component {
                                                         renderItem={item => ({
                                                             key: item.id,
                                                             label: item.description,
-                                                            children: null
+                                                            children: null,
                                                         })}
                                                     />
                                                 )

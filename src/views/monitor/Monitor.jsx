@@ -104,14 +104,14 @@ class Monitor extends React.Component {
                 key: '1',
                 label: 'Activity Log',
                 children: <ActivityLog ref={this.activityLogRef} />,
-                forceRender: true
+                forceRender: true,
             },
             {
                 key: '2',
                 label: 'Sequence Diagram',
                 children: <SequenceDiagram ref={this.sequenceDiagramRef} />,
-                forceRender: true
-            }
+                forceRender: true,
+            },
         ];
 
         return (

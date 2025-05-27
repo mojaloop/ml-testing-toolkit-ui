@@ -89,7 +89,7 @@ class RulesForward extends React.Component {
             const isActive = (ruleFile === this.state.activeRulesFile);
             return {
                 key: ruleFile,
-                label: <>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</>
+                label: <>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</>,
             };
         });
     };
@@ -135,7 +135,7 @@ class RulesForward extends React.Component {
                             </Col>
                         </Row>
                     </>
-                )
+                ),
             };
         });
     };
@@ -349,13 +349,13 @@ class RulesForward extends React.Component {
                                                     <SortableList
                                                         items={this.state.curRules.map((rule, index) => ({
                                                             ...rule,
-                                                            id: rule.ruleId || `rule-${index}`
+                                                            id: rule.ruleId || `rule-${index}`,
                                                         }))}
                                                         onSortEnd={this.onRulesSortEnd}
-                                                        renderItem={(item) => ({
+                                                        renderItem={item => ({
                                                             key: item.id,
                                                             label: item.description,
-                                                            children: null
+                                                            children: null,
                                                         })}
                                                     />
                                                 )
