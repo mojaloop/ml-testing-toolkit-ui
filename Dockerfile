@@ -24,7 +24,7 @@ RUN npm ci
 
 COPY src /opt/app/src
 COPY public /opt/app/public
-COPY eslint.config.js tsconfig.json /opt/app/
+COPY index.html vite.config.js eslint.config.js tsconfig.json /opt/app/
 
 RUN npm run build
 
