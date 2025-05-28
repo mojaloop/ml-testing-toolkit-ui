@@ -38,7 +38,7 @@ class Demos extends React.Component {
                         <ul>
                             <li>
                                 <a
-                                    href='/mobilesimulator'
+                                    href='/mobile-simulator'
                                     target='_blank'
                                 >
                   Mobile Simulator
@@ -52,7 +52,7 @@ class Demos extends React.Component {
                         <ul>
                             <li>
                                 <a
-                                    href='/payeemobile'
+                                    href='/payee-mobile-simulator'
                                     target='_blank'
                                 >
                   Payee App Simulator
@@ -66,7 +66,7 @@ class Demos extends React.Component {
                         <ul>
                             <li>
                                 <a
-                                    href='/payermobile'
+                                    href='/payer-mobile-simulator'
                                     target='_blank'
                                 >
                   Payer App Simulator
@@ -80,7 +80,7 @@ class Demos extends React.Component {
                         <ul>
                             <li>
                                 <a
-                                    href='/demotestrunner'
+                                    href='/demo-test-runner'
                                     target='_blank'
                                 >
                   Test Runner (Demo friendly)
@@ -94,7 +94,7 @@ class Demos extends React.Component {
                         <ul>
                             <li>
                                 <a
-                                    href='/demomonitoring'
+                                    href='/demo-monitoring'
                                     target='_blank'
                                 >
                   Demo Monitoring
@@ -108,7 +108,7 @@ class Demos extends React.Component {
                         <ul>
                             <li>
                                 <a
-                                    href='/pispdemo'
+                                    href='/pisp-demo'
                                     target='_blank'
                                 >
                   PISP Demo App
