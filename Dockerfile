@@ -26,7 +26,7 @@ COPY src /opt/app/src
 COPY public /opt/app/public
 COPY index.html vite.config.js eslint.config.js tsconfig.json /opt/app/
 
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 FROM nginx:1.18.0-alpine
 WORKDIR /usr/share/nginx/html
