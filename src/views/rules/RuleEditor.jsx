@@ -30,7 +30,6 @@
 import React from 'react';
 import { Select, message, Row, Col, Button, Typography, Input, Tabs, Tag, Popover, Descriptions, Radio } from 'antd';
 import '../outbound/jsoneditor-react-compat';
-// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
 import ace from 'brace';
 import 'brace/mode/json';
 import 'brace/theme/github';

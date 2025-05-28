@@ -900,7 +900,6 @@ export class TestAssertions extends React.Component {
     };
 
     handleDuplicateAssertionClick = index => {
-        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         const { id, description, ...otherProps } = this.props.request.tests.assertions[index];
         // Find highest request id to determine the new ID
         const maxId = +this.props.request.tests.assertions.reduce(function (m, k) { return k.id > m ? k.id : m; }, 0);

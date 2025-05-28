@@ -213,7 +213,7 @@ jobs:
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Execute lint tests
-          command: npm run lint
+          command: npm run lint:ci
 
   test-unit:
     executor: default-docker

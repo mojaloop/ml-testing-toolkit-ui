@@ -277,7 +277,6 @@ class OutboundRequest extends React.Component {
                 if(testCase.requests) {
                     const { requests, ...remainingProps } = testCase;
                     const newRequests = requests.map(item => {
-                        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
                         const { status, scripts, ...newRequest } = item;
                         if((this.state.userConfig && this.state.userConfig.ADVANCED_FEATURES_ENABLED) || showAdvancedFeaturesAnyway) {
                             return { ...newRequest, scripts };
