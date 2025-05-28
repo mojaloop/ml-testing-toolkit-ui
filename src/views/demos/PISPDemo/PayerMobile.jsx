@@ -514,7 +514,7 @@ class PayerMobile extends React.Component {
                             value={this.state.selectedAccount ? {
                                 value: this.state.selectedAccount,
                                 label: this.state.selectedAccountLabel || 
-                                `${linkedAccounts.find(account => account.address === this.state.selectedAccount)?.accountNickname} - ${linkedAccounts.find(account)?.currency}`,
+                                `${linkedAccounts.find(acc => acc.address === this.state.selectedAccount)?.accountNickname} - ${linkedAccounts.find(acc => acc.address === this.state.selectedAccount)?.currency}`,
                             } : undefined}
                             dropdownStyle={{ color: 'black', fontSize: '10px'  }}  // Ensure dropdown options are dark
                         >

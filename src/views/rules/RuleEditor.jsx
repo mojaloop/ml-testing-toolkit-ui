@@ -751,7 +751,7 @@ class RulesEditor extends React.Component {
                                             <Col span={24}>
                                                 <div className='pl-lg-4'>
                                                     <AceEditor
-                                                        ref='preReqScriptAceEditor'
+                                                        ref={ref => { this.refs['preReqScriptAceEditor'] = ref; }}
                                                         mode='javascript'
                                                         theme='eclipse'
                                                         width='100%'

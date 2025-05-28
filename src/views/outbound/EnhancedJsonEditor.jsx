@@ -43,7 +43,7 @@ const { Text } = Typography;
  * This component provides JSON editing capabilities similar to jsoneditor-react 
  * but built on top of react-ace for React 19 compatibility
  */
-const EnhancedJsonEditor = forwardRef((props, ref) => {
+const EnhancedJsonEditor = ({ ref, ...props }) => {
     const {
         value = {},
         onChange = () => {},
@@ -281,7 +281,7 @@ const EnhancedJsonEditor = forwardRef((props, ref) => {
             )}
         </div>
     );
-});
+};
 
 EnhancedJsonEditor.propTypes = {
     value: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.string]),

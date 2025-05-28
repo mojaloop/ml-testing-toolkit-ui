@@ -32,7 +32,7 @@ import AdminNavbar from '../components/Navbars/AdminNavbar.jsx';
 import AdminFooter from '../components/Footers/AdminFooter.jsx';
 import Sidebar from '../components/Sidebar/Sidebar.jsx';
 
-// eslint-disable-next-line import/extensions
+ 
 import routes from '../routes.jsx';
 import { getConfig, fetchServerConfig } from '../utils/getConfig';
 import { Layout, Card, Spin, Result, Row, Col } from 'antd';

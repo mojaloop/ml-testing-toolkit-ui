@@ -34,7 +34,6 @@ import reportWebVitals from './reportWebVitals';
 import { App } from 'antd';
 
 import AdminLayout from './layouts/Admin.jsx';
-import { getConfig } from './utils/getConfig';
 
 import './index.css';
 import 'antd/dist/reset.css';
@@ -47,8 +46,6 @@ import PayerMobileSimulator from './views/demos/PayerAppSimulator/PayerMobile';
 import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
 import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx';
 import PISPDemo from './views/demos/PISPDemo/MobileSimulator';
-
-import axios from 'axios';
 
 // Add this before any other React code
 if(process.env.NODE_ENV === 'development') {

@@ -90,7 +90,7 @@ class OutboundService {
 
     async getParties(idNumber) {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_getParties.json');
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
@@ -105,7 +105,7 @@ class OutboundService {
 
     async postQuotes(amount, currency) {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_postQuotes.json');
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
@@ -123,7 +123,7 @@ class OutboundService {
 
     async postTransfers(amount, transactionId, expiration, ilpPacket, condition) {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_postTransfers.json');
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
@@ -143,7 +143,7 @@ class OutboundService {
 
     async startProvisioning() {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_provisioning.json');
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
@@ -152,7 +152,7 @@ class OutboundService {
 
     async getHubConsoleInitValues() {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_getHubConsoleInitValues.json');
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
@@ -161,7 +161,7 @@ class OutboundService {
 
     async getDFSPValues() {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_getDFSPValues');
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
@@ -170,7 +170,7 @@ class OutboundService {
 
     async getSettlements() {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_getSettlements');
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
@@ -179,7 +179,7 @@ class OutboundService {
 
     async executeSettlement(settlementModel) {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_executeSettlement');
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues

@@ -62,7 +62,7 @@ class OutboundService {
 
     async getDFSPValues() {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_getDFSPValues');
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
@@ -72,7 +72,7 @@ class OutboundService {
     // New Methods
 
     async getLinkingProviders() {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_getLinkingProviders.json');
         template.inputValues = this.inputValues;
     
@@ -87,7 +87,7 @@ class OutboundService {
 
     async getLinkingAccounts() {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_getLinkingAccounts.json');
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
@@ -96,7 +96,7 @@ class OutboundService {
 
     async postThirdpartyTransactionApprove(transactionId, amount, currency) {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_postThirdpartyTransactionApprove.json');
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
@@ -109,7 +109,7 @@ class OutboundService {
 
     async postThirdpartyTransactionInitiate(amount, currency, transactionId) {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_postThirdpartyTransactionInitiate.json');
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
@@ -148,7 +148,7 @@ class OutboundService {
     
     async requestConsent(consentId, consentBody) {
         const traceId = this.getTraceId();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_requestConsent.json');
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues

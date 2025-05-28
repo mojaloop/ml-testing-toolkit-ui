@@ -492,7 +492,7 @@ class FixedCallbackBuilder extends React.Component {
                             <Row>
                                 <Col span={24}>
                                     <Editor
-                                        ref='bodyEditor'
+                                        ref={ref => { this.refs['bodyEditor'] = ref; }}
                                         value={this.props.eventParams.body ? this.props.eventParams.body : {}}
                                         ace={ace}
                                         ajv={ajv}

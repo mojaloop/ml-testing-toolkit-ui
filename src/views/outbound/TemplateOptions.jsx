@@ -75,7 +75,7 @@ class TemplateOptions extends React.Component {
             return (
                 <Input
                     value={this.props.values[itemName]}
-                    onChange={e => this.props.onChange(inputValueName, e.target.value)}
+                    onChange={e => this.props.onChange(itemName, e.target.value)}
                 />
             );
         }

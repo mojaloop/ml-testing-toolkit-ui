@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+ 
 /*****
  License
  --------------
@@ -632,7 +632,7 @@ class OutboundRequest extends React.Component {
         if(fileSelected) {
             const fileTemplate = fileSelected.content;
 
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+             
             const { id, name, ...otherProps } = fileTemplate.test_cases[testCaseIndex];
             // Deep copy other properties
             const clonedProps = JSON.parse(JSON.stringify(otherProps));

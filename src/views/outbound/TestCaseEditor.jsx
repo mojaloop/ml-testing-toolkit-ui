@@ -793,7 +793,7 @@ class TestCaseEditor extends React.Component {
                                                                 label: 'Pre-request',
                                                                 children: (
                                                                     <AceEditor
-                                                                        ref='preReqScriptAceEditor'
+                                                                        ref={ref => { this.refs['preReqScriptAceEditor'] = ref; }}
                                                                         mode='javascript'
                                                                         theme='eclipse'
                                                                         width='100%'
@@ -823,7 +823,7 @@ class TestCaseEditor extends React.Component {
                                                                 label: 'Post-request',
                                                                 children: (
                                                                     <AceEditor
-                                                                        ref='postReqScriptAceEditor'
+                                                                        ref={ref => { this.refs['postReqScriptAceEditor'] = ref; }}
                                                                         mode='javascript'
                                                                         theme='eclipse'
                                                                         width='100%'
@@ -1151,7 +1151,7 @@ class TestCaseEditor extends React.Component {
 
     handleRequestDuplicate = requestId => {
         // Find the request to duplicate
-        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+         
         const { id, description, ...otherProps } = this.props.testCase.requests.find(item => item.id == requestId);
         const clonedProps = JSON.parse(JSON.stringify(otherProps));
 

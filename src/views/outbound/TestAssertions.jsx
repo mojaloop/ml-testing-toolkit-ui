@@ -778,7 +778,7 @@ class AssertionEditor extends React.Component {
                 </Button>
 
                 <AceEditor
-                    ref='assertionAceEditor'
+                    ref={ref => { this.refs['assertionAceEditor'] = ref; }}
                     mode='javascript'
                     theme='eclipse'
                     width='100%'
@@ -1075,7 +1075,7 @@ export class TestAssertions extends React.Component {
                                             <Row>
                                                 <Col span={24} className='text-left mt-4'>
                                                     <Editor
-                                                        ref='bodyEditor'
+                                                        ref={ref => { this.refs['bodyEditor'] = ref; }}
                                                         value={this.props.request.tests ? this.props.request.tests.assertions : []}
                                                         ace={ace}
                                                         ajv={ajv}

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+ 
 /*****
  License
  --------------
@@ -146,7 +146,7 @@ class OutboundRequest extends React.Component {
     };
 
     handleEnvironmentChange = newInputValues => {
-        this.state.template.options = { ...newEnvironment.options };
+        this.state.template.options = { ...newInputValues.options };
         this.setState({ inputValues: newInputValues.inputValues });
     };
 

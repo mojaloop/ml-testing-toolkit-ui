@@ -128,7 +128,7 @@ class FileManager extends React.Component {
         let newTitle = newBaseTitle;
         for(let i = 0; i < parentNode.length; i++) {
             newTitle = newBaseTitle + i;
-            // eslint-disable-next-line @typescript-eslint/no-loop-func
+             
             if(!parentNode.find(item => item.title === newTitle)) {
                 break;
             }

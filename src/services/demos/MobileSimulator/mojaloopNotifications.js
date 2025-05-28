@@ -114,7 +114,7 @@ class NotificationService {
     };
 
     notifySettingsTestCaseProgress = progress => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const template = require('./template_provisioning.json');
         if(progress.status === 'FINISHED') {
             this.notificationEventFunction({
