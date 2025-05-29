@@ -30,6 +30,8 @@
     "test": "vitest",
     "test:unit": "vitest run test/unit",
     "test:int": "vitest run test/integration",
+    "test:integration": "vitest run test/integration",
+    "test:functional": "vitest run test/functional",
     "test:coverage": "vitest run --coverage",
     "test:coverage-check": "vitest run --coverage",
     "test:xunit": "vitest run --reporter=junit --outputFile=./test/results/unit.xml",
