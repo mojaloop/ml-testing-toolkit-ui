@@ -77,7 +77,7 @@ class RulesCallback extends React.Component {
         const response = await axios.get(apiBaseUrl + '/api/rules/files/callback');
         const activeRulesFile = response.data.activeRulesFile;
         await this.setState({ callbackRulesFiles: response.data.files, activeRulesFile });
-        message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
+        message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 2 });
         if(selectedRuleFile) {
             await this.setState({ selectedRuleFile, ruleItemActive: null });
         } else {

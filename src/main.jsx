@@ -26,6 +26,9 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
+// Import React 19 compatibility patch for Ant Design v5
+import '@ant-design/v5-patch-for-react-19';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';

@@ -67,7 +67,7 @@ class RulesForward extends React.Component {
         const response = await axios.get(apiBaseUrl + '/api/rules/files/forward');
         const activeRulesFile = response.data.activeRulesFile;
         this.setState({ rulesFiles: response.data.files, activeRulesFile });
-        message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
+        message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 2 });
 
         // Select the active rules file by default
         this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null });

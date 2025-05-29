@@ -847,7 +847,7 @@ class Settings extends React.Component {
         message.loading({ content: 'Getting user config ...', key: 'getUserConfigProgress' });
         const { userConfigRuntime, userConfigStored } = await getServerConfig();
         await this.setState({ userConfigRuntime, userConfigStored });
-        message.success({ content: 'Loaded', key: 'getUserConfigProgress', duration: -1 });
+        message.success({ content: 'Loaded', key: 'getUserConfigProgress', duration: 2 });
     };
 
     handleSaveUserConfig = async newConfig => {

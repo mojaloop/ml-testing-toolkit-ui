@@ -77,7 +77,7 @@ class RulesValidation extends React.Component {
         const response = await axios.get(apiBaseUrl + '/api/rules/files/validation');
         const activeRulesFile = response.data.activeRulesFile;
         await this.setState({ validationRulesFiles: response.data.files, activeRulesFile });
-        message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
+        message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 2 });
         if(selectedRuleFile) {
             await this.setState({ selectedRuleFile, ruleItemActive: null });
         } else {
