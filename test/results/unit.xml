@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="4" failures="0" errors="0" time="0.01734496">
+    <testsuite name="test/integration/dummy.test.js" timestamp="2025-05-29T18:27:58.634Z" hostname="bluebird.local" tests="1" failures="0" errors="0" skipped="0" time="0.001285334">
+        <testcase classname="test/integration/dummy.test.js" name="Dummy integration test &gt; should pass" time="0.000615917">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/unit/dummy.test.js" timestamp="2025-05-29T18:27:58.635Z" hostname="bluebird.local" tests="1" failures="0" errors="0" skipped="0" time="0.001415792">
+        <testcase classname="test/unit/dummy.test.js" name="Dummy test &gt; should pass" time="0.000651834">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/test/example.test.tsx" timestamp="2025-05-29T18:27:58.636Z" hostname="bluebird.local" tests="2" failures="0" errors="0" skipped="0" time="0.014643834">
+        <testcase classname="src/test/example.test.tsx" name="Example Test Suite &gt; should pass a basic test" time="0.000535666">
+        </testcase>
+        <testcase classname="src/test/example.test.tsx" name="Example Test Suite &gt; should render a component" time="0.0134835">
+        </testcase>
+    </testsuite>
+</testsuites>
