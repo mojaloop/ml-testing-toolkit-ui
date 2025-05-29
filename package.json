@@ -31,6 +31,7 @@
     "test:unit": "npx vitest run test/unit",
     "test:int": "npx vitest run test/integration",
     "test:integration": "npx vitest run test/integration",
+    "pretest:functional": "npm install vite @vitejs/plugin-react vite-plugin-node-polyfills --no-save",
     "test:functional": "npx vitest run test/functional",
     "test:coverage": "npx vitest run --coverage",
     "test:coverage-check": "npx vitest run --coverage",

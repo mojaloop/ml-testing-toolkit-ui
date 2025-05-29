@@ -28,7 +28,7 @@ COPY index.html vite.config.js eslint.config.js tsconfig.json /opt/app/
 
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
-FROM nginx:1.28-alpine
+FROM nginx:latest
 WORKDIR /usr/share/nginx/html
 
 # Replace the nginx config files
@@ -36,7 +36,7 @@ RUN rm -f /etc/nginx/conf.d/default.conf /etc/nginx/nginx.conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Create a non-root user: ml-user
-RUN adduser -D ml-user
+RUN adduser --disabled-password --gecos "" ml-user
 
 # Change permissions for nginx folders
 RUN chown -R ml-user:ml-user /var/log/nginx
