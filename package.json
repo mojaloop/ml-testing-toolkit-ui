@@ -12,7 +12,8 @@
   "author": "Vijaya Kumar Guthi",
   "contributors": [
     "Vijaya Kumar <vijaya.guthi@modusbox.com>",
-    "Georgi Logodazhki <georgi.logodazhki@modusbox.com>"
+    "Georgi Logodazhki <georgi.logodazhki@modusbox.com>",
+    "Juan Correa <code@juancorrea.io>"
   ],
   "engines": {
     "node": "22.15.1"
