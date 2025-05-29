@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [16.5.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.4.0...v16.5.0) (2025-05-29)
+
+
+### Features
+
+* mojaloop testing toolkit ui upgrade ([#230](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/230)) ([87185fe](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/87185fe725e38e724e8fae95cffcc102b1005731))
+
 ## [16.4.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.3.0...v16.4.0) (2025-05-01)
 
 
