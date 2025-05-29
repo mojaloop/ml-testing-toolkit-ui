@@ -97,3 +97,16 @@ Once those changes are pushed, CircleCI will pull the updated main, tag and
 push a release triggering another subsequent build that also publishes a docker image.
 
 ## [PISP Demonstration Setup Guide (click here)](./src/views/demos/PISPDemo/PISP-Instructions.md)
+
+## CI/CD Configuration
+
+This project uses the `mojaloop/build@1.0.66` CircleCI orb for its CI/CD pipeline configuration. The orb standardizes the build, test, and deployment processes across Mojaloop projects.
+
+Key features of the CI/CD configuration:
+- PR title validation
+- Automated testing (unit, integration)
+- Vulnerability scanning using Grype
+- Automated Docker image building and publishing
+- Automated versioning and releases
+
+For more details on the orb, see the [mojaloop/build GitHub repository](https://github.com/mojaloop/ci-config-orb-build).
