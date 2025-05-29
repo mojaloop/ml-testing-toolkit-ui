@@ -36,7 +36,7 @@ RUN rm -f /etc/nginx/conf.d/default.conf /etc/nginx/nginx.conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Create a non-root user: ml-user
-RUN adduser --disabled-password --gecos "" ml-user
+RUN adduser -D ml-user
 
 # Change permissions for nginx folders
 RUN chown -R ml-user:ml-user /var/log/nginx
