@@ -67,7 +67,7 @@ const Login = props => {
             <PlainNavbar />
             <Content>
                 <Row style={{ marginTop: '250px' }}>
-                    <Col colspan={24} className='mx-auto'>
+                    <Col span={24} className='mx-auto'>
                         <Card className='shadow ml-4 mr-4 mt-n5 align-middle p-4' style={{ width: '500px' }}>
                             <Form
                                 name='basic'

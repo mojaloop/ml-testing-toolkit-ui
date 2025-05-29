@@ -262,7 +262,7 @@ class PayeeMobile extends React.Component {
                                 </Col>
                             </Row>
                             <Row style={{ marginTop: '100px' }}>
-                                <Col colspan={24} className='mx-auto'>
+                                <Col span={24} className='mx-auto'>
                                     <Card className='shadow ml-1 mr-1 mt-n5 align-middle p-2' style={{ width: '100%' }}>
                                         <Form
                                             name='basic'

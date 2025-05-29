@@ -122,7 +122,7 @@ class TokenFetcher extends React.Component {
             <Layout style={{ backgroundColor: '#ffffff' }}>
                 <Content>
                     <Row>
-                        <Col colspan={24} className='mx-auto'>
+                        <Col span={24} className='mx-auto'>
                             <Card className='align-middle' style={{ width: '600px' }}>
                                 {displayAuthInfo(this.state.authConfig)}
                                 <Button className='mt-2' type='primary' onClick={this.handleGenerateToken}>
