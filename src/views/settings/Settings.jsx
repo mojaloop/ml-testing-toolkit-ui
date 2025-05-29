@@ -33,7 +33,6 @@ import _ from 'lodash';
 import { Input, Checkbox, Divider, Tooltip, message, Row, Col, Typography, Button, Modal, Table, Select, Tabs, Card } from 'antd';
 import { QuestionCircleTwoTone } from '@ant-design/icons';
 
-import 'antd/dist/antd.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import axios from 'axios';
@@ -848,7 +847,7 @@ class Settings extends React.Component {
         message.loading({ content: 'Getting user config ...', key: 'getUserConfigProgress' });
         const { userConfigRuntime, userConfigStored } = await getServerConfig();
         await this.setState({ userConfigRuntime, userConfigStored });
-        message.success({ content: 'Loaded', key: 'getUserConfigProgress', duration: -1 });
+        message.success({ content: 'Loaded', key: 'getUserConfigProgress', duration: 2 });
     };
 
     handleSaveUserConfig = async newConfig => {

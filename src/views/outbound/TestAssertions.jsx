@@ -35,12 +35,11 @@ import axios from 'axios';
 // import { Dropdown, DropdownButton } from 'react-bootstrap';
 import { Select, Input, Tooltip, Tag, Popover, message, Row, Col, Collapse, Modal, Switch, Button, Typography } from 'antd';
 
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import SortableList from '../../components/SortableList';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 
-import 'antd/dist/antd.css';
 // import './index.css';
-import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
+import { FactDataGenerator, FactSelect } from '../rules/BuilderTools';
 import AceEditor from 'react-ace';
 import { EditOutlined, SaveOutlined } from '@ant-design/icons';
 import 'ace-builds/src-noconflict/mode-javascript';
@@ -48,8 +47,7 @@ import 'ace-builds/src-noconflict/theme-eclipse';
 import { getConfig } from '../../utils/getConfig';
 import { TTKColors } from '../../utils/styleHelpers';
 
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
+import { JsonEditor as Editor } from '../outbound/JsonEditorWrapper';
 import ace from 'brace';
 import 'brace/mode/json';
 import 'brace/theme/github';
@@ -753,8 +751,8 @@ class AssertionEditor extends React.Component {
                     content={renameAssertionDialogContent}
                     title='Enter new description'
                     trigger='click'
-                    visible={this.state.renameAssertionDialogVisible}
-                    onVisibleChange={visible => this.setState({ renameAssertionDialogVisible: visible })}
+                    open={this.state.renameAssertionDialogVisible}
+                    onOpenChange={visible => this.setState({ renameAssertionDialogVisible: visible })}
                 >
                     <Button
                         className='float-left'
@@ -780,7 +778,7 @@ class AssertionEditor extends React.Component {
                 </Button>
 
                 <AceEditor
-                    ref='assertionAceEditor'
+                    ref={ref => { this.refs['assertionAceEditor'] = ref; }}
                     mode='javascript'
                     theme='eclipse'
                     width='100%'
@@ -863,8 +861,11 @@ export class TestAssertions extends React.Component {
                 );
             }
 
-            return (
-                <Panel header={assertion.description} key={assertion.id} extra={status}>
+            return {
+                key: assertion.id,
+                label: assertion.description,
+                extra: status,
+                children: (
                     <Row>
                         <Col span={24}>
                             <AssertionEditor
@@ -876,8 +877,8 @@ export class TestAssertions extends React.Component {
                             />
                         </Col>
                     </Row>
-                </Panel>
-            );
+                ),
+            };
         });
     };
 
@@ -899,7 +900,6 @@ export class TestAssertions extends React.Component {
     };
 
     handleDuplicateAssertionClick = index => {
-        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         const { id, description, ...otherProps } = this.props.request.tests.assertions[index];
         // Find highest request id to determine the new ID
         const maxId = +this.props.request.tests.assertions.reduce(function (m, k) { return k.id > m ? k.id : m; }, 0);
@@ -924,30 +924,24 @@ export class TestAssertions extends React.Component {
         this.props.onChange(this.props.request);
     };
 
-    onAssertionSortEnd = ({ oldIndex, newIndex }) => {
-        // Change the position in array
-        this.props.request.tests.assertions = arrayMove(this.props.request.tests.assertions, oldIndex, newIndex);
-        this.props.onChange(this.props.request);
+    onSortEnd = ({ oldIndex, newIndex }) => {
+        const newItems = arrayMove(this.props.request.tests.assertions, oldIndex, newIndex);
+        this.props.onChange({
+            ...this.props.request,
+            tests: {
+                ...this.props.request.tests,
+                assertions: newItems,
+            },
+        });
     };
 
+    renderItem = item => (
+        <div className="assertion-item">
+            {item.name}
+        </div>
+    );
+
     render() {
-        const SortableAssertionItem = SortableElement(({ value }) => {
-            const assertion = value;
-            return (
-                <Panel header={assertion.description} />
-            );
-        });
-
-        const SortableAssertionList = SortableContainer(({ items }) => {
-            return (
-                <Collapse>
-                    {items.map((value, index) => (
-                        <SortableAssertionItem key={`item-${value.id}`} index={index} value={value} />
-                    ))}
-                </Collapse>
-            );
-        });
-
         const addNewTestDialogContent = (
             <>
                 <Input
@@ -1023,7 +1017,14 @@ export class TestAssertions extends React.Component {
                                     <div>
                                         <Row>
                                             <Col className='text-left mt-4'>
-                                                <SortableAssertionList items={this.props.request.tests.assertions} onSortEnd={this.onAssertionSortEnd} />
+                                                <SortableList
+                                                    items={this.props.request.tests.assertions.map((assertion, index) => ({
+                                                        ...assertion,
+                                                        id: assertion.id || `assertion-${index}`,
+                                                    }))}
+                                                    onSortEnd={this.onSortEnd}
+                                                    renderItem={this.renderItem}
+                                                />
                                             </Col>
                                         </Row>
                                     </div>
@@ -1037,8 +1038,8 @@ export class TestAssertions extends React.Component {
                                                         content={addNewTestDialogContent}
                                                         title='Enter a description for the assertion'
                                                         trigger='click'
-                                                        visible={this.state.addNewAssertionDialogVisible}
-                                                        onVisibleChange={visible => this.setState({ addNewAssertionDialogVisible: visible })}
+                                                        open={this.state.addNewAssertionDialogVisible}
+                                                        onOpenChange={visible => this.setState({ addNewAssertionDialogVisible: visible })}
                                                     >
                                                         <Button
                                                             className='text-right float-right'
@@ -1057,9 +1058,8 @@ export class TestAssertions extends React.Component {
                                                                 <>
                                                                     <Collapse
                                                                         onChange={this.handleRuleItemActivePanelChange}
-                                                                    >
-                                                                        {this.getAssertionItems()}
-                                                                    </Collapse>
+                                                                        items={this.getAssertionItems()}
+                                                                    />
                                                                 </>
                                                             )
                                                             : null
@@ -1074,7 +1074,7 @@ export class TestAssertions extends React.Component {
                                             <Row>
                                                 <Col span={24} className='text-left mt-4'>
                                                     <Editor
-                                                        ref='bodyEditor'
+                                                        ref={ref => { this.refs['bodyEditor'] = ref; }}
                                                         value={this.props.request.tests ? this.props.request.tests.assertions : []}
                                                         ace={ace}
                                                         ajv={ajv}

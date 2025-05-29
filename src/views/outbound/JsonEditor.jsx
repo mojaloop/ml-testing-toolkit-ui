@@ -88,7 +88,7 @@ class JsonEditor extends React.Component {
                 <Row>
                     <Col span={24}>
                         <AceEditor
-                            ref='preReqScriptAceEditor'
+                            ref={ref => { this.refs['preReqScriptAceEditor'] = ref; }}
                             mode='json'
                             theme='monokai'
                             width='100%'

@@ -26,8 +26,8 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-const optionsRegex = /(--[a-zA-Z\-]+ '.*?')|(--[a-zA-Z\-]+)|(-[a-zA-Z\-]+? '.+?')|('?[a-z]+:\/\/.*?'+?)|("?[a-z]+:\/\/.*?"+?)/g; // eslint-disable-line
-const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/; // eslint-disable-line
+const optionsRegex = /(--[a-zA-Z\-]+ '.*?')|(--[a-zA-Z\-]+)|(-[a-zA-Z\-]+? '.+?')|('?[a-z]+:\/\/.*?'+?)|("?[a-z]+:\/\/.*?"+?)/g; // eslint-disable-line no-useless-escape
+const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/; // eslint-disable-line no-useless-escape
 
 // const contentTypeHeader = 'content-type';
 // const jsonMimeType = 'application/json';
@@ -73,7 +73,7 @@ const parseBodyByContentType = parsedCommand => {
             return JSON.parse(cleanedBodyData);
         } catch (ex) {
             // ignore json conversion error..
-      console.log('Cannot parse JSON Data ' + ex.message); // eslint-disable-line
+      console.log('Cannot parse JSON Data ' + ex.message);
         }
     }
     return body;
@@ -96,8 +96,8 @@ const parseQueryStrings = url => {
         const params = paramsString.split('&') || [];
 
         params.forEach(param => {
-          const splitParam = param.split('='); // eslint-disable-line
-          queryStrings[splitParam[0]] = splitParam[1]; // eslint-disable-line
+          const splitParam = param.split('=');
+          queryStrings[splitParam[0]] = splitParam[1];
         });
     }
     return queryStrings;
@@ -106,7 +106,7 @@ const parseQueryStrings = url => {
 const parseUrlOption = val => {
     const urlMatches = val.match(urlRegex) || [];
     if(urlMatches.length) {
-    const url = urlMatches[0]; // eslint-disable-line
+    const url = urlMatches[0];
         return {
             url,
             queryStrings: parseQueryStrings(url),
@@ -158,7 +158,7 @@ export function parse(command) {
             } else if(isDataOption(option)) {
                 parsedCommand.body = parseBody(option);
             } else {
-        console.log(`Skipped Header ${val}`); // eslint-disable-line
+        console.log(`Skipped Header ${val}`);
             }
         }); // parse over matches ends
 

@@ -29,7 +29,6 @@
 
 import React from 'react';
 import { Input, Row, Col, Card, Checkbox, Radio, Typography } from 'antd';
-import 'antd/dist/antd.css';
 
 const { Text } = Typography;
 
@@ -76,7 +75,7 @@ class TemplateOptions extends React.Component {
             return (
                 <Input
                     value={this.props.values[itemName]}
-                    onChange={e => this.props.onChange(inputValueName, e.target.value)}
+                    onChange={e => this.props.onChange(itemName, e.target.value)}
                 />
             );
         }

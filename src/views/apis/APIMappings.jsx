@@ -29,7 +29,6 @@
 import React from 'react';
 
 import { Collapse, Modal, message, Card, Row, Col, Button } from 'antd';
-import 'antd/dist/antd.css';
 
 import axios from 'axios';
 import MappingEditor from './MappingEditor';

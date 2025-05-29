@@ -28,7 +28,6 @@
 import React from 'react';
 import { Row, Col, Button, Modal, Tabs } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 import mobile_left from '../../../assets/img/mobile_pisp_1_iphone.png';
 import mobile_right from '../../../assets/img/mobile_pisp_2_iphone.png';
  

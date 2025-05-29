@@ -29,12 +29,10 @@
 import React from 'react';
 import _ from 'lodash';
 import { Select, Row, Col, Button, Input, Tag, Menu, Dropdown, Card, Popover, message, Typography } from 'antd';
-import 'antd/dist/antd.css';
 import { FactDataGenerator } from './BuilderTools.jsx';
 import { ConfigurableParameter, HeaderInputComponent, MockBuilder } from '../common/EventBuildHelper';
 
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
+import { JsonEditor as Editor } from '../../views/outbound/JsonEditorWrapper';
 import ace from 'brace';
 import 'brace/mode/json';
 import 'brace/theme/github';
@@ -342,7 +340,7 @@ export class FixedCallbackBuilder extends React.Component {
                             <Row>
                                 <Col span={24}>
                                     <Editor
-                                        ref='bodyEditor'
+                                        ref={ref => { this.refs['bodyEditor'] = ref; }}
                                         value={this.props.eventParams.body ? this.props.eventParams.body : {}}
                                         ace={ace}
                                         ajv={ajv}

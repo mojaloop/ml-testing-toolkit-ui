@@ -28,11 +28,10 @@
  ******/
 import React from 'react';
 import { Select, Row, Col, Button, Input, Tooltip, Popover, Checkbox } from 'antd';
-import 'antd/dist/antd.css';
 import { FactDataGenerator, FactSelect } from '../rules/BuilderTools.jsx';
 import { FixedCallbackBuilder } from '../rules/EventBuilder';
 
-import 'jsoneditor-react/es/editor.min.css';
+import '../outbound/jsoneditor-react-compat';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';

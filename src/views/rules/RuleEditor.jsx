@@ -29,8 +29,7 @@
  ******/
 import React from 'react';
 import { Select, message, Row, Col, Button, Typography, Input, Tabs, Tag, Popover, Descriptions, Radio } from 'antd';
-import 'jsoneditor-react/es/editor.min.css';
-// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+import '../outbound/jsoneditor-react-compat';
 import ace from 'brace';
 import 'brace/mode/json';
 import 'brace/theme/github';
@@ -751,7 +750,7 @@ class RulesEditor extends React.Component {
                                             <Col span={24}>
                                                 <div className='pl-lg-4'>
                                                     <AceEditor
-                                                        ref='preReqScriptAceEditor'
+                                                        ref={ref => { this.refs['preReqScriptAceEditor'] = ref; }}
                                                         mode='javascript'
                                                         theme='eclipse'
                                                         width='100%'

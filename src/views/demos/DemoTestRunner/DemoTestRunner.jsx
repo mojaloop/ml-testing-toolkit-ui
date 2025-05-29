@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+ 
 /*****
  License
  --------------
@@ -32,7 +32,6 @@ import socketIOClient from 'socket.io-client';
 import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig';
 import { Row, Col, Modal, Badge, message, Progress, Button, Card, Drawer, Layout } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 import axios from 'axios';
 import TestCaseViewer from '../../outbound/TestCaseViewer';
 import FileManager from '../../outbound/FileManager.jsx';
@@ -147,7 +146,7 @@ class OutboundRequest extends React.Component {
     };
 
     handleEnvironmentChange = newInputValues => {
-        this.state.template.options = { ...newEnvironment.options };
+        this.state.template.options = { ...newInputValues.options };
         this.setState({ inputValues: newInputValues.inputValues });
     };
 
@@ -278,7 +277,6 @@ class OutboundRequest extends React.Component {
                 if(testCase.requests) {
                     const { requests, ...remainingProps } = testCase;
                     const newRequests = requests.map(item => {
-                        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
                         const { status, scripts, ...newRequest } = item;
                         if((this.state.userConfig && this.state.userConfig.ADVANCED_FEATURES_ENABLED) || showAdvancedFeaturesAnyway) {
                             return { ...newRequest, scripts };

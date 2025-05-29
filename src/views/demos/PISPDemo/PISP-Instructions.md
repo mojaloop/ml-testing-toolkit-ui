@@ -32,7 +32,7 @@ This guide will walk you through the steps to set up and run the PISP (Payment I
 
 5. Start the development server:
    ```
-   PORT=6061 HOST=localhost ./node_modules/.bin/react-scripts start
+   PORT=6061 npm start
    ```
 
    The UI should now be running at `http://localhost:6061`.

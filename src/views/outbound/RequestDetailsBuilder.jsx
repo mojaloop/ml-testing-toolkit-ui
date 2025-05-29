@@ -29,9 +29,8 @@ import React from 'react';
 
 import { Input, Row, Col, Typography } from 'antd';
 import { EditOutlined, SaveOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 
-import 'jsoneditor-react/es/editor.min.css';
+import '../outbound/jsoneditor-react-compat';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';

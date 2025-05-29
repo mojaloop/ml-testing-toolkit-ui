@@ -21,111 +21,14 @@
 
  * Mojaloop Foundation
  - Name Surname <name.surname@mojaloop.io>
+ - Juan Correa <code@juancorrea.io>
 
  * ModusBox
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
-import reportWebVitals from './reportWebVitals';
+// This file ensures proper module loading with Vite
+console.log('Loading main application module');
 
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-
-import AdminLayout from './layouts/Admin.jsx';
-import { getConfig } from './utils/getConfig';
-
-import './index.css';
-import 'antd/dist/antd.css';
-
-import Login from './views/login/Login.jsx';
-import MobileSimulator from './views/demos/MobileSimulator/MobileSimulator.jsx';
-import PayeeAppSimulator from './views/demos/PayeeAppSimulator/PayeeApp';
-import PayeeMobileSimulator from './views/demos/PayeeAppSimulator/PayeeMobile';
-import PayerMobileSimulator from './views/demos/PayerAppSimulator/PayerMobile';
-import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
-import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx';
-import PISPDemo from './views/demos/PISPDemo/MobileSimulator';
-
-import axios from 'axios';
-
-function App() {
-    const { isAuthEnabled } = getConfig();
-
-    const isLoggedIn = () => {
-        if(!isAuthEnabled) {
-            return true;
-        }
-        if(!axios.defaults.withCredentials) {
-            axios.defaults.withCredentials = true;
-        }
-        const expAt = localStorage.getItem('JWT_COOKIE_EXP_AT');
-        if(expAt) {
-            const currentTime = Date.now() / 1000;
-            if(currentTime + 60 < +expAt) {
-                // eslint-disable-next-line @typescript-eslint/no-use-before-define
-                setTimeout(() => handleLogout(), (expAt - 60 - currentTime) * 1000);
-                return true;
-            } else {
-                localStorage.clear();
-            }
-        }
-        return false;
-    };
-
-    const [user, setUser] = useState(isLoggedIn());
-
-    const handleLogin = token => {
-        localStorage.setItem('JWT_COOKIE_EXP_AT', token.iat + token.maxAge);
-        localStorage.setItem('JWT_COOKIE_DFSP_ID', token.dfspId);
-        setUser(true);
-    };
-
-    const handleLogout = () => {
-        localStorage.clear();
-        setUser(false);
-    };
-
-    return (
-        <Router>
-            {
-                isAuthEnabled
-                    ? user
-                        ? <Switch>
-                            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
-                            <Route path='/admin' render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
-                            <Redirect from='/' to='/admin/index' />
-                        </Switch>
-                        : <Switch>
-                            <Route exact path='/login' render={props => <Login {...props} handleLogin={handleLogin} user={user} />} />
-                            <Redirect to='/login' />
-                        </Switch>
-                    : <Switch>
-                        <Route path='/admin' render={props => <AdminLayout {...props} handleLogout={handleLogout} />} />
-                        <Route exact path='/mobilesimulator' render={props => <MobileSimulator {...props} />} />
-                        <Route exact path='/payeeapp' render={props => <PayeeAppSimulator {...props} />} />
-                        <Route exact path='/payeemobile' render={props => <PayeeMobileSimulator {...props} />} />
-                        <Route exact path='/payermobile' render={props => <PayerMobileSimulator {...props} />} />
-                        <Route exact path='/demotestrunner' render={props => <DemoTestRunner {...props} />} />
-                        <Route exact path='/demomonitoring' render={props => <DemoMonitoring {...props} />} />
-                        <Route exact path='/pispdemo' render={props => <PISPDemo {...props} />} />
-                        <Redirect from='/' to='/admin/index' />
-                    </Switch>
-            }
-        </Router>
-    );
-}
-
-// Will be deprecated in react 18, not sure why it's throwing linting
-// error on react 17.
-// eslint-disable-next-line react/no-deprecated
-ReactDOM.render(
-    <App />,
-    document.getElementById('root'),
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// Import the main application file
+import './main.jsx'; 

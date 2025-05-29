@@ -22,27 +22,26 @@
  * Mojaloop Foundation
  - Name Surname <name.surname@mojaloop.io>
 
- * Georgi Logodazhki <georgi.logodazhki@modusbox.com>
- * Vijaya Kumar Guthi <vijaya.guthi@infitx.com> (Original Author)
+ * ModusBox
+ * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
 import React from 'react';
 import _ from 'lodash';
 
 import { Select, Input, Tag, Card, Popover, Row, Col, Button, Typography } from 'antd';
-import 'antd/dist/antd.css';
 import RequestOptionsBuilder from './RequestOptionsBuilder.jsx';
 import RequestHeaderBodyBuilder from './RequestHeaderBodyBuilder.jsx';
 import RequestQueryParamsBuilder from './RequestQueryParamsBuilder.jsx';
 
 // import './index.css';
-import 'jsoneditor-react/es/editor.min.css';
+import '../outbound/jsoneditor-react-compat';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import 'brace/theme/tomorrow_night_blue';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const parseCurl = require('../../utils/curlParser').default;
+// Import curlParser using ESM import
+import parseCurl from '../../utils/curlParser';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -262,8 +261,8 @@ class CurlImporter extends React.Component {
                 content={importCurlCommandDialogContent}
                 title='Paste the CURL command here'
                 trigger='click'
-                visible={this.state.importCurlCommandDialogVisible}
-                onVisibleChange={visible => this.setState({ importCurlCommandDialogVisible: true })}
+                open={this.state.importCurlCommandDialogVisible}
+                onOpenChange={visible => this.setState({ importCurlCommandDialogVisible: true })}
             >
                 <Button
                     className='mt-2 mb-2 mr-2'

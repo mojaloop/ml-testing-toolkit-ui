@@ -30,13 +30,12 @@ import React from 'react';
 
 import { Input, Menu, Collapse, Modal, message, Card, Row, Col, Button, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 
 import axios from 'axios';
 import RulesEditor from './RuleEditor';
 import RuleViewer from './RuleViewer';
 import { getConfig } from '../../utils/getConfig';
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import SortableList from '../../components/SortableList';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import fileDownload from 'js-file-download';
 import { buildFileSelector, readFileAsync } from '../../utils/fileSelector';
@@ -78,7 +77,7 @@ class RulesCallback extends React.Component {
         const response = await axios.get(apiBaseUrl + '/api/rules/files/callback');
         const activeRulesFile = response.data.activeRulesFile;
         await this.setState({ callbackRulesFiles: response.data.files, activeRulesFile });
-        message.success({ content: 'Loaded', key: 'getFilesProgress', duration: -1 });
+        message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 2 });
         if(selectedRuleFile) {
             await this.setState({ selectedRuleFile, ruleItemActive: null });
         } else {
@@ -100,9 +99,10 @@ class RulesCallback extends React.Component {
     getRulesFilesItems = () => {
         return this.state.callbackRulesFiles.map(ruleFile => {
             const isActive = (ruleFile === this.state.activeRulesFile);
-            return (
-                <Menu.Item key={ruleFile}>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</Menu.Item>
-            );
+            return {
+                key: ruleFile,
+                label: <>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</>,
+            };
         });
     };
 
@@ -146,32 +146,36 @@ class RulesCallback extends React.Component {
 
     getRulesFileContentItems = () => {
         return this.state.curRules.map((rule, key) => {
-            return (
-                <Panel header={rule.description} key={key}>
-                    <Row>
-                        <Col span={24} style={{ textAlign: 'right' }}>
-                            <Button
-                                onClick={this.handleRuleClick(rule)}
-                            >
+            return {
+                key: key,
+                label: rule.description,
+                children: (
+                    <>
+                        <Row>
+                            <Col span={24} style={{ textAlign: 'right' }}>
+                                <Button
+                                    onClick={this.handleRuleClick(rule)}
+                                >
                 Edit
-                            </Button>
-                            <Button
-                                className='ml-2'
-                                type='primary'
-                                danger
-                                onClick={this.handleRuleDelete(rule.ruleId)}
-                            >
+                                </Button>
+                                <Button
+                                    className='ml-2'
+                                    type='primary'
+                                    danger
+                                    onClick={this.handleRuleDelete(rule.ruleId)}
+                                >
                 Delete
-                            </Button>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <RuleViewer rule={rule} />
-                        </Col>
-                    </Row>
-                </Panel>
-            );
+                                </Button>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={24}>
+                                <RuleViewer rule={rule} />
+                            </Col>
+                        </Row>
+                    </>
+                ),
+            };
         });
     };
 
@@ -239,9 +243,9 @@ class RulesCallback extends React.Component {
     };
 
     onRulesSortEnd = ({ oldIndex, newIndex }) => {
-        // Change the position in array
+        const newItems = arrayMove(this.state.curRules, oldIndex, newIndex);
         this.setState({ curRulesUpdated: true });
-        this.setState({ curRules: arrayMove(this.state.curRules, oldIndex, newIndex) });
+        this.setState({ curRules: newItems });
     };
 
     handleRuleDelete = ruleId => {
@@ -311,27 +315,15 @@ class RulesCallback extends React.Component {
             this.handleNewRulesFileClick(newFileName);
         };
 
-        const SortableRuleItem = SortableElement(({ value }) => <Panel header={value.description} />);
-
-        const SortableRuleList = SortableContainer(({ items }) => {
-            return (
-                <Collapse>
-                    {items.map((value, index) => (
-                        <SortableRuleItem key={`item-${value.ruleId}`} index={index} value={value} />
-                    ))}
-                </Collapse>
-            );
-        });
-
         return (
             <>
                 <Modal
                     centered
-                    destroyOnClose
+                    destroyOnHidden
                     forceRender={false}
                     title='Rule Builder'
                     className='w-50 p-3'
-                    visible={!!this.state.editRule}
+                    open={!!this.state.editRule}
                     footer={null}
                     onCancel={this.handleRuleCancelClick}
                     maskClosable={false}
@@ -398,12 +390,24 @@ class RulesCallback extends React.Component {
                                         {
                                             this.state.reOrderingEnabled
                                                 ? (
-                                                    <SortableRuleList items={this.state.curRules} onSortEnd={this.onRulesSortEnd} />
+                                                    <SortableList
+                                                        items={this.state.curRules.map((rule, index) => ({
+                                                            ...rule,
+                                                            id: rule.ruleId || `rule-${index}`,
+                                                        }))}
+                                                        onSortEnd={this.onRulesSortEnd}
+                                                        renderItem={item => ({
+                                                            key: item.id,
+                                                            label: item.description,
+                                                            children: null,
+                                                        })}
+                                                    />
                                                 )
                                                 : (
-                                                    <Collapse onChange={this.handleRuleItemActivePanelChange}>
-                                                        {this.getRulesFileContentItems()}
-                                                    </Collapse>
+                                                    <Collapse 
+                                                        onChange={this.handleRuleItemActivePanelChange}
+                                                        items={this.getRulesFileContentItems()}
+                                                    />
                                                 )
                                         }
                                     </Card>
@@ -525,9 +529,8 @@ class RulesCallback extends React.Component {
                                     theme='light'
                                     selectedKeys={[this.state.selectedRuleFile]}
                                     onSelect={this.handleRuleFileSelect}
-                                >
-                                    {this.getRulesFilesItems()}
-                                </Menu>
+                                    items={this.getRulesFilesItems()}
+                                />
                             </Row>
                         </Card>
                     </Col>

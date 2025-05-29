@@ -27,8 +27,7 @@
  --------------
  ******/
 import React from 'react';
-
-import { withRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { message, Button, Form, Input, Row, Col, Card, Layout } from 'antd';
 import { getConfig } from '../../utils/getConfig';
@@ -37,8 +36,10 @@ import PlainNavbar from '../../components/Navbars/PlainNavbar';
 
 const { Content } = Layout;
 
-class Login extends React.Component {
-    onFinish = async formValues => {
+const Login = props => {
+    const navigate = useNavigate();
+
+    const onFinish = async formValues => {
         console.log(formValues);
         try {
             const { apiBaseUrl } = getConfig();
@@ -48,85 +49,83 @@ class Login extends React.Component {
                 password: formValues.password,
             }, { headers: { 'Content-Type': 'application/json' } });
             if(res.status === 200) {
-                this.props.handleLogin(res.data.token.payload);
+                props.handleLogin(res.data.token.payload);
                 message.success({ content: 'login successful', key: 'login', duration: 1 });
-                this.props.history.push('/admin/index');
+                navigate('/admin/index');
                 return;
             }
         } catch (err) {}
         message.error({ content: 'login failed', key: 'login', duration: 3 });
     };
 
-    onFinishFailed = errorInfo => {
+    const onFinishFailed = errorInfo => {
         console.log('Failed:', errorInfo);
     };
 
-    render() {
-        return (
-            <Layout style={{ backgroundColor: '#ffffff' }}>
-                <PlainNavbar />
-                <Content>
-                    <Row style={{ marginTop: '250px' }}>
-                        <Col colspan={24} className='mx-auto'>
-                            <Card className='shadow ml-4 mr-4 mt-n5 align-middle p-4' style={{ width: '500px' }}>
-                                <Form
-                                    name='basic'
-                                    labelCol={{
-                                        span: 8,
-                                    }}
+    return (
+        <Layout style={{ backgroundColor: '#ffffff' }}>
+            <PlainNavbar />
+            <Content>
+                <Row style={{ marginTop: '250px' }}>
+                    <Col span={24} className='mx-auto'>
+                        <Card className='shadow ml-4 mr-4 mt-n5 align-middle p-4' style={{ width: '500px' }}>
+                            <Form
+                                name='basic'
+                                labelCol={{
+                                    span: 8,
+                                }}
+                                wrapperCol={{
+                                    span: 16,
+                                }}
+                                initialValues={{
+                                    // remember: true,
+                                }}
+                                onFinish={onFinish}
+                                onFinishFailed={onFinishFailed}
+                            >
+                                <Form.Item
+                                    label='Username'
+                                    name='username'
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Please input your username!',
+                                        },
+                                    ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label='Password'
+                                    name='password'
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Please input your password!',
+                                        },
+                                    ]}
+                                >
+                                    <Input.Password />
+                                </Form.Item>
+
+                                <Form.Item
                                     wrapperCol={{
+                                        offset: 8,
                                         span: 16,
                                     }}
-                                    initialValues={{
-                                        // remember: true,
-                                    }}
-                                    onFinish={this.onFinish}
-                                    onFinishFailed={this.onFinishFailed}
                                 >
-                                    <Form.Item
-                                        label='Username'
-                                        name='username'
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: 'Please input your username!',
-                                            },
-                                        ]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        label='Password'
-                                        name='password'
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: 'Please input your password!',
-                                            },
-                                        ]}
-                                    >
-                                        <Input.Password />
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        wrapperCol={{
-                                            offset: 8,
-                                            span: 16,
-                                        }}
-                                    >
-                                        <Button type='primary' htmlType='submit'>
+                                    <Button type='primary' htmlType='submit'>
                       Submit
-                                        </Button>
-                                    </Form.Item>
-                                </Form>
-                            </Card>
-                        </Col>
-                    </Row>
-                </Content>
-            </Layout>
-        );
-    }
-}
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </Card>
+                    </Col>
+                </Row>
+            </Content>
+        </Layout>
+    );
+};
 
-export default withRouter(Login);
+export default Login;

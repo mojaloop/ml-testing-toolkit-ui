@@ -26,6 +26,7 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
+// Import components and icons separately
 import RulesResponse from './views/rules/RulesResponse.jsx';
 import RulesValidation from './views/rules/RulesValidation.jsx';
 import RulesCallback from './views/rules/RulesCallback.jsx';
@@ -51,90 +52,93 @@ import {
     ReadOutlined,
 } from '@ant-design/icons';
 
+// Create route definitions without JSX
 const routes = [
     {
         path: '/index',
         name: 'Dashboard',
-        icon: <DashboardOutlined />,
+        iconType: 'DashboardOutlined',
         component: Dashboard,
         layout: '/admin',
     },
     {
         path: '/monitoring',
         name: 'Monitoring',
-        icon: <MonitorOutlined />,
+        iconType: 'MonitorOutlined',
         component: Monitor,
         layout: '/admin',
     },
     {
         path: '/rules_response',
         name: 'Sync Response Rules',
-        icon: <FileSyncOutlined />,
+        iconType: 'FileSyncOutlined',
         component: RulesResponse,
         layout: '/admin',
     },
     {
         path: '/rules_validation',
         name: 'Validation Rules',
-        icon: <FileSearchOutlined />,
+        iconType: 'FileSearchOutlined',
         component: RulesValidation,
         layout: '/admin',
     },
     // {
     //   path: "/rules_forward",
     //   name: "Forward Rules",
-    //   icon: <UnorderedListOutlined />,
+    //   iconType: "UnorderedListOutlined",
     //   component: RulesForward,
     //   layout: "/admin"
     // },
     {
         path: '/rules_callback',
         name: 'Callback Rules',
-        icon: <FileDoneOutlined />,
+        iconType: 'FileDoneOutlined',
         component: RulesCallback,
         layout: '/admin',
     },
     {
         path: '/outbound_request',
         name: 'Test Runner',
-        icon: <SendOutlined />,
+        iconType: 'SendOutlined',
         component: OutboundRequest,
         layout: '/admin',
     },
     {
         path: '/reports',
         name: 'Reports',
-        icon: <ReadOutlined />,
+        iconType: 'ReadOutlined',
         component: ReportHistory,
         layout: '/admin',
     },
     {
         path: '/settings',
         name: 'Settings',
-        icon: <SettingOutlined />,
+        iconType: 'SettingOutlined',
         component: Settings,
         layout: '/admin',
     },
     // {
     //   path: "/apidocs",
     //   name: "API Documentation",
-    //   icon: <ReadOutlined />,
+    //   iconType: "ReadOutlined",
     //   component: APIDocs,
     //   layout: "/admin"
     // },
     {
         path: '/apimgmt',
         name: 'API Management',
-        icon: <ApiOutlined />,
+        iconType: 'ApiOutlined',
         component: APIManagement,
         layout: '/admin',
     },
     {
         path: '/demo',
         name: 'Demos',
-        icon: <ExperimentOutlined />,
+        iconType: 'ExperimentOutlined',
         component: Demos,
         layout: '/admin',
     },
 ];
+
+// Export the routes
 export default routes;
