@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [16.6.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.5.0...v16.6.0) (2025-05-30)
+
+
+### Features
+
+* use mojaloop circleci orb ([#232](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/232)) ([c6d0179](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/c6d017913d340fc23881fdbd6f1d3145cc0b12f1))
+
 ## [16.5.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.5.0...v16.5.1) (2025-05-29)
 
 
