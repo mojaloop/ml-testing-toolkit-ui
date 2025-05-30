@@ -4,11 +4,6 @@
 disabled: false
 
 ignore:
-  # Add any specific vulnerabilities to ignore below
-  # Example:
-  # - vulnerability: "GHSA-3xgq-45jj-v275"
-  #   package:
-  #     name: "cross-spawn"
 
   # tiff vulnerabilities
   - vulnerability: CVE-2023-6277
@@ -51,6 +46,11 @@ ignore:
   - vulnerability: CVE-2025-46394
     package:
       name: ssl_client
+
+  # curl vulnerability
+  - vulnerability: CVE-2025-4947
+    package:
+      name: curl
 
 # Set output format defaults
 output:
