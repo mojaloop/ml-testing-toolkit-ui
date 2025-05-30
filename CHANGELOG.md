@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [16.5.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.5.0...v16.5.1) (2025-05-29)
+
+
+### CI/CD
+
+* migrated to mojaloop/build@1.0.66 orb for improved CI/CD pipeline ([#231](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/231))
+
 ## [16.5.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.4.0...v16.5.0) (2025-05-29)
 
 

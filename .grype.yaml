@@ -1,0 +1,64 @@
+# Configuration file for Grype vulnerability scanner
+
+# Set to true to disable the Grype image scan completely
+disabled: false
+
+ignore:
+
+  # tiff vulnerabilities
+  - vulnerability: CVE-2023-6277
+    package:
+      name: tiff
+  - vulnerability: CVE-2023-52356
+    package:
+      name: tiff
+  - vulnerability: CVE-2015-7313
+    package:
+      name: tiff
+  - vulnerability: CVE-2023-6228
+    package:
+      name: tiff
+
+  # libxml2 vulnerabilities
+  - vulnerability: CVE-2025-32415
+    package:
+      name: libxml2
+  - vulnerability: CVE-2025-32414
+    package:
+      name: libxml2
+
+  # busybox vulnerabilities
+  - vulnerability: CVE-2024-58251
+    package:
+      name: busybox
+  - vulnerability: CVE-2024-58251
+    package:
+      name: busybox-binsh
+  - vulnerability: CVE-2024-58251
+    package:
+      name: ssl_client
+  - vulnerability: CVE-2025-46394
+    package:
+      name: busybox
+  - vulnerability: CVE-2025-46394
+    package:
+      name: busybox-binsh
+  - vulnerability: CVE-2025-46394
+    package:
+      name: ssl_client
+
+  # curl vulnerability
+  - vulnerability: CVE-2025-4947
+    package:
+      name: curl
+
+# Set output format defaults
+output:
+  - "table"
+  - "json"
+
+# Modify your CircleCI job to check critical count
+search:
+  scope: "squashed"
+quiet: false
+check-for-app-update: false 
