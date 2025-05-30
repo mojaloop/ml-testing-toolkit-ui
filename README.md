@@ -100,7 +100,7 @@ push a release triggering another subsequent build that also publishes a docker 
 
 ## CI/CD Configuration
 
-This project uses the `mojaloop/build@1.0.66` CircleCI orb for its CI/CD pipeline configuration. The orb standardizes the build, test, and deployment processes across Mojaloop projects.
+This project uses the CircleCI orb for its CI/CD pipeline configuration. The orb standardizes the build, test, and deployment processes across Mojaloop projects.
 
 Key features of the CI/CD configuration:
 - PR title validation
