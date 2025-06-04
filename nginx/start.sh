@@ -1,3 +1,7 @@
+# This script is not used directly in the Chainguard nginx image since it's distroless
+# The functionality is now built into the image at build time
+# Keeping this file for reference only
+
 if [[ ! -z "${API_BASE_URL}" ]]; then
     find /usr/share/nginx/html -type f -name "*.*" -exec sed -i -e "s|TTK_API_BASE_URL|$API_BASE_URL|g" {} \;
 fi

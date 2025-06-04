@@ -1,16 +1,43 @@
 version: "3.7"
 
 services:
-  mojaloop-testing-toolkit-ui:
-    image: mojaloop-testing-toolkit-ui:local
-    build:
-      context: .
-    ports:
-      - "6060:6060"
+  # Init container to prepare static files with environment variables
+  config-init:
+    image: alpine:3.19
+    volumes:
+      - app-html:/app-html
+      - ./nginx/start.sh:/start.sh
     environment:
       - API_BASE_URL=http://localhost:5050
       - AUTH_ENABLED=FALSE
       # - PAYEE_SIM_BRAND_ICON=some_image
     command:
-      - sh
-      - /usr/share/nginx/start.sh
+      - /bin/sh
+      - -c
+      - |
+        cp -r /usr/share/nginx/html/* /app-html/ || true
+        chmod +x /start.sh
+        sh /start.sh
+
+  # Main application container
+  mojaloop-testing-toolkit-ui:
+    image: mojaloop-testing-toolkit-ui:local
+    build:
+      context: .
+      args:
+        - API_BASE_URL=http://localhost:5050
+        - AUTH_ENABLED=FALSE
+        # - PAYER_SIM_BRAND_ICON=some_image
+        # - PAYEE_SIM_BRAND_ICON=some_image
+    ports:
+      - "6060:6060"
+    volumes:
+      - app-html:/usr/share/nginx/html
+    tmpfs:
+      - /var/lib/nginx/tmp
+      - /var/run
+    depends_on:
+      - config-init
+
+volumes:
+  app-html:
