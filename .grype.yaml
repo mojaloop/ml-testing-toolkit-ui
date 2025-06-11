@@ -51,6 +51,10 @@ ignore:
   - vulnerability: CVE-2025-4947
     package:
       name: curl
+  - vulnerability: CVE-2025-5025
+    package:
+      name: curl
+
 
 # Set output format defaults
 output:
@@ -61,4 +65,4 @@ output:
 search:
   scope: "squashed"
 quiet: false
-check-for-app-update: false 
+check-for-app-update: false
