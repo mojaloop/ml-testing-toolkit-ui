@@ -633,7 +633,7 @@ class TestCaseEditor extends React.Component {
                 }
                 return (
                     <Col span={24 / (this.props.testCase.requests.length ? (endIndex - startIndex) : 1)}>
-                        <Tabs 
+                        <Tabs
                             defaultActiveKey='1'
                             items={[
                                 {
@@ -784,8 +784,8 @@ class TestCaseEditor extends React.Component {
                                             </Row>
                                             <Row className='mt-2'>
                                                 <Col span={24}>
-                                                    <Tabs 
-                                                        type='card' 
+                                                    <Tabs
+                                                        type='card'
                                                         defaultActiveKey='1'
                                                         items={[
                                                             {
@@ -972,7 +972,9 @@ class TestCaseEditor extends React.Component {
                                                     ? (
                                                         <>
                                                             <h4>Synchronous Response</h4>
-                                                            <pre>{JSON.stringify(item.status.response, null, 2)}</pre>
+                                                            <pre style={{ overflow: 'scroll', 'white-space': 'pre-wrap' }}>
+                                                                {JSON.stringify(item.status.response, null, 2)}
+                                                            </pre>
                                                         </>
                                                     )
                                                     : null
@@ -989,7 +991,7 @@ class TestCaseEditor extends React.Component {
                                                             {
                                                                 item.status.callback?.headers || item.status.callback?.originalHeaders
                                                                     ? (
-                                                                        <Tabs 
+                                                                        <Tabs
                                                                             defaultActiveKey='1'
                                                                             items={[
                                                                                 item.status.callback?.headers ? {
@@ -1022,7 +1024,7 @@ class TestCaseEditor extends React.Component {
                                                             {
                                                                 item.status.callback?.body || item.status.callback?.originalBody
                                                                     ? (
-                                                                        <Tabs 
+                                                                        <Tabs
                                                                             defaultActiveKey='1'
                                                                             items={[
                                                                                 item.status.callback?.body ? {
@@ -1056,7 +1058,7 @@ class TestCaseEditor extends React.Component {
                                                     )
                                                     : null
                                             }
-                                            
+
                                         </>
                                     ),
                                 } : null,
@@ -1151,7 +1153,7 @@ class TestCaseEditor extends React.Component {
 
     handleRequestDuplicate = requestId => {
         // Find the request to duplicate
-         
+
         const { id, description, ...otherProps } = this.props.testCase.requests.find(item => item.id == requestId);
         const clonedProps = JSON.parse(JSON.stringify(otherProps));
 
