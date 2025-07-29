@@ -52,10 +52,19 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
-    sourcemap: true,
+    sourcemap: process.env.NODE_ENV !== 'production',
+    chunkSizeWarningLimit: 1500,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
+      },
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'antd': ['antd', '@ant-design/icons'],
+          'editor': ['react-ace', 'ace-builds'],
+          'utils': ['lodash', 'moment', 'axios'],
+        },
       },
     },
   },
