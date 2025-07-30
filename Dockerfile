@@ -27,7 +27,7 @@ COPY public /opt/app/public
 COPY index.html vite.config.js eslint.config.js tsconfig.json /opt/app/
 
 ENV NODE_ENV=production
-RUN NODE_OPTIONS="--max-old-space-size=8192" npm run build
+RUN NODE_OPTIONS="--max-old-space-size=6144" npm run build
 
 FROM nginx:1.28-alpine
 WORKDIR /usr/share/nginx/html
@@ -47,6 +47,7 @@ RUN chown -R ml-user:ml-user /usr/share/nginx
 USER ml-user
 
 COPY --chown=ml-user --from=builder /opt/app/build .
+COPY --chown=ml-user --from=builder /opt/app/node_modules /opt/ml-testing-toolkit-ui/node_modules
 COPY nginx/start.sh /usr/share/nginx/start.sh
 
 EXPOSE 6060
