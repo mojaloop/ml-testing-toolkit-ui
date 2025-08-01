@@ -49,6 +49,7 @@ import PayerMobileSimulator from './views/demos/PayerAppSimulator/PayerMobile';
 import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
 import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx';
 import PISPDemo from './views/demos/PISPDemo/MobileSimulator';
+import { loadAppConfig } from './utils/getConfig.js';
 
 // Add this before any other React code
 if(process.env.NODE_ENV === 'development') {
@@ -62,6 +63,7 @@ if(process.env.NODE_ENV === 'development') {
 }
 
 console.log('Mojaloop Testing Toolkit UI is loading...');
+await loadAppConfig('/config.json');
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
