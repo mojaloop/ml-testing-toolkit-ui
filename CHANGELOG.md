@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.6.4](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.6.3...v16.6.4) (2025-08-04)
+
+
+### Bug Fixes
+
+* support read only root filesystem ([#240](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/240)) ([290bf52](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/290bf52cbe7ddf5686219201b96ec535975563d6))
+
 ### [16.6.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.6.2...v16.6.3) (2025-07-30)
 
 

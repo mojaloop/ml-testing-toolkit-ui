@@ -1,6 +1,6 @@
 {
   "name": "ml-testing-toolkit-ui",
-  "version": "16.6.4-rorfs.4",
+  "version": "16.6.4",
   "description": "Mojaloop Testing Toolkit Web User Interface",
   "main": "index.js",
   "type": "module",
