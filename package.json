@@ -1,6 +1,6 @@
 {
   "name": "ml-testing-toolkit-ui",
-  "version": "16.6.3",
+  "version": "16.6.4-rorfs.4",
   "description": "Mojaloop Testing Toolkit Web User Interface",
   "main": "index.js",
   "type": "module",
@@ -88,7 +88,7 @@
     "bootstrap": "^5.3.7",
     "brace": "^0.11.1",
     "core-js": "^3.44.0",
-    "electron": "^37.2.4",
+    "electron": "^37.2.5",
     "idb-keyval": "^6.2.2",
     "js-file-download": "^0.4.12",
     "jszip": "^3.10.1",
@@ -106,7 +106,7 @@
     "redoc": "^2.5.0",
     "socket.io-client": "^4.8.1",
     "styled-components": "^6.1.19",
-    "web-vitals": "^5.0.3",
+    "web-vitals": "^5.1.0",
     "yaml": "^2.8.0"
   },
   "devDependencies": {
@@ -148,6 +148,7 @@
   "overrides": {
     "form-data": "4.0.4"
   },
+  "private": true,
   "standard-version": {
     "scripts": {
       "postchangelog": "replace '\\[mojaloop/#(\\d+)\\]\\(https://github.com/mojaloop/(.*)/issues/(\\d+)\\)' '[mojaloop/#$1](https://github.com/mojaloop/project/issues/$1)' CHANGELOG.md"
