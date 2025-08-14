@@ -276,7 +276,7 @@ class RequestHeaderBodyBuilder extends React.Component {
               Add
                         </Button>
                         <Button
-                            className='ml-2'
+                            className='ms-2'
                             type='default'
                             danger
                             onClick={() => {
@@ -301,7 +301,7 @@ class RequestHeaderBodyBuilder extends React.Component {
                                         <Button type='dashed'>Add Configurable Params</Button>
                                     </Popover>
                                 </Col>
-                                <Col span={12} className='text-right'>
+                                <Col span={12} className='text-end'>
                                     <strong>Raw Editor</strong> <Switch checked={this.state.headersRawEditorEnable} onChange={checked => { this.setState({ headersRawEditorEnable: checked }); }} />
                                 </Col>
                             </Row>
@@ -312,7 +312,7 @@ class RequestHeaderBodyBuilder extends React.Component {
                                             ? (
                                                 <div>
                                                     <Row>
-                                                        <Col span={24} className='text-left mt-4'>
+                                                        <Col span={24} className='text-start mt-4'>
                                                             <JsonEditor
                                                                 value={this.props.request.headers || {}}
                                                                 onChange={this.handleRawHeadersChange}
@@ -347,7 +347,7 @@ class RequestHeaderBodyBuilder extends React.Component {
                                                                 </Button>
                                                             </Dropdown>
                                                             <Button
-                                                                className='ml-2 float-right'
+                                                                className='ms-2 float-right'
                                                                 type='default'
                                                                 danger
                                                                 onClick={() => this.addHeaderItemsFromDefinition(true)}

@@ -123,7 +123,7 @@ class RequestOptionsBuilder extends React.Component {
                                             this.setState({ overrideCheckboxSelected: e.target.checked });
                                         }}
                                     />
-                                    <Text strong className='ml-2'>
+                                    <Text strong className='ms-2'>
                                         Override with Custom URL
                                         <Tooltip placement='topLeft' title='If there is no custom URL specified, the requests go to CALLBACK_ENDPOINT in user settings'>
                                             <QuestionCircleTwoTone style={{ paddingLeft: '4px', fontSize: '20px' }} />
@@ -160,7 +160,7 @@ class RequestOptionsBuilder extends React.Component {
                                             this.props.onChange();
                                         }}
                                     />
-                                    <Text strong className='ml-2'>
+                                    <Text strong className='ms-2'>
                     Ignore Callbacks
                                     </Text>
                                 </Col>
@@ -179,7 +179,7 @@ class RequestOptionsBuilder extends React.Component {
                                             this.setState({ delayCheckboxSelected: e.target.checked });
                                         }}
                                     />
-                                    <Text strong className='ml-2'>
+                                    <Text strong className='ms-2'>
                     Use delay
                                     </Text>
                                 </Col>

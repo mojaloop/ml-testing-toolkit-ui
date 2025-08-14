@@ -366,7 +366,7 @@ class FixedCallbackBuilder extends React.Component {
               Add
                         </Button>
                         <Button
-                            className='ml-2'
+                            className='ms-2'
                             type='default'
                             danger
                             onClick={() => {
@@ -443,7 +443,7 @@ class FixedCallbackBuilder extends React.Component {
 
                                             </Dropdown>
                                             <Button
-                                                className='ml-2'
+                                                className='ms-2'
                                                 type='default'
                                                 danger
                                                 onClick={() => this.addHeaderItemsFromDefinition(true)}
@@ -451,7 +451,7 @@ class FixedCallbackBuilder extends React.Component {
                         Add Required Headers
                                             </Button>
                                             <Button
-                                                className='ml-2'
+                                                className='ms-2'
                                                 type='default'
                                                 onClick={() => this.addHeaderItemsFromDefinition(false)}
                                             >
@@ -486,7 +486,7 @@ class FixedCallbackBuilder extends React.Component {
                                     <Popover content={content} title='Select a Configurable Parameter' trigger='click'>
                                         <Button color='secondary' size='sm'>Add Configurable Params</Button>
                                     </Popover>
-                                    <Button className='ml-2' type='default' onClick={this.handlePopulateSampleBodyClick}>Populate with sample body</Button>
+                                    <Button className='ms-2' type='default' onClick={this.handlePopulateSampleBodyClick}>Populate with sample body</Button>
                                 </Col>
                             </Row>
                             <Row>
@@ -584,7 +584,7 @@ class EventResponseHeaderInputComponent extends React.Component {
                         </Tooltip>
                     </Col>
 
-                    <Col span={12} className='pl-2'>
+                    <Col span={12} className='ps-2'>
                         <Input
                             placeholder='Value'
                             type='text'
@@ -598,7 +598,7 @@ class EventResponseHeaderInputComponent extends React.Component {
                         </Popover>
 
                     </Col>
-                    <Col span={4} className='pl-2'>
+                    <Col span={4} className='ps-2'>
                         <Button
                             type='primary'
                             danger
@@ -705,7 +705,7 @@ class ParamsBuilder extends React.Component {
                         <Col span={24}>
                             <Row>
                                 <Col><Text>Response Code</Text></Col>
-                                <Col className='pl-2'>
+                                <Col className='ps-2'>
                                     <Select
                                         value={this.props.eventParams.statusCode}
                                         onChange={this.handleResponseSelect}
@@ -830,7 +830,7 @@ class EventResponseBuilder extends React.Component {
                     <Col span={24}>
                         <Row>
                             <Col><Text>Delay in milliseconds</Text></Col>
-                            <Col className='pl-2'>
+                            <Col className='ps-2'>
                                 <Input
                                     placeholder='0' value={this.props.event.params.delay} onChange={e => {
                                         const newValue = parseInt(e.target.value);
@@ -846,7 +846,7 @@ class EventResponseBuilder extends React.Component {
                     <Col span={24}>
                         <Row>
                             <Col><Text>Event Type</Text></Col>
-                            <Col className='pl-2'>
+                            <Col className='ps-2'>
                                 <Select
                                     value={this.props.event.type}
                                     onChange={this.handleEventTypeSelect}

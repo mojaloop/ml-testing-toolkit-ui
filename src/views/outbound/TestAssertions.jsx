@@ -618,7 +618,7 @@ class AssertionEditor extends React.Component {
                     onChange={e => { this.setState({ assertionDescription: e.target.value }); }}
                 />
                 <Button
-                    className='text-right mt-2'
+                    className='text-end mt-2'
                     type='primary'
                     danger
                     onClick={() => {
@@ -694,14 +694,14 @@ class AssertionEditor extends React.Component {
                                                     <Row className='mt-2 text-center'>
                                                         <Col span={24}>
                                                             <Button
-                                                                className='ml-2'
+                                                                className='ms-2'
                                                                 type='default'
                                                                 onClick={this.handleConfigParamCopyToClipboard}
                                                             >
                           Copy to clipboard
                                                             </Button>
                                                             <Button
-                                                                className='ml-2'
+                                                                className='ms-2'
                                                                 type='dashed'
                                                                 danger
                                                                 onClick={this.handleConfigParamInsertIntoEditor}
@@ -770,7 +770,7 @@ class AssertionEditor extends React.Component {
           Delete
                 </Button>
                 <Button
-                    className='float-right mb-2 mr-2'
+                    className='float-right mb-2 me-2'
                     type='dashed'
                     onClick={() => { this.props.onDuplicate(this.props.itemKey); }}
                 >
@@ -960,7 +960,7 @@ export class TestAssertions extends React.Component {
                     }}
                 />
                 <Button
-                    className='text-right mt-2'
+                    className='text-end mt-2'
                     color='success'
                     href='#pablo'
                     onClick={() => {
@@ -992,7 +992,7 @@ export class TestAssertions extends React.Component {
                                 )
                                 : (
                                     <Button
-                                        className='text-right'
+                                        className='text-end'
                                         color='success'
                                         href='#pablo'
                                         onClick={() => {
@@ -1005,7 +1005,7 @@ export class TestAssertions extends React.Component {
                                 )
                         }
                     </Col>
-                    <Col span={12} className='text-right'>
+                    <Col span={12} className='text-end'>
                         <strong>Raw Editor</strong> <Switch checked={this.state.assertionRawEditorEnable} onChange={checked => { this.setState({ assertionRawEditorEnable: checked }); }} />
                     </Col>
                 </Row>
@@ -1016,7 +1016,7 @@ export class TestAssertions extends React.Component {
                                 ? (
                                     <div>
                                         <Row>
-                                            <Col className='text-left mt-4'>
+                                            <Col className='text-start mt-4'>
                                                 <SortableList
                                                     items={this.props.request.tests.assertions.map((assertion, index) => ({
                                                         ...assertion,
@@ -1033,7 +1033,7 @@ export class TestAssertions extends React.Component {
                                     ? (
                                         <div>
                                             <Row>
-                                                <Col span={24} className='text-right'>
+                                                <Col span={24} className='text-end'>
                                                     <Popover
                                                         content={addNewTestDialogContent}
                                                         title='Enter a description for the assertion'
@@ -1042,7 +1042,7 @@ export class TestAssertions extends React.Component {
                                                         onOpenChange={visible => this.setState({ addNewAssertionDialogVisible: visible })}
                                                     >
                                                         <Button
-                                                            className='text-right float-right'
+                                                            className='text-end float-right'
                                                             type='primary'
                                                         >
                             Add New Assertion
@@ -1072,7 +1072,7 @@ export class TestAssertions extends React.Component {
                                     : (
                                         <div>
                                             <Row>
-                                                <Col span={24} className='text-left mt-4'>
+                                                <Col span={24} className='text-start mt-4'>
                                                     <Editor
                                                         ref={ref => { this.refs['bodyEditor'] = ref; }}
                                                         value={this.props.request.tests ? this.props.request.tests.assertions : []}

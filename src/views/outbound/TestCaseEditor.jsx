@@ -360,7 +360,7 @@ class RequestGenerator extends React.Component {
                     onChange={e => { this.setState({ newRequestDescription: e.target.value }); }}
                 />
                 <Button
-                    className='text-right mt-2'
+                    className='text-end mt-2'
                     color='success'
                     href='#pablo'
                     onClick={() => {
@@ -392,7 +392,7 @@ class RequestGenerator extends React.Component {
                 Delete
                             </Button>
                             <Popover
-                                className='float-right mr-2'
+                                className='float-right me-2'
                                 content={renameRequestDialogContent}
                                 title='Enter new description'
                                 trigger='click'
@@ -402,7 +402,7 @@ class RequestGenerator extends React.Component {
                                 <Button>Rename</Button>
                             </Popover>
                             <Button
-                                className='float-right mr-2'
+                                className='float-right me-2'
                                 type='dashed'
                                 onClick={() => { this.props.onDuplicate(this.props.request.id); }}
                             >
@@ -1180,7 +1180,7 @@ class TestCaseEditor extends React.Component {
                     }}
                 />
                 <Button
-                    className='text-right mt-2'
+                    className='text-end mt-2'
                     color='success'
                     href='#pablo'
                     onClick={() => {
@@ -1256,7 +1256,7 @@ class TestCaseEditor extends React.Component {
                                                 <Col span={24}>
                                                     <div className='float-right'>
                                                         <Button
-                                                            className='ml-2'
+                                                            className='ms-2'
                                                             type='primary'
                                                             danger
                                                             onClick={() => {
@@ -1280,7 +1280,7 @@ class TestCaseEditor extends React.Component {
                                                         </Button>
                                                     </Popover>
                                                     <Checkbox
-                                                        className='ml-4 mt-1 float-right'
+                                                        className='ms-4 mt-1 float-right'
                                                         onClick={e => {
                                                             this.handleBreakOnErrorChange(e.target.checked);
                                                         }}
@@ -1299,7 +1299,7 @@ class TestCaseEditor extends React.Component {
                                                         // parser={value => value.replace(/\$\s?|(,*)/g, '')}
                                                     />
                                                     <Checkbox
-                                                        className='ml-2 mt-1 float-right'
+                                                        className='ms-2 mt-1 float-right'
                                                         onClick={e => {
                                                             this.handleExecutionOrderCheckboxChange(e.target.checked);
                                                         }}

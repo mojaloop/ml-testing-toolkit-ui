@@ -86,7 +86,7 @@ class TestCaseDemoViewer extends React.Component {
                                             </>
                                         )}
                                         key='1'
-                                        className='text-left'
+                                        className='text-start'
                                     >
                                         <Row>
                                             <Col span={11}>

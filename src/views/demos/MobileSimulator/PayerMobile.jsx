@@ -157,7 +157,7 @@ class PayerMobile extends React.Component {
                                 <Row className='mt-1'>
                                     <Col span={24}>
                                         <InputNumber
-                                            className='ml-2'
+                                            className='ms-2'
                                             value={this.state.amount}
                                             onChange={newNumber => {
                                                 this.setState({ amount: newNumber });
@@ -170,7 +170,7 @@ class PayerMobile extends React.Component {
                                 <Row className='mt-1'>
                                     <Col span={24}>
                                         <Select
-                                            className='ml-2'
+                                            className='ms-2'
                                             style={{ width: 120 }}
                                             placeholder='Currency'
                                             // loading={this.state.getHubConsoleInitValuesProgress}
@@ -290,7 +290,7 @@ class PayerMobile extends React.Component {
     render() {
         return (
             <>
-                <Row className='ml-2'>
+                <Row className='ms-2'>
                     <Col span={24}>
                         <Text strong>Enter Phone Number</Text>
                         <Input.Search
@@ -301,7 +301,7 @@ class PayerMobile extends React.Component {
                         />
                     </Col>
                 </Row>
-                <Row className='mt-1 ml-2'>
+                <Row className='mt-1 ms-2'>
                     <Col span={24}>
                         {this.getStageData()}
                     </Col>

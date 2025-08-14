@@ -321,8 +321,8 @@ class HUBConsole extends React.Component {
 
         return (
             <>
-                <Row className='mt-4 ml-2'>
-                    <Col span={12} className='text-left'>
+                <Row className='mt-4 ms-2'>
+                    <Col span={12} className='text-start'>
                         <Button
                             onClick={this.handleRefreshAll}
                         >
@@ -343,9 +343,9 @@ class HUBConsole extends React.Component {
             Get Settlements Data
           </Button>
         </Col> */}
-                    <Col span={12} className='text-right'>
+                    <Col span={12} className='text-end'>
                         <Select
-                            className='mr-2'
+                            className='me-2'
                             style={{ width: 220 }}
                             placeholder='Select Settlement Model'
                             loading={this.state.getHubConsoleInitValuesProgress}
@@ -373,7 +373,7 @@ class HUBConsole extends React.Component {
                         </Button>
                     </Col>
                 </Row>
-                <Row className='mt-4 ml-2'>
+                <Row className='mt-4 ms-2'>
                     <Col span={12}>
                         <Table
                             columns={dfspValuesColumns}
@@ -392,7 +392,7 @@ class HUBConsole extends React.Component {
                     </Col>
                     <Col span={12}>
                         <Table
-                            className='ml-2'
+                            className='ms-2'
                             columns={settlementColumns}
                             dataSource={settlementsData}
                             expandable={{

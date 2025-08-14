@@ -353,7 +353,7 @@ class MappingEditor extends React.Component {
                                                                 <Title level={4} className='text-muted mb-4'>
                                   Success Callback
                                                                 </Title>
-                                                                <div className='pl-4'>
+                                                                <div className='ps-4'>
                                                                     <table>
                                                                         <tbody>
                                                                             <tr>
@@ -397,7 +397,7 @@ class MappingEditor extends React.Component {
                                                                 <Title level={4} className='text-muted mb-4'>
                                   Error Callback
                                                                 </Title>
-                                                                <div className='pl-4'>
+                                                                <div className='ps-4'>
                                                                     <table>
                                                                         <tbody>
                                                                             <tr>

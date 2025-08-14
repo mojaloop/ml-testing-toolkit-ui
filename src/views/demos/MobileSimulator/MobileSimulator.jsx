@@ -350,7 +350,7 @@ class MobileSimulator extends React.Component {
                         <Row className='h-100'>
                             <Col
                                 span={4}
-                                className='text-left align-bottom'
+                                className='text-start align-bottom'
                                 style={{
                                     verticalAlign: 'bottom',
                                     width: '100%',

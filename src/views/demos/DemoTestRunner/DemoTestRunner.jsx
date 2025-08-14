@@ -425,7 +425,7 @@ class OutboundRequest extends React.Component {
                     <Row>
                         <Col span={24}>
                             <Button
-                                className='float-right mr-2'
+                                className='float-right me-2'
                                 type='dashed'
                                 onClick={() => { this.setState({ showTemplate: true }); }}
                             >

@@ -101,7 +101,7 @@ class ReportHistory extends React.Component {
                 format={() => {
                     return (
                         <>
-                            <Text className='mr-2'>{runtimeInformation.totalPassedAssertions + '/' + runtimeInformation.totalAssertions}</Text>
+                            <Text className='me-2'>{runtimeInformation.totalPassedAssertions + '/' + runtimeInformation.totalAssertions}</Text>
                             {
                                 passed
                                     ? (
@@ -257,7 +257,7 @@ class ReportHistory extends React.Component {
                                 style={{ bottom: '0px' }}
                             />
                             <RangePicker showTime onChange={this.handleDateChange} />
-                            <Radio.Group className='ml-4' value={this.state.filterStatus} onChange={this.handleFilterStatusChange}>
+                            <Radio.Group className='ms-4' value={this.state.filterStatus} onChange={this.handleFilterStatusChange}>
                                 <Radio.Button value="all">All</Radio.Button>
                                 <Radio.Button value="passed">Passed</Radio.Button>
                                 <Radio.Button value="failed">Failed</Radio.Button>

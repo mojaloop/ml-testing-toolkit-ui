@@ -93,7 +93,7 @@ class ArrayInputValues extends React.Component {
                             <Row className='mb-2'>
                                 <Col span={24}>
                                     <Button
-                                        className='text-right float-right'
+                                        className='text-end float-end'
                                         color='primary'
                                         size='sm'
                                         onClick={this.handleAddInputValue}

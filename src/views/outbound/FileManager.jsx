@@ -518,7 +518,7 @@ class FileManager extends React.Component {
                                             }}
                                         >
                                             <Button
-                                                className='ml-2 float-right'
+                                                className='ms-2 float-right'
                                                 type='primary'
                                                 shape='round'
                                                 danger
@@ -540,7 +540,7 @@ class FileManager extends React.Component {
                       Import File
                                         </Button>
                                         <Button
-                                            className='ml-2'
+                                            className='ms-2'
                                             size='default'
                                             onClick={e => {
                                                 e.preventDefault();
@@ -551,7 +551,7 @@ class FileManager extends React.Component {
                                         </Button>
                                         <Button
                                             type='primary'
-                                            className='ml-2'
+                                            className='ms-2'
                                             size='default'
                                             onClick={e => {
                                                 e.preventDefault();

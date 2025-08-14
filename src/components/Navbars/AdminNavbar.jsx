@@ -63,7 +63,7 @@ const AdminNavbar = ({ brandText }) => {
                             {brandText}
                         </Title>
                     </Col>
-                    <Col span={12} className='text-right'>
+                    <Col span={12} className='text-end'>
                         {
                             dfspId
                                 ? <Text className='text-white d-none d-lg-inline-block'>{dfspId}</Text>
@@ -80,7 +80,7 @@ const AdminNavbar = ({ brandText }) => {
                                         handleLogout();
                                     }}
                                     size='sm'
-                                    className='ml-4'
+                                    className='ms-4'
                                 >
                                     Logout
                                 </Button>

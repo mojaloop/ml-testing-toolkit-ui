@@ -95,7 +95,7 @@ class ServerLogsViewer extends React.Component {
                             }}
                             href={this.props.userConfig.LOG_SERVER_UI_URL}
                             target='_blank'
-                            className='float-right mr-2'
+                            className='float-right me-2'
                             ghost
                             type='primary'
                         >Go to Log Server

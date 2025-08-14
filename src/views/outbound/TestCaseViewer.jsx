@@ -110,11 +110,11 @@ class TestCaseViewer extends React.Component {
                                     <Text>{item.description}</Text>
                                 </Row>
                             </td>
-                            <td className='text-right align-top'>
+                            <td className='text-end align-top'>
                                 {
                                     item.status && (item.status.state === 'finish' || item.status.state === 'error')
                                         ? (
-                                            <Tag color={testStatusColor} className='ml-2'>
+                                            <Tag color={testStatusColor} className='ms-2'>
                                                 {testStatus}
                                             </Tag>
                                         )
@@ -275,7 +275,7 @@ class TestCaseViewer extends React.Component {
                 <Switch
                     size='small'
                     checked={this.props.testCase.requests.every(request => !request.disabled)}
-                    className='mr-2'
+                    className='me-2'
                     onChange={enableAllRequests => {
                         const disableAllRequests = !enableAllRequests;
                         this.handleDisableRequests(disableAllRequests);
@@ -316,7 +316,7 @@ class TestCaseViewer extends React.Component {
                                                                         </td>
                                                                         <td>
                                                                             <Button
-                                                                                className='ml-2'
+                                                                                className='ms-2'
                                                                                 type='primary'
                                                                                 danger
                                                                                 onClick={() => {
@@ -328,7 +328,7 @@ class TestCaseViewer extends React.Component {
                                 Done
                                                                             </Button>
                                                                             <Button
-                                                                                className='ml-2'
+                                                                                className='ms-2'
                                                                                 type='default'
                                                                                 onClick={() => {
                                                                                     this.setState({ renameTestCase: false });
@@ -346,11 +346,11 @@ class TestCaseViewer extends React.Component {
                                                 }
                                             </Col>
                                             <Col span={8}>
-                                                <Dropdown overlay={menu} trigger={['click']} className='ml-4 mt-2 float-right'>
+                                                <Dropdown overlay={menu} trigger={['click']} className='ms-4 mt-2 float-right'>
                                                     <MoreOutlined />
                                                 </Dropdown>
                                                 <Button
-                                                    className='ml-2 float-right'
+                                                    className='ms-2 float-right'
                                                     type='default'
                                                     onClick={() => {
                                                         this.props.onEdit();
@@ -362,7 +362,7 @@ class TestCaseViewer extends React.Component {
                                                     this.state.testCaseRequestsReorderingEnabled && (this.props.testCase.requests && this.props.testCase.requests.length > 0)
                                                         ? (
                                                             <Button
-                                                                className='ml-2 float-right'
+                                                                className='ms-2 float-right'
                                                                 type='dashed'
                                                                 danger
                                                                 onClick={async () => {

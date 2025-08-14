@@ -154,7 +154,7 @@ class APIEditor extends React.Component {
                                 </Col>
                                 <Col span={12}>
                                     <Button
-                                        className='ml-2 float-right'
+                                        className='ms-2 float-right'
                                         type='primary'
                                         onClick={e => {
                                             this.setState({ apiMappingsVisible: true });
