@@ -444,7 +444,7 @@ class MobileSimulator extends React.Component {
                                 <Row align='top'>
                                     <Col span={24}>
                                         <Button
-                                            type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
+                                            type='primary' className='mt-2 float-end' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
                                                 this.setState({ payeeLogsDrawerVisible: true });
                                             }}
                                         >
@@ -454,7 +454,7 @@ class MobileSimulator extends React.Component {
                                 </Row>
                                 <Row align='bottom' className='h-100'>
                                     <Col span={24}>
-                                        <Row className='float-right' style={{ marginRight: '3vh', marginBottom: '8vh', width: '24vh', height: '45vh' }}>
+                                        <Row className='float-end' style={{ marginRight: '3vh', marginBottom: '8vh', width: '24vh', height: '45vh' }}>
                                             <Col span={24}>
                                                 <PayeeMobile
                                                     ref={this.payeeMobileRef}

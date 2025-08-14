@@ -175,7 +175,7 @@ class SequenceDiagram extends React.Component {
                             this.state.sequenceItems.length > 0
                                 ? (
                                     <Button
-                                        className='float-right'
+                                        className='float-end'
                                         type='primary'
                                         danger
                                         onClick={this.handleClearLogs}

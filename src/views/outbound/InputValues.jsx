@@ -172,7 +172,7 @@ class InputValues extends React.Component {
                                         onOpenChange={visible => this.setState({ addInputValueDialogVisible: visible })}
                                     >
                                         <Button
-                                            className='text-end float-right'
+                                            className='text-end float-end'
                                             color='primary'
                                             size='sm'
                                         >

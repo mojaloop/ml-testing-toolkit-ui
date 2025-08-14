@@ -413,7 +413,7 @@ class Condition extends React.Component {
                     <Col span={16}>
                         <br />
                         <Button
-                            className='float-right'
+                            className='float-end'
                             type='primary'
                             danger
                             onClick={this.handleDelete}

@@ -309,7 +309,7 @@ export class FixedCallbackBuilder extends React.Component {
                                                 content={addCustomHeaderDialogContent}
                                                 title='Enter name for the header'
                                                 trigger='click'
-                                                visible={this.state.addCustomHeaderDialogVisible}
+                                                open={this.state.addCustomHeaderDialogVisible}
                                                 onVisibleChange={visible => this.setState({ addCustomHeaderDialogVisible: true })}
                                             >
                                                 <Button

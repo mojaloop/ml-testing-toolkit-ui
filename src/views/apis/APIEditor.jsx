@@ -133,7 +133,7 @@ class APIEditor extends React.Component {
                     width='90%'
                     destroyOnClose
                     footer={null}
-                    visible={this.state.apiMappingsVisible}
+                    open={this.state.apiMappingsVisible}
                     onCancel={e => {
                         this.setState({ apiMappingsVisible: false });
                     }}

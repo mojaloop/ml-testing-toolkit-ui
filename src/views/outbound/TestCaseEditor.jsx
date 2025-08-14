@@ -381,7 +381,7 @@ class RequestGenerator extends React.Component {
                     <Row>
                         <Col span={24}>
                             <Button
-                                className='float-right'
+                                className='float-end'
                                 type='primary'
                                 danger
                                 onClick={async () => {
@@ -392,7 +392,7 @@ class RequestGenerator extends React.Component {
                 Delete
                             </Button>
                             <Popover
-                                className='float-right me-2'
+                                className='float-end me-2'
                                 content={renameRequestDialogContent}
                                 title='Enter new description'
                                 trigger='click'
@@ -402,7 +402,7 @@ class RequestGenerator extends React.Component {
                                 <Button>Rename</Button>
                             </Popover>
                             <Button
-                                className='float-right me-2'
+                                className='float-end me-2'
                                 type='dashed'
                                 onClick={() => { this.props.onDuplicate(this.props.request.id); }}
                             >
@@ -430,7 +430,7 @@ class RequestGenerator extends React.Component {
                                     description={
                                         <span>
                                             <Text strong>{this.state.selectedApiVersion.type + ':' + this.state.selectedApiVersion.majorVersion + '.' + this.state.selectedApiVersion.minorVersion}</Text>
-                                            <Text class='ml-2' code>{this.state.selectedResource.method + ' ' + this.state.selectedResource.path}</Text>
+                                            <Text class='ms-2' code>{this.state.selectedResource.method + ' ' + this.state.selectedResource.path}</Text>
                                         </span>
                                     }
                                     type="warning"
@@ -1244,7 +1244,7 @@ class TestCaseEditor extends React.Component {
                                                 </Col>
                                                 <Col span={6}>
                                                     <Button
-                                                        type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
+                                                        type='primary' className='mt-2 float-end' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
                                                             this.props.onOpenEnvironmentManager();
                                                         }}
                                                     >
@@ -1254,7 +1254,7 @@ class TestCaseEditor extends React.Component {
                                             </Row>
                                             <Row align='top'>
                                                 <Col span={24}>
-                                                    <div className='float-right'>
+                                                    <div className='float-end'>
                                                         <Button
                                                             className='ms-2'
                                                             type='primary'
@@ -1280,7 +1280,7 @@ class TestCaseEditor extends React.Component {
                                                         </Button>
                                                     </Popover>
                                                     <Checkbox
-                                                        className='ms-4 mt-1 float-right'
+                                                        className='ms-4 mt-1 float-end'
                                                         onClick={e => {
                                                             this.handleBreakOnErrorChange(e.target.checked);
                                                         }}
@@ -1289,7 +1289,7 @@ class TestCaseEditor extends React.Component {
                                                         Skip remaining requests on error
                                                     </Checkbox>
                                                     <InputNumber
-                                                        className='float-right'
+                                                        className='float-end'
                                                         value={this.props.testCase.options?.executionOrder}
                                                         disabled={this.props.testCase.options?.executionOrder === undefined}
                                                         onChange={newNumber => {
@@ -1299,7 +1299,7 @@ class TestCaseEditor extends React.Component {
                                                         // parser={value => value.replace(/\$\s?|(,*)/g, '')}
                                                     />
                                                     <Checkbox
-                                                        className='ms-2 mt-1 float-right'
+                                                        className='ms-2 mt-1 float-end'
                                                         onClick={e => {
                                                             this.handleExecutionOrderCheckboxChange(e.target.checked);
                                                         }}

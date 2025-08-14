@@ -77,7 +77,7 @@ class TestCaseDemoViewer extends React.Component {
                                                 {
                                                     item.status && (item.status.state === 'finish' || item.status.state === 'error')
                                                         ? (
-                                                            <Tag color={testStatusColor} className='float-right'>
+                                                            <Tag color={testStatusColor} className='float-end'>
                                                                 {testStatus}
                                                             </Tag>
                                                         )

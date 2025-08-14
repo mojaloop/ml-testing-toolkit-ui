@@ -428,7 +428,7 @@ class FolderBrowser extends React.Component {
                         ? <Row className='mt'>
                             <Col span={24}>
                                 <LabelsManager
-                                    visible={this.props.folderData.length > 0}
+                                    open={this.props.folderData.length > 0}
                                     selectedFiles={this.props.selectedFiles}
                                     labelsManager={this.props.labelsManager}
                                     onSelect={props => {
@@ -445,7 +445,7 @@ class FolderBrowser extends React.Component {
                 }
                 <Modal
                     title={this.state.inputDialogData.title}
-                    visible={this.state.inputDialogEnabled}
+                    open={this.state.inputDialogEnabled}
                     onOk={this.handleInputDialogOk}
                     onCancel={this.handleInputDialogCancel}
                 >
@@ -459,7 +459,7 @@ class FolderBrowser extends React.Component {
                 </Modal>
                 <Modal
                     title={this.state.confirmDialogData.title}
-                    visible={this.state.confirmDialogEnabled}
+                    open={this.state.confirmDialogEnabled}
                     onOk={this.handleConfirmDialogOk}
                     onCancel={this.handleConfirmDialogCancel}
                 >
@@ -467,7 +467,7 @@ class FolderBrowser extends React.Component {
                 </Modal>
                 <Modal
                     title='Assign Labels'
-                    visible={this.state.selectLabelsDialogEnabled}
+                    open={this.state.selectLabelsDialogEnabled}
                     onOk={this.handleSelectLabelsDialogOk}
                     onCancel={this.handleSelectLabelsDialogCancel}
                 >

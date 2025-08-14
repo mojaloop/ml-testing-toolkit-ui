@@ -417,10 +417,10 @@ class PayerMobile extends React.Component {
                         </span>
                     </Col>
                     <Col span={12}>
-                        <span className='float-right me-3 mt-2'>
+                        <span className='float-end me-3 mt-2'>
                             <Row className='mt-2'>
                                 <Col span={24}>
-                                    <Text className='float-right' type='secondary' strong>{this.state.party.idValue}</Text>
+                                    <Text className='float-end' type='secondary' strong>{this.state.party.idValue}</Text>
                                 </Col>
                             </Row>
                         </span>

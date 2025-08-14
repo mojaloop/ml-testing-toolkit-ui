@@ -347,7 +347,7 @@ class RequestHeaderBodyBuilder extends React.Component {
                                                                 </Button>
                                                             </Dropdown>
                                                             <Button
-                                                                className='ms-2 float-right'
+                                                                className='ms-2 float-end'
                                                                 type='default'
                                                                 danger
                                                                 onClick={() => this.addHeaderItemsFromDefinition(true)}
@@ -359,7 +359,7 @@ class RequestHeaderBodyBuilder extends React.Component {
                                                     <Row className='mt-2'>
                                                         <Col span={24}>
                                                             <Button
-                                                                className='float-right'
+                                                                className='float-end'
                                                                 type='default'
                                                                 onClick={() => this.addHeaderItemsFromDefinition(false)}
                                                             >

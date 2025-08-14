@@ -393,7 +393,7 @@ class EnvironmentManager extends React.Component {
                                   Download
                                                     </Button>
                                                     <Dropdown
-                                                        className='ms-2 float-right'
+                                                        className='ms-2 float-end'
                                                         zIndex={1101}
                                                         overlay={menu}
                                                         trigger={['click']}

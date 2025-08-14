@@ -654,7 +654,7 @@ class RulesEditor extends React.Component {
                             </Col>
                             <Col span={8}>
                                 <Button
-                                    className='float-right'
+                                    className='float-end'
                                     type='primary'
                                     onClick={this.handleSave}
                                 >

@@ -346,7 +346,7 @@ class RulesValidation extends React.Component {
                                             </Col>
                                             <Col span={12}>
                                                 <Button
-                                                    className='float-right'
+                                                    className='float-end'
                                                     type='primary'
                                                     onClick={this.handleAddNewRuleClick}
                                                 >
@@ -356,7 +356,7 @@ class RulesValidation extends React.Component {
                                                     this.state.reOrderingEnabled
                                                         ? (
                                                             <Button
-                                                                className='float-right me-2'
+                                                                className='float-end me-2'
                                                                 type='dashed'
                                                                 danger
                                                                 onClick={async () => {
@@ -375,7 +375,7 @@ class RulesValidation extends React.Component {
                                                         )
                                                         : (
                                                             <Button
-                                                                className='float-right me-2'
+                                                                className='float-end me-2'
                                                                 type='default'
                                                                 onClick={() => {
                                                                     this.setState({ reOrderingEnabled: true });
@@ -472,7 +472,7 @@ class RulesValidation extends React.Component {
                                     this.state.selectedRuleFile
                                         ? (
                                             <Button
-                                                className='float-right'
+                                                className='float-end'
                                                 type='primary'
                                                 danger
                                                 onClick={this.handleRuleFileDelete}
@@ -503,7 +503,7 @@ class RulesValidation extends React.Component {
                                                 </td>
                                                 <td>
                                                     <Button
-                                                        className='float-right'
+                                                        className='float-end'
                                                         onClick={newFileCreateConfirm}
                                                     >
                                                         <CheckOutlined />
@@ -511,7 +511,7 @@ class RulesValidation extends React.Component {
                                                 </td>
                                                 <td>
                                                     <Button
-                                                        className='float-right'
+                                                        className='float-end'
                                                         onClick={() => { this.setState({ mode: null }); }}
                                                     >
                                                         <CloseOutlined />

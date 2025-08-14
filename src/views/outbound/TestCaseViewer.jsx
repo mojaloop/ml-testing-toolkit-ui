@@ -346,11 +346,11 @@ class TestCaseViewer extends React.Component {
                                                 }
                                             </Col>
                                             <Col span={8}>
-                                                <Dropdown overlay={menu} trigger={['click']} className='ms-4 mt-2 float-right'>
+                                                <Dropdown overlay={menu} trigger={['click']} className='ms-4 mt-2 float-end'>
                                                     <MoreOutlined />
                                                 </Dropdown>
                                                 <Button
-                                                    className='ms-2 float-right'
+                                                    className='ms-2 float-end'
                                                     type='default'
                                                     onClick={() => {
                                                         this.props.onEdit();
@@ -362,7 +362,7 @@ class TestCaseViewer extends React.Component {
                                                     this.state.testCaseRequestsReorderingEnabled && (this.props.testCase.requests && this.props.testCase.requests.length > 0)
                                                         ? (
                                                             <Button
-                                                                className='ms-2 float-right'
+                                                                className='ms-2 float-end'
                                                                 type='dashed'
                                                                 danger
                                                                 onClick={async () => {

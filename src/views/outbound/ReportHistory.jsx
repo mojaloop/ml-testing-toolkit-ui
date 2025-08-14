@@ -72,7 +72,7 @@ class ReportHistory extends React.Component {
                     width: '10%',
                     render: (text, record) => (
                         <Dropdown overlay={this.downloadReportMenu(record)}>
-                            <Button className='float-right' color='info' size='sm' onClick={e => e.preventDefault()}>
+                            <Button className='float-end' color='info' size='sm' onClick={e => e.preventDefault()}>
                                 Download
                             </Button>
                         </Dropdown>
@@ -248,7 +248,7 @@ class ReportHistory extends React.Component {
                     <Col span={24}>
                         <Card className='mb-4'>
                             <Pagination
-                                className='float-right'
+                                className='float-end'
                                 pageSize={this.state.pageSize}
                                 current={this.state.currentPage}
                                 total={this.state.historyReportsTotal}

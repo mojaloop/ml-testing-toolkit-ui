@@ -484,7 +484,7 @@ class FileManager extends React.Component {
                                     </Button>
                                     <Button
                                         type='primary'
-                                        className='float-right'
+                                        className='float-end'
                                         danger
                                         onClick={() => {
                                             const nativeFilePath = localStorage.getItem('nativeFilePath');
@@ -509,7 +509,7 @@ class FileManager extends React.Component {
                                             }
                                             title='Select Files / Folders'
                                             trigger='click'
-                                            visible={this.state.importFromGitHubDialogVisible}
+                                            open={this.state.importFromGitHubDialogVisible}
                                             onVisibleChange={visible => {
                                                 // if (visible) {
                                                 //   this.setState({ renameEnvironmentNewName: this.state.localEnvironments[this.state.selectedEnvironmentIndex] && this.state.localEnvironments[this.state.selectedEnvironmentIndex].name })
@@ -518,7 +518,7 @@ class FileManager extends React.Component {
                                             }}
                                         >
                                             <Button
-                                                className='ms-2 float-right'
+                                                className='ms-2 float-end'
                                                 type='primary'
                                                 shape='round'
                                                 danger
