@@ -265,7 +265,7 @@ class AddNewAPI extends React.Component {
                                     <Row className='mt-2'>
                                         <Col span={24}>
                                             <Button
-                                                className='float-right' type='primary' danger
+                                                className='float-end' type='primary' danger
                                                 onClick={this.addApiFile}
                                             >
                     Upload
@@ -459,7 +459,7 @@ class APIManagement extends React.Component {
                             <Row>
                                 <Col span={24}>
                                     <Button
-                                        className='float-right'
+                                        className='float-end'
                                         type='primary'
                                         onClick={() => {
                                             this.setState({ newAPIDialogEnabled: true });

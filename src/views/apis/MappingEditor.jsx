@@ -311,7 +311,7 @@ class MappingEditor extends React.Component {
                             </Col>
                             <Col span={8}>
                                 <Button
-                                    className='float-right'
+                                    className='float-end'
                                     type='primary'
                                     onClick={this.handleSave}
                                 >
@@ -327,7 +327,7 @@ class MappingEditor extends React.Component {
                                             <td align='right'><b>FSPID:</b></td>
                                             <td>
                                                 <Input
-                                                    className='float-left'
+                                                    className='float-start'
                                                     placeholder='Value'
                                                     value={this.state.fspid}
                                                     onChange={e => {
@@ -366,7 +366,7 @@ class MappingEditor extends React.Component {
                                                                                 <td align='right'><b>Path Pattern:</b></td>
                                                                                 <td>
                                                                                     <Input
-                                                                                        className='float-left'
+                                                                                        className='float-start'
                                                                                         placeholder='pathPattern'
                                                                                         value={this.state.selectedResource.data.successCallback.pathPattern}
                                                                                         onChange={e => {
@@ -410,7 +410,7 @@ class MappingEditor extends React.Component {
                                                                                 <td align='right'><b>Path Pattern:</b></td>
                                                                                 <td>
                                                                                     <Input
-                                                                                        className='float-left'
+                                                                                        className='float-start'
                                                                                         placeholder='pathPattern'
                                                                                         value={this.state.selectedResource.data.errorCallback.pathPattern}
                                                                                         onChange={e => {

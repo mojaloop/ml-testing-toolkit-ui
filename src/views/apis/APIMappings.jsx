@@ -171,7 +171,7 @@ class APIMappings extends React.Component {
                                 <Col span={12} />
                                 <Col span={12}>
                                     <Button
-                                        className='float-right'
+                                        className='float-end'
                                         type='primary'
                                         onClick={() => {
                                             this.setState({
