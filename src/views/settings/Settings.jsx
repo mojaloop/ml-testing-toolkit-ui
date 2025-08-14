@@ -287,7 +287,7 @@ class ConfigurationEditor extends React.Component {
                     <Col className='mb-5' span={24}>
                         <Row className='mb-2'>
                             <Col span={24}>
-                                <div className='d-flex float-right'>
+                                <div className='d-flex float-end'>
                                     <Button
                                         className='me-2' onClick={e => {
                                             this.setState({ exportDialogVisible: true });
