@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [16.7.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.6.4...v16.7.0) (2025-08-15)
+
+
+### Features
+
+* 4184 fix UI formatting pi28 ([#242](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/242)) ([25cb2be](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/25cb2be137ac0a4a3ac8c513d4b098baa35400a4))
+
 ### [16.6.4](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.6.3...v16.6.4) (2025-08-04)
 
 
