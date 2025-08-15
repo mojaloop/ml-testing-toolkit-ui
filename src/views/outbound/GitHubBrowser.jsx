@@ -276,7 +276,7 @@ class GitHubBrowser extends React.Component {
                                     ? <FolderOutlined />
                                     : <FileOutlined />
                             }
-                            <a className='ml-2' onClick={() => this.changeFolder(item.name)}>{item.name}</a>
+                            <a className='ms-2' onClick={() => this.changeFolder(item.name)}>{item.name}</a>
                         </>
                     );
                 },
@@ -372,7 +372,7 @@ class GitHubBrowser extends React.Component {
                                         ? (
                                             <Button
                                                 type='primary'
-                                                className='ml-2'
+                                                className='ms-2'
                                                 danger
                                                 onClick={this.handleCancel}
                                                 loading={this.state.isCancelRequested}

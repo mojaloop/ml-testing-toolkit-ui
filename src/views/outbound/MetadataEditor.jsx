@@ -89,7 +89,7 @@ class MetadataItem extends React.Component {
             <>
                 <Row>
                     <Col span={24}>
-                        <Text className='mr-2' strong>{this.props.name}</Text>
+                        <Text className='me-2' strong>{this.props.name}</Text>
                         {
                             this.state.editMode
                                 ? (
@@ -103,7 +103,7 @@ class MetadataItem extends React.Component {
                                         />
                                         <CloseSquareTwoTone
                                             style={{ fontSize: '20px' }}
-                                            className='mr-1'
+                                            className='me-1'
                                             onClick={() => {
                                                 this.setState({ editMode: false });
                                             }}

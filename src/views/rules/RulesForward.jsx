@@ -119,7 +119,7 @@ class RulesForward extends React.Component {
                 Edit
                                 </Button>
                                 <Button
-                                    className='ml-2'
+                                    className='ms-2'
                                     type='primary'
                                     danger
                                     onClick={this.handleRuleDelete(rule.ruleId)}
@@ -303,7 +303,7 @@ class RulesForward extends React.Component {
                                             </Col>
                                             <Col span={12}>
                                                 <Button
-                                                    className='float-right'
+                                                    className='float-end'
                                                     type='primary'
                                                     onClick={this.handleAddNewRuleClick}
                                                 >
@@ -313,7 +313,7 @@ class RulesForward extends React.Component {
                                                     this.state.reOrderingEnabled
                                                         ? (
                                                             <Button
-                                                                className='float-right mr-2'
+                                                                className='float-end me-2'
                                                                 type='dashed'
                                                                 danger
                                                                 onClick={async () => {
@@ -331,7 +331,7 @@ class RulesForward extends React.Component {
                                                         )
                                                         : (
                                                             <Button
-                                                                className='float-right mr-2'
+                                                                className='float-end me-2'
                                                                 type='default'
                                                                 onClick={() => {
                                                                     this.setState({ reOrderingEnabled: true });
@@ -379,11 +379,11 @@ class RulesForward extends React.Component {
                                 )
                         }
                     </Col>
-                    <Col span={8} className='pl-2'>
+                    <Col span={8} className='ps-2'>
                         <Card>
                             <div className='d-flex justify-content-between'>
                                 <Button
-                                    className='mr-4'
+                                    className='me-4'
                                     type='primary'
                                     onClick={() => { this.setState({ mode: 'newFile' }); }}
                                 >
@@ -404,7 +404,7 @@ class RulesForward extends React.Component {
                                     this.state.selectedRuleFile
                                         ? (
                                             <Button
-                                                className='float-right'
+                                                className='float-end'
                                                 type='primary'
                                                 danger
                                                 onClick={this.handleRuleFileDelete}
@@ -435,7 +435,7 @@ class RulesForward extends React.Component {
                                                 </td>
                                                 <td>
                                                     <Button
-                                                        className='float-right'
+                                                        className='float-end'
                                                         onClick={newFileCreateConfirm}
                                                     >
                                                         <CheckOutlined />
@@ -443,7 +443,7 @@ class RulesForward extends React.Component {
                                                 </td>
                                                 <td>
                                                     <Button
-                                                        className='float-right'
+                                                        className='float-end'
                                                         onClick={() => { this.setState({ mode: null }); }}
                                                     >
                                                         <CloseOutlined />

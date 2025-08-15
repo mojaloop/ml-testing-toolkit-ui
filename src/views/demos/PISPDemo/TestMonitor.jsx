@@ -243,13 +243,13 @@ class TestMonitor extends React.Component {
         return (
             <>
                 <Row>
-                    <Col span={8} className='text-right'>
+                    <Col span={8} className='text-end'>
                         <span className='font-weight-bold'>Inbound Requests</span>
                     </Col>
                     <Col span={8} className='text-center'>
                         <span className='font-weight-bold'>|</span>
                     </Col>
-                    <Col span={8} className='text-left'>
+                    <Col span={8} className='text-start'>
                         <span className='font-weight-bold'>Outbound Requests</span>
                     </Col>
                 </Row>

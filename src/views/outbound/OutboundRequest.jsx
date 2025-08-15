@@ -145,7 +145,7 @@ class OutboundRequest extends React.Component {
                     width: '10%',
                     render: (text, record) => (
                         <Dropdown overlay={this.downloadReportMenu(record)}>
-                            <Button className='float-right' color='info' size='sm' onClick={e => e.preventDefault()}>
+                            <Button className='float-end' color='info' size='sm' onClick={e => e.preventDefault()}>
                 Download
                             </Button>
                         </Dropdown>
@@ -892,7 +892,7 @@ class OutboundRequest extends React.Component {
                     onChange={e => { this.setState({ newRequestDescription: e.target.value }); }}
                 />
                 <Button
-                    className='text-right mt-2'
+                    className='text-end mt-2'
                     color='success'
                     href='#pablo'
                     onClick={() => {
@@ -925,7 +925,7 @@ class OutboundRequest extends React.Component {
                     }}
                 />
                 <Button
-                    className='text-right mt-2'
+                    className='text-end mt-2'
                     color='success'
                     href='#pablo'
                     onClick={() => {
@@ -973,7 +973,7 @@ class OutboundRequest extends React.Component {
                     <Row>
                         <Col>
                             <Button
-                                className='text-right mt-2'
+                                className='text-end mt-2'
                                 color='success'
                                 href='#pablo'
                                 onClick={() => {
@@ -1143,7 +1143,7 @@ class OutboundRequest extends React.Component {
                                             </Col>
                                             <Col span={12}>
                                                 <Button
-                                                    type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
+                                                    type='primary' className='mt-2 float-end' style={{ height: '40px', backgroundColor: '#718ebc' }} onClick={() => {
                                                         this.setState({ environmentManagerVisible: true });
                                                     }}
                                                 >
@@ -1192,7 +1192,7 @@ class OutboundRequest extends React.Component {
                                                             <Row>
                                                                 <Col span='24'>
                                                                     <Button
-                                                                        className='float-right'
+                                                                        className='float-end'
                                                                         type='primary'
                                                                         danger
                                                                         onClick={this.handleSendStopClick}
@@ -1200,7 +1200,7 @@ class OutboundRequest extends React.Component {
                                                                         {this.state.sendingOutboundRequestID ? (this.state.resetExecutionOptionEnabled ? 'Reset' : 'Stop') : 'Run'}
                                                                     </Button>
                                                                     <Button
-                                                                        className='float-right mr-2'
+                                                                        className='float-end me-2'
                                                                         type='dashed'
                                                                         danger
                                                                         onClick={() => { this.setState({ showIterationRunner: true }); }}
@@ -1208,7 +1208,7 @@ class OutboundRequest extends React.Component {
                                                                       Iteration Runner
                                                                     </Button>
                                                                     <Button
-                                                                        className='float-right mr-2'
+                                                                        className='float-end me-2'
                                                                         type='dashed'
                                                                         onClick={() => { this.setState({ showTemplate: true }); }}
                                                                     >
@@ -1218,7 +1218,7 @@ class OutboundRequest extends React.Component {
                                                                         getConfig().isAuthEnabled
                                                                             ? <>
                                                                                 <Button
-                                                                                    className='float-right' type='primary' danger onClick={async e => {
+                                                                                    className='float-end' type='primary' danger onClick={async e => {
                                                                                         this.setState({ historyReportsLocal: await this.historyReportsLocal() });
                                                                                         this.setState({ historyReportsVisible: true });
                                                                                     }}
@@ -1257,7 +1257,7 @@ class OutboundRequest extends React.Component {
                                                                         this.state.template.test_cases
                                                                             ? (
                                                                                 <Checkbox
-                                                                                    className='ml-2 mt-1 float-right'
+                                                                                    className='ms-2 mt-1 float-end'
                                                                                     onClick={e => {
                                                                                         this.handleBreakOnErrorChange(e.target.checked);
                                                                                     }}
@@ -1273,7 +1273,7 @@ class OutboundRequest extends React.Component {
                                                             <Row className='mt-2' justify="end">
                                                                 <Col span='6'>
                                                                     <Checkbox
-                                                                        className='ml-2 mt-1 float-right'
+                                                                        className='ms-2 mt-1 float-end'
                                                                         onChange={this.handleReportSaveToDB}
                                                                         checked={this.state.template.saveReport}
                                                                     >
@@ -1285,7 +1285,7 @@ class OutboundRequest extends React.Component {
                                                                         this.state.template.saveReport
                                                                             ? (
                                                                                 <Input
-                                                                                    className='mr-2'
+                                                                                    className='me-2'
                                                                                     defaultValue="multi"
                                                                                     value={this.state.template.name}
                                                                                     onChange={this.handleReportFileName}
@@ -1301,7 +1301,7 @@ class OutboundRequest extends React.Component {
                                                                         this.state.testReport
                                                                             ? <Dropdown overlay={this.downloadReportMenu()}>
                                                                                 <Button
-                                                                                    className='float-right'
+                                                                                    className='float-end'
                                                                                     type='primary'
                                                                                     shape='round'
                                                                                     onClick={e => e.preventDefault()}
@@ -1337,7 +1337,7 @@ class OutboundRequest extends React.Component {
                                                         this.state.template.test_cases && this.state.template.test_cases.length > 0
                                                             ? <Dropdown overlay={this.downloadDefinitionMenu()}>
                                                                 <Button
-                                                                    className='float-right'
+                                                                    className='float-end'
                                                                     type='primary'
                                                                     shape='round'
                                                                     onClick={e => e.preventDefault()}
@@ -1348,7 +1348,7 @@ class OutboundRequest extends React.Component {
                                                             : null
                                                     }
                                                     <Popover
-                                                        className='float-right mr-2'
+                                                        className='float-end me-2'
                                                         content={getSaveTemplateDialogContent(1)}
                                                         title='Enter filename to save'
                                                         trigger='click'
@@ -1356,7 +1356,7 @@ class OutboundRequest extends React.Component {
                                                         onOpenChange={visible => this.setState({ saveTemplateTestcasesDialogVisible: visible })}
                                                     >
                                                         <Button
-                                                            className='float-right'
+                                                            className='float-end'
                                                             type='default'
                                                         >
                                                     Export Loaded Testcases
@@ -1364,7 +1364,7 @@ class OutboundRequest extends React.Component {
                                                     </Popover>
                                                     <Popover
                                                         content={createNewTestCaseDialogContent}
-                                                        className='mr-2'
+                                                        className='me-2'
                                                         title='Enter a name for the template'
                                                         trigger='click'
                                                         open={this.state.createNewTestCaseDialogVisible}
@@ -1381,7 +1381,7 @@ class OutboundRequest extends React.Component {
                                                             ? (
                                                                 <>
                                                                     <Button
-                                                                        className='text-right'
+                                                                        className='text-end'
                                                                         type='dashed'
                                                                         danger
                                                                         onClick={async () => {
@@ -1400,7 +1400,7 @@ class OutboundRequest extends React.Component {
                                                       Apply Reordering
                                                                     </Button>
                                                                     <Button
-                                                                        className='text-right ml-2'
+                                                                        className='text-end ms-2'
                                                                         type='dashed'
                                                                         onClick={async () => {
                                                                             this.setState({ curTestCasesUpdated: false, testCaseReorderingEnabled: false, tempReorderedTestCases: [] });
@@ -1413,7 +1413,7 @@ class OutboundRequest extends React.Component {
                                                             : (
                                                                 this.state.additionalData && this.state.additionalData.selectedFiles
                                                                     ? <Button
-                                                                        className='text-right'
+                                                                        className='text-end'
                                                                         type='default'
                                                                         onClick={() => {
                                                                             const fileSelected = this.getSingleFileSelected();

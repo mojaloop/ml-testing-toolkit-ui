@@ -420,12 +420,12 @@ class OutboundRequest extends React.Component {
                     onClose={() => {
                         this.setState({ fileBrowserVisible: false });
                     }}
-                    visible={this.state.fileBrowserVisible}
+                    open={this.state.fileBrowserVisible}
                 >
                     <Row>
                         <Col span={24}>
                             <Button
-                                className='float-right mr-2'
+                                className='float-end me-2'
                                 type='dashed'
                                 onClick={() => { this.setState({ showTemplate: true }); }}
                             >
@@ -462,7 +462,7 @@ class OutboundRequest extends React.Component {
                     forceRender
                     title='Template'
                     className='w-50 p-3'
-                    visible={!!this.state.showTemplate}
+                    open={!!this.state.showTemplate}
                     footer={null}
                     onCancel={() => { this.setState({ showTemplate: false }); }}
                 >
@@ -523,7 +523,7 @@ class OutboundRequest extends React.Component {
                                         <Row>
                                             <Col span='24'>
                                                 <Button
-                                                    className='float-right'
+                                                    className='float-end'
                                                     type='primary'
                                                     danger
                                                     onClick={this.handleSendStopClick}

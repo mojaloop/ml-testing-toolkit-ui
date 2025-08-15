@@ -337,7 +337,7 @@ class EnvironmentManager extends React.Component {
                     <Row>
                         <Col>
                             <Button
-                                className='text-right mt-2'
+                                className='text-end mt-2'
                                 color='success'
                                 href='#pablo'
                                 onClick={() => {
@@ -383,7 +383,7 @@ class EnvironmentManager extends React.Component {
                                   Import File
                                                     </Button>
                                                     <Button
-                                                        className='ml-2'
+                                                        className='ms-2'
                                                         type='primary'
                                                         onClick={() => {
                                                             this.handleDownloadEnvironment(this.state.selectedEnvironmentIndex);
@@ -393,7 +393,7 @@ class EnvironmentManager extends React.Component {
                                   Download
                                                     </Button>
                                                     <Dropdown
-                                                        className='ml-2 float-right'
+                                                        className='ms-2 float-end'
                                                         zIndex={1101}
                                                         overlay={menu}
                                                         trigger={['click']}
@@ -427,7 +427,7 @@ class EnvironmentManager extends React.Component {
                                   Delete
                                                     </Button>
                                                     <Button
-                                                        className='ml-2'
+                                                        className='ms-2'
                                                         type='dashed'
                                                         onClick={() => {
                                                             this.handleDuplicateEnvironment(this.state.selectedEnvironmentIndex);
@@ -450,7 +450,7 @@ class EnvironmentManager extends React.Component {
                                                         }}
                                                     >
                                                         <Button
-                                                            className='ml-2'
+                                                            className='ms-2'
                                                             type='default'
                                                             disabled={this.state.selectedEnvironmentIndex === null}
                                                         >

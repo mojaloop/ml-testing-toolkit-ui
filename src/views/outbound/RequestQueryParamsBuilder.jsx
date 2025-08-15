@@ -117,7 +117,7 @@ class RequestQueryParamsBuilder extends React.Component {
                     onChange={e => { this.setState({ newQueryParamName: e.target.value }); }}
                 />
                 <Button
-                    className='text-right mt-2'
+                    className='text-end mt-2'
                     color='success'
                     href='#pablo'
                     onClick={() => {
@@ -156,7 +156,7 @@ class RequestQueryParamsBuilder extends React.Component {
                                             : null
                                     }
                                 </Col>
-                                <Col span={12} className='text-right'>
+                                <Col span={12} className='text-end'>
                                     <strong>Raw Editor</strong> <Switch checked={this.state.queryParamRawEditorEnable} onChange={checked => { this.setState({ queryParamRawEditorEnable: checked }); }} />
                                 </Col>
                             </Row>
@@ -167,7 +167,7 @@ class RequestQueryParamsBuilder extends React.Component {
                                             ? (
                                                 <div>
                                                     <Row>
-                                                        <Col span={24} className='text-left mt-4'>
+                                                        <Col span={24} className='text-start mt-4'>
                                                             <JsonEditor
                                                                 value={this.props.request.queryParams || {}}
                                                                 onChange={this.handleRawQueryParamsChange}

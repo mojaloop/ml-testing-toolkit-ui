@@ -235,7 +235,7 @@ export class HeaderInputComponent extends React.Component {
                         </Tooltip>
                     </Col>
 
-                    <Col span={12} className='pl-2'>
+                    <Col span={12} className='ps-2'>
                         <Input
                             placeholder='Value'
                             type='text'
@@ -249,7 +249,7 @@ export class HeaderInputComponent extends React.Component {
                         </Popover>
 
                     </Col>
-                    <Col span={4} className='pl-2'>
+                    <Col span={4} className='ps-2'>
                         <Button
                             type='primary'
                             danger

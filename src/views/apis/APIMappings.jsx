@@ -98,7 +98,7 @@ class APIMappings extends React.Component {
                   Edit
                                 </Button>
                                 <Button
-                                    className='ml-2'
+                                    className='ms-2'
                                     type='primary'
                                     danger
                                     onClick={async () => {
@@ -137,7 +137,7 @@ class APIMappings extends React.Component {
                     forceRender={false}
                     title='Mapping Builder'
                     className='w-50 p-3'
-                    visible={!!(this.state.selectedResource)}
+                    open={!!(this.state.selectedResource)}
                     footer={null}
                     onCancel={() => {
                         this.setState({ selectedResource: null });
@@ -171,7 +171,7 @@ class APIMappings extends React.Component {
                                 <Col span={12} />
                                 <Col span={12}>
                                     <Button
-                                        className='float-right'
+                                        className='float-end'
                                         type='primary'
                                         onClick={() => {
                                             this.setState({

@@ -94,7 +94,7 @@ class APIDocs extends React.Component {
                                     onChange={this.handleApiVersionSelect}
                                     disabled={(!!this.props.value)}
                                     style={{ width: 300 }}
-                                    className='float-right'
+                                    className='float-end'
                                     placeholder='Select an API'
                                     value={this.getApiVersionValue()}
                                 >

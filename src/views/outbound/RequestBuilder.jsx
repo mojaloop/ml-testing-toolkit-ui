@@ -227,7 +227,7 @@ class CurlImporter extends React.Component {
                 <Row>
                     <Col>
                         <Button
-                            className='text-right mt-2'
+                            className='text-end mt-2'
                             color='success'
                             href='#pablo'
                             onClick={this.handleImportClick}
@@ -236,7 +236,7 @@ class CurlImporter extends React.Component {
               Import
                         </Button>
                         <Button
-                            className='text-right mt-2'
+                            className='text-end mt-2'
                             color='danger'
                             href='#pablo'
                             onClick={() => {
@@ -265,7 +265,7 @@ class CurlImporter extends React.Component {
                 onOpenChange={visible => this.setState({ importCurlCommandDialogVisible: true })}
             >
                 <Button
-                    className='mt-2 mb-2 mr-2'
+                    className='mt-2 mb-2 me-2'
                     color='info'
                     size='sm'
                 >

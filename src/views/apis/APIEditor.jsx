@@ -133,7 +133,7 @@ class APIEditor extends React.Component {
                     width='90%'
                     destroyOnClose
                     footer={null}
-                    visible={this.state.apiMappingsVisible}
+                    open={this.state.apiMappingsVisible}
                     onCancel={e => {
                         this.setState({ apiMappingsVisible: false });
                     }}
@@ -154,7 +154,7 @@ class APIEditor extends React.Component {
                                 </Col>
                                 <Col span={12}>
                                     <Button
-                                        className='ml-2 float-right'
+                                        className='ms-2 float-end'
                                         type='primary'
                                         onClick={e => {
                                             this.setState({ apiMappingsVisible: true });

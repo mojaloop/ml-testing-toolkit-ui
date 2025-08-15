@@ -72,7 +72,7 @@ class ReportHistory extends React.Component {
                     width: '10%',
                     render: (text, record) => (
                         <Dropdown overlay={this.downloadReportMenu(record)}>
-                            <Button className='float-right' color='info' size='sm' onClick={e => e.preventDefault()}>
+                            <Button className='float-end' color='info' size='sm' onClick={e => e.preventDefault()}>
                                 Download
                             </Button>
                         </Dropdown>
@@ -101,7 +101,7 @@ class ReportHistory extends React.Component {
                 format={() => {
                     return (
                         <>
-                            <Text className='mr-2'>{runtimeInformation.totalPassedAssertions + '/' + runtimeInformation.totalAssertions}</Text>
+                            <Text className='me-2'>{runtimeInformation.totalPassedAssertions + '/' + runtimeInformation.totalAssertions}</Text>
                             {
                                 passed
                                     ? (
@@ -248,7 +248,7 @@ class ReportHistory extends React.Component {
                     <Col span={24}>
                         <Card className='mb-4'>
                             <Pagination
-                                className='float-right'
+                                className='float-end'
                                 pageSize={this.state.pageSize}
                                 current={this.state.currentPage}
                                 total={this.state.historyReportsTotal}
@@ -257,7 +257,7 @@ class ReportHistory extends React.Component {
                                 style={{ bottom: '0px' }}
                             />
                             <RangePicker showTime onChange={this.handleDateChange} />
-                            <Radio.Group className='ml-4' value={this.state.filterStatus} onChange={this.handleFilterStatusChange}>
+                            <Radio.Group className='ms-4' value={this.state.filterStatus} onChange={this.handleFilterStatusChange}>
                                 <Radio.Button value="all">All</Radio.Button>
                                 <Radio.Button value="passed">Passed</Radio.Button>
                                 <Radio.Button value="failed">Failed</Radio.Button>

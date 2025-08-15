@@ -654,7 +654,7 @@ class RulesEditor extends React.Component {
                             </Col>
                             <Col span={8}>
                                 <Button
-                                    className='float-right'
+                                    className='float-end'
                                     type='primary'
                                     onClick={this.handleSave}
                                 >
@@ -669,7 +669,7 @@ class RulesEditor extends React.Component {
                                         <Title level={4} className='text-muted'>
                       Conditions
                                         </Title>
-                                        <div className='pl-4'>
+                                        <div className='ps-4'>
                                             <ConditionBuilder
                                                 conditions={this.getConditions()}
                                                 pathMethodConditions={this.getPathMethodConditions()}
@@ -685,7 +685,7 @@ class RulesEditor extends React.Component {
                                         <Title level={4} className='text-muted mb-4'>
                       Event
                                         </Title>
-                                        <div className='pl-4'>
+                                        <div className='ps-4'>
                                             {
                                                 this.props.mode === 'response'
                                                     ? (
@@ -720,7 +720,7 @@ class RulesEditor extends React.Component {
                                         <hr className='mt-4' />
                                         {/* Description */}
                                         <Title level={4} className='text-muted mb-4'>Rule Details</Title>
-                                        <div className='pl-lg-4'>
+                                        <div className='ps-lg-4'>
                                             <label>Rule Description</label>
                                             <Input.TextArea
                                                 className='form-control-alternative'
@@ -748,7 +748,7 @@ class RulesEditor extends React.Component {
                                         </Row>
                                         <Row className='mt-2'>
                                             <Col span={24}>
-                                                <div className='pl-lg-4'>
+                                                <div className='ps-lg-4'>
                                                     <AceEditor
                                                         ref={ref => { this.refs['preReqScriptAceEditor'] = ref; }}
                                                         mode='javascript'
@@ -778,7 +778,7 @@ class RulesEditor extends React.Component {
                                             {this.getEnvironmentStateDescriptions()}
                                         </Descriptions>
                                         <br />
-                                        <Button type='default' loading={this.state.reloadEnvironmentLoading} className='mr-2' size='sm' onClick={this.handleReloadEnvironment}>
+                                        <Button type='default' loading={this.state.reloadEnvironmentLoading} className='me-2' size='sm' onClick={this.handleReloadEnvironment}>
                       Reload environment
                                         </Button>
                                         <Button

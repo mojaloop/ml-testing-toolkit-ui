@@ -196,16 +196,16 @@ class PayeeMobile extends React.Component {
                     <>
                         <Row className='mt-3'>
                             <Col span={12}>
-                                <span className='ml-3'>
+                                <span className='ms-3'>
                                     <BrandIcon width='100px' className='float-center' />
                                 </span>
                             </Col>
                             <Col span={12}>
-                                <span className='float-right mr-3 mt-2'>
+                                <span className='float-end me-3 mt-2'>
                                     <Row>
                                         <Col span={24}>
                                             <Button
-                                                className='float-right'
+                                                className='float-end'
                                                 onClick={this.handleLogout}
                                             >
                         Logout
@@ -214,7 +214,7 @@ class PayeeMobile extends React.Component {
                                     </Row>
                                     <Row className='mt-2'>
                                         <Col span={24}>
-                                            <Text className='float-right' type='secondary' strong>{this.state.party.idValue}</Text>
+                                            <Text className='float-end' type='secondary' strong>{this.state.party.idValue}</Text>
                                         </Col>
                                     </Row>
                                 </span>
@@ -263,7 +263,7 @@ class PayeeMobile extends React.Component {
                             </Row>
                             <Row style={{ marginTop: '100px' }}>
                                 <Col span={24} className='mx-auto'>
-                                    <Card className='shadow ml-1 mr-1 mt-n5 align-middle p-2' style={{ width: '100%' }}>
+                                    <Card className='shadow ms-1 me-1 mt-n5 align-middle p-2' style={{ width: '100%' }}>
                                         <Form
                                             name='basic'
                                             labelCol={{

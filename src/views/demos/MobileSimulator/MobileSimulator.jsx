@@ -311,7 +311,7 @@ class MobileSimulator extends React.Component {
                     placement='left'
                     forceRender
                     closable={false}
-                    visible={this.state.payerLogsDrawerVisible}
+                    open={this.state.payerLogsDrawerVisible}
                     onClose={() => {
                         this.setState({ payerLogsDrawerVisible: false });
                     }}
@@ -324,7 +324,7 @@ class MobileSimulator extends React.Component {
                     placement='right'
                     forceRender
                     closable={false}
-                    visible={this.state.payeeLogsDrawerVisible}
+                    open={this.state.payeeLogsDrawerVisible}
                     onClose={() => {
                         this.setState({ payeeLogsDrawerVisible: false });
                     }}
@@ -335,7 +335,7 @@ class MobileSimulator extends React.Component {
                     style={{ top: 20 }}
                     destroyOnClose
                     title='Settings'
-                    visible={!!this.state.showSettings}
+                    open={!!this.state.showSettings}
                     footer={null}
                     onCancel={() => { this.setState({ showSettings: false }); }}
                 >
@@ -350,7 +350,7 @@ class MobileSimulator extends React.Component {
                         <Row className='h-100'>
                             <Col
                                 span={4}
-                                className='text-left align-bottom'
+                                className='text-start align-bottom'
                                 style={{
                                     verticalAlign: 'bottom',
                                     width: '100%',
@@ -446,7 +446,7 @@ class MobileSimulator extends React.Component {
                                 <Row align='top'>
                                     <Col span={24}>
                                         <Button
-                                            type='primary' className='mt-2 float-right' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
+                                            type='primary' className='mt-2 float-end' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
                                                 this.setState({ payeeLogsDrawerVisible: true });
                                             }}
                                         >
@@ -456,7 +456,7 @@ class MobileSimulator extends React.Component {
                                 </Row>
                                 <Row align='bottom' className='h-100'>
                                     <Col span={24}>
-                                        <Row className='float-right' style={{ marginRight: '3vh', marginBottom: '8vh', width: '24vh', height: '45vh' }}>
+                                        <Row className='float-end' style={{ marginRight: '3vh', marginBottom: '8vh', width: '24vh', height: '45vh' }}>
                                             <Col span={24}>
                                                 <PayeeMobile
                                                     ref={this.payeeMobileRef}

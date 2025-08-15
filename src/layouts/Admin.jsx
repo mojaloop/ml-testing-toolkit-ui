@@ -147,7 +147,7 @@ const Admin = () => {
                                                 background: '#293e5d',
                                             }}
                                         />
-                                        <Card className='shadow ml-4 mr-4 mt-n5'>
+                                        <Card className='shadow ms-4 me-4 mt-n5'>
                                             <Routes>
                                                 {getRoutes(routes)}
                                                 <Route path="" element={<Navigate to="index" replace />} />

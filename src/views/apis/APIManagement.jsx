@@ -265,7 +265,7 @@ class AddNewAPI extends React.Component {
                                     <Row className='mt-2'>
                                         <Col span={24}>
                                             <Button
-                                                className='float-right' type='primary' danger
+                                                className='float-end' type='primary' danger
                                                 onClick={this.addApiFile}
                                             >
                     Upload
@@ -409,7 +409,7 @@ class APIManagement extends React.Component {
                     className='w-50 p-3'
                     destroyOnClose
                     footer={null}
-                    visible={this.state.newAPIDialogEnabled}
+                    open={this.state.newAPIDialogEnabled}
                     onCancel={e => {
                         this.setState({ newAPIDialogEnabled: false });
                     }}
@@ -426,7 +426,7 @@ class APIManagement extends React.Component {
                     width='90%'
                     destroyOnClose
                     footer={null}
-                    visible={this.state.apiDocViewerVisible}
+                    open={this.state.apiDocViewerVisible}
                     onCancel={e => {
                         this.setState({ apiDocViewerVisible: false });
                     }}
@@ -441,7 +441,7 @@ class APIManagement extends React.Component {
                     width='60%'
                     destroyOnClose
                     footer={null}
-                    visible={this.state.apiEditorVisible}
+                    open={this.state.apiEditorVisible}
                     onCancel={e => {
                         this.setState({ apiEditorVisible: false });
                     }}
@@ -459,7 +459,7 @@ class APIManagement extends React.Component {
                             <Row>
                                 <Col span={24}>
                                     <Button
-                                        className='float-right'
+                                        className='float-end'
                                         type='primary'
                                         onClick={() => {
                                             this.setState({ newAPIDialogEnabled: true });
@@ -476,7 +476,7 @@ class APIManagement extends React.Component {
                     Delete API
                                     </Button>
                                     <Button
-                                        className='ml-2'
+                                        className='ms-2'
                                         type='primary'
                                         shape='round'
                                         onClick={e => {
@@ -487,7 +487,7 @@ class APIManagement extends React.Component {
                     API Documentation
                                     </Button>
                                     <Button
-                                        className='ml-2'
+                                        className='ms-2'
                                         type='primary'
                                         shape='round'
                                         onClick={e => {

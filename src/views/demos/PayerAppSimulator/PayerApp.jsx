@@ -412,15 +412,15 @@ class PayerMobile extends React.Component {
             <>
                 <Row className='mt-1'>
                     <Col span={12}>
-                        <span className='ml-3'>
+                        <span className='ms-3'>
                             <BrandIcon width='100px' className='float-center' />
                         </span>
                     </Col>
                     <Col span={12}>
-                        <span className='float-right mr-3 mt-2'>
+                        <span className='float-end me-3 mt-2'>
                             <Row className='mt-2'>
                                 <Col span={24}>
-                                    <Text className='float-right' type='secondary' strong>{this.state.party.idValue}</Text>
+                                    <Text className='float-end' type='secondary' strong>{this.state.party.idValue}</Text>
                                 </Col>
                             </Row>
                         </span>
@@ -432,7 +432,7 @@ class PayerMobile extends React.Component {
                     </Col>
                 </Row>
                 <Row className='mt-2'>
-                    <Col span={24} className='text-left'>
+                    <Col span={24} className='text-start'>
                         <Text strong>Receiver ID</Text>
                         <Row>
                             <Col span={14}>
@@ -447,7 +447,7 @@ class PayerMobile extends React.Component {
                             </Col>
                             <Col span={10}>
                                 <Select
-                                    className='ml-2'
+                                    className='ms-2'
                                     style={{ width: 120 }}
                                     placeholder='Receiver ID Type'
                                     disabled={this.state.currentState !== 'start'}
@@ -469,11 +469,11 @@ class PayerMobile extends React.Component {
                                 </Select>
                             </Col>
                         </Row>
-                        <Row className='mt-2 ml-2'>
+                        <Row className='mt-2 ms-2'>
                             <Col span={24}>
                                 <Text strong>Amount</Text>
                                 <InputNumber
-                                    className='ml-2'
+                                    className='ms-2'
                                     value={this.state.amount}
                                     disabled={this.state.currentState !== 'start'}
                                     onChange={newNumber => {
@@ -483,7 +483,7 @@ class PayerMobile extends React.Component {
                                     // parser={value => value.replace(/\$\s?|(,*)/g, '')}
                                 />
                                 <Select
-                                    className='ml-2'
+                                    className='ms-2'
                                     style={{ width: 80 }}
                                     placeholder='Currency'
                                     disabled={this.state.currentState !== 'start'}
@@ -500,7 +500,7 @@ class PayerMobile extends React.Component {
                                     }
                                 </Select>
                                 <Select
-                                    className='ml-2'
+                                    className='ms-2'
                                     style={{ width: 100 }}
                                     placeholder='Amount Type'
                                     disabled={this.state.currentState !== 'start'}
@@ -527,7 +527,7 @@ class PayerMobile extends React.Component {
                                 </Card>
                             </Col>
                         </Row>
-                        <Row className='mt-1 ml-2'>
+                        <Row className='mt-1 ms-2'>
                             <Col span={24}>
                                 {this.getStageData()}
                             </Col>

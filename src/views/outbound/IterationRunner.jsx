@@ -175,7 +175,7 @@ class IterationRunner extends React.Component {
                 passPercentage: (
                     <>
                         <Text>{item.totalPassedAssertions + '/' + item.totalAssertions + ' (' + Math.round(item.totalPassedAssertions * 100 / item.totalAssertions) + '%)'}</Text>
-                        {item.totalPassedAssertions === item.totalAssertions ? (<Tag className='ml-2' color='success'>PASSED</Tag>) : (<Tag className='ml-2' color='error'>FAILED</Tag>)}
+                        {item.totalPassedAssertions === item.totalAssertions ? (<Tag className='ms-2' color='success'>PASSED</Tag>) : (<Tag className='ms-2' color='error'>FAILED</Tag>)}
                     </>),
                 runtimeDuration: item.runDurationMs,
                 downloadReport: this.state.totalReport
@@ -212,7 +212,7 @@ class IterationRunner extends React.Component {
                     </Col>
                     <Col span={8}>
                         <Button
-                            className='float-right'
+                            className='float-end'
                             type='primary'
                             danger
                             onClick={this.handleStartExecutionClick}

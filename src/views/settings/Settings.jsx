@@ -287,9 +287,9 @@ class ConfigurationEditor extends React.Component {
                     <Col className='mb-5' span={24}>
                         <Row className='mb-2'>
                             <Col span={24}>
-                                <div className='d-flex float-right'>
+                                <div className='d-flex float-end'>
                                     <Button
-                                        className='mr-2' onClick={e => {
+                                        className='me-2' onClick={e => {
                                             this.setState({ exportDialogVisible: true });
                                         }}
                                     >
@@ -299,7 +299,7 @@ class ConfigurationEditor extends React.Component {
                                         this.state.exportDialogVisible
                                             ? <Modal
                                                 title='Export'
-                                                visible={this.state.exportDialogVisible}
+                                                open={this.state.exportDialogVisible}
                                                 width='50%'
                                                 onOk={async () => {
                                                     if(this.state.exportSelectedRowKeys.length !== 0) {
@@ -330,7 +330,7 @@ class ConfigurationEditor extends React.Component {
                                             : null
                                     }
                                     <Button
-                                        color='info' className='mr-2' size='sm' onClick={e => {
+                                        color='info' className='me-2' size='sm' onClick={e => {
                                             this.setState({ importDialogVisible: true });
                                         }}
                                     >
@@ -340,7 +340,7 @@ class ConfigurationEditor extends React.Component {
                                         this.state.importDialogVisible
                                             ? <Modal
                                                 title='Import'
-                                                visible={this.state.importDialogVisible}
+                                                open={this.state.importDialogVisible}
                                                 width='50%'
                                                 onOk={() => {
                                                     if(this.state.importSelectedRowKeys.length !== 0) {
@@ -506,7 +506,7 @@ class CallBackResourceEndpoints extends React.Component {
                                 this.state.endpointsVisible
                                     ? <Modal
                                         title='Edit Callback resources endpoints'
-                                        visible={this.state.endpointsVisible}
+                                        open={this.state.endpointsVisible}
                                         width='70%'
                                         onOk={() => {
                                             this.props.config.CALLBACK_RESOURCE_ENDPOINTS.endpoints = this.state.endpointsLocal;
@@ -770,7 +770,7 @@ class DFSPWiseEndpoints extends React.Component {
                         ? <Modal
                             title='Edit DFSP wise endpoints'
                             width='50%'
-                            visible={this.state.endpointsVisible}
+                            open={this.state.endpointsVisible}
                             onOk={async () => {
                                 const payerKey = Object.keys(this.state.endpointsLocal.payer)[0];
                                 const payeeKey = Object.keys(this.state.endpointsLocal.payee)[0];
@@ -869,7 +869,7 @@ class Settings extends React.Component {
                                 className='w-50'
                                 destroyOnClose
                                 footer={null}
-                                visible={this.state.tokenFetcherEnabled}
+                                open={this.state.tokenFetcherEnabled}
                                 onCancel={e => {
                                     this.setState({ tokenFetcherEnabled: false });
                                 }}

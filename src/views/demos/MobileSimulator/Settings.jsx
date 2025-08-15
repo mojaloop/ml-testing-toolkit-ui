@@ -103,18 +103,18 @@ class Settings extends React.Component {
                 passCount: (
                     <>
                         <Progress percent={Math.round(step[1].passedCount * 100 / step[1].totalCount)} width={50} />
-                        {step[1].passedCount === step[1].totalCount ? (<Tag className='ml-2' color='success'>DONE</Tag>) : null}
+                        {step[1].passedCount === step[1].totalCount ? (<Tag className='ms-2' color='success'>DONE</Tag>) : null}
                     </>),
             };
         });
 
         return (
             <>
-                <Row className='mt-4 ml-2'>
+                <Row className='mt-4 ms-2'>
                     <Col span={24}>
                         <Text strong>Payer First Name:</Text>
                         <Input
-                            className='ml-2'
+                            className='ms-2'
                             style={{ width: '40%' }}
                             value={this.props.inputValues.fromFirstName}
                             onChange={newName => {
@@ -124,11 +124,11 @@ class Settings extends React.Component {
                         />
                     </Col>
                 </Row>
-                <Row className='mt-4 ml-2'>
+                <Row className='mt-4 ms-2'>
                     <Col span={24}>
                         <Text strong>Payer Last Name:</Text>
                         <Input
-                            className='ml-2'
+                            className='ms-2'
                             style={{ width: '40%' }}
                             value={this.props.inputValues.fromLastName}
                             onChange={newName => {
@@ -138,11 +138,11 @@ class Settings extends React.Component {
                         />
                     </Col>
                 </Row>
-                <Row className='mt-4 ml-2'>
+                <Row className='mt-4 ms-2'>
                     <Col span={24}>
                         <Text strong>Payer MSISDN:</Text>
                         <Input
-                            className='ml-2'
+                            className='ms-2'
                             style={{ width: '40%' }}
                             value={this.props.inputValues.fromIdValue}
                             onChange={newName => {
@@ -152,21 +152,21 @@ class Settings extends React.Component {
                         />
                     </Col>
                 </Row>
-                <Row className='mt-4 ml-2'>
+                <Row className='mt-4 ms-2'>
                     <Col span={24}>
                         <Text strong>Payer Transfer Expiry:</Text>
                         <InputNumber
-                            className='ml-4'
+                            className='ms-4'
                             value={this.state.payerFspTransferExpirationOffsetSec}
                             onChange={newNumber => {
                                 this.setState({ payerFspTransferExpirationOffsetSec: newNumber });
                                 this.props.outboundService.setCustomParams({ payerFspTransferExpirationOffset: newNumber * 1000 });
                             }}
                         />
-                        <Text className='ml-2'>Seconds</Text>
+                        <Text className='ms-2'>Seconds</Text>
                     </Col>
                 </Row>
-                <Row className='mt-4 ml-2'>
+                <Row className='mt-4 ms-2'>
                     <Col span={24}>
                         <Button
                             onClick={this.handleStartProvisioning}
@@ -176,7 +176,7 @@ class Settings extends React.Component {
                         </Button>
                     </Col>
                 </Row>
-                <Row className='mt-4 ml-2'>
+                <Row className='mt-4 ms-2'>
                     <Col span={24}>
                         <Table
                             columns={columns}

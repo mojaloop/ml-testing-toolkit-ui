@@ -384,14 +384,14 @@ class Condition extends React.Component {
                             {this.getFactTypeItems()}
                         </Select>
                     </Col>
-                    <Col span={8} className='pl-2'>
+                    <Col span={8} className='ps-2'>
                         <label>
               Fact
                         </label>
                         <br />
                         <FactSelect factData={this.state.factData} value={this.state.selectedFactPath} onSelect={this.handleFactSelect} />
                     </Col>
-                    <Col span={8} className='pl-2'>
+                    <Col span={8} className='ps-2'>
                         <label>
               Operator
                         </label>
@@ -413,7 +413,7 @@ class Condition extends React.Component {
                     <Col span={16}>
                         <br />
                         <Button
-                            className='float-right'
+                            className='float-end'
                             type='primary'
                             danger
                             onClick={this.handleDelete}
@@ -548,7 +548,7 @@ class ConditionBuilder extends React.Component {
                         >
               Add Condition
                         </Button>
-                        <Popover className='ml-2' content={content} title='Select a Configurable Parameter' trigger='click'>
+                        <Popover className='ms-2' content={content} title='Select a Configurable Parameter' trigger='click'>
                             <Button color='secondary' size='sm'>Add Configurable Params</Button>
                         </Popover>
                     </Col>

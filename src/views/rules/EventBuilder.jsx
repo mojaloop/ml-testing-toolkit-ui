@@ -214,7 +214,7 @@ export class FixedCallbackBuilder extends React.Component {
               Add
                         </Button>
                         <Button
-                            className='ml-2'
+                            className='ms-2'
                             type='default'
                             danger
                             onClick={() => {
@@ -291,7 +291,7 @@ export class FixedCallbackBuilder extends React.Component {
 
                                             </Dropdown>
                                             <Button
-                                                className='ml-2'
+                                                className='ms-2'
                                                 type='default'
                                                 danger
                                                 onClick={() => this.addHeaderItemsFromDefinition(true)}
@@ -299,7 +299,7 @@ export class FixedCallbackBuilder extends React.Component {
                         Add Required Headers
                                             </Button>
                                             <Button
-                                                className='ml-2'
+                                                className='ms-2'
                                                 type='default'
                                                 onClick={() => this.addHeaderItemsFromDefinition(false)}
                                             >
@@ -309,7 +309,7 @@ export class FixedCallbackBuilder extends React.Component {
                                                 content={addCustomHeaderDialogContent}
                                                 title='Enter name for the header'
                                                 trigger='click'
-                                                visible={this.state.addCustomHeaderDialogVisible}
+                                                open={this.state.addCustomHeaderDialogVisible}
                                                 onVisibleChange={visible => this.setState({ addCustomHeaderDialogVisible: true })}
                                             >
                                                 <Button
@@ -334,7 +334,7 @@ export class FixedCallbackBuilder extends React.Component {
                                     <Popover content={content} title='Select a Configurable Parameter' trigger='click'>
                                         <Button type='dashed'>Add Configurable Params</Button>
                                     </Popover>
-                                    <Button className='ml-2' type='default' onClick={this.handlePopulateSampleBodyClick}>Populate with sample body</Button>
+                                    <Button className='ms-2' type='default' onClick={this.handlePopulateSampleBodyClick}>Populate with sample body</Button>
                                 </Col>
                             </Row>
                             <Row>
@@ -372,7 +372,7 @@ class ParamsBuilder extends React.Component {
                         <Col span={24}>
                             <Row>
                                 <Col><Text>Delay in milliseconds</Text></Col>
-                                <Col className='pl-2'>
+                                <Col className='ps-2'>
                                     <Input
                                         placeholder='0' value={this.props.event.params.delay} onChange={e => {
                                             const newValue = parseInt(e.target.value);
@@ -401,7 +401,7 @@ class ParamsBuilder extends React.Component {
                         <Col span={24}>
                             <Row>
                                 <Col><Text>Delay in milliseconds</Text></Col>
-                                <Col className='pl-2'>
+                                <Col className='ps-2'>
                                     <Input
                                         placeholder='0' value={this.props.event.params.delay} onChange={e => {
                                             const newValue = parseInt(e.target.value);
@@ -527,7 +527,7 @@ class EventBuilder extends React.Component {
                                     <Col span={24}>
                                         <Row>
                                             <Col><Text>Event Type</Text></Col>
-                                            <Col className='pl-2'>
+                                            <Col className='ps-2'>
                                                 <Select
                                                     value={this.props.event.type}
                                                     onChange={this.handleEventTypeSelect}

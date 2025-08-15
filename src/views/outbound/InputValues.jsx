@@ -142,7 +142,7 @@ class InputValues extends React.Component {
                     <Radio value='boolean'>Boolean</Radio>
                 </Radio.Group>
                 <Button
-                    className='text-right mt-2'
+                    className='text-end mt-2'
                     color='success'
                     href='#pablo'
                     onClick={() => {
@@ -172,7 +172,7 @@ class InputValues extends React.Component {
                                         onOpenChange={visible => this.setState({ addInputValueDialogVisible: visible })}
                                     >
                                         <Button
-                                            className='text-right float-right'
+                                            className='text-end float-end'
                                             color='primary'
                                             size='sm'
                                         >
