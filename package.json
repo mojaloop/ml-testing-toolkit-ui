@@ -93,7 +93,7 @@
     "js-file-download": "^0.4.12",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
-    "mermaid": "11.9.0",
+    "mermaid": "11.10.0",
     "mobx": "^6.13.7",
     "mock-json-schema": "^1.1.1",
     "moment": "^2.30.1",
