@@ -29,7 +29,7 @@ COPY index.html vite.config.js eslint.config.js tsconfig.json /opt/app/
 ENV NODE_ENV=production
 RUN NODE_OPTIONS="--max-old-space-size=6144" npm run build
 
-FROM nginx:1.28-alpine
+FROM nginx:1.29.1-alpine
 WORKDIR /usr/share/nginx/html
 
 # Replace the nginx config files
