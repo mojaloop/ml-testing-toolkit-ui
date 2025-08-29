@@ -70,8 +70,9 @@ class RulesForward extends React.Component {
         message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 2 });
 
         // Select the active rules file by default
-        this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null });
-        this.updateRulesFileDisplay();
+        this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null }, () => {
+            this.updateRulesFileDisplay();
+        });
     };
 
     getCallbackRulesFileContent = async ruleFile => {
@@ -96,8 +97,9 @@ class RulesForward extends React.Component {
 
     handleRuleFileSelect = async selectedItem => {
         const selectedRuleFile = selectedItem.key;
-        await this.setState({ selectedRuleFile, ruleItemActive: null });
-        this.updateRulesFileDisplay();
+        this.setState({ selectedRuleFile, ruleItemActive: null }, () => {
+            this.updateRulesFileDisplay();
+        });
     };
 
     updateRulesFileDisplay = () => {
@@ -229,9 +231,10 @@ class RulesForward extends React.Component {
         const { apiBaseUrl } = getConfig();
         await axios.put(apiBaseUrl + '/api/rules/files/forward/' + fileName);
         await this.getCallbackRulesFiles();
-        await this.setState({ selectedRuleFile: fileName, ruleItemActive: null });
-        message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
-        this.updateRulesFileDisplay();
+        this.setState({ selectedRuleFile: fileName, ruleItemActive: null }, () => {
+            message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
+            this.updateRulesFileDisplay();
+        });
     };
 
     handleRuleFileDelete = async () => {
@@ -360,7 +363,7 @@ class RulesForward extends React.Component {
                                                     />
                                                 )
                                                 : (
-                                                    <Collapse 
+                                                    <Collapse
                                                         onChange={this.handleRuleItemActivePanelChange}
                                                         items={this.getRulesFileContentItems()}
                                                     />
