@@ -78,15 +78,19 @@ class RulesResponse extends React.Component {
         const responseData = await ResponseRulesServiceObj.fetchResponseRulesFiles();
         if(responseData) {
             const activeRulesFile = responseData.activeRulesFile;
-            await this.setState({ responseRulesFiles: responseData.files, activeRulesFile });
-            message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 1 });
+            this.setState({ responseRulesFiles: responseData.files, activeRulesFile }, () => {
+                message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 1 });
+            });
             if(selectedRuleFile) {
-                await this.setState({ selectedRuleFile, ruleItemActive: null });
+                this.setState({ selectedRuleFile, ruleItemActive: null }, () => {
+                    this.updateRulesFileDisplay();
+                });
             } else {
-                await this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null });
+                this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null }, () => {
+                    this.updateRulesFileDisplay();
+                });
             }
         }
-        this.updateRulesFileDisplay();
     };
 
     getResponseRulesFileContent = async ruleFile => {
@@ -134,8 +138,9 @@ class RulesResponse extends React.Component {
 
     handleRuleFileSelect = async selectedItem => {
         const selectedRuleFile = selectedItem.key;
-        await this.setState({ selectedRuleFile, ruleItemActive: null });
-        this.updateRulesFileDisplay();
+        this.setState({ selectedRuleFile, ruleItemActive: null }, () => {
+            this.updateRulesFileDisplay();
+        });
     };
 
     updateRulesFileDisplay = () => {
@@ -265,9 +270,10 @@ class RulesResponse extends React.Component {
         const { apiBaseUrl } = getConfig();
         await axios.put(apiBaseUrl + '/api/rules/files/response/' + fileName);
         await this.getResponseRulesFiles();
-        await this.setState({ selectedRuleFile: fileName, ruleItemActive: null });
-        message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
-        this.updateRulesFileDisplay();
+        this.setState({ selectedRuleFile: fileName, ruleItemActive: null }, () => {
+            message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
+            this.updateRulesFileDisplay();
+        });
     };
 
     handleRuleFileDelete = async () => {
@@ -402,7 +408,7 @@ class RulesResponse extends React.Component {
                                                     />
                                                 )
                                                 : (
-                                                    <Collapse 
+                                                    <Collapse
                                                         onChange={this.handleRuleItemActivePanelChange}
                                                         items={this.getRulesFileContentItems()}
                                                     />
