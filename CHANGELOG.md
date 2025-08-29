@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.7.2](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.7.1...v16.7.2) (2025-08-29)
+
+
+### Bug Fixes
+
+* handle async setState ([#246](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/246)) ([0594ec7](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/0594ec789726aef36863e4067d0f2f60b33f1abd))
+
 ### [16.7.1](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.7.0...v16.7.1) (2025-08-27)
 
 ## [16.7.0](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.6.4...v16.7.0) (2025-08-15)
