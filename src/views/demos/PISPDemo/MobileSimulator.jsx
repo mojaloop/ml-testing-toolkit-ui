@@ -361,16 +361,7 @@ class MobileSimulator extends React.Component {
                                 backgroundRepeat: 'no-repeat',
                             }}
                         >
-                            <div style={{ padding: '10px', position: 'relative', zIndex: 10 }}>
-                                <Button
-                                    type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#F90085' }} onClick={() => {
-                                        this.setState({ payerLogsDrawerVisible: true });
-                                    }}
-                                >
-                                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Pink Bank Logs</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
-                                </Button>
-                            </div>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%', paddingTop: '60px' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%' }}>
                                 <div style={{ 
                                     width: '70%', 
                                     maxWidth: '180px',
@@ -445,16 +436,7 @@ class MobileSimulator extends React.Component {
                                 backgroundRepeat: 'no-repeat',
                             }}
                         >
-                            <div style={{ padding: '10px', display: 'flex', justifyContent: 'flex-end', position: 'relative', zIndex: 10 }}>
-                                <Button
-                                    type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
-                                        this.setState({ payeeLogsDrawerVisible: true });
-                                    }}
-                                >
-                                    <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Green Bank Logs</Text>
-                                </Button>
-                            </div>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%', paddingTop: '60px' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%' }}>
                                 <div style={{ 
                                     width: '70%',
                                     maxWidth: '180px',
