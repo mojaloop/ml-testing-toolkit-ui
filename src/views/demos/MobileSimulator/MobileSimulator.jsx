@@ -345,47 +345,48 @@ class MobileSimulator extends React.Component {
                         inputValues={this.outboundServiceObj.inputValues}
                     />
                 </Modal>
-                <Row className='h-100'>
-                    <Col span={24}>
-                        <Row className='h-100'>
-                            <Col
-                                span={4}
-                                className='text-start align-bottom'
-                                style={{
-                                    verticalAlign: 'bottom',
-                                    width: '100%',
-                                    height: '100%',
-                                    backgroundImage: `url(${mobile_left})`,
-                                    backgroundPosition: 'left bottom',
-                                    backgroundSize: '30vh',
-                                    backgroundRepeat: 'no-repeat',
-                                }}
-                            >
-                                <Row align='top'>
-                                    <Col span={24}>
-                                        <Button
-                                            type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#F90085' }} onClick={() => {
-                                                this.setState({ payerLogsDrawerVisible: true });
-                                            }}
-                                        >
-                                            <Text style={{ color: 'white', fontWeight: 'bold' }}>Pink Bank Logs</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
-                                        </Button>
-                                    </Col>
-                                </Row>
-                                <Row align='bottom' className='h-100'>
-                                    <Col span={24}>
-                                        <Row style={{ marginLeft: '3vh', marginBottom: '8vh', width: '24vh', height: '45vh' }}>
-                                            <Col span={24}>
-                                                <PayerMobile
-                                                    ref={this.payerMobileRef}
-                                                    outboundService={this.outboundServiceObj}
-                                                />
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={16} className='text-center'>
+                <div style={{ width: '100%', height: '100vh', overflowX: 'auto', overflowY: 'hidden', position: 'relative' }}>
+                    <div style={{ display: 'flex', height: '100%', minWidth: '1000px', flexWrap: 'nowrap', alignItems: 'stretch' }}>
+                        <div
+                            style={{
+                                flex: '0 0 auto',
+                                width: '25%',
+                                minWidth: '250px',
+                                maxWidth: '400px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                position: 'relative',
+                                height: '100%',
+                                backgroundImage: `url(${mobile_left})`,
+                                backgroundPosition: 'center bottom',
+                                backgroundSize: 'contain',
+                                backgroundRepeat: 'no-repeat',
+                            }}
+                        >
+                            <div style={{ padding: '10px' }}>
+                                <Button
+                                    type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#F90085' }} onClick={() => {
+                                        this.setState({ payerLogsDrawerVisible: true });
+                                    }}
+                                >
+                                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Pink Bank Logs</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
+                                </Button>
+                            </div>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%' }}>
+                                <div style={{ 
+                                    width: '70%', 
+                                    maxWidth: '180px',
+                                    aspectRatio: '9 / 16',
+                                    position: 'relative'
+                                }}>
+                                    <PayerMobile
+                                        ref={this.payerMobileRef}
+                                        outboundService={this.outboundServiceObj}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ flex: '1 1 50%', minWidth: '500px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
                                 <Button
                                     className='mt-2 mb-2'
                                     style={{ width: '50px', height: '50px' }}
@@ -429,46 +430,47 @@ class MobileSimulator extends React.Component {
                                         }
                                     </Tabs>
                                 </div>
-                            </Col>
-                            <Col
-                                span={4}
-                                className='align-bottom'
-                                style={{
-                                    verticalAlign: 'bottom',
-                                    width: '100%',
-                                    height: '100%',
-                                    backgroundImage: `url(${mobile_right})`,
-                                    backgroundPosition: 'right bottom',
-                                    backgroundSize: '30vh',
-                                    backgroundRepeat: 'no-repeat',
-                                }}
-                            >
-                                <Row align='top'>
-                                    <Col span={24}>
-                                        <Button
-                                            type='primary' className='mt-2 float-end' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
-                                                this.setState({ payeeLogsDrawerVisible: true });
-                                            }}
-                                        >
-                                            <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Green Bank Logs</Text>
-                                        </Button>
-                                    </Col>
-                                </Row>
-                                <Row align='bottom' className='h-100'>
-                                    <Col span={24}>
-                                        <Row className='float-end' style={{ marginRight: '3vh', marginBottom: '8vh', width: '24vh', height: '45vh' }}>
-                                            <Col span={24}>
-                                                <PayeeMobile
-                                                    ref={this.payeeMobileRef}
-                                                />
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
+                        </div>
+                        <div
+                            style={{
+                                flex: '0 0 auto',
+                                width: '25%',
+                                minWidth: '250px',
+                                maxWidth: '400px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                position: 'relative',
+                                height: '100%',
+                                backgroundImage: `url(${mobile_right})`,
+                                backgroundPosition: 'center bottom',
+                                backgroundSize: 'contain',
+                                backgroundRepeat: 'no-repeat',
+                            }}
+                        >
+                            <div style={{ padding: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button
+                                    type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
+                                        this.setState({ payeeLogsDrawerVisible: true });
+                                    }}
+                                >
+                                    <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Green Bank Logs</Text>
+                                </Button>
+                            </div>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%' }}>
+                                <div style={{ 
+                                    width: '70%',
+                                    maxWidth: '180px',
+                                    aspectRatio: '9 / 16',
+                                    position: 'relative'
+                                }}>
+                                    <PayeeMobile
+                                        ref={this.payeeMobileRef}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </>
         );
     }
