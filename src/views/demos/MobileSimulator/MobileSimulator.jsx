@@ -345,8 +345,8 @@ class MobileSimulator extends React.Component {
                         inputValues={this.outboundServiceObj.inputValues}
                     />
                 </Modal>
-                <div style={{ width: '100%', height: '100vh', overflowX: 'auto', overflowY: 'hidden', position: 'relative' }}>
-                    <div style={{ display: 'flex', height: '100%', minWidth: '1000px', flexWrap: 'nowrap', alignItems: 'stretch' }}>
+                <div style={{ width: '100%', height: '100vh', overflowX: 'auto', overflowY: 'auto', position: 'relative' }}>
+                    <div style={{ display: 'flex', minHeight: '600px', height: '100%', minWidth: '1000px', flexWrap: 'nowrap', alignItems: 'stretch' }}>
                         <div
                             style={{
                                 flex: '0 0 auto',
@@ -363,7 +363,7 @@ class MobileSimulator extends React.Component {
                                 backgroundRepeat: 'no-repeat',
                             }}
                         >
-                            <div style={{ padding: '10px' }}>
+                            <div style={{ padding: '10px', position: 'relative', zIndex: 10 }}>
                                 <Button
                                     type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#F90085' }} onClick={() => {
                                         this.setState({ payerLogsDrawerVisible: true });
@@ -372,7 +372,7 @@ class MobileSimulator extends React.Component {
                                     <Text style={{ color: 'white', fontWeight: 'bold' }}>Pink Bank Logs</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
                                 </Button>
                             </div>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%', paddingTop: '60px' }}>
                                 <div style={{ 
                                     width: '70%', 
                                     maxWidth: '180px',
@@ -447,7 +447,7 @@ class MobileSimulator extends React.Component {
                                 backgroundRepeat: 'no-repeat',
                             }}
                         >
-                            <div style={{ padding: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+                            <div style={{ padding: '10px', display: 'flex', justifyContent: 'flex-end', position: 'relative', zIndex: 10 }}>
                                 <Button
                                     type='primary' className='mt-2' style={{ height: '40px', backgroundColor: '#13AA90' }} onClick={() => {
                                         this.setState({ payeeLogsDrawerVisible: true });
@@ -456,7 +456,7 @@ class MobileSimulator extends React.Component {
                                     <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Green Bank Logs</Text>
                                 </Button>
                             </div>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%', paddingTop: '60px' }}>
                                 <div style={{ 
                                     width: '70%',
                                     maxWidth: '180px',
