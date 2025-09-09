@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.7.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.7.2...v16.7.3) (2025-09-09)
+
+
+### Bug Fixes
+
+* fix mobile simulator and pisp demo alignment ([#247](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/247)) ([12407a3](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/12407a3682861b724bab7cce84ea643c552a3c68))
+
 ### [16.7.2](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.7.1...v16.7.2) (2025-08-29)
 
 
