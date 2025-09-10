@@ -2,6 +2,12 @@ import axios from 'axios';
 import { getConfig, getServerConfig } from '../../../utils/getConfig';
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 import _ from 'lodash';
+import templateGetDFSPValues from './template_getDFSPValues.json';
+import templateGetLinkingProviders from './template_getLinkingProviders.json';
+import templateGetLinkingAccounts from './template_getLinkingAccounts.json';
+import templatePostThirdpartyTransactionApprove from './template_postThirdpartyTransactionApprove.json';
+import templatePostThirdpartyTransactionInitiate from './template_postThirdpartyTransactionInitiate.json';
+import templateRequestConsent from './template_requestConsent.json';
 
 class OutboundService {
     apiBaseUrl = '';
@@ -63,7 +69,7 @@ class OutboundService {
     async getDFSPValues() {
         const traceId = this.getTraceId();
          
-        const template = require('./template_getDFSPValues');
+        const template = templateGetDFSPValues;
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         return resp;
@@ -73,7 +79,7 @@ class OutboundService {
 
     async getLinkingProviders() {
          
-        const template = require('./template_getLinkingProviders.json');
+        const template = templateGetLinkingProviders;
         template.inputValues = this.inputValues;
     
         // POST request directly to localhost:4040/linking/providers
@@ -88,7 +94,7 @@ class OutboundService {
     async getLinkingAccounts() {
         const traceId = this.getTraceId();
          
-        const template = require('./template_getLinkingAccounts.json');
+        const template = templateGetLinkingAccounts;
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         return resp;
@@ -97,7 +103,7 @@ class OutboundService {
     async postThirdpartyTransactionApprove(transactionId, amount, currency) {
         const traceId = this.getTraceId();
          
-        const template = require('./template_postThirdpartyTransactionApprove.json');
+        const template = templatePostThirdpartyTransactionApprove;
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
         template.inputValues.transactionId = transactionId + '';
@@ -110,7 +116,7 @@ class OutboundService {
     async postThirdpartyTransactionInitiate(amount, currency, transactionId) {
         const traceId = this.getTraceId();
          
-        const template = require('./template_postThirdpartyTransactionInitiate.json');
+        const template = templatePostThirdpartyTransactionInitiate;
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
         template.inputValues.amount = amount + '';
@@ -149,7 +155,7 @@ class OutboundService {
     async requestConsent(consentId, consentBody) {
         const traceId = this.getTraceId();
          
-        const template = require('./template_requestConsent.json');
+        const template = templateRequestConsent;
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
         template.inputValues.consentId = consentId + '';
