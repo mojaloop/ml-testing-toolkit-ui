@@ -28,6 +28,14 @@
  ******/
 import axios from 'axios';
 import { getConfig, getServerConfig } from '../../../utils/getConfig';
+import templateGetParties from './template_getParties.json';
+import templatePostQuotes from './template_postQuotes.json';
+import templatePostTransfers from './template_postTransfers.json';
+import templateProvisioning from './template_provisioning.json';
+import templateGetHubConsoleInitValues from './template_getHubConsoleInitValues.json';
+import templateGetDFSPValues from './template_getDFSPValues.json';
+import templateGetSettlements from './template_getSettlements.json';
+import templateExecuteSettlement from './template_executeSettlement.json';
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 import _ from 'lodash';
 
@@ -91,7 +99,7 @@ class OutboundService {
     async getParties(idNumber) {
         const traceId = this.getTraceId();
          
-        const template = require('./template_getParties.json');
+        const template = templateGetParties;
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
         template.inputValues.toIdValue = idNumber + '';
@@ -106,7 +114,7 @@ class OutboundService {
     async postQuotes(amount, currency) {
         const traceId = this.getTraceId();
          
-        const template = require('./template_postQuotes.json');
+        const template = templatePostQuotes;
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
         template.inputValues.amount = amount + '';
@@ -124,7 +132,7 @@ class OutboundService {
     async postTransfers(amount, transactionId, expiration, ilpPacket, condition) {
         const traceId = this.getTraceId();
          
-        const template = require('./template_postTransfers.json');
+        const template = templatePostTransfers;
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
         template.inputValues.amount = amount + '';
@@ -144,7 +152,7 @@ class OutboundService {
     async startProvisioning() {
         const traceId = this.getTraceId();
          
-        const template = require('./template_provisioning.json');
+        const template = templateProvisioning;
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         return resp;
@@ -153,7 +161,7 @@ class OutboundService {
     async getHubConsoleInitValues() {
         const traceId = this.getTraceId();
          
-        const template = require('./template_getHubConsoleInitValues.json');
+        const template = templateGetHubConsoleInitValues;
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         return resp;
@@ -162,7 +170,7 @@ class OutboundService {
     async getDFSPValues() {
         const traceId = this.getTraceId();
          
-        const template = require('./template_getDFSPValues');
+        const template = templateGetDFSPValues;
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         return resp;
@@ -171,7 +179,7 @@ class OutboundService {
     async getSettlements() {
         const traceId = this.getTraceId();
          
-        const template = require('./template_getSettlements');
+        const template = templateGetSettlements;
         template.inputValues = this.inputValues;
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         return resp;
@@ -180,7 +188,7 @@ class OutboundService {
     async executeSettlement(settlementModel) {
         const traceId = this.getTraceId();
          
-        const template = require('./template_executeSettlement');
+        const template = templateExecuteSettlement;
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
         template.inputValues.settlementModel = settlementModel + '';

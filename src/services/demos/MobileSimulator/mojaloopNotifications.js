@@ -30,6 +30,7 @@
 import socketIOClient from 'socket.io-client';
 import { getConfig } from '../../../utils/getConfig';
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
+import templateProvisioning from './template_provisioning.json';
 
 class NotificationService {
     logTypes = {
@@ -115,7 +116,7 @@ class NotificationService {
 
     notifySettingsTestCaseProgress = progress => {
          
-        const template = require('./template_provisioning.json');
+        const template = templateProvisioning;
         if(progress.status === 'FINISHED') {
             this.notificationEventFunction({
                 category: 'settingsLog',
