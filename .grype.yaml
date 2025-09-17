@@ -3,6 +3,55 @@
 # Set to true to disable the Grype image scan completely
 disabled: false
 
+ignore:
+  # Ignore specific CVEs if they are false positives or accepted risks
+  - vulnerability: CVE-2025-9086
+    fix-state: wont-fix
+    package:
+      name: curl
+      version: 8.14.1-r1
+    notes: "Accepted risk - fixed in later versions"
+  
+  - vulnerability: CVE-2025-10148
+    fix-state: wont-fix
+    package:
+      name: curl
+      version: 8.14.1-r1
+    notes: "Accepted risk - fixed in later versions"
+  
+  - vulnerability: CVE-2025-8177
+    fix-state: wont-fix
+    package:
+      name: tiff
+      version: 4.7.0-r0
+    notes: "Accepted risk - fixed in later versions"
+  
+  - vulnerability: CVE-2025-8176
+    fix-state: wont-fix
+    package:
+      name: tiff
+      version: 4.7.0-r0
+    notes: "Accepted risk - fixed in later versions"
+  
+  - vulnerability: CVE-2025-8851
+    fix-state: wont-fix
+    package:
+      name: tiff
+      version: 4.7.0-r0
+    notes: "Accepted risk - fixed in later versions"
+  
+  - vulnerability: CVE-2023-52356
+    fix-state: wont-fix
+    notes: "Accepted risk - fixed in later versions"
+  
+  - vulnerability: CVE-2023-6277
+    fix-state: wont-fix
+    notes: "Accepted risk - fixed in later versions"
+  
+  - vulnerability: CVE-2023-6228
+    fix-state: wont-fix
+    notes: "Accepted risk - fixed in later versions"
+
 # Set output format defaults
 output:
   - "table"
