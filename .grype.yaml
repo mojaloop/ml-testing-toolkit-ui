@@ -4,7 +4,7 @@
 disabled: false
 
 ignore:
-  # Ignore specific CVEs - simplified format without fix-state
+  # Ignore specific CVEs - once Dockerfile docker image with fixes are available, these should be removed from the ignore list
   - vulnerability: CVE-2025-9086
   
   - vulnerability: CVE-2025-10148
