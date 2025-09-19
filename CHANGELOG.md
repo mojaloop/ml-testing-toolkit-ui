@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.7.4](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.7.3...v16.7.4) (2025-09-19)
+
+
+### Bug Fixes
+
+* update require to use imports per ES6 in Vite ([#248](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/248)) ([7a799ea](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/7a799ea4dbf0ac4cb3145ba57ff1ae889c3f962d))
+
 ### [16.7.3](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.7.2...v16.7.3) (2025-09-09)
 
 
