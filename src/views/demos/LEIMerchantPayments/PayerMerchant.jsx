@@ -27,7 +27,7 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, InputNumber, Input, Typography, Skeleton, Card, Button, Result, Select } from 'antd';
+import { Row, Col, Typography, Card, Result, InputNumber, Select, Button, Skeleton, Input } from 'antd';
 const { Text } = Typography;
 const { Option } = Select;
 
@@ -38,6 +38,7 @@ class PayerMerchant extends React.Component {
         amount: 100,
         payerLEI: '787200JXIR2YYZDPNP23',
         payeeLEI: '529900VJSEB3P1FV4R31',
+        lookupLEI: '529900VJSEB3P1FV4R31', // Input field for LEI lookup, prefilled
         merchantInfo: {},
         quotesRequest: {},
         quotesResponse: {},
@@ -364,25 +365,38 @@ class PayerMerchant extends React.Component {
                 );
             default:
                 return (
-                    <div style={{ textAlign: 'center', padding: '30px 0' }}>
-                        <div style={{ marginBottom: '25px' }}>
-                            <Text style={{ fontSize: '16px', color: '#666', display: 'block', marginBottom: '8px' }}>Ready to send payment</Text>
-                            <Text style={{ fontSize: '13px', color: '#999' }}>Tap the button below to begin</Text>
+                    <div style={{ width: '100%' }}>
+                        <div style={{ marginBottom: '25px', textAlign: 'center' }}>
+                            <Text style={{ fontSize: '18px', color: '#333', display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Send Payment</Text>
+                            <Text style={{ fontSize: '14px', color: '#666' }}>Enter the recipient's LEI to continue</Text>
                         </div>
+                        
+                        <div style={{ marginBottom: '20px' }}>
+                            <Text style={{ fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Recipient LEI:</Text>
+                            <Input
+                                size='large'
+                                value={this.state.lookupLEI}
+                                onChange={(e) => this.setState({ lookupLEI: e.target.value })}
+                                placeholder='Enter LEI (e.g., 529900VJSEB3P1FV4R31)'
+                                style={{ marginBottom: '15px' }}
+                            />
+                        </div>
+                        
                         <Button 
                             type='primary' 
                             size='large'
+                            block
                             loading={this.state.gettingMerchantInfo} 
                             onClick={this.handleGetMerchantInfo}
+                            disabled={!this.state.lookupLEI || this.state.lookupLEI.trim().length === 0}
                             style={{ 
-                                borderRadius: '25px', 
-                                width: '160px', 
+                                borderRadius: '8px', 
                                 height: '55px', 
                                 fontWeight: 'bold',
                                 fontSize: '16px'
                             }}
                         >
-                            Start Payment
+                            Lookup Merchant
                         </Button>
                     </div>
                 );
@@ -390,8 +404,14 @@ class PayerMerchant extends React.Component {
     };
 
     handleGetMerchantInfo = async () => {
-        this.setState({ stage: 'getParties', gettingMerchantInfo: true });
-        await this.props.outboundService.getPartiesLEI(this.state.payeeLEI);
+        // Update payeeLEI with the looked up LEI
+        const lookupLEI = this.state.lookupLEI.trim();
+        this.setState({ 
+            stage: 'getParties', 
+            gettingMerchantInfo: true,
+            payeeLEI: lookupLEI // Update the payeeLEI with the looked up value
+        });
+        await this.props.outboundService.getPartiesLEI(lookupLEI);
     };
 
     handleGetQuote = async () => {
@@ -460,7 +480,8 @@ class PayerMerchant extends React.Component {
             quotesResponse: {},
             transfersResponse: {},
             amount: 100,
-            selectedCurrency: 'USD'
+            selectedCurrency: 'USD',
+            lookupLEI: '529900VJSEB3P1FV4R31' // Reset to default LEI
         });
     };
 
@@ -470,48 +491,36 @@ class PayerMerchant extends React.Component {
                 width: '100%', 
                 height: '100%', 
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '25px',
+                borderRadius: '12px',
                 display: 'flex',
                 flexDirection: 'column',
-                padding: '15px 12px',
-                overflow: 'hidden',
-                position: 'relative'
+                padding: '20px',
+                minHeight: '400px'
             }}>
-                {/* Status Bar */}
-                <div style={{ 
-                    height: '24px', 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    marginBottom: '12px'
-                }}>
-                    <Text style={{ color: 'white', fontSize: '14px', fontWeight: 'bold' }}>Payer</Text>
-                    <Text style={{ color: 'white', fontSize: '12px' }}>●●●●●</Text>
-                </div>
-
                 {/* Header */}
                 <div style={{ 
                     background: 'rgba(255,255,255,0.95)', 
-                    borderRadius: '15px', 
-                    padding: '15px',
-                    marginBottom: '12px',
+                    borderRadius: '12px', 
+                    padding: '20px',
+                    marginBottom: '20px',
                     textAlign: 'center'
                 }}>
-                    <Text strong style={{ fontSize: '18px', color: '#333' }}>HALMADENT SRL</Text>
+                    <Text style={{ color: '#667eea', fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>PAYER</Text>
+                    <Text strong style={{ fontSize: '22px', color: '#333' }}>HALMADENT SRL</Text>
                     <br/>
-                    <Text style={{ fontSize: '12px', color: '#666' }}>LEI: {this.state.payerLEI}</Text>
+                    <Text style={{ fontSize: '14px', color: '#666' }}>LEI: {this.state.payerLEI}</Text>
                     <br/>
-                    <Text style={{ fontSize: '11px', color: '#888' }}>Merchant Payment Terminal</Text>
+                    <Text style={{ fontSize: '12px', color: '#888' }}>Merchant Payment Terminal</Text>
                 </div>
 
                 {/* Main Content */}
                 <div style={{ 
                     flex: 1,
                     background: 'rgba(255,255,255,0.95)',
-                    borderRadius: '15px',
-                    padding: '18px 15px',
+                    borderRadius: '12px',
+                    padding: '25px',
                     overflow: 'auto',
-                    minHeight: '200px'
+                    minHeight: '300px'
                 }}>
                     {this.getStageData()}
                 </div>

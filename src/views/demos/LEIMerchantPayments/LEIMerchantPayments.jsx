@@ -29,8 +29,6 @@
 import React from 'react';
 import { Row, Col, Drawer, Button, Typography, Modal, Tabs } from 'antd';
 import { CaretRightFilled, CaretLeftFilled, SettingOutlined } from '@ant-design/icons';
-import merchant_left from '../../../assets/img/mobile_pink_iphone.png';
-import merchant_right from '../../../assets/img/mobile_green_iphone.png';
 
 import PayerMerchant from './PayerMerchant.jsx';
 import PayeeMerchant from './PayeeMerchant.jsx';
@@ -367,10 +365,6 @@ class LEIMerchantPayments extends React.Component {
                                 flexDirection: 'column',
                                 position: 'relative',
                                 height: '100%',
-                                backgroundImage: `url(${merchant_left})`,
-                                backgroundPosition: 'center bottom',
-                                backgroundSize: 'contain',
-                                backgroundRepeat: 'no-repeat',
                             }}
                         >
                             <div style={{ padding: '10px', position: 'relative', zIndex: 10 }}>
@@ -382,12 +376,11 @@ class LEIMerchantPayments extends React.Component {
                                     <Text style={{ color: 'white', fontWeight: 'bold' }}>Payer Merchant Logs</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
                                 </Button>
                             </div>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '15%', paddingTop: '40px' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'stretch', justifyContent: 'center', padding: '20px' }}>
                                 <div style={{ 
-                                    width: '85%', 
-                                    maxWidth: '280px',
-                                    minWidth: '220px',
-                                    aspectRatio: '9 / 16',
+                                    width: '100%', 
+                                    maxWidth: '450px',
+                                    minWidth: '350px',
                                     position: 'relative'
                                 }}>
                                     <PayerMerchant
@@ -453,10 +446,6 @@ class LEIMerchantPayments extends React.Component {
                                 flexDirection: 'column',
                                 position: 'relative',
                                 height: '100%',
-                                backgroundImage: `url(${merchant_right})`,
-                                backgroundPosition: 'center bottom',
-                                backgroundSize: 'contain',
-                                backgroundRepeat: 'no-repeat',
                             }}
                         >
                             <div style={{ padding: '10px', display: 'flex', justifyContent: 'flex-end', position: 'relative', zIndex: 10 }}>
@@ -468,12 +457,11 @@ class LEIMerchantPayments extends React.Component {
                                     <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Payee Merchant Logs</Text>
                                 </Button>
                             </div>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '15%', paddingTop: '40px' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'stretch', justifyContent: 'center', padding: '20px' }}>
                                 <div style={{ 
-                                    width: '85%',
-                                    maxWidth: '280px',
-                                    minWidth: '220px',
-                                    aspectRatio: '9 / 16',
+                                    width: '100%',
+                                    maxWidth: '450px',
+                                    minWidth: '350px',
                                     position: 'relative'
                                 }}>
                                     <PayeeMerchant
