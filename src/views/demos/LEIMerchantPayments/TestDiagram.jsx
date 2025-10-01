@@ -55,22 +55,30 @@ class TestDiagram extends React.Component {
 
     addSequence = async (source, destination, message, options = { dashed: false, erroneous: false, activation: { mode: null, peer: null } }) => {
         const dashedStyle = options.dashed ? '-' : '';
-        this.state.seqSteps += `${source}-${dashedStyle}>>${destination}: ${message}\n`;
+        // Sanitize message for Mermaid compatibility
+        const sanitizedMessage = this.sanitizeForMermaid(message);
+        const sanitizedSource = this.sanitizeForMermaid(source);
+        const sanitizedDestination = this.sanitizeForMermaid(destination);
+        
+        this.state.seqSteps += `${sanitizedSource}-${dashedStyle}>>${sanitizedDestination}: ${sanitizedMessage}\n`;
         if(options.activation && options.activation.mode && options.activation.peer && (options.activation.mode === 'activate' || options.activation.mode === 'deactivate')) {
             if(options.activation.peer === 'source') {
-                this.state.seqSteps += `${options.activation.mode} ${source}\n`;
+                this.state.seqSteps += `${options.activation.mode} ${sanitizedSource}\n`;
             } else if(options.activation.peer === 'destination') {
-                this.state.seqSteps += `${options.activation.mode} ${destination}\n`;
+                this.state.seqSteps += `${options.activation.mode} ${sanitizedDestination}\n`;
             } else if(options.activation.peer === 'both') {
-                this.state.seqSteps += `${options.activation.mode} ${source}\n`;
-                this.state.seqSteps += `${options.activation.mode} ${destination}\n`;
+                this.state.seqSteps += `${options.activation.mode} ${sanitizedSource}\n`;
+                this.state.seqSteps += `${options.activation.mode} ${sanitizedDestination}\n`;
             }
         }
         this.refreshSequenceDiagram();
     };
 
     addNoteOver = async (source, destination, message) => {
-        this.state.seqSteps += `Note over ${source},${destination}: ${message}\n`;
+        const sanitizedSource = this.sanitizeForMermaid(source);
+        const sanitizedDestination = this.sanitizeForMermaid(destination);
+        const sanitizedMessage = this.sanitizeForMermaid(message);
+        this.state.seqSteps += `Note over ${sanitizedSource},${sanitizedDestination}: ${sanitizedMessage}\n`;
         this.refreshSequenceDiagram();
     };
 
@@ -107,6 +115,23 @@ class TestDiagram extends React.Component {
 
     resetWelcomeMessage = () => {
         this.seqDiagContainer.innerHTML = '';
+    };
+    
+    sanitizeForMermaid = (text) => {
+        // Remove or replace characters that can cause Mermaid syntax errors
+        if (!text) return '';
+        return text.toString()
+            .replace(/[\n\r]/g, ' ')       // Replace newlines with spaces
+            .replace(/["'`]/g, '')        // Remove quotes that can break syntax
+            .replace(/[{}\[\]]/g, '')     // Remove brackets
+            .replace(/[<>]/g, '')         // Remove angle brackets  
+            .replace(/[:;]/g, '-')        // Replace colons/semicolons with dashes
+            .replace(/[()]/g, '')         // Remove parentheses
+            .replace(/[|\\]/g, '')        // Remove pipes and backslashes
+            .replace(/\s+/g, ' ')         // Replace multiple spaces with single space
+            .trim()                       // Trim whitespace
+            .replace(/^-+|-+$/g, '')      // Remove leading/trailing dashes
+            || 'Unknown';                 // Fallback if empty
     };
 
     render() {

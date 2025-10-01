@@ -216,7 +216,7 @@ class LEIMerchantPayments extends React.Component {
             case 'payeeMerchantGetParties':
             {
                 if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addCustomSequence(`rect rgb(255, 245, 173)\\n${this.state.hubName}-->>${this.state.hubName}: Oracle Lookup\\nend\\n`);
+                    this.testDiagramRef.current.addCustomSequence(`rect rgb(255, 245, 173)\nNote over ${this.state.hubName}: Oracle Lookup\nend`);
                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeMerchantName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
                 }
                 break;
@@ -381,6 +381,7 @@ class LEIMerchantPayments extends React.Component {
                                     <PayerMerchant
                                         ref={this.payerMerchantRef}
                                         outboundService={this.outboundServiceObj}
+                                        onPayeeMerchantNotification={this.handleNotificationEvents}
                                     />
                                 </div>
                             </div>

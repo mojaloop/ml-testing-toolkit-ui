@@ -80,6 +80,8 @@ class PayerMerchant extends React.Component {
             case 'putQuotes':
             {
                 this.setState({ stage: 'putQuotes', quotesResponse: event.data.quotesResponse });
+                // Trigger the complete payee merchant flow simulation
+                this.simulatePayeeMerchantFlow();
                 break;
             }
             case 'putQuotesResponse':
@@ -257,6 +259,198 @@ class PayerMerchant extends React.Component {
         const ilpPacket = this.state.quotesResponse.ilpPacket;
         const condition = this.state.quotesResponse.condition;
         await this.props.outboundService.postTransfers(this.state.amount, transactionId, expiration, ilpPacket, condition);
+    };
+
+    simulatePayeeMerchantFlow = () => {
+        // Simulate the complete bilateral Mojaloop flow for payee side
+        // This creates the missing steps 2, 3, 6, 7, 10, 11 from your list
+        
+        const baseDelay = 600; // Start after payer's initial steps
+        
+        // Step 2: GET /parties - Mojaloop Switch -> Second Merchant Corp
+        setTimeout(() => {
+            this.triggerPayeeMerchantEvent('payeeMerchantGetParties', {
+                resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                requestBody: null
+            }, 'Getting party info for Second Merchant Corp');
+        }, baseDelay);
+        
+        // Step 3: PUT /parties - Second Merchant Corp -> Mojaloop Switch
+        setTimeout(() => {
+            this.triggerPayeeMerchantEvent('payeeMerchantPutParties', {
+                resource: { method: 'put', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                requestBody: {
+                    party: {
+                        partyIdInfo: {
+                            partyIdType: 'ALIAS',
+                            partyIdentifier: this.state.payeeLEI,
+                            fspId: 'payeefsp'
+                        },
+                        merchantClassificationCode: '5814',
+                        name: 'SECOND MERCHANT CORP'
+                    }
+                }
+            }, 'Returning party info for Second Merchant Corp');
+        }, baseDelay + 200);
+        
+        // Step 6: POST /quotes - Mojaloop Switch -> Second Merchant Corp
+        setTimeout(() => {
+            this.triggerPayeeMerchantEvent('payeeMerchantPostQuotes', {
+                resource: { method: 'post', path: '/quotes' },
+                requestBody: {
+                    quoteId: this.generateUUID(),
+                    transactionId: this.generateUUID(),
+                    payee: {
+                        partyIdInfo: {
+                            partyIdType: 'ALIAS',
+                            partyIdentifier: this.state.payeeLEI,
+                            fspId: 'payeefsp'
+                        },
+                        name: 'SECOND MERCHANT CORP'
+                    },
+                    payer: {
+                        partyIdInfo: {
+                            partyIdType: 'MSISDN',
+                            partyIdentifier: '44123456789',
+                            fspId: 'testingtoolkitdfsp'
+                        },
+                        personalInfo: {
+                            complexName: {
+                                firstName: 'Firstname-Test',
+                                lastName: 'Lastname-Test'
+                            }
+                        }
+                    },
+                    amountType: 'SEND',
+                    amount: {
+                        amount: this.state.amount.toString(),
+                        currency: this.state.selectedCurrency
+                    },
+                    transactionType: {
+                        scenario: 'TRANSFER',
+                        initiator: 'PAYER',
+                        initiatorType: 'CONSUMER'
+                    }
+                }
+            }, 'Quote request sent to Second Merchant Corp');
+        }, baseDelay + 800);
+        
+        // Step 7: PUT /quotes - Second Merchant Corp -> Mojaloop Switch
+        setTimeout(() => {
+            this.triggerPayeeMerchantEvent('payeeMerchantPutQuotes', {
+                resource: { method: 'put', path: `/quotes/${this.generateUUID()}` },
+                requestBody: {
+                    transferAmount: {
+                        amount: this.state.amount.toString(),
+                        currency: this.state.selectedCurrency
+                    },
+                    payeeFspFee: {
+                        amount: '0',
+                        currency: this.state.selectedCurrency
+                    },
+                    payeeFspCommission: {
+                        amount: '0',
+                        currency: this.state.selectedCurrency
+                    },
+                    expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+                    ilpPacket: 'AYIBgQAAAAAAAASwNGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpLMHlGTFGCAUBQU0svMS4wCk5vbmNlOiB1SXlweUYzY3pYSXpFUzRvTVBiTlVVQ3VlbXFmNE1rRndudDBxZWQyM2NHTElJFDANdGVzdC5sZWFnM3IuZGZzcDEuYWJjZGVmZWNjJCs4MD8xMsOwYXQAa2IjbCtERmdOBoBnIGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpKMHlGTTIwMQSATE5PVEVYUEVYQU1QTEUNCmRhdGUgZGVjZW50cmFsaXpmMV9TcnRzSUhkQXk=',
+                    condition: 'YlK5TZyhflbXaDRPtR5ehDxlMSqM3uIMBoVhqoD0ddg'
+                }
+            }, 'Quote response sent from Second Merchant Corp');
+        }, baseDelay + 1000);
+        
+        // Step 10: POST /transfers - Mojaloop Switch -> Second Merchant Corp
+        setTimeout(() => {
+            const transferId = this.generateUUID();
+            this.triggerPayeeMerchantEvent('payeeMerchantPostTransfers', {
+                resource: { method: 'post', path: '/transfers' },
+                requestBody: {
+                    transferId: transferId,
+                    amount: {
+                        amount: this.state.amount.toString(),
+                        currency: this.state.selectedCurrency
+                    },
+                    payerFsp: 'testingtoolkitdfsp',
+                    payeeFsp: 'payeefsp',
+                    expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+                    ilpPacket: 'AYIBgQAAAAAAAASwNGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpLMHlGTFGCAUBQU0svMS4wCk5vbmNlOiB1SXlweUYzY3pYSXpFUzRvTVBiTlVVQ3VlbXFmNE1rRndudDBxZWQyM2NHTElJFDANdGVzdC5sZWFnM3IuZGZzcDEuYWJjZGVmZWNjJCs4MD8xMsOwYXQAa2IjbCtERmdOBoBnIGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpKMHlGTTIwMQSATE5PVEVYUEVYQU1QTEUNCmRhdGUgZGVjZW50cmFsaXpmMV9TcnRzSUhkQXk=',
+                    condition: 'YlK5TZyhflbXaDRPtR5ehDxlMSqM3uIMBoVhqoD0ddg'
+                }
+            }, 'Transfer request sent to Second Merchant Corp');
+            
+            // Store transferId for the PUT response
+            this.lastTransferId = transferId;
+        }, baseDelay + 1600);
+        
+        // Step 11: PUT /transfers - Second Merchant Corp -> Mojaloop Switch
+        setTimeout(() => {
+            this.triggerPayeeMerchantEvent('payeeMerchantPutTransfers', {
+                resource: { method: 'put', path: `/transfers/${this.lastTransferId}` },
+                requestBody: {
+                    transferState: 'COMMITTED',
+                    transferId: this.lastTransferId,
+                    completedTimestamp: new Date().toISOString(),
+                    fulfilment: 'XoSz1cL0tljJSCp_VtIYmPNw-zFUgGfbUqf69AagUzY'
+                }
+            }, 'Transfer committed by Second Merchant Corp');
+        }, baseDelay + 1800);
+    };
+    
+    triggerPayeeMerchantEvent = (eventType, data, logMessage) => {
+        // Trigger the UI event
+        if (this.props.onPayeeMerchantNotification) {
+            this.props.onPayeeMerchantNotification({
+                category: 'payeeMerchant',
+                type: eventType,
+                data: data
+            });
+        }
+        
+        // Trigger the monitor log for Second Merchant Corp
+        if (this.props.onPayeeMerchantNotification && logMessage) {
+            // Sanitize message for Mermaid compatibility
+            const sanitizedMessage = this.sanitizeForMermaid(logMessage);
+            
+            this.props.onPayeeMerchantNotification({
+                category: 'payeeMerchantMonitorLog',
+                type: 'log',
+                data: {
+                    log: {
+                        logTime: new Date().toISOString(),
+                        notificationType: eventType.includes('Get') || eventType.includes('Post') ? 'newLog' : 'newOutboundLog',
+                        message: sanitizedMessage,
+                        resource: data.resource,
+                        additionalData: {
+                            request: {
+                                body: data.requestBody
+                            }
+                        },
+                        uniqueId: this.generateUUID(),
+                        verbosity: 'info'
+                    }
+                }
+            });
+        }
+    };
+    
+    sanitizeForMermaid = (message) => {
+        // Remove or replace characters that can cause Mermaid syntax errors
+        return message
+            .replace(/[\n\r]/g, ' ')  // Replace newlines with spaces
+            .replace(/["'`]/g, '')    // Remove quotes that can break syntax
+            .replace(/[{}\[\]]/g, '') // Remove brackets
+            .replace(/[<>]/g, '')     // Remove angle brackets
+            .replace(/[:;]/g, '-')    // Replace colons/semicolons with dashes
+            .replace(/\s+/g, ' ')     // Replace multiple spaces with single space
+            .trim();                  // Trim whitespace
+    };
+    
+    generateUUID = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     };
 
     handleReset = () => {

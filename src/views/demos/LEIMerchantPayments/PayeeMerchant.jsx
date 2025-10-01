@@ -27,7 +27,8 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, Typography, Card, Result } from 'antd';
+import { Row, Col, Typography, Card, Result, Statistic, notification } from 'antd';
+import { CheckOutlined } from '@ant-design/icons';
 const { Text } = Typography;
 
 class PayeeMerchant extends React.Component {
@@ -38,6 +39,10 @@ class PayeeMerchant extends React.Component {
         transfersRequest: {},
         transfersResponse: {},
         payeeLEI: '529900VJSEB3P1FV4R31',
+        balance: { USD: 1000 }, // Initial balance
+        balanceCurrency: 'USD',
+        transactionHistory: [],
+        lastReceivedAmount: null,
     };
 
     componentDidMount = async () => {
@@ -81,7 +86,9 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostTransfers':
             {
-                this.setState({ stage: 'postTransfers', transfersRequest: event.data.requestBody });
+                // Show transfer request and remember amount for later success message
+                const transfersRequest = event.data.requestBody || {};
+                this.setState({ stage: 'postTransfers', transfersRequest });
                 break;
             }
             case 'payeeMerchantPostTransfersResponse':
@@ -90,7 +97,45 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPutTransfers':
             {
-                this.setState({ stage: 'putTransfers', transfersResponse: event.data.requestBody });
+                // Update UI to success and apply balance change
+                const transfersResponse = event.data.requestBody || {};
+                const amountObj = this.state.transfersRequest?.amount;
+                if(transfersResponse && transfersResponse.transferState === 'COMMITTED' && amountObj) {
+                    const currency = amountObj.currency;
+                    const amount = parseFloat(amountObj.amount || '0');
+                    this.setState(prev => {
+                        const prevBal = prev.balance?.[currency] || 0;
+                        const newBal = prevBal + amount;
+                        const updatedBalance = { ...(prev.balance || {}), [currency]: newBal };
+                        const historyItem = {
+                            date: new Date().toISOString(),
+                            from: { displayName: 'HALMADENT SRL', idValue: this.state.payeeLEI },
+                            amount: amount,
+                            currency,
+                        };
+                        const newTxHistory = [historyItem, ...(prev.transactionHistory || [])];
+                        return {
+                            stage: 'putTransfers',
+                            transfersResponse,
+                            balance: updatedBalance,
+                            balanceCurrency: currency,
+                            transactionHistory: newTxHistory,
+                            lastReceivedAmount: { amount, currency },
+                        };
+                    }, () => {
+                        // Notification toast
+                        const amountStr = `${amount} ${amountObj.currency}`;
+                        notification.open({
+                            message: `Payment Received` ,
+                            description: `Amount ${amountStr}`,
+                            duration: 6,
+                            placement: 'topLeft',
+                            icon: <CheckOutlined style={{ color: '#10e98e' }} />,
+                        });
+                    });
+                } else {
+                    this.setState({ stage: 'putTransfers', transfersResponse });
+                }
                 break;
             }
             case 'payeeMerchantPutTransfersResponse':
@@ -189,6 +234,8 @@ class PayeeMerchant extends React.Component {
                     </Card>
                 );
             case 'putTransfers':
+                const receivedAmount = this.state.lastReceivedAmount;
+                const currentBalance = this.state.balance?.[receivedAmount?.currency || 'USD'] || 0;
                 return (
                     <Card size='small'>
                         <Row>
@@ -196,7 +243,12 @@ class PayeeMerchant extends React.Component {
                                 <Result
                                     status='success'
                                     title='Payment Received!'
-                                    subTitle={`Amount: ${this.state.transfersRequest && this.state.transfersRequest.amount ? this.state.transfersRequest.amount.amount : ''} ${this.state.transfersRequest && this.state.transfersRequest.amount ? this.state.transfersRequest.amount.currency : ''}`}
+                                    subTitle={
+                                        <div>
+                                            <div>Amount: {receivedAmount ? `${receivedAmount.amount} ${receivedAmount.currency}` : `${this.state.transfersRequest?.amount?.amount || ''} ${this.state.transfersRequest?.amount?.currency || ''}`}</div>
+                                            <div style={{ marginTop: '8px' }}>New Balance: {currentBalance} {receivedAmount?.currency || 'USD'}</div>
+                                        </div>
+                                    }
                                 />
                             </Col>
                         </Row>
@@ -227,6 +279,24 @@ class PayeeMerchant extends React.Component {
                         <Col span={24}>
                             <div style={{ textAlign: 'center', padding: '5px 0' }}>
                                 <Text style={{ fontSize: '10px' }}>Merchant Payment Terminal</Text>
+                            </div>
+                        </Col>
+                    </Row>
+                    
+                    {/* Balance Display */}
+                    <Row className='mt-2'>
+                        <Col span={24}>
+                            <div style={{ textAlign: 'center', padding: '8px', backgroundColor: '#f0f2f5', borderRadius: '4px', margin: '0 5px' }}>
+                                <Text style={{ fontSize: '12px', fontWeight: 'bold' }}>Account Balance</Text>
+                                <div style={{ marginTop: '4px' }}>
+                                    {
+                                        Object.keys(this.state.balance || {}).map(currency => (
+                                            <Text key={currency} style={{ fontSize: '14px', color: '#3f8600', fontWeight: 'bold' }}>
+                                                {this.state.balance[currency]} {currency}
+                                            </Text>
+                                        ))
+                                    }
+                                </div>
                             </div>
                         </Col>
                     </Row>
