@@ -155,110 +155,162 @@ class PayeeMerchant extends React.Component {
         switch (this.state.stage) {
             case 'postQuotes':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Text strong>Quote Request Received</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>From:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong>HALMADENT SRL</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Amount:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong>{this.state.quotesRequest && this.state.quotesRequest.amount ? this.state.quotesRequest.amount.amount : ''} {this.state.quotesRequest && this.state.quotesRequest.amount ? this.state.quotesRequest.amount.currency : ''}</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Quote ID:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong style={{ fontSize: '8px' }}>{this.state.quotesRequest && this.state.quotesRequest.quoteId ? this.state.quotesRequest.quoteId : ''}</Text>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ width: '100%' }}>
+                        {/* Quote Request Details */}
+                        <div style={{ 
+                            background: '#e6f7ff', 
+                            borderRadius: '8px', 
+                            padding: '12px', 
+                            marginBottom: '10px' 
+                        }}>
+                            <Text strong style={{ fontSize: '15px', display: 'block', marginBottom: '12px', color: '#1890ff' }}>Quote Request Received</Text>
+                            
+                            <div style={{ marginBottom: '8px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>From:</Text>
+                                <Text strong style={{ fontSize: '14px', float: 'right' }}>HALMADENT SRL</Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                            
+                            <div style={{ marginBottom: '8px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>Amount:</Text>
+                                <Text strong style={{ fontSize: '16px', float: 'right' }}>
+                                    {this.state.quotesRequest && this.state.quotesRequest.amount ? 
+                                        `${this.state.quotesRequest.amount.amount} ${this.state.quotesRequest.amount.currency}` : 
+                                        '-- --'
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                            
+                            <div style={{ marginBottom: '0px' }}>
+                                <Text style={{ fontSize: '12px', color: '#999' }}>Quote ID:</Text>
+                                <Text style={{ fontSize: '11px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                    {this.state.quotesRequest && this.state.quotesRequest.quoteId ? 
+                                        this.state.quotesRequest.quoteId.substring(0, 8) + '...' : 
+                                        'N/A'
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                        </div>
+                        
+                        <div style={{ textAlign: 'center' }}>
+                            <Text style={{ fontSize: '14px', color: '#1890ff' }}>→ Processing quote...</Text>
+                        </div>
+                    </div>
                 );
             case 'putQuotes':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Text strong>Quote Response Sent</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Amount:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong>{this.state.quotesResponse && this.state.quotesResponse.transferAmount ? this.state.quotesResponse.transferAmount.amount : ''} {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? this.state.quotesResponse.transferAmount.currency : ''}</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Fees:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong>{this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? this.state.quotesResponse.payeeFspFee.amount : ''} {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? this.state.quotesResponse.payeeFspFee.currency : ''}</Text>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ width: '100%' }}>
+                        {/* Quote Response Details */}
+                        <div style={{ 
+                            background: '#f6ffed', 
+                            borderRadius: '8px', 
+                            padding: '12px', 
+                            marginBottom: '10px',
+                            border: '1px solid #b7eb8f'
+                        }}>
+                            <Text strong style={{ fontSize: '15px', display: 'block', marginBottom: '12px', color: '#52c41a' }}>Quote Response Sent</Text>
+                            
+                            <div style={{ marginBottom: '8px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>Amount:</Text>
+                                <Text strong style={{ fontSize: '16px', float: 'right' }}>
+                                    {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
+                                        `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
+                                        '-- --'
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                            
+                            <div style={{ marginBottom: '0px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>Fees:</Text>
+                                <Text strong style={{ fontSize: '14px', float: 'right' }}>
+                                    {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? 
+                                        `${this.state.quotesResponse.payeeFspFee.amount} ${this.state.quotesResponse.payeeFspFee.currency}` : 
+                                        '0.00 USD'
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                        </div>
+                        
+                        <div style={{ textAlign: 'center' }}>
+                            <Text style={{ fontSize: '14px', color: '#52c41a' }}>✓ Quote sent to payer</Text>
+                        </div>
+                    </div>
                 );
             case 'postTransfers':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Text strong>Transfer Request Received</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Amount:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong>{this.state.transfersRequest && this.state.transfersRequest.amount ? this.state.transfersRequest.amount.amount : ''} {this.state.transfersRequest && this.state.transfersRequest.amount ? this.state.transfersRequest.amount.currency : ''}</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Transfer ID:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong style={{ fontSize: '8px' }}>{this.state.transfersRequest && this.state.transfersRequest.transferId ? this.state.transfersRequest.transferId : ''}</Text>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ width: '100%' }}>
+                        {/* Transfer Request Details */}
+                        <div style={{ 
+                            background: '#fff2e8', 
+                            borderRadius: '8px', 
+                            padding: '12px', 
+                            marginBottom: '10px',
+                            border: '1px solid #ffbb96'
+                        }}>
+                            <Text strong style={{ fontSize: '15px', display: 'block', marginBottom: '12px', color: '#fa8c16' }}>Transfer Request Received</Text>
+                            
+                            <div style={{ marginBottom: '8px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>Amount:</Text>
+                                <Text strong style={{ fontSize: '16px', float: 'right' }}>
+                                    {this.state.transfersRequest && this.state.transfersRequest.amount ? 
+                                        `${this.state.transfersRequest.amount.amount} ${this.state.transfersRequest.amount.currency}` : 
+                                        '-- --'
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                            
+                            <div style={{ marginBottom: '0px' }}>
+                                <Text style={{ fontSize: '12px', color: '#999' }}>Transfer ID:</Text>
+                                <Text style={{ fontSize: '11px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                    {this.state.transfersRequest && this.state.transfersRequest.transferId ? 
+                                        this.state.transfersRequest.transferId.substring(0, 8) + '...' : 
+                                        'N/A'
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                        </div>
+                        
+                        <div style={{ textAlign: 'center' }}>
+                            <Text style={{ fontSize: '14px', color: '#fa8c16' }}>→ Processing transfer...</Text>
+                        </div>
+                    </div>
                 );
             case 'putTransfers':
                 const receivedAmount = this.state.lastReceivedAmount;
                 const currentBalance = this.state.balance?.[receivedAmount?.currency || 'USD'] || 0;
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Result
-                                    status='success'
-                                    title='Payment Received!'
-                                    subTitle={
-                                        <div>
-                                            <div>Amount: {receivedAmount ? `${receivedAmount.amount} ${receivedAmount.currency}` : `${this.state.transfersRequest?.amount?.amount || ''} ${this.state.transfersRequest?.amount?.currency || ''}`}</div>
-                                            <div style={{ marginTop: '8px' }}>New Balance: {currentBalance} {receivedAmount?.currency || 'USD'}</div>
-                                        </div>
-                                    }
-                                />
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <Result
+                            status='success'
+                            title={<Text style={{ fontSize: '18px', fontWeight: 'bold' }}>Payment Received!</Text>}
+                            subTitle={
+                                <div>
+                                    <Text style={{ fontSize: '14px', color: '#666' }}>
+                                        Amount: {receivedAmount ? `${receivedAmount.amount} ${receivedAmount.currency}` : `${this.state.transfersRequest?.amount?.amount || ''} ${this.state.transfersRequest?.amount?.currency || ''}`}
+                                    </Text>
+                                    <br/>
+                                    <Text style={{ fontSize: '13px', color: '#52c41a', fontWeight: 'bold' }}>
+                                        New Balance: {currentBalance} {receivedAmount?.currency || 'USD'}
+                                    </Text>
+                                </div>
+                            }
+                        />
+                    </div>
+                );
+            default:
+                return (
+                    <div style={{ textAlign: 'center', padding: '30px 0' }}>
+                        <div style={{ marginBottom: '18px' }}>
+                            <Text style={{ fontSize: '16px', color: '#666', display: 'block' }}>Merchant Terminal</Text>
+                            <Text style={{ fontSize: '13px', color: '#999' }}>Ready to accept payments</Text>
+                        </div>
+                    </div>
                 );
         }
     };
@@ -570,60 +622,84 @@ class PayeeMerchant extends React.Component {
 
     render() {
         return (
-            <div style={{ width: '100%', height: '100%', position: 'relative', background: 'black', borderRadius: '15px', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '10%', left: '10%', right: '10%', bottom: '15%', background: 'white', borderRadius: '10px', padding: '10px', overflow: 'auto' }}>
-                    <Row>
-                        <Col span={24}>
-                            <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                                <Text strong style={{ fontSize: '14px' }}>SECOND MERCHANT CORP</Text>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <div style={{ textAlign: 'center', padding: '5px 0' }}>
-                                <Text style={{ fontSize: '10px' }}>LEI: {this.state.payeeLEI}</Text>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <div style={{ textAlign: 'center', padding: '5px 0' }}>
-                                <Text style={{ fontSize: '10px' }}>Merchant Payment Terminal</Text>
-                            </div>
-                        </Col>
-                    </Row>
-                    
-                    {/* Balance Display */}
-                    <Row className='mt-2'>
-                        <Col span={24}>
-                            <div style={{ textAlign: 'center', padding: '8px', backgroundColor: '#f0f2f5', borderRadius: '4px', margin: '0 5px' }}>
-                                <Text style={{ fontSize: '12px', fontWeight: 'bold' }}>Account Balance</Text>
-                                <div style={{ marginTop: '4px' }}>
-                                    {
-                                        Object.keys(this.state.balance || {}).map(currency => (
-                                            <Text key={currency} style={{ fontSize: '14px', color: '#3f8600', fontWeight: 'bold' }}>
-                                                {this.state.balance[currency]} {currency}
-                                            </Text>
-                                        ))
-                                    }
-                                </div>
-                            </div>
-                        </Col>
-                    </Row>
-                    
+            <div style={{ 
+                width: '100%', 
+                height: '100%', 
+                background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                borderRadius: '25px',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '15px 12px',
+                overflow: 'hidden',
+                position: 'relative'
+            }}>
+                {/* Status Bar */}
+                <div style={{ 
+                    height: '24px', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '12px'
+                }}>
+                    <Text style={{ color: 'white', fontSize: '14px', fontWeight: 'bold' }}>Payee</Text>
+                    <Text style={{ color: 'white', fontSize: '12px' }}>●●●●●</Text>
+                </div>
+
+                {/* Header */}
+                <div style={{ 
+                    background: 'rgba(255,255,255,0.95)', 
+                    borderRadius: '15px', 
+                    padding: '15px',
+                    marginBottom: '12px',
+                    textAlign: 'center'
+                }}>
+                    <Text strong style={{ fontSize: '18px', color: '#333' }}>SECOND MERCHANT CORP</Text>
+                    <br/>
+                    <Text style={{ fontSize: '12px', color: '#666' }}>LEI: {this.state.payeeLEI}</Text>
+                    <br/>
+                    <Text style={{ fontSize: '11px', color: '#888' }}>Merchant Payment Terminal</Text>
+                </div>
+
+                {/* Balance Display */}
+                <div style={{ 
+                    background: 'rgba(255,255,255,0.9)', 
+                    borderRadius: '12px', 
+                    padding: '12px',
+                    marginBottom: '12px',
+                    textAlign: 'center'
+                }}>
+                    <Text style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>Account Balance</Text>
+                    <div style={{ marginTop: '6px' }}>
+                        {
+                            Object.keys(this.state.balance || {}).map(currency => (
+                                <Text key={currency} style={{ fontSize: '16px', color: '#11998e', fontWeight: 'bold' }}>
+                                    {this.state.balance[currency]} {currency}
+                                </Text>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                {/* Main Content */}
+                <div style={{ 
+                    flex: 1,
+                    background: 'rgba(255,255,255,0.95)',
+                    borderRadius: '15px',
+                    padding: '18px 15px',
+                    overflow: 'auto',
+                    display: 'flex',
+                    alignItems: this.state.stage ? 'flex-start' : 'center',
+                    justifyContent: 'center',
+                    minHeight: '200px'
+                }}>
                     {this.state.stage ? (
-                        <Row className='mt-2'>
-                            <Col span={24}>
-                                {this.getStageData()}
-                            </Col>
-                        </Row>
+                        <div style={{ width: '100%' }}>
+                            {this.getStageData()}
+                        </div>
                     ) : (
-                        <Row className='mt-3'>
-                            <Col span={24} className='text-center'>
-                                <Text type='secondary'>Waiting for payment...</Text>
-                            </Col>
-                        </Row>
+                        <div style={{ textAlign: 'center' }}>
+                            <Text style={{ color: '#666', fontSize: '14px' }}>Waiting for payment...</Text>
+                        </div>
                     )}
                 </div>
             </div>

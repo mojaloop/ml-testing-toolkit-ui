@@ -208,176 +208,183 @@ class PayerMerchant extends React.Component {
         switch (this.state.stage) {
             case 'getParties':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
-                                <Text>Looking up merchant information...</Text>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
+                        <Text style={{ color: '#666', fontSize: '15px', marginTop: '10px' }}>Looking up merchant information...</Text>
+                    </div>
                 );
             case 'postQuotes':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
-                                <Text>Getting quote...</Text>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
+                        <Text style={{ color: '#666', fontSize: '15px', marginTop: '10px' }}>Getting quote...</Text>
+                    </div>
                 );
             case 'postTransfers':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
-                                <Text>Processing transfer...</Text>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
+                        <Text style={{ color: '#666', fontSize: '15px', marginTop: '10px' }}>Processing transfer...</Text>
+                    </div>
                 );
             case 'putParties':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={8}>
-                                <Text>Merchant:</Text>
-                            </Col>
-                            <Col span={16}>
-                                <Text strong>SECOND MERCHANT CORP</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={8}>
-                                <Text>LEI:</Text>
-                            </Col>
-                            <Col span={16}>
-                                <Text strong>{this.state.payeeLEI}</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={8}>
-                                <Text>FSP:</Text>
-                            </Col>
-                            <Col span={16}>
-                                <Text strong>DFSP001</Text>
-                            </Col>
-                        </Row>
-                        <Row className='mt-1'>
-                            <Col span={8}><Text strong>Amount:</Text></Col>
-                            <Col span={16}>
-                                <Row className='mt-1'>
-                                    <Col span={24}>
-                                        <InputNumber
-                                            className='ms-2'
-                                            value={this.state.amount}
-                                            onChange={newNumber => {
-                                                this.setState({ amount: newNumber });
-                                            }}
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row className='mt-1'>
-                                    <Col span={24}>
-                                        <Select
-                                            className='ms-2'
-                                            style={{ width: 120 }}
-                                            placeholder='Currency'
-                                            value={this.state.selectedCurrency}
-                                            defaultActiveFirstOption
-                                            onChange={currency => {
-                                                this.setState({ selectedCurrency: currency });
-                                            }}
-                                        >
-                                            <Option value="USD">USD</Option>
-                                            <Option value="EUR">EUR</Option>
-                                        </Select>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                        <Row className='mt-3'>
-                            <Col span={24} className='text-center'>
-                                <Button type='primary' shape='round' danger disabled={!this.state.selectedCurrency} onClick={this.handleGetQuote}>Get Quote</Button>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ width: '100%' }}>
+                        {/* Merchant Info */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <div style={{ marginBottom: '10px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>Merchant:</Text>
+                                <br/>
+                                <Text strong style={{ fontSize: '16px' }}>SECOND MERCHANT CORP</Text>
+                            </div>
+                            <div style={{ marginBottom: '10px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>LEI:</Text>
+                                <br/>
+                                <Text strong style={{ fontSize: '14px' }}>{this.state.payeeLEI}</Text>
+                            </div>
+                        </div>
+                        
+                        {/* Amount Input */}
+                        <div style={{ marginBottom: '18px' }}>
+                            <Text strong style={{ fontSize: '14px', display: 'block', marginBottom: '10px' }}>Payment Amount:</Text>
+                            <InputNumber
+                                style={{ width: '100%', marginBottom: '8px' }}
+                                size='large'
+                                value={this.state.amount}
+                                onChange={newNumber => {
+                                    this.setState({ amount: newNumber });
+                                }}
+                                placeholder='Enter amount'
+                            />
+                            <Select
+                                style={{ width: '100%' }}
+                                size='large'
+                                placeholder='Select Currency'
+                                value={this.state.selectedCurrency}
+                                onChange={currency => {
+                                    this.setState({ selectedCurrency: currency });
+                                }}
+                            >
+                                <Option value="USD">USD</Option>
+                                <Option value="EUR">EUR</Option>
+                            </Select>
+                        </div>
+                        
+                        {/* Get Quote Button */}
+                        <Button 
+                            type='primary' 
+                            size='large'
+                            block
+                            disabled={!this.state.selectedCurrency} 
+                            onClick={this.handleGetQuote}
+                            style={{ borderRadius: '8px', height: '50px', fontWeight: 'bold', fontSize: '16px' }}
+                        >
+                            Get Quote
+                        </Button>
+                    </div>
                 );
             case 'putQuotes':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Amount:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong>{this.state.quotesResponse && this.state.quotesResponse.transferAmount ? this.state.quotesResponse.transferAmount.amount : ''} {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? this.state.quotesResponse.transferAmount.currency : ''}</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Fees:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong>{this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? this.state.quotesResponse.payeeFspFee.amount : ''} {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? this.state.quotesResponse.payeeFspFee.currency : ''}</Text>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <Text>Commission:</Text>
-                            </Col>
-                            <Col span={12}>
-                                <Text strong>{this.state.quotesResponse && this.state.quotesResponse.payeeFspCommission ? this.state.quotesResponse.payeeFspCommission.amount : ''} {this.state.quotesResponse && this.state.quotesResponse.payeeFspCommission ? this.state.quotesResponse.payeeFspCommission.currency : ''}</Text>
-                            </Col>
-                        </Row>
-                        <Row className='mt-4'>
-                            <Col span={12} className='text-center'>
-                                <Button type='default' shape='round' onClick={this.handleReset}>Cancel</Button>
-                            </Col>
-                            <Col span={12} className='text-center'>
-                                <Button type='primary' shape='round' danger onClick={this.handleTransfer}>Transfer Money</Button>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ width: '100%' }}>
+                        {/* Quote Details */}
+                        <div style={{ 
+                            background: '#f8f9fa', 
+                            borderRadius: '8px', 
+                            padding: '12px', 
+                            marginBottom: '15px' 
+                        }}>
+                            <Text strong style={{ fontSize: '15px', display: 'block', marginBottom: '12px' }}>Quote Details</Text>
+                            
+                            <div style={{ marginBottom: '8px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>Amount:</Text>
+                                <Text strong style={{ fontSize: '16px', float: 'right' }}>
+                                    {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
+                                        `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
+                                        `${this.state.amount} ${this.state.selectedCurrency}`
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                            
+                            <div style={{ marginBottom: '8px' }}>
+                                <Text style={{ fontSize: '13px', color: '#666' }}>Fees:</Text>
+                                <Text strong style={{ fontSize: '14px', float: 'right' }}>
+                                    {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? 
+                                        `${this.state.quotesResponse.payeeFspFee.amount} ${this.state.quotesResponse.payeeFspFee.currency}` : 
+                                        '0.00 USD'
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <Button 
+                                size='large'
+                                onClick={this.handleReset}
+                                style={{ flex: 1, height: '50px', borderRadius: '8px', fontSize: '15px' }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                type='primary' 
+                                size='large'
+                                onClick={this.handleTransfer}
+                                style={{ flex: 1, height: '50px', borderRadius: '8px', fontWeight: 'bold', fontSize: '15px' }}
+                            >
+                                Transfer Money
+                            </Button>
+                        </div>
+                    </div>
                 );
             case 'putTransfers':
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Result
-                                    status='success'
-                                    title='Payment Successful!'
-                                    subTitle={`Transfer ID: ${this.state.transfersResponse && this.state.transfersResponse.transferId ? this.state.transfersResponse.transferId : ''}`}
-                                />
-                            </Col>
-                        </Row>
-                        <Row className='mt-3'>
-                            <Col span={24} className='text-center'>
-                                <Button type='primary' shape='round' onClick={this.handleReset}>Reset</Button>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <Result
+                            status='success'
+                            title={<Text style={{ fontSize: '18px', fontWeight: 'bold' }}>Payment Successful!</Text>}
+                            subTitle={
+                                <div>
+                                    <Text style={{ fontSize: '14px', color: '#666' }}>Amount: {this.state.amount} {this.state.selectedCurrency}</Text>
+                                    <br/>
+                                    <Text style={{ fontSize: '12px', color: '#999' }}>Transfer ID: {this.state.transfersResponse && this.state.transfersResponse.transferId ? this.state.transfersResponse.transferId : 'N/A'}</Text>
+                                </div>
+                            }
+                        />
+                        <Button 
+                            type='primary' 
+                            size='large'
+                            onClick={this.handleReset}
+                            style={{ marginTop: '18px', borderRadius: '8px', width: '140px', height: '50px', fontWeight: 'bold', fontSize: '15px' }}
+                        >
+                            New Payment
+                        </Button>
+                    </div>
                 );
             default:
                 return (
-                    <Card size='small'>
-                        <Row>
-                            <Col span={24} className='text-center'>
-                                <Button 
-                                    type='primary' 
-                                    shape='round' 
-                                    loading={this.state.gettingMerchantInfo} 
-                                    onClick={this.handleGetMerchantInfo}
-                                >
-                                    Start Payment
-                                </Button>
-                            </Col>
-                        </Row>
-                    </Card>
+                    <div style={{ textAlign: 'center', padding: '30px 0' }}>
+                        <div style={{ marginBottom: '25px' }}>
+                            <Text style={{ fontSize: '16px', color: '#666', display: 'block', marginBottom: '8px' }}>Ready to send payment</Text>
+                            <Text style={{ fontSize: '13px', color: '#999' }}>Tap the button below to begin</Text>
+                        </div>
+                        <Button 
+                            type='primary' 
+                            size='large'
+                            loading={this.state.gettingMerchantInfo} 
+                            onClick={this.handleGetMerchantInfo}
+                            style={{ 
+                                borderRadius: '25px', 
+                                width: '160px', 
+                                height: '55px', 
+                                fontWeight: 'bold',
+                                fontSize: '16px'
+                            }}
+                        >
+                            Start Payment
+                        </Button>
+                    </div>
                 );
         }
     };
@@ -459,35 +466,54 @@ class PayerMerchant extends React.Component {
 
     render() {
         return (
-            <div style={{ width: '100%', height: '100%', position: 'relative', background: 'black', borderRadius: '15px', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '10%', left: '10%', right: '10%', bottom: '15%', background: 'white', borderRadius: '10px', padding: '10px', overflow: 'auto' }}>
-                    <Row>
-                        <Col span={24}>
-                            <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                                <Text strong style={{ fontSize: '14px' }}>HALMADENT SRL</Text>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <div style={{ textAlign: 'center', padding: '5px 0' }}>
-                                <Text style={{ fontSize: '10px' }}>LEI: {this.state.payerLEI}</Text>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <div style={{ textAlign: 'center', padding: '5px 0' }}>
-                                <Text style={{ fontSize: '10px' }}>Merchant Payment Terminal</Text>
-                            </div>
-                        </Col>
-                    </Row>
-                    
-                    <Row className='mt-2'>
-                        <Col span={24}>
-                            {this.getStageData()}
-                        </Col>
-                    </Row>
+            <div style={{ 
+                width: '100%', 
+                height: '100%', 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '25px',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '15px 12px',
+                overflow: 'hidden',
+                position: 'relative'
+            }}>
+                {/* Status Bar */}
+                <div style={{ 
+                    height: '24px', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '12px'
+                }}>
+                    <Text style={{ color: 'white', fontSize: '14px', fontWeight: 'bold' }}>Payer</Text>
+                    <Text style={{ color: 'white', fontSize: '12px' }}>●●●●●</Text>
+                </div>
+
+                {/* Header */}
+                <div style={{ 
+                    background: 'rgba(255,255,255,0.95)', 
+                    borderRadius: '15px', 
+                    padding: '15px',
+                    marginBottom: '12px',
+                    textAlign: 'center'
+                }}>
+                    <Text strong style={{ fontSize: '18px', color: '#333' }}>HALMADENT SRL</Text>
+                    <br/>
+                    <Text style={{ fontSize: '12px', color: '#666' }}>LEI: {this.state.payerLEI}</Text>
+                    <br/>
+                    <Text style={{ fontSize: '11px', color: '#888' }}>Merchant Payment Terminal</Text>
+                </div>
+
+                {/* Main Content */}
+                <div style={{ 
+                    flex: 1,
+                    background: 'rgba(255,255,255,0.95)',
+                    borderRadius: '15px',
+                    padding: '18px 15px',
+                    overflow: 'auto',
+                    minHeight: '200px'
+                }}>
+                    {this.getStageData()}
                 </div>
             </div>
         );

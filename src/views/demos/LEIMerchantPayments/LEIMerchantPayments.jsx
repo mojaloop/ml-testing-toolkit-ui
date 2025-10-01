@@ -382,10 +382,11 @@ class LEIMerchantPayments extends React.Component {
                                     <Text style={{ color: 'white', fontWeight: 'bold' }}>Payer Merchant Logs</Text> <CaretRightFilled style={{ fontSize: '18px' }} />
                                 </Button>
                             </div>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%', paddingTop: '60px' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '15%', paddingTop: '40px' }}>
                                 <div style={{ 
-                                    width: '70%', 
-                                    maxWidth: '180px',
+                                    width: '85%', 
+                                    maxWidth: '280px',
+                                    minWidth: '220px',
                                     aspectRatio: '9 / 16',
                                     position: 'relative'
                                 }}>
@@ -467,10 +468,11 @@ class LEIMerchantPayments extends React.Component {
                                     <CaretLeftFilled style={{ fontSize: '18px' }} /> <Text style={{ color: 'white', fontWeight: 'bold' }}>Payee Merchant Logs</Text>
                                 </Button>
                             </div>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '20%', paddingTop: '60px' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '15%', paddingTop: '40px' }}>
                                 <div style={{ 
-                                    width: '70%',
-                                    maxWidth: '180px',
+                                    width: '85%',
+                                    maxWidth: '280px',
+                                    minWidth: '220px',
                                     aspectRatio: '9 / 16',
                                     position: 'relative'
                                 }}>
