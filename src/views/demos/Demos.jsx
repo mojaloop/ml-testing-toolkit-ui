@@ -117,6 +117,20 @@ class Demos extends React.Component {
                         </ul>
                     </Col>
                 </Row>
+                <Row className='my-4'>
+                    <Col span={24}>
+                        <ul>
+                            <li>
+                                <a
+                                    href='/lei-merchant-payments'
+                                    target='_blank'
+                                >
+                  LEI Merchant Payments Demo
+                                </a>
+                            </li>
+                        </ul>
+                    </Col>
+                </Row>
             </>
         );
     }

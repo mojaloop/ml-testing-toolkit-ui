@@ -49,6 +49,7 @@ import PayerMobileSimulator from './views/demos/PayerAppSimulator/PayerMobile';
 import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
 import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx';
 import PISPDemo from './views/demos/PISPDemo/MobileSimulator';
+import LEIMerchantPayments from './views/demos/LEIMerchantPayments/LEIMerchantPayments.jsx';
 import { loadAppConfig } from './utils/getConfig.js';
 
 // Add this before any other React code
@@ -80,6 +81,7 @@ root.render(
                     <Route path="/demo-test-runner" element={<DemoTestRunner />} />
                     <Route path="/demo-monitoring" element={<DemoMonitoring />} />
                     <Route path="/pisp-demo" element={<PISPDemo />} />
+                    <Route path="/lei-merchant-payments" element={<LEIMerchantPayments />} />
                     <Route path="/admin/*" element={<AdminLayout />} />
                     <Route path="/" element={<Navigate to="/admin/outbound_request" replace />} />
                     <Route path="*" element={<Navigate to="/admin" replace />} />

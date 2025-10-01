@@ -1,0 +1,93 @@
+{
+  "name": "multi",
+  "test_cases": [
+    {
+      "id": 1,
+      "name": "Post Quotes",
+      "requests": [
+        {
+          "id": 1,
+          "description": "Send quote",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/quotes",
+          "method": "post",
+          "headers": {
+            "Accept": "application/vnd.interoperability.quotes+json;version=1.0",
+            "Content-Type": "application/vnd.interoperability.quotes+json;version=1.0",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "testingtoolkitdfsp",
+            "FSPIOP-Destination": "payeefsp"
+          },
+          "body": {
+            "quoteId": "{$function.generic.generateUUID}",
+            "transactionId": "{$function.generic.generateUUID}",
+            "transactionRequestId": "{$function.generic.generateUUID}",
+            "payee": {
+              "partyIdInfo": {
+                "partyIdType": "ALIAS",
+                "partyIdentifier": "529900VJSEB3P1FV4R31",
+                "fspId": "payeefsp"
+              },
+              "merchantClassificationCode": "5814",
+              "name": "SECOND MERCHANT CORP"
+            },
+            "payer": {
+              "partyIdInfo": {
+                "partyIdType": "MSISDN",
+                "partyIdentifier": "44123456789",
+                "fspId": "testingtoolkitdfsp"
+              },
+              "personalInfo": {
+                "complexName": {
+                  "firstName": "Firstname-Test",
+                  "lastName": "Lastname-Test"
+                },
+                "dateOfBirth": "1984-01-01"
+              }
+            },
+            "amountType": "SEND",
+            "amount": {
+              "amount": "100",
+              "currency": "USD"
+            },
+            "transactionType": {
+              "scenario": "TRANSFER",
+              "initiator": "PAYER",
+              "initiatorType": "CONSUMER"
+            },
+            "expiration": "2025-10-31T23:59:59.000Z",
+            "note": "LEI merchant payment test"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response status to be 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              }
+            ]
+          },
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "console.log('🚀 Starting LEI Merchant Payment Quote')",
+                "environment.quoteId = requestBody.quoteId",
+                "environment.transactionId = requestBody.transactionId",
+                "environment.transactionRequestId = requestBody.transactionRequestId"
+              ]
+            }
+          },
+          "path": "/quotes",
+          "url": "{$inputs.HOST_QUOTING_SERVICE}"
+        }
+      ]
+    }
+  ]
+}

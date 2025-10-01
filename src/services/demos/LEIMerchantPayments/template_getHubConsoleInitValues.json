@@ -1,0 +1,30 @@
+{
+  "name": "GET_HUBCONSOLE_INIT_VALUES",
+  "test_cases": [
+    {
+      "id": 1,
+      "name": "GET_SETTLEMENT_MODELS",
+      "requests": [
+        {
+          "id": 9,
+          "description": "test",
+          "apiVersion": {
+            "minorVersion": 0,
+            "majorVersion": 1,
+            "type": "central_admin"
+          },
+          "operationPath": "/settlementModels",
+          "path": "/settlementModels",
+          "method": "get",
+          "url": "{$inputs.HOST_CENTRAL_LEDGER}",
+          "headers": {
+            "FSPIOP-Source": "{$inputs.fromFspId}"
+          },
+          "params": {
+            "id": ""
+          }
+        }
+      ]
+    }
+  ]
+}
