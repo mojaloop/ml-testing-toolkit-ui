@@ -53,9 +53,7 @@ class PayeeMerchant extends React.Component {
             case 'payeeMerchantGetParties':
             {
                 // Step 2: GET parties received, immediately trigger Step 3: PUT parties response
-                setTimeout(() => {
-                    this.triggerStep3PutParties();
-                }, 100);
+                this.triggerStep3PutParties();
                 break;
             }
             case 'payeeMerchantGetPartiesResponse':
@@ -78,6 +76,8 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostQuotesResponse':
             {
+                // Step 6 SUCCESS → Trigger Step 7: PUT quotes response
+                this.triggerStep7PutQuotes();
                 break;
             }
             case 'payeeMerchantPutQuotes':
@@ -98,6 +98,8 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostTransfersResponse':
             {
+                // Step 10 SUCCESS → Trigger Step 11: PUT transfers response
+                this.triggerStep11PutTransfers();
                 break;
             }
             case 'payeeMerchantPutTransfers':
@@ -343,10 +345,19 @@ class PayeeMerchant extends React.Component {
         }
         this.handleNotificationEvents(event);
         
-        // Step 7: PUT quotes response immediately  
+        // Simulate Step 6 SUCCESS response to trigger Step 7
         setTimeout(() => {
-            this.triggerStep7PutQuotes();
-        }, 100);
+            if (this.props.onSequenceEvent) {
+                this.props.onSequenceEvent({
+                    category: 'payeeMerchant',
+                    type: 'payeeMerchantPostQuotesResponse',
+                    data: {
+                        resource: { method: 'post', path: '/quotes' },
+                        responseStatus: '202'
+                    }
+                });
+            }
+        }, 50);
     };
     
     triggerStep7PutQuotes = () => {
@@ -404,10 +415,19 @@ class PayeeMerchant extends React.Component {
         }
         this.handleNotificationEvents(event);
         
-        // Step 11: PUT transfers response immediately
+        // Simulate Step 10 SUCCESS response to trigger Step 11
         setTimeout(() => {
-            this.triggerStep11PutTransfers();
-        }, 100);
+            if (this.props.onSequenceEvent) {
+                this.props.onSequenceEvent({
+                    category: 'payeeMerchant',
+                    type: 'payeeMerchantPostTransfersResponse',
+                    data: {
+                        resource: { method: 'post', path: '/transfers' },
+                        responseStatus: '202'
+                    }
+                });
+            }
+        }, 50);
     };
     
     triggerStep11PutTransfers = () => {

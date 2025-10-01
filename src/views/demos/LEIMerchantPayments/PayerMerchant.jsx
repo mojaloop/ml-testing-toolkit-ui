@@ -57,19 +57,17 @@ class PayerMerchant extends React.Component {
             }
             case 'getPartiesResponse':
             {
-                // Step 1 completed, immediately trigger Step 2: Mojaloop Switch → SECOND MERCHANT CORP
-                setTimeout(() => {
-                    if (this.props.onPayeeMerchantNotification) {
-                        this.props.onPayeeMerchantNotification({
-                            category: 'payeeMerchant',
-                            type: 'payeeMerchantGetParties',
-                            data: {
-                                resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
-                                requestBody: null
-                            }
-                        });
-                    }
-                }, 100);
+                // Step 1 SUCCESS → Trigger Step 2: Mojaloop Switch → SECOND MERCHANT CORP
+                if (this.props.onPayeeMerchantNotification) {
+                    this.props.onPayeeMerchantNotification({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantGetParties',
+                        data: {
+                            resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                            requestBody: null
+                        }
+                    });
+                }
                 break;
             }
             case 'putParties':
@@ -84,18 +82,16 @@ class PayerMerchant extends React.Component {
             }
             case 'postQuotes':
             {
-                // Step 5: HALMADENT → Mojaloop Switch POST /quotes
+                // Step 5: HALMADENT → Mojaloop Switch POST /quotes (wait for response)
                 this.setState({ quotesRequest: event.data.quotesRequest });
-                // Immediately trigger Step 6: Mojaloop Switch → SECOND MERCHANT CORP POST /quotes
-                setTimeout(() => {
-                    if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
-                        this.payeeMerchantRef.current.triggerStep6PostQuotes();
-                    }
-                }, 100);
                 break;
             }
             case 'postQuotesResponse':
             {
+                // Step 5 SUCCESS → Trigger Step 6: Mojaloop Switch → SECOND MERCHANT CORP POST /quotes
+                if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
+                    this.payeeMerchantRef.current.triggerStep6PostQuotes();
+                }
                 break;
             }
             case 'putQuotes':
@@ -110,17 +106,15 @@ class PayerMerchant extends React.Component {
             }
             case 'postTransfers':
             {
-                // Step 9: HALMADENT → Mojaloop Switch POST /transfers
-                // Immediately trigger Step 10: Mojaloop Switch → SECOND MERCHANT CORP POST /transfers
-                setTimeout(() => {
-                    if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
-                        this.payeeMerchantRef.current.triggerStep10PostTransfers();
-                    }
-                }, 100);
+                // Step 9: HALMADENT → Mojaloop Switch POST /transfers (wait for response)
                 break;
             }
             case 'postTransfersResponse':
             {
+                // Step 9 SUCCESS → Trigger Step 10: Mojaloop Switch → SECOND MERCHANT CORP POST /transfers
+                if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
+                    this.payeeMerchantRef.current.triggerStep10PostTransfers();
+                }
                 break;
             }
             case 'putTransfers':
