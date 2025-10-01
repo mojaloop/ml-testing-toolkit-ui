@@ -52,10 +52,10 @@ class PayeeMerchant extends React.Component {
         switch (event.type) {
             case 'payeeMerchantGetParties':
             {
-                // Step 2: Received, now trigger Step 3: PUT parties response
+                // Step 2: GET parties received, immediately trigger Step 3: PUT parties response
                 setTimeout(() => {
                     this.triggerStep3PutParties();
-                }, 300);
+                }, 100);
                 break;
             }
             case 'payeeMerchantGetPartiesResponse':
@@ -343,10 +343,10 @@ class PayeeMerchant extends React.Component {
         }
         this.handleNotificationEvents(event);
         
-        // Step 7: PUT quotes response after short delay
+        // Step 7: PUT quotes response immediately  
         setTimeout(() => {
             this.triggerStep7PutQuotes();
-        }, 400);
+        }, 100);
     };
     
     triggerStep7PutQuotes = () => {
@@ -404,10 +404,10 @@ class PayeeMerchant extends React.Component {
         }
         this.handleNotificationEvents(event);
         
-        // Step 11: PUT transfers response after short delay
+        // Step 11: PUT transfers response immediately
         setTimeout(() => {
             this.triggerStep11PutTransfers();
-        }, 400);
+        }, 100);
     };
     
     triggerStep11PutTransfers = () => {
