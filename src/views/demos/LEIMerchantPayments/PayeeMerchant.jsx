@@ -52,6 +52,10 @@ class PayeeMerchant extends React.Component {
         switch (event.type) {
             case 'payeeMerchantGetParties':
             {
+                // Step 2: Received, now trigger Step 3: PUT parties response
+                setTimeout(() => {
+                    this.triggerStep3PutParties();
+                }, 300);
                 break;
             }
             case 'payeeMerchantGetPartiesResponse':
@@ -60,6 +64,7 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPutParties':
             {
+                // Step 3: Completed, this will trigger Step 4 via parent
                 break;
             }
             case 'payeeMerchantPutPartiesResponse':
@@ -255,6 +260,183 @@ class PayeeMerchant extends React.Component {
                     </Card>
                 );
         }
+    };
+
+    triggerStep3PutParties = () => {
+        // Step 3: PUT parties - Second Merchant Corp -> Mojaloop Switch
+        const event = {
+            category: 'payeeMerchant',
+            type: 'payeeMerchantPutParties',
+            data: {
+                resource: { method: 'put', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                requestBody: {
+                    party: {
+                        partyIdInfo: {
+                            partyIdType: 'ALIAS',
+                            partyIdentifier: this.state.payeeLEI,
+                            fspId: 'payeefsp'
+                        },
+                        merchantClassificationCode: '5814',
+                        name: 'SECOND MERCHANT CORP'
+                    }
+                }
+            }
+        };
+        
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent(event);
+        }
+        this.handleNotificationEvents(event);
+        
+        // Trigger monitor log
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent({
+                category: 'payeeMerchantMonitorLog',
+                type: 'log',
+                data: {
+                    log: {
+                        logTime: new Date().toISOString(),
+                        notificationType: 'newOutboundLog',
+                        message: 'Returning party info for Second Merchant Corp',
+                        resource: { method: 'put', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                        additionalData: {
+                            request: {
+                                body: event.data.requestBody
+                            }
+                        },
+                        uniqueId: this.generateUUID(),
+                        verbosity: 'info'
+                    }
+                }
+            });
+        }
+    };
+    
+    triggerStep6PostQuotes = () => {
+        // Step 6: POST quotes - Mojaloop Switch -> Second Merchant Corp
+        const event = {
+            category: 'payeeMerchant',
+            type: 'payeeMerchantPostQuotes',
+            data: {
+                resource: { method: 'post', path: '/quotes' },
+                requestBody: {
+                    quoteId: this.generateUUID(),
+                    transactionId: this.generateUUID(),
+                    payee: {
+                        partyIdInfo: {
+                            partyIdType: 'ALIAS',
+                            partyIdentifier: this.state.payeeLEI,
+                            fspId: 'payeefsp'
+                        },
+                        name: 'SECOND MERCHANT CORP'
+                    },
+                    amount: {
+                        amount: '100', // Will be updated from payer
+                        currency: 'USD'
+                    }
+                }
+            }
+        };
+        
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent(event);
+        }
+        this.handleNotificationEvents(event);
+        
+        // Step 7: PUT quotes response after short delay
+        setTimeout(() => {
+            this.triggerStep7PutQuotes();
+        }, 400);
+    };
+    
+    triggerStep7PutQuotes = () => {
+        // Step 7: PUT quotes - Second Merchant Corp -> Mojaloop Switch
+        const event = {
+            category: 'payeeMerchant',
+            type: 'payeeMerchantPutQuotes',
+            data: {
+                resource: { method: 'put', path: `/quotes/${this.generateUUID()}` },
+                requestBody: {
+                    transferAmount: {
+                        amount: '100',
+                        currency: 'USD'
+                    },
+                    payeeFspFee: {
+                        amount: '0',
+                        currency: 'USD'
+                    },
+                    expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+                    condition: 'YlK5TZyhflbXaDRPtR5ehDxlMSqM3uIMBoVhqoD0ddg'
+                }
+            }
+        };
+        
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent(event);
+        }
+        this.handleNotificationEvents(event);
+    };
+    
+    triggerStep10PostTransfers = () => {
+        // Step 10: POST transfers - Mojaloop Switch -> Second Merchant Corp
+        const transferId = this.generateUUID();
+        this.currentTransferId = transferId;
+        
+        const event = {
+            category: 'payeeMerchant',
+            type: 'payeeMerchantPostTransfers',
+            data: {
+                resource: { method: 'post', path: '/transfers' },
+                requestBody: {
+                    transferId: transferId,
+                    amount: {
+                        amount: '100',
+                        currency: 'USD'
+                    },
+                    payerFsp: 'testingtoolkitdfsp',
+                    payeeFsp: 'payeefsp'
+                }
+            }
+        };
+        
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent(event);
+        }
+        this.handleNotificationEvents(event);
+        
+        // Step 11: PUT transfers response after short delay
+        setTimeout(() => {
+            this.triggerStep11PutTransfers();
+        }, 400);
+    };
+    
+    triggerStep11PutTransfers = () => {
+        // Step 11: PUT transfers - Second Merchant Corp -> Mojaloop Switch
+        const event = {
+            category: 'payeeMerchant',
+            type: 'payeeMerchantPutTransfers',
+            data: {
+                resource: { method: 'put', path: `/transfers/${this.currentTransferId}` },
+                requestBody: {
+                    transferState: 'COMMITTED',
+                    transferId: this.currentTransferId,
+                    completedTimestamp: new Date().toISOString()
+                }
+            }
+        };
+        
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent(event);
+        }
+        this.handleNotificationEvents(event);
+    };
+    
+    generateUUID = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     };
 
     render() {

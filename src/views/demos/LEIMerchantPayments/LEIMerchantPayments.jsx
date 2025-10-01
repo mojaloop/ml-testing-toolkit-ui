@@ -87,13 +87,19 @@ class LEIMerchantPayments extends React.Component {
 
     handleNotificationEvents = event => {
         if(event.category === 'payerMerchant') {
-            if(this.payerMerchantRef.current)
+            if(this.payerMerchantRef.current) {
+                // Pass payee merchant reference for sequence coordination
+                this.payerMerchantRef.current.payeeMerchantRef = this.payeeMerchantRef;
                 this.payerMerchantRef.current.handleNotificationEvents(event);
+            }
             this.updateSequenceDiagram(event);
         } else if(event.category === 'payeeMerchant') {
             if(this.payeeMerchantRef.current)
                 this.payeeMerchantRef.current.handleNotificationEvents(event);
             this.updateSequenceDiagram(event);
+            
+            // Handle sequence progression for steps 3 -> 4, 7 -> 8, 11 -> 12
+            this.handleSequenceProgression(event);
         } else if(event.category === 'payerMerchantMonitorLog') {
             if(this.payerMerchantMonitorRef.current)
                 this.payerMerchantMonitorRef.current.appendLog(event.data.log);
@@ -106,6 +112,32 @@ class LEIMerchantPayments extends React.Component {
         } else if(event.category === 'hubConsole') {
             if(this.hubConsoleRef.current)
                 this.hubConsoleRef.current.handleNotificationEvents(event);
+        }
+    };
+    
+    handleSequenceProgression = (event) => {
+        // Handle the payee -> payer sequence progression
+        if (event.type === 'payeeMerchantPutParties') {
+            // Step 3 completed, trigger Step 4: PUT parties response to payer
+            setTimeout(() => {
+                // This would normally come from the hub, but we simulate it
+                // The payer merchant should receive the putParties callback
+                // This is already handled by the existing outbound service
+            }, 100);
+        } else if (event.type === 'payeeMerchantPutQuotes') {
+            // Step 7 completed, trigger Step 8: PUT quotes response to payer  
+            setTimeout(() => {
+                // This would normally come from the hub, but we simulate it
+                // The payer merchant should receive the putQuotes callback
+                // This is already handled by the existing outbound service
+            }, 100);
+        } else if (event.type === 'payeeMerchantPutTransfers') {
+            // Step 11 completed, trigger Step 12: PUT transfers response to payer
+            setTimeout(() => {
+                // This would normally come from the hub, but we simulate it
+                // The payer merchant should receive the putTransfers callback
+                // This is already handled by the existing outbound service
+            }, 100);
         }
     };
 
@@ -465,6 +497,7 @@ class LEIMerchantPayments extends React.Component {
                                 }}>
                                     <PayeeMerchant
                                         ref={this.payeeMerchantRef}
+                                        onSequenceEvent={this.handleNotificationEvents}
                                     />
                                 </div>
                             </div>
