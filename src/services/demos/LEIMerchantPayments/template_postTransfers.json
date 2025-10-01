@@ -20,20 +20,20 @@
             "Accept": "application/vnd.interoperability.transfers+json;version=1.0",
             "Content-Type": "application/vnd.interoperability.transfers+json;version=1.0",
             "Date": "{$function.generic.curDate}",
-            "FSPIOP-Source": "testingtoolkitdfsp",
-            "FSPIOP-Destination": "payeefsp"
+            "FSPIOP-Source": "{$inputs.mobileSimPayerFsp}",
+            "FSPIOP-Destination": "{$inputs.mobileSimPayeeFsp}"
           },
           "body": {
-            "transferId": "{$function.generic.generateUUID}",
-            "payeeFsp": "payeefsp",
-            "payerFsp": "testingtoolkitdfsp",
+            "transferId": "{$inputs.quotesCallbackTransactionId}",
+            "payeeFsp": "{$inputs.mobileSimPayeeFsp}",
+            "payerFsp": "{$inputs.mobileSimPayerFsp}",
             "amount": {
-              "amount": "100",
-              "currency": "USD"
+              "amount": "{$inputs.amount}",
+              "currency": "{$inputs.currency}"
             },
-            "expiration": "2025-10-31T23:59:59.000Z",
-            "ilpPacket": "AYIBgQAAAAAAAASwNGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpLMHlGTFGCAUBQU0svMS4wCk5vbmNlOiB1SXlweUYzY3pYSXpFUzRvTVBiTlVVQ3VlbXFmNE1rRndudDBxZWQyM2NHTElJFDANdGVzdC5sZWFnM3IuZGZzcDEuYWJjZGVmZWNjJCs4MD8xMsOwYXQAa2IjbCtERmdOBoBnIGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpKMHlGTTIwMQSATE5PVEVYUEVYQU1QTEUNCmRhdGUgZGVjZW50cmFsaXpmMV9TcnRzSUhkQXk=",
-            "condition": "YlK5TZyhflbXaDRPtR5ehDxlMSqM3uIMBoVhqoD0ddg"
+            "expiration": "{$requestVariables.transferExpiration}",
+            "ilpPacket": "{$inputs.quotesCallbackIlpPacket}",
+            "condition": "{$inputs.quotesCallbackCondition}"
           },
           "tests": {
             "assertions": [
@@ -51,6 +51,11 @@
           "scripts": {
             "preRequest": {
               "exec": [
+                "let expirationOffset = 60 * 1000",
+                "if (environment.expirationOffset) {",
+                "  expirationOffset = environment.expirationOffset",
+                "}",
+                "requestVariables.transferExpiration = new Date(new Date().getTime() + expirationOffset).toISOString()",
                 "console.log('💸 Initiating LEI merchant transfer')",
                 "console.log('Transfer ID:', requestBody.transferId)",
                 "environment.transferId = requestBody.transferId"

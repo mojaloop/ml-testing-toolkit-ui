@@ -53,11 +53,14 @@ class PayerMerchant extends React.Component {
         switch (event.type) {
             case 'getParties':
             {
+                // Start of party lookup - show loading state
+                this.setState({ stage: 'getParties' });
                 break;
             }
             case 'getPartiesResponse':
             {
-                // Step 1 SUCCESS → Trigger Step 2: Mojaloop Switch → SECOND MERCHANT CORP
+                // Step 2: Mojaloop Switch → HALMADENT SRL response 202
+                // This triggers Step 3: Mojaloop Switch → SECOND MERCHANT CORP: GET /parties
                 if (this.props.onPayeeMerchantNotification) {
                     this.props.onPayeeMerchantNotification({
                         category: 'payeeMerchant',
@@ -70,10 +73,28 @@ class PayerMerchant extends React.Component {
                 }
                 break;
             }
+            // Handle events from PayeeMerchant (SECOND MERCHANT CORP)
+            case 'payeeMerchantGetPartiesResponse':
+            {
+                // Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202 
+                // This triggers Step 5: SECOND MERCHANT CORP → Mojaloop Switch: PUT /parties
+                break;
+            }
+            case 'payeeMerchantPutPartiesResponse':
+            {
+                // Step 6: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+                // This triggers Step 7: Mojaloop Switch → HALMADENT SRL: PUT /parties
+                // Note: Step 7-8 are handled automatically by the notification service
+                break;
+            }
             case 'putParties':
             {
-                // Step 4: Final step of Party Lookup phase - ready for quotes
-                this.setState({ gettingMerchantInfo: false, stage: 'putParties', merchantInfo: event.data.party });
+                // Step 7: Final step of Party Lookup phase - ready for quotes
+                this.setState({ 
+                    gettingMerchantInfo: false, 
+                    stage: 'putParties', 
+                    merchantInfo: event.data.party 
+                });
                 break;
             }
             case 'putPartiesResponse':
@@ -82,22 +103,46 @@ class PayerMerchant extends React.Component {
             }
             case 'postQuotes':
             {
-                // Step 5: HALMADENT → Mojaloop Switch POST /quotes (wait for response)
-                this.setState({ quotesRequest: event.data.quotesRequest });
+                // Step 8: HALMADENT → Mojaloop Switch POST /quotes - show loading state
+                this.setState({ 
+                    stage: 'postQuotes',
+                    quotesRequest: event.data.quotesRequest 
+                });
                 break;
             }
             case 'postQuotesResponse':
             {
-                // Step 5 SUCCESS → Trigger Step 6: Mojaloop Switch → SECOND MERCHANT CORP POST /quotes
+                // Step 10: Mojaloop Switch → HALMADENT SRL: response 202
+                // This triggers Step 11: Mojaloop Switch → SECOND MERCHANT CORP: POST /quotes
                 if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
-                    this.payeeMerchantRef.current.triggerStep6PostQuotes();
+                    this.payeeMerchantRef.current.triggerStep11PostQuotes(
+                        this.state.amount.toString(),
+                        this.state.selectedCurrency
+                    );
                 }
+                break;
+            }
+            // Handle quotes response events from PayeeMerchant
+            case 'payeeMerchantPostQuotesResponse':
+            {
+                // Step 12: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                // This triggers Step 13: SECOND MERCHANT CORP → Mojaloop Switch: PUT /quotes
+                break;
+            }
+            case 'payeeMerchantPutQuotesResponse':
+            {
+                // Step 14: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+                // This triggers Step 15: Mojaloop Switch → HALMADENT SRL: PUT /quotes
+                // Note: Step 15-16 are handled automatically by the notification service
                 break;
             }
             case 'putQuotes':
             {
-                // Step 8: Final step of Quotes phase - ready for transfers
-                this.setState({ stage: 'putQuotes', quotesResponse: event.data.quotesResponse });
+                // Step 15: Final step of Quotes phase - ready for transfers
+                this.setState({ 
+                    stage: 'putQuotes', 
+                    quotesResponse: event.data.quotesResponse 
+                });
                 break;
             }
             case 'putQuotesResponse':
@@ -106,21 +151,45 @@ class PayerMerchant extends React.Component {
             }
             case 'postTransfers':
             {
-                // Step 9: HALMADENT → Mojaloop Switch POST /transfers (wait for response)
+                // Step 17: HALMADENT → Mojaloop Switch POST /transfers - show loading state
+                console.log('PayerMerchant: postTransfers event received');
+                this.setState({ stage: 'postTransfers' });
                 break;
             }
             case 'postTransfersResponse':
             {
-                // Step 9 SUCCESS → Trigger Step 10: Mojaloop Switch → SECOND MERCHANT CORP POST /transfers
+                // Step 18: Mojaloop Switch → HALMADENT SRL: response 202
+                // This triggers Step 19: Mojaloop Switch → SECOND MERCHANT CORP: POST /transfers
+                console.log('PayerMerchant: postTransfersResponse event received, triggering Step 19');
                 if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
-                    this.payeeMerchantRef.current.triggerStep10PostTransfers();
+                    this.payeeMerchantRef.current.triggerStep19PostTransfers();
+                } else {
+                    console.error('PayerMerchant: payeeMerchantRef not available for Step 19');
                 }
+                break;
+            }
+            // Handle transfers response events from PayeeMerchant
+            case 'payeeMerchantPostTransfersResponse':
+            {
+                // Step 20: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                // This triggers Step 21: SECOND MERCHANT CORP → Mojaloop Switch: PUT /transfers
+                break;
+            }
+            case 'payeeMerchantPutTransfersResponse':
+            {
+                // Step 22: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+                // This triggers Step 23: Mojaloop Switch → HALMADENT SRL: PUT /transfers
+                // Note: Step 23-24 are handled automatically by the notification service
                 break;
             }
             case 'putTransfers':
             {
-                // Step 12: Final step - Transfer complete!
-                this.setState({ stage: 'putTransfers', transfersResponse: event.data.transfersResponse });
+                // Step 23: Final step - Transfer complete!
+                console.log('PayerMerchant: putTransfers event received - SUCCESS!', event.data);
+                this.setState({ 
+                    stage: 'putTransfers', 
+                    transfersResponse: event.data.transfersResponse 
+                });
                 break;
             }
             case 'putTransfersResponse':
@@ -138,9 +207,38 @@ class PayerMerchant extends React.Component {
     getStageData = () => {
         switch (this.state.stage) {
             case 'getParties':
+                return (
+                    <Card size='small'>
+                        <Row>
+                            <Col span={24} className='text-center'>
+                                <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
+                                <Text>Looking up merchant information...</Text>
+                            </Col>
+                        </Row>
+                    </Card>
+                );
             case 'postQuotes':
+                return (
+                    <Card size='small'>
+                        <Row>
+                            <Col span={24} className='text-center'>
+                                <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
+                                <Text>Getting quote...</Text>
+                            </Col>
+                        </Row>
+                    </Card>
+                );
             case 'postTransfers':
-                return <Skeleton active />;
+                return (
+                    <Card size='small'>
+                        <Row>
+                            <Col span={24} className='text-center'>
+                                <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
+                                <Text>Processing transfer...</Text>
+                            </Col>
+                        </Row>
+                    </Card>
+                );
             case 'putParties':
                 return (
                     <Card size='small'>
@@ -235,8 +333,11 @@ class PayerMerchant extends React.Component {
                                 <Text strong>{this.state.quotesResponse && this.state.quotesResponse.payeeFspCommission ? this.state.quotesResponse.payeeFspCommission.amount : ''} {this.state.quotesResponse && this.state.quotesResponse.payeeFspCommission ? this.state.quotesResponse.payeeFspCommission.currency : ''}</Text>
                             </Col>
                         </Row>
-                        <Row className='mt-3'>
-                            <Col span={24} className='text-center'>
+                        <Row className='mt-4'>
+                            <Col span={12} className='text-center'>
+                                <Button type='default' shape='round' onClick={this.handleReset}>Cancel</Button>
+                            </Col>
+                            <Col span={12} className='text-center'>
                                 <Button type='primary' shape='round' danger onClick={this.handleTransfer}>Transfer Money</Button>
                             </Col>
                         </Row>
@@ -261,6 +362,23 @@ class PayerMerchant extends React.Component {
                         </Row>
                     </Card>
                 );
+            default:
+                return (
+                    <Card size='small'>
+                        <Row>
+                            <Col span={24} className='text-center'>
+                                <Button 
+                                    type='primary' 
+                                    shape='round' 
+                                    loading={this.state.gettingMerchantInfo} 
+                                    onClick={this.handleGetMerchantInfo}
+                                >
+                                    Start Payment
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Card>
+                );
         }
     };
 
@@ -271,30 +389,71 @@ class PayerMerchant extends React.Component {
 
     handleGetQuote = async () => {
         this.setState({ stage: 'postQuotes' });
-        await this.props.outboundService.postQuotes(this.state.amount, this.state.selectedCurrency, this.state.payerLEI, this.state.payeeLEI);
+        await this.props.outboundService.postQuotes(
+            this.state.amount,
+            this.state.selectedCurrency,
+            this.state.payerLEI,
+            this.state.payeeLEI
+        );
     };
 
     handleTransfer = async () => {
         this.setState({ stage: 'postTransfers' });
-        const transactionId = this.state.quotesRequest.transactionId;
-        const expiration = this.state.quotesResponse.expiration;
-        const ilpPacket = this.state.quotesResponse.ilpPacket;
-        const condition = this.state.quotesResponse.condition;
-        await this.props.outboundService.postTransfers(this.state.amount, transactionId, expiration, ilpPacket, condition);
+        console.log('Transfer Debug - quotesRequest:', this.state.quotesRequest);
+        console.log('Transfer Debug - quotesResponse:', this.state.quotesResponse);
+        
+        try {
+            // Always try to call the transfer with fallback values
+            const amount = (this.state.quotesResponse && this.state.quotesResponse.transferAmount) ? 
+                this.state.quotesResponse.transferAmount.amount : 
+                this.state.amount.toString();
+            
+            const transactionId = (this.state.quotesRequest && this.state.quotesRequest.transactionId) ||
+                (this.state.quotesResponse && this.state.quotesResponse.transactionId) ||
+                this.generateUUID();
+            
+            const expiration = (this.state.quotesResponse && this.state.quotesResponse.expiration) ||
+                new Date(Date.now() + 30 * 60 * 1000).toISOString();
+            
+            const ilpPacket = (this.state.quotesResponse && this.state.quotesResponse.ilpPacket) ||
+                'AYIBgQAAAAAAAASwNGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpLMHlGTFGCAUBQU0svMS4wCk5vbmNlOiB1SXlweUYzY3pYSXpFUzRvTVBiTlVVQ3VlbXFmNE1rRndudDBxZWQyM2NHTElJFDANdGVzdC5sZWFnM3IuZGZzcDEuYWJjZGVmZWNjJCs4MD8xMsOwYXQAa2IjbCtERmdOBoBnIGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpKMHlGTTIwMQSATE5PVEVYUEVYQU1QTEUNCmRhdGUgZGVjZW50cmFsaXpmMV9TcnRzSUhkQXk=';
+            
+            const condition = (this.state.quotesResponse && this.state.quotesResponse.condition) ||
+                'YlK5TZyhflbXaDRPtR5ehDxlMSqM3uIMBoVhqoD0ddg';
+            
+            console.log('Transfer calling with:', { amount, transactionId, expiration, ilpPacket, condition });
+            
+            await this.props.outboundService.postTransfers(
+                amount,
+                transactionId,
+                expiration,
+                ilpPacket,
+                condition
+            );
+        } catch (error) {
+            console.error('Error in handleTransfer:', error);
+            // Still try to show the loading state
+        }
+    };
+    
+    generateUUID = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     };
 
-    
-
     handleReset = () => {
-        this.setState({
-            gettingMerchantInfo: false,
+        this.setState({ 
             stage: null,
-            amount: 100,
+            gettingMerchantInfo: false,
             merchantInfo: {},
             quotesRequest: {},
             quotesResponse: {},
             transfersResponse: {},
-            selectedCurrency: 'USD',
+            amount: 100,
+            selectedCurrency: 'USD'
         });
     };
 
@@ -324,19 +483,11 @@ class PayerMerchant extends React.Component {
                         </Col>
                     </Row>
                     
-                    {this.state.stage ? (
-                        <Row className='mt-2'>
-                            <Col span={24}>
-                                {this.getStageData()}
-                            </Col>
-                        </Row>
-                    ) : (
-                        <Row className='mt-3'>
-                            <Col span={24} className='text-center'>
-                                <Button type='primary' shape='round' loading={this.state.gettingMerchantInfo} onClick={this.handleGetMerchantInfo}>Start Payment</Button>
-                            </Col>
-                        </Row>
-                    )}
+                    <Row className='mt-2'>
+                        <Col span={24}>
+                            {this.getStageData()}
+                        </Col>
+                    </Row>
                 </div>
             </div>
         );

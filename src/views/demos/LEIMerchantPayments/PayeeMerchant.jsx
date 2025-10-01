@@ -52,8 +52,9 @@ class PayeeMerchant extends React.Component {
         switch (event.type) {
             case 'payeeMerchantGetParties':
             {
-                // Step 2: GET parties received, immediately trigger Step 3: PUT parties response
-                this.triggerStep3PutParties();
+                // Step 3: Mojaloop Switch → SECOND MERCHANT CORP: GET /parties (received)
+                // Send Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                this.sendGetPartiesResponse();
                 break;
             }
             case 'payeeMerchantGetPartiesResponse':
@@ -76,8 +77,7 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostQuotesResponse':
             {
-                // Step 6 SUCCESS → Trigger Step 7: PUT quotes response
-                this.triggerStep7PutQuotes();
+                // Step 12 response sent, Step 13 is already triggered by sendPostQuotesResponse
                 break;
             }
             case 'payeeMerchantPutQuotes':
@@ -98,8 +98,7 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostTransfersResponse':
             {
-                // Step 10 SUCCESS → Trigger Step 11: PUT transfers response
-                this.triggerStep11PutTransfers();
+                // Step 20 response sent, Step 21 is already triggered by sendPostTransfersResponse
                 break;
             }
             case 'payeeMerchantPutTransfers':
@@ -264,8 +263,8 @@ class PayeeMerchant extends React.Component {
         }
     };
 
-    triggerStep3PutParties = () => {
-        // Step 3: PUT parties - Second Merchant Corp -> Mojaloop Switch
+    triggerStep5PutParties = () => {
+        // Step 5: PUT parties - Second Merchant Corp -> Mojaloop Switch
         const event = {
             category: 'payeeMerchant',
             type: 'payeeMerchantPutParties',
@@ -312,18 +311,30 @@ class PayeeMerchant extends React.Component {
                 }
             });
         }
+        
+        // Step 6: After PUT parties, send response 200 immediately
+        this.sendPutPartiesResponse();
     };
     
-    triggerStep6PostQuotes = () => {
-        // Step 6: POST quotes - Mojaloop Switch -> Second Merchant Corp
+    triggerStep11PostQuotes = (payerAmount, payerCurrency) => {
+        // Step 11: POST quotes - Mojaloop Switch -> Second Merchant Corp
+        const quoteId = this.generateUUID();
+        const transactionId = this.generateUUID();
+        
+        // Store IDs for later use
+        this.currentQuoteId = quoteId;
+        this.currentTransactionId = transactionId;
+        this.currentAmount = payerAmount || '100';
+        this.currentCurrency = payerCurrency || 'USD';
+        
         const event = {
             category: 'payeeMerchant',
             type: 'payeeMerchantPostQuotes',
             data: {
                 resource: { method: 'post', path: '/quotes' },
                 requestBody: {
-                    quoteId: this.generateUUID(),
-                    transactionId: this.generateUUID(),
+                    quoteId: quoteId,
+                    transactionId: transactionId,
                     payee: {
                         partyIdInfo: {
                             partyIdType: 'ALIAS',
@@ -333,8 +344,8 @@ class PayeeMerchant extends React.Component {
                         name: 'SECOND MERCHANT CORP'
                     },
                     amount: {
-                        amount: '100', // Will be updated from payer
-                        currency: 'USD'
+                        amount: this.currentAmount,
+                        currency: this.currentCurrency
                     }
                 }
             }
@@ -345,39 +356,43 @@ class PayeeMerchant extends React.Component {
         }
         this.handleNotificationEvents(event);
         
-        // Simulate Step 6 SUCCESS response to trigger Step 7
-        setTimeout(() => {
-            if (this.props.onSequenceEvent) {
-                this.props.onSequenceEvent({
-                    category: 'payeeMerchant',
-                    type: 'payeeMerchantPostQuotesResponse',
-                    data: {
-                        resource: { method: 'post', path: '/quotes' },
-                        responseStatus: '202'
-                    }
-                });
-            }
-        }, 50);
+        // Step 12: Send response 202 immediately
+        this.sendPostQuotesResponse();
     };
     
-    triggerStep7PutQuotes = () => {
-        // Step 7: PUT quotes - Second Merchant Corp -> Mojaloop Switch
+    triggerStep13PutQuotes = () => {
+        // Step 13: PUT quotes - Second Merchant Corp -> Mojaloop Switch
+        const expiration = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+        const condition = 'YlK5TZyhflbXaDRPtR5ehDxlMSqM3uIMBoVhqoD0ddg';
+        const ilpPacket = 'AYIBgQAAAAAAAASwNGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpLMHlGTFGCAUBQU0svMS4wCk5vbmNlOiB1SXlweUYzY3pYSXpFUzRvTVBiTlVVQ3VlbXFmNE1rRndudDBxZWQyM2NHTElJFDANdGVzdC5sZWFnM3IuZGZzcDEuYWJjZGVmZWNjJCs4MD8xMsOwYXQAa2IjbCtERmdOBoBnIGxldmVsb25lLmRmc3AxLm1lci45T2RTOF81MDdqUUZERmZlakgyOVc4bXFmNEpKMHlGTTIwMQSATE5PVEVYUEVYQU1QTEUNCmRhdGUgZGVjZW50cmFsaXpmMV9TcnRzSUhkQXk=';
+        
+        // Store for transfer step
+        this.currentExpiration = expiration;
+        this.currentCondition = condition;
+        this.currentIlpPacket = ilpPacket;
+        
         const event = {
             category: 'payeeMerchant',
             type: 'payeeMerchantPutQuotes',
             data: {
-                resource: { method: 'put', path: `/quotes/${this.generateUUID()}` },
+                resource: { method: 'put', path: `/quotes/${this.currentQuoteId}` },
                 requestBody: {
                     transferAmount: {
-                        amount: '100',
-                        currency: 'USD'
+                        amount: this.currentAmount,
+                        currency: this.currentCurrency
                     },
                     payeeFspFee: {
                         amount: '0',
-                        currency: 'USD'
+                        currency: this.currentCurrency
                     },
-                    expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-                    condition: 'YlK5TZyhflbXaDRPtR5ehDxlMSqM3uIMBoVhqoD0ddg'
+                    payeeFspCommission: {
+                        amount: '0',
+                        currency: this.currentCurrency
+                    },
+                    expiration: expiration,
+                    ilpPacket: ilpPacket,
+                    condition: condition,
+                    transactionId: this.currentTransactionId
                 }
             }
         };
@@ -386,12 +401,17 @@ class PayeeMerchant extends React.Component {
             this.props.onSequenceEvent(event);
         }
         this.handleNotificationEvents(event);
+        
+        // Step 14: Send response 200 immediately
+        this.sendPutQuotesResponse();
     };
     
-    triggerStep10PostTransfers = () => {
-        // Step 10: POST transfers - Mojaloop Switch -> Second Merchant Corp
-        const transferId = this.generateUUID();
+    triggerStep19PostTransfers = () => {
+        // Step 19: POST transfers - Mojaloop Switch -> Second Merchant Corp
+        console.log('PayeeMerchant: triggerStep19PostTransfers called');
+        const transferId = this.currentTransactionId || this.generateUUID();
         this.currentTransferId = transferId;
+        console.log('PayeeMerchant: Transfer ID for Step 19:', transferId);
         
         const event = {
             category: 'payeeMerchant',
@@ -401,9 +421,12 @@ class PayeeMerchant extends React.Component {
                 requestBody: {
                     transferId: transferId,
                     amount: {
-                        amount: '100',
-                        currency: 'USD'
+                        amount: this.currentAmount || '100',
+                        currency: this.currentCurrency || 'USD'
                     },
+                    expiration: this.currentExpiration,
+                    ilpPacket: this.currentIlpPacket,
+                    condition: this.currentCondition,
                     payerFsp: 'testingtoolkitdfsp',
                     payeeFsp: 'payeefsp'
                 }
@@ -415,23 +438,13 @@ class PayeeMerchant extends React.Component {
         }
         this.handleNotificationEvents(event);
         
-        // Simulate Step 10 SUCCESS response to trigger Step 11
-        setTimeout(() => {
-            if (this.props.onSequenceEvent) {
-                this.props.onSequenceEvent({
-                    category: 'payeeMerchant',
-                    type: 'payeeMerchantPostTransfersResponse',
-                    data: {
-                        resource: { method: 'post', path: '/transfers' },
-                        responseStatus: '202'
-                    }
-                });
-            }
-        }, 50);
+        // Step 20: Send response 202 immediately
+        this.sendPostTransfersResponse();
     };
     
-    triggerStep11PutTransfers = () => {
-        // Step 11: PUT transfers - Second Merchant Corp -> Mojaloop Switch
+    triggerStep21PutTransfers = () => {
+        // Step 21: PUT transfers - Second Merchant Corp -> Mojaloop Switch
+        console.log('PayeeMerchant: triggerStep21PutTransfers called with transferId:', this.currentTransferId);
         const event = {
             category: 'payeeMerchant',
             type: 'payeeMerchantPutTransfers',
@@ -449,6 +462,102 @@ class PayeeMerchant extends React.Component {
             this.props.onSequenceEvent(event);
         }
         this.handleNotificationEvents(event);
+        
+        // Step 22: Send response 200 immediately
+        this.sendPutTransfersResponse();
+    };
+    
+    // Sequential response methods to maintain proper ordering
+    sendGetPartiesResponse = () => {
+        // Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent({
+                category: 'payeeMerchant',
+                type: 'payeeMerchantGetPartiesResponse',
+                data: {
+                    resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                    responseStatus: '202'
+                }
+            });
+        }
+        // After response is sent, trigger Step 5: PUT parties
+        this.triggerStep5PutParties();
+    };
+    
+    sendPutPartiesResponse = () => {
+        // Step 6: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent({
+                category: 'payeeMerchant',
+                type: 'payeeMerchantPutPartiesResponse',
+                data: {
+                    resource: { method: 'put', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                    responseStatus: '200'
+                }
+            });
+        }
+    };
+    
+    sendPostQuotesResponse = () => {
+        // Step 12: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent({
+                category: 'payeeMerchant',
+                type: 'payeeMerchantPostQuotesResponse',
+                data: {
+                    resource: { method: 'post', path: '/quotes' },
+                    responseStatus: '202'
+                }
+            });
+        }
+        // After response is sent, trigger Step 13: PUT quotes
+        this.triggerStep13PutQuotes();
+    };
+    
+    sendPutQuotesResponse = () => {
+        // Step 14: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent({
+                category: 'payeeMerchant',
+                type: 'payeeMerchantPutQuotesResponse',
+                data: {
+                    resource: { method: 'put', path: `/quotes/${this.generateUUID()}` },
+                    responseStatus: '200'
+                }
+            });
+        }
+    };
+    
+    sendPostTransfersResponse = () => {
+        // Step 20: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+        console.log('PayeeMerchant: sendPostTransfersResponse - sending Step 20 response');
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent({
+                category: 'payeeMerchant',
+                type: 'payeeMerchantPostTransfersResponse',
+                data: {
+                    resource: { method: 'post', path: '/transfers' },
+                    responseStatus: '202'
+                }
+            });
+        }
+        // After response is sent, trigger Step 21: PUT transfers
+        console.log('PayeeMerchant: About to trigger Step 21');
+        this.triggerStep21PutTransfers();
+    };
+    
+    sendPutTransfersResponse = () => {
+        // Step 22: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+        if (this.props.onSequenceEvent) {
+            this.props.onSequenceEvent({
+                category: 'payeeMerchant',
+                type: 'payeeMerchantPutTransfersResponse',
+                data: {
+                    resource: { method: 'put', path: `/transfers/${this.currentTransferId}` },
+                    responseStatus: '200'
+                }
+            });
+        }
     };
     
     generateUUID = () => {

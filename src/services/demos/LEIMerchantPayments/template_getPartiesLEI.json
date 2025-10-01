@@ -15,11 +15,11 @@
             "asynchronous": false
           },
           "operationPath": "/participants/{Type}/{ID}",
-          "path": "/participants/ALIAS/529900VJSEB3P1FV4R31",
+          "path": "/participants/{$inputs.toIdType}/{$inputs.toIdValue}",
           "method": "post",
           "params": {
-            "Type": "ALIAS",
-            "ID": "529900VJSEB3P1FV4R31"
+            "Type": "{$inputs.toIdType}",
+            "ID": "{$inputs.toIdValue}"
           },
           "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
           "headers": {
@@ -54,11 +54,11 @@
             "asynchronous": true
           },
           "operationPath": "/parties/{Type}/{ID}",
-          "path": "/parties/ALIAS/529900VJSEB3P1FV4R31",
+          "path": "/parties/{$inputs.toIdType}/{$inputs.toIdValue}",
           "method": "get",
           "params": {
-            "Type": "ALIAS",
-            "ID": "529900VJSEB3P1FV4R31"
+            "Type": "{$inputs.toIdType}",
+            "ID": "{$inputs.toIdValue}"
           },
           "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
           "headers": {
@@ -96,11 +96,11 @@
             "asynchronous": false
           },
           "operationPath": "/participants/{Type}/{ID}",
-          "path": "/participants/ALIAS/529900VJSEB3P1FV4R31",
+          "path": "/participants/{$inputs.toIdType}/{$inputs.toIdValue}",
           "method": "delete",
           "params": {
-            "Type": "ALIAS",
-            "ID": "529900VJSEB3P1FV4R31"
+            "Type": "{$inputs.toIdType}",
+            "ID": "{$inputs.toIdValue}"
           },
           "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
           "headers": {

@@ -42,67 +42,170 @@ class TestDiagram extends React.Component {
     constructor() {
         super();
         this.state = JSON.parse(JSON.stringify(this.newState));
+        this.activeParticipants = new Set();
     }
 
     componentDidMount = async () => {
         this.resetWelcomeMessage();
+        // Test basic Mermaid functionality
+        this.testBasicMermaid();
+    };
+    
+    testBasicMermaid = () => {
+        setTimeout(() => {
+            const testCode = `sequenceDiagram
+    A->>B: Hello
+    B->>A: World`;
+            console.log('Testing basic Mermaid:', testCode);
+            
+            try {
+                mermaid.parse(testCode);
+                console.log('Basic Mermaid syntax is valid');
+            } catch (e) {
+                console.error('Basic Mermaid test failed:', e);
+                console.error('This indicates a Mermaid configuration or version issue');
+            }
+        }, 1000);
     };
 
     clearSequence = async (source, destination, message) => {
         this.state.seqSteps = '';
+        this.activeParticipants.clear();
         this.refreshSequenceDiagram();
     };
 
     addSequence = async (source, destination, message, options = { dashed: false, erroneous: false, activation: { mode: null, peer: null } }) => {
         const dashedStyle = options.dashed ? '-' : '';
-        // Sanitize message for Mermaid compatibility
-        const sanitizedMessage = this.sanitizeForMermaid(message);
-        const sanitizedSource = this.sanitizeForMermaid(source);
-        const sanitizedDestination = this.sanitizeForMermaid(destination);
+        // Sanitize components for Mermaid compatibility
+        const sanitizedMessage = this.sanitizeMessage(message);
+        const sanitizedSource = this.sanitizeParticipant(source);
+        const sanitizedDestination = this.sanitizeParticipant(destination);
         
         this.state.seqSteps += `${sanitizedSource}-${dashedStyle}>>${sanitizedDestination}: ${sanitizedMessage}\n`;
+        
+        // Handle activation more carefully to avoid mismatches
         if(options.activation && options.activation.mode && options.activation.peer && (options.activation.mode === 'activate' || options.activation.mode === 'deactivate')) {
+            // Track active participants to avoid deactivation errors
+            if (!this.activeParticipants) {
+                this.activeParticipants = new Set();
+            }
+            
             if(options.activation.peer === 'source') {
-                this.state.seqSteps += `${options.activation.mode} ${sanitizedSource}\n`;
+                this.handleActivation(options.activation.mode, sanitizedSource);
             } else if(options.activation.peer === 'destination') {
-                this.state.seqSteps += `${options.activation.mode} ${sanitizedDestination}\n`;
+                this.handleActivation(options.activation.mode, sanitizedDestination);
             } else if(options.activation.peer === 'both') {
-                this.state.seqSteps += `${options.activation.mode} ${sanitizedSource}\n`;
-                this.state.seqSteps += `${options.activation.mode} ${sanitizedDestination}\n`;
+                this.handleActivation(options.activation.mode, sanitizedSource);
+                this.handleActivation(options.activation.mode, sanitizedDestination);
             }
         }
         this.refreshSequenceDiagram();
     };
+    
+    handleActivation = (mode, participant) => {
+        if (mode === 'activate') {
+            this.state.seqSteps += `${mode} ${participant}\n`;
+            this.activeParticipants.add(participant);
+        } else if (mode === 'deactivate' && this.activeParticipants.has(participant)) {
+            this.state.seqSteps += `${mode} ${participant}\n`;
+            this.activeParticipants.delete(participant);
+        }
+        // If trying to deactivate a participant that's not active, skip it
+    };
 
     addNoteOver = async (source, destination, message) => {
-        const sanitizedSource = this.sanitizeForMermaid(source);
-        const sanitizedDestination = this.sanitizeForMermaid(destination);
-        const sanitizedMessage = this.sanitizeForMermaid(message);
+        const sanitizedSource = this.sanitizeParticipant(source);
+        const sanitizedDestination = this.sanitizeParticipant(destination);
+        const sanitizedMessage = this.sanitizeMessage(message);
         this.state.seqSteps += `Note over ${sanitizedSource},${sanitizedDestination}: ${sanitizedMessage}\n`;
         this.refreshSequenceDiagram();
     };
 
     addCustomSequence = async seqText => {
-        this.state.seqSteps += seqText + '\n';
-        this.refreshSequenceDiagram();
+        // Sanitize custom sequence text to avoid Mermaid syntax errors
+        if (!seqText) return;
+        
+        let sanitizedText = seqText.toString()
+            .replace(/rect\s+rgb\([^)]+\)/g, '')  // Remove rect rgb() syntax
+            .replace(/["'`]/g, '')                 // Remove quotes
+            .replace(/end/g, '')                   // Remove 'end' keywords
+            .trim();
+        
+        if (sanitizedText) {
+            this.state.seqSteps += sanitizedText + '\n';
+            this.refreshSequenceDiagram();
+        }
     };
 
     refreshSequenceDiagram = async () => {
+        if (!this.seqDiagContainer) return;
+        
+        // Clear previous content
         this.seqDiagContainer.removeAttribute('data-processed');
+        this.seqDiagContainer.innerHTML = '';
+        
         const code = 'sequenceDiagram\n' + this.state.seqSteps;
+        
+        // Debug: Log the generated Mermaid code
+        console.log('=== MERMAID DEBUG ===');
+        console.log('Generated code:', code);
+        console.log('Raw seqSteps:', this.state.seqSteps);
+        console.log('Code length:', code.length);
+        console.log('=====================');
+        
         try {
-            // mermaid.sequenceConfig = {
-            //   mirrorActors: true,
-            //   bottomMarginAdj: 10,
-            //   diagramMarginX: 50,
-            //   diagramMarginY: 10
-            // }
+            // Test parsing first
             mermaid.parse(code);
-            this.seqDiagContainer.innerHTML = code;
-            mermaid.init(undefined, this.seqDiagContainer);
-            // this.seqDiagContainer.innerHTML += '<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf<br />asdf'
+            console.log('✅ Mermaid parse successful');
+            
+            // Initialize mermaid with safe config
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'default',
+                securityLevel: 'loose',
+                sequence: {
+                    diagramMarginX: 50,
+                    diagramMarginY: 10,
+                    actorMargin: 50,
+                    width: 150,
+                    height: 65
+                }
+            });
+            
+            // Create a unique ID for this diagram
+            const diagramId = 'mermaid-' + Date.now();
+            
+            // Use render method instead of init
+            try {
+                const { svg } = await mermaid.render(diagramId, code);
+                this.seqDiagContainer.innerHTML = svg;
+                console.log('✅ Mermaid render successful');
+            } catch (renderError) {
+                console.log('⚠️ Render method failed, trying init method...');
+                // Fallback to init method
+                this.seqDiagContainer.innerHTML = code;
+                await mermaid.init(undefined, this.seqDiagContainer);
+                console.log('✅ Mermaid init successful');
+            }
+            
         } catch (e) {
-            console.log('Diagram generation error', e.str || e.message);
+            console.error('❌ Mermaid error:', e);
+            console.error('❌ Error type:', typeof e);
+            console.error('❌ Error message:', e.message);
+            console.error('❌ Error string:', e.str);
+            console.error('❌ Full error object:', e);
+            
+            // Show the error and problematic code
+            this.seqDiagContainer.innerHTML = `
+                <div style="padding: 15px; border: 2px solid red; background: #ffebee; margin: 10px 0;">
+                    <h4 style="color: red; margin: 0 0 10px 0;">⚠️ Mermaid Syntax Error</h4>
+                    <div><strong>Error:</strong> ${e.message || e.str || 'Unknown error'}</div>
+                    <details style="margin-top: 10px;">
+                        <summary>Show generated code</summary>
+                        <pre style="background: #f5f5f5; padding: 10px; overflow: auto;">${code}</pre>
+                    </details>
+                </div>
+            `;
         }
     };
 
@@ -117,20 +220,54 @@ class TestDiagram extends React.Component {
         this.seqDiagContainer.innerHTML = '';
     };
     
-    sanitizeForMermaid = (text) => {
-        // Remove or replace characters that can cause Mermaid syntax errors
-        if (!text) return '';
-        return text.toString()
-            .replace(/[\n\r]/g, ' ')       // Replace newlines with spaces
+    sanitizeParticipant = (text) => {
+        // Sanitize participant names - must be valid Mermaid identifiers (no spaces)
+        if (!text) return 'Unknown';
+        
+        let sanitized = text.toString()
+            .replace(/[\n\r]/g, '')        // Remove newlines
             .replace(/["'`]/g, '')        // Remove quotes that can break syntax
             .replace(/[{}\[\]]/g, '')     // Remove brackets
             .replace(/[<>]/g, '')         // Remove angle brackets  
-            .replace(/[:;]/g, '-')        // Replace colons/semicolons with dashes
+            .replace(/[:;]/g, '')         // Remove colons/semicolons
             .replace(/[()]/g, '')         // Remove parentheses
             .replace(/[|\\]/g, '')        // Remove pipes and backslashes
+            .replace(/[#$%^&*+=~]/g, '')  // Remove special characters that can break Mermaid
+            .replace(/[\u00A0-\u9999]/g, '')  // Remove Unicode characters
+            .replace(/\s+/g, '_')         // Replace spaces with underscores for participant names
+            .replace(/_+/g, '_')          // Replace multiple underscores with single
+            .replace(/^_+|_+$/g, '')      // Remove leading/trailing underscores
+            .trim();                      // Trim whitespace
+            
+        // Ensure we have a valid identifier
+        if (!sanitized || sanitized.length === 0) {
+            return 'Unknown';
+        }
+        
+        // Ensure it starts with a letter or underscore (valid Mermaid participant name)
+        if (!/^[a-zA-Z_]/.test(sanitized)) {
+            sanitized = 'P_' + sanitized;
+        }
+        
+        return sanitized;
+    };
+    
+    sanitizeMessage = (text) => {
+        // Sanitize messages - can have spaces but not special Mermaid syntax characters
+        if (!text) return 'Unknown';
+        
+        return text.toString()
+            .replace(/[\n\r]/g, ' ')       // Replace newlines with spaces
+            .replace(/["'`]/g, '')        // Remove quotes that can break syntax
+            .replace(/[{}]/g, '')         // Remove curly brackets
+            .replace(/[\[\]]/g, '')       // Remove square brackets
+            .replace(/[|\\]/g, '')        // Remove pipes and backslashes  
+            .replace(/[#]/g, '')          // Remove hash characters
+            .replace(/--/g, '-')          // Replace double dashes with single (can break Mermaid arrows)
+            .replace(/>>/g, '&gt;&gt;')  // Escape >> to prevent arrow syntax issues
+            .replace(/->/g, '&rarr;')     // Escape -> to prevent arrow syntax issues
             .replace(/\s+/g, ' ')         // Replace multiple spaces with single space
             .trim()                       // Trim whitespace
-            .replace(/^-+|-+$/g, '')      // Remove leading/trailing dashes
             || 'Unknown';                 // Fallback if empty
     };
 

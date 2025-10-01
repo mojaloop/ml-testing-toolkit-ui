@@ -20,8 +20,8 @@
             "Accept": "application/vnd.interoperability.quotes+json;version=1.0",
             "Content-Type": "application/vnd.interoperability.quotes+json;version=1.0",
             "Date": "{$function.generic.curDate}",
-            "FSPIOP-Source": "testingtoolkitdfsp",
-            "FSPIOP-Destination": "payeefsp"
+            "FSPIOP-Source": "{$inputs.mobileSimPayerFsp}",
+            "FSPIOP-Destination": "{$inputs.mobileSimPayeeFsp}"
           },
           "body": {
             "quoteId": "{$function.generic.generateUUID}",
@@ -30,30 +30,25 @@
             "payee": {
               "partyIdInfo": {
                 "partyIdType": "ALIAS",
-                "partyIdentifier": "529900VJSEB3P1FV4R31",
-                "fspId": "payeefsp"
+                "partyIdentifier": "{$inputs.payeeLEI}",
+                "fspId": "{$inputs.mobileSimPayeeFsp}"
               },
               "merchantClassificationCode": "5814",
-              "name": "SECOND MERCHANT CORP"
+              "name": "{$inputs.payeeMerchantName}"
             },
             "payer": {
               "partyIdInfo": {
-                "partyIdType": "MSISDN",
-                "partyIdentifier": "44123456789",
-                "fspId": "testingtoolkitdfsp"
+                "partyIdType": "ALIAS",
+                "partyIdentifier": "{$inputs.payerLEI}",
+                "fspId": "{$inputs.mobileSimPayerFsp}"
               },
-              "personalInfo": {
-                "complexName": {
-                  "firstName": "Firstname-Test",
-                  "lastName": "Lastname-Test"
-                },
-                "dateOfBirth": "1984-01-01"
-              }
+              "merchantClassificationCode": "0000",
+              "name": "{$inputs.payerMerchantName}"
             },
             "amountType": "SEND",
             "amount": {
-              "amount": "100",
-              "currency": "USD"
+              "amount": "{$inputs.amount}",
+              "currency": "{$inputs.currency}"
             },
             "transactionType": {
               "scenario": "TRANSFER",
