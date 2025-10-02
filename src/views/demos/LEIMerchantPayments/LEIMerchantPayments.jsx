@@ -83,119 +83,6 @@ class LEIMerchantPayments extends React.Component {
         this.setState({ hubConsoleEnabled });
     };
 
-    handleNotificationEvents = event => {
-        if(event.category === 'payerMerchant') {
-            if(this.payerMerchantRef.current) {
-                // Pass payee merchant reference for sequence coordination
-                this.payerMerchantRef.current.payeeMerchantRef = this.payeeMerchantRef;
-                this.payerMerchantRef.current.handleNotificationEvents(event);
-            }
-            this.updateSequenceDiagram(event);
-            
-            // Simulate missing payee-side events that backend should send but doesn't
-            this.simulatePayeeSideEvents(event);
-            
-        } else if(event.category === 'payeeMerchant') {
-            if(this.payeeMerchantRef.current) {
-                // Pass sequence event handler to payee merchant
-                this.payeeMerchantRef.current.props = {
-                    ...this.payeeMerchantRef.current.props,
-                    onSequenceEvent: this.handleNotificationEvents
-                };
-                this.payeeMerchantRef.current.handleNotificationEvents(event);
-            }
-            this.updateSequenceDiagram(event);
-        } else if(event.category === 'payerMerchantMonitorLog') {
-            if(this.payerMerchantMonitorRef.current)
-                this.payerMerchantMonitorRef.current.appendLog(event.data.log);
-        } else if(event.category === 'payeeMerchantMonitorLog') {
-            if(this.payeeMerchantMonitorRef.current)
-                this.payeeMerchantMonitorRef.current.appendLog(event.data.log);
-        } else if(event.category === 'settingsLog') {
-            if(this.settingsRef.current)
-                this.settingsRef.current.handleNotificationEvents(event);
-        } else if(event.category === 'hubConsole') {
-            if(this.hubConsoleRef.current)
-                this.hubConsoleRef.current.handleNotificationEvents(event);
-        }
-    };
-    
-    // Simulate the payee-side events that the backend should generate but doesn't
-    // This follows the exact same pattern as Mobile Simulator's backend notification service
-    simulatePayeeSideEvents = (payerEvent) => {
-        switch (payerEvent.type) {
-            case 'getPartiesResponse':
-            {
-                // After payer gets parties response, simulate payee getting parties request  
-                setTimeout(() => {
-                    this.handleNotificationEvents({
-                        category: 'payeeMerchant',
-                        type: 'payeeMerchantGetParties',
-                        data: {
-                            resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeMerchantName.replace(/ /g, '_')}` },
-                            requestBody: null
-                        }
-                    });
-                }, 100);
-                break;
-            }
-            case 'postQuotesResponse':
-            {
-                // After payer gets quotes response, simulate payee getting quotes request
-                setTimeout(() => {
-                    this.handleNotificationEvents({
-                        category: 'payeeMerchant', 
-                        type: 'payeeMerchantPostQuotes',
-                        data: {
-                            resource: { method: 'post', path: '/quotes' },
-                            requestBody: {
-                                quoteId: this.generateUUID(),
-                                transactionId: this.generateUUID(),
-                                amount: { amount: '100', currency: 'USD' },
-                                payee: {
-                                    partyIdInfo: {
-                                        partyIdType: 'ALIAS',
-                                        partyIdentifier: '529900VJSEB3P1FV4R31'
-                                    },
-                                    merchantClassificationCode: '5814',
-                                    name: 'SECOND MERCHANT CORP'
-                                }
-                            }
-                        }
-                    });
-                }, 100);
-                break;
-            }
-            case 'postTransfersResponse':
-            {
-                // After payer gets transfers response, simulate payee getting transfers request
-                setTimeout(() => {
-                    this.handleNotificationEvents({
-                        category: 'payeeMerchant',
-                        type: 'payeeMerchantPostTransfers', 
-                        data: {
-                            resource: { method: 'post', path: '/transfers' },
-                            requestBody: {
-                                transferId: this.generateUUID(),
-                                amount: { amount: '100', currency: 'USD' },
-                                payerFsp: 'testingtoolkitdfsp',
-                                payeeFsp: 'payeefsp'
-                            }
-                        }
-                    });
-                }, 100);
-                break;
-            }
-        }
-    };
-    
-    generateUUID = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0;
-            const v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    };
 
     clearEverything = () => {
         if(this.testDiagramRef.current) {
@@ -396,6 +283,322 @@ class LEIMerchantPayments extends React.Component {
                 }
                 break;
             }
+        }
+    };
+
+    // 🎯 Comprehensive payee-side event simulation following Mobile Simulator pattern
+    simulatePayeeSideEvents = (payerEvent) => {
+        // Simulate all missing payee merchant events with proper timing and realistic payloads
+        const baseDelay = 100; // Small delay for realistic timing
+        
+        switch (payerEvent.type) {
+            case 'getPartiesResponse': {
+                // Step 3: Hub -> SECOND MERCHANT CORP: GET /parties/ALIAS/{LEI}
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantGetParties',
+                        data: {
+                            resource: {
+                                method: 'get',
+                                path: payerEvent.data.resource.path // Same LEI lookup path
+                            }
+                        }
+                    });
+                }, baseDelay);
+
+                // Step 4: SECOND MERCHANT CORP -> Hub: Response 200
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantGetPartiesResponse',
+                        data: {
+                            resource: {
+                                method: 'get',
+                                path: payerEvent.data.resource.path
+                            },
+                            responseStatus: '200'
+                        }
+                    });
+                }, baseDelay * 2);
+
+                // Step 5: SECOND MERCHANT CORP -> Hub: PUT /parties/ALIAS/{LEI}
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant', 
+                        type: 'payeeMerchantPutParties',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: payerEvent.data.resource.path
+                            },
+                            requestBody: {
+                                party: {
+                                    partyIdInfo: {
+                                        partyIdType: 'ALIAS',
+                                        partyIdentifier: '529900VJSEB3P1FV4R31', // SECOND MERCHANT CORP LEI
+                                        fspId: 'secondmerchantcorpfsp'
+                                    },
+                                    merchantClassificationCode: '5814',
+                                    name: 'SECOND MERCHANT CORP',
+                                    personalInfo: {
+                                        complexName: {
+                                            firstName: 'Second',
+                                            lastName: 'Merchant Corp'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }, baseDelay * 3);
+
+                // Step 6: Hub -> SECOND MERCHANT CORP: Response 200
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPutPartiesResponse', 
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: payerEvent.data.resource.path
+                            },
+                            responseStatus: '200'
+                        }
+                    });
+                }, baseDelay * 4);
+                break;
+            }
+
+            case 'postQuotesResponse': {
+                // Step 11: Hub -> SECOND MERCHANT CORP: POST /quotes
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPostQuotes',
+                        data: {
+                            resource: {
+                                method: 'post',
+                                path: '/quotes'
+                            },
+                            requestBody: {
+                                quoteId: this.currentQuoteId || 'quote-' + Date.now(),
+                                transactionId: this.currentTransactionId || 'txn-' + Date.now(),
+                                payer: {
+                                    partyIdInfo: {
+                                        partyIdType: 'ALIAS',
+                                        partyIdentifier: '787200JXIR2YYZDPNP23' // HALMADENT SRL LEI
+                                    },
+                                    name: 'HALMADENT SRL'
+                                },
+                                payee: {
+                                    partyIdInfo: {
+                                        partyIdType: 'ALIAS', 
+                                        partyIdentifier: '529900VJSEB3P1FV4R31' // SECOND MERCHANT CORP LEI
+                                    },
+                                    name: 'SECOND MERCHANT CORP'
+                                },
+                                amountType: 'SEND',
+                                amount: {
+                                    amount: this.currentAmount || '100',
+                                    currency: this.currentCurrency || 'USD'
+                                }
+                            }
+                        }
+                    });
+                }, baseDelay);
+
+                // Step 12: SECOND MERCHANT CORP -> Hub: Response 202
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPostQuotesResponse',
+                        data: {
+                            resource: {
+                                method: 'post', 
+                                path: '/quotes'
+                            },
+                            responseStatus: '202'
+                        }
+                    });
+                }, baseDelay * 2);
+
+                // Step 13: SECOND MERCHANT CORP -> Hub: PUT /quotes/{quoteId} 
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPutQuotes',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: `/quotes/${this.currentQuoteId || 'quote-' + Date.now()}`
+                            },
+                            requestBody: {
+                                transferAmount: {
+                                    amount: this.currentAmount || '100',
+                                    currency: this.currentCurrency || 'USD'
+                                },
+                                payeeReceiveAmount: {
+                                    amount: this.currentAmount || '100', 
+                                    currency: this.currentCurrency || 'USD'
+                                },
+                                payeeFspFee: {
+                                    amount: '0.50',
+                                    currency: this.currentCurrency || 'USD'
+                                },
+                                payeeFspCommission: {
+                                    amount: '0.25',
+                                    currency: this.currentCurrency || 'USD'
+                                },
+                                expiration: new Date(Date.now() + 300000).toISOString(),
+                                ilpPacket: 'AQAAAAAAAADIEHByaXZhdGUucGF5ZWVmc3CCAiB7InRyYW5zYWN0aW9uSWQiOiIyZGY3NzRlMi1mMWRiLTQzYzYtYTVkNC1kMjQ5MGY2Mjg4YTAiLCJxdW90ZUlkIjoiMGIzMDlhZTYtNTY5Zi00NzJhLWIzODYtN2FlNGVlNGVjZjJiIiwicGF5ZWUiOnsicGFydHlJZEluZm8iOnsicGFydHlJZFR5cGUiOiJNU0lTRE4iLCJwYXJ0eUlkZW50aWZpZXIiOiIyNzcxMzgwMzkxMyIsImZzcElkIjoidGVzdGluZ3Rvb2xraXRkZnNwIn19LCJwYXllciI6eyJwYXJ0eUlkSW5mbyI6eyJwYXJ0eUlkVHlwZSI6Ik1TSVNETiIsInBhcnR5SWRlbnRpZmllciI6IjI3NzEzODAzOTEzIiwiZnNwSWQiOiJ0ZXN0aW5ndG9vbGtpdGRmc3AifX0sImFtb3VudCI6eyJjdXJyZW5jeSI6IlVTRCIsImFtb3VudCI6IjEwMCJ9LCJ0cmFuc2FjdGlvblR5cGUiOnsic2NlbmFyaW8iOiJERVBPU0lUIiwiaW5pdGlhdG9yIjoiUEFZRVIiLCJpbml0aWF0b3JUeXBlIjoiQ09OU1VNRVIifSwiZXhwaXJhdGlvbiI6IjIwMTctMDUtMjRUMDg6MzI6NTguNzEwWiIsIm5vdGUiOiJoZWoifQ',
+                                condition: 'f5sqb7tBTWPd5Y8BDFdMm9BJR_MNI4isf8p8n4D5pHA'
+                            }
+                        }
+                    });
+                }, baseDelay * 3);
+
+                // Step 14: Hub -> SECOND MERCHANT CORP: Response 200
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPutQuotesResponse',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: `/quotes/${this.currentQuoteId || 'quote-' + Date.now()}`
+                            },
+                            responseStatus: '200'
+                        }
+                    });
+                }, baseDelay * 4);
+                break;
+            }
+
+            case 'postTransfersResponse': {
+                // Step 19: Hub -> SECOND MERCHANT CORP: POST /transfers
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPostTransfers',
+                        data: {
+                            resource: {
+                                method: 'post',
+                                path: '/transfers'
+                            },
+                            requestBody: {
+                                transferId: this.currentTransferId || 'transfer-' + Date.now(),
+                                payeeFsp: 'secondmerchantcorpfsp',
+                                payerFsp: 'halmadentsrlfsp',
+                                amount: {
+                                    amount: this.currentAmount || '100',
+                                    currency: this.currentCurrency || 'USD'
+                                },
+                                condition: 'f5sqb7tBTWPd5Y8BDFdMm9BJR_MNI4isf8p8n4D5pHA',
+                                expiration: this.currentExpiration || new Date(Date.now() + 300000).toISOString()
+                            }
+                        }
+                    });
+                }, baseDelay);
+
+                // Step 20: SECOND MERCHANT CORP -> Hub: Response 202
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPostTransfersResponse', 
+                        data: {
+                            resource: {
+                                method: 'post',
+                                path: '/transfers'
+                            },
+                            responseStatus: '202'
+                        }
+                    });
+                }, baseDelay * 2);
+
+                // Step 21: SECOND MERCHANT CORP -> Hub: PUT /transfers/{transferId} (COMMITTED)
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPutTransfers',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: `/transfers/${this.currentTransferId || 'transfer-' + Date.now()}`
+                            },
+                            requestBody: {
+                                transferState: 'COMMITTED',
+                                transferId: this.currentTransferId || 'transfer-' + Date.now(),
+                                completedTimestamp: new Date().toISOString(),
+                                fulfilment: 'XoSz1cL0tljJSCp_VtIYmPNw-zFUgGfbUqf69AagUzY'
+                            }
+                        }
+                    });
+                }, baseDelay * 3);
+
+                // Step 22: Hub -> SECOND MERCHANT CORP: Response 200
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPutTransfersResponse',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: `/transfers/${this.currentTransferId || 'transfer-' + Date.now()}`
+                            },
+                            responseStatus: '200'
+                        }
+                    });
+                }, baseDelay * 4);
+                break;
+            }
+        }
+    };
+
+    // Enhanced handleNotificationEvents to trigger payee simulations and capture transaction data
+    handleNotificationEvents = event => {
+        // Capture transaction data for realistic payee event simulation
+        if (event.type === 'postQuotes' && event.data.quotesRequest) {
+            this.currentQuoteId = event.data.quotesRequest.quoteId;
+            this.currentTransactionId = event.data.quotesRequest.transactionId; 
+            this.currentAmount = event.data.quotesRequest.amount?.amount;
+            this.currentCurrency = event.data.quotesRequest.amount?.currency;
+        }
+        
+        if (event.type === 'putQuotes' && event.data.quotesResponse) {
+            this.currentExpiration = event.data.quotesResponse.expiration;
+            this.currentIlpPacket = event.data.quotesResponse.ilpPacket;
+            this.currentCondition = event.data.quotesResponse.condition;
+        }
+        
+        if (event.type === 'postTransfers' && event.data.transfersRequest) {
+            this.currentTransferId = event.data.transfersRequest.transferId;
+        }
+
+        // Route events to appropriate handlers
+        if(event.category === 'payerMerchant') {
+            if(this.payerMerchantRef.current)
+                this.payerMerchantRef.current.handleNotificationEvents(event);
+            this.updateSequenceDiagram(event);
+            
+            // 🎯 Trigger payee-side simulation for complete 24-step sequence
+            this.simulatePayeeSideEvents(event);
+        } else if(event.category === 'payeeMerchant') {
+            if(this.payeeMerchantRef.current)
+                this.payeeMerchantRef.current.handleNotificationEvents(event);
+            this.updateSequenceDiagram(event);
+        } else if(event.category === 'payerMerchantMonitorLog') {
+            if(this.payerMerchantMonitorRef.current)
+                this.payerMerchantMonitorRef.current.appendLog(event.data.log);
+        } else if(event.category === 'payeeMerchantMonitorLog') {
+            if(this.payeeMerchantMonitorRef.current)
+                this.payeeMerchantMonitorRef.current.appendLog(event.data.log);
+        } else if(event.category === 'settingsLog') {
+            if(this.settingsRef.current)
+                this.settingsRef.current.handleNotificationEvents(event);
+        } else if(event.category === 'hubConsole') {
+            if(this.hubConsoleRef.current)
+                this.hubConsoleRef.current.handleNotificationEvents(event);
         }
     };
 
