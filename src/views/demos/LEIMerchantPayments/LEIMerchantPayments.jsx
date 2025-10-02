@@ -91,6 +91,10 @@ class LEIMerchantPayments extends React.Component {
                 this.payerMerchantRef.current.handleNotificationEvents(event);
             }
             this.updateSequenceDiagram(event);
+            
+            // Simulate missing payee-side events that backend should send but doesn't
+            this.simulatePayeeSideEvents(event);
+            
         } else if(event.category === 'payeeMerchant') {
             if(this.payeeMerchantRef.current) {
                 // Pass sequence event handler to payee merchant
@@ -116,7 +120,82 @@ class LEIMerchantPayments extends React.Component {
         }
     };
     
-    // Remove the old method as sequence progression is now handled directly in components
+    // Simulate the payee-side events that the backend should generate but doesn't
+    // This follows the exact same pattern as Mobile Simulator's backend notification service
+    simulatePayeeSideEvents = (payerEvent) => {
+        switch (payerEvent.type) {
+            case 'getPartiesResponse':
+            {
+                // After payer gets parties response, simulate payee getting parties request  
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantGetParties',
+                        data: {
+                            resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeMerchantName.replace(/ /g, '_')}` },
+                            requestBody: null
+                        }
+                    });
+                }, 100);
+                break;
+            }
+            case 'postQuotesResponse':
+            {
+                // After payer gets quotes response, simulate payee getting quotes request
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant', 
+                        type: 'payeeMerchantPostQuotes',
+                        data: {
+                            resource: { method: 'post', path: '/quotes' },
+                            requestBody: {
+                                quoteId: this.generateUUID(),
+                                transactionId: this.generateUUID(),
+                                amount: { amount: '100', currency: 'USD' },
+                                payee: {
+                                    partyIdInfo: {
+                                        partyIdType: 'ALIAS',
+                                        partyIdentifier: '529900VJSEB3P1FV4R31'
+                                    },
+                                    merchantClassificationCode: '5814',
+                                    name: 'SECOND MERCHANT CORP'
+                                }
+                            }
+                        }
+                    });
+                }, 100);
+                break;
+            }
+            case 'postTransfersResponse':
+            {
+                // After payer gets transfers response, simulate payee getting transfers request
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payeeMerchant',
+                        type: 'payeeMerchantPostTransfers', 
+                        data: {
+                            resource: { method: 'post', path: '/transfers' },
+                            requestBody: {
+                                transferId: this.generateUUID(),
+                                amount: { amount: '100', currency: 'USD' },
+                                payerFsp: 'testingtoolkitdfsp',
+                                payeeFsp: 'payeefsp'
+                            }
+                        }
+                    });
+                }, 100);
+                break;
+            }
+        }
+    };
+    
+    generateUUID = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
 
     clearEverything = () => {
         if(this.testDiagramRef.current) {

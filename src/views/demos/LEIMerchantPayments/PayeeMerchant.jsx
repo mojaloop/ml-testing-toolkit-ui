@@ -78,7 +78,7 @@ class PayeeMerchant extends React.Component {
             case 'payeeMerchantGetParties':
             {
                 // Step 3: Mojaloop Switch → SECOND MERCHANT CORP: GET /parties (received)
-                // Log the inbound request
+                // Just log the inbound request - backend will handle responses automatically
                 if (this.props.onSequenceEvent) {
                     this.props.onSequenceEvent({
                         category: 'payeeMerchantMonitorLog',
@@ -98,14 +98,12 @@ class PayeeMerchant extends React.Component {
                         }
                     });
                 }
-                // Send Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202
-                this.sendGetPartiesResponse();
                 break;
             }
             case 'payeeMerchantGetPartiesResponse':
             {
-                // Step 4 completed successfully - now trigger Step 5: PUT parties
-                this.triggerStep5PutParties();
+                // Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                // Backend will handle the next step automatically
                 break;
             }
             case 'payeeMerchantPutParties':
@@ -144,8 +142,8 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostQuotesResponse':
             {
-                // Step 12 completed successfully - now trigger Step 13: PUT quotes
-                this.triggerStep13PutQuotes();
+                // Step 12: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                // Backend will handle the next step automatically
                 break;
             }
             case 'payeeMerchantPutQuotes':
@@ -186,9 +184,9 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostTransfersResponse':
             {
-                // Step 20 completed successfully - now trigger Step 21: PUT transfers
-                console.log('PayeeMerchant: Step 20 confirmed, triggering Step 21');
-                this.triggerStep21PutTransfers();
+                // Step 20: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                // Backend will handle the next step automatically
+                console.log('PayeeMerchant: Step 20 confirmed');
                 break;
             }
             case 'payeeMerchantPutTransfers':
