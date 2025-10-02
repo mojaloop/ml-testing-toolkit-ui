@@ -132,11 +132,13 @@ class LEIMerchantPayments extends React.Component {
 
     updateSequenceDiagram = event => {
         switch (event.type) {
-            // Payer Merchant Side Events
+            // 🔹 PHASE 1: PARTY LOOKUP (Oracle Lookup)
+            // Step 1: HALMADENT SRL → Mojaloop Switch (GET /parties/ALIAS/LEI)
             case 'getParties':
             {
                 this.clearEverything();
                 if(this.testDiagramRef.current) {
+                    // Follow Mobile Simulator pattern: first sequence establishes payer → hub order
                     this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
                 }
                 break;
@@ -148,6 +150,40 @@ class LEIMerchantPayments extends React.Component {
                 }
                 break;
             }
+            // Step 2: Mojaloop Switch → SECOND MERCHANT CORP (GET /parties/ALIAS/LEI)
+            case 'payeeMerchantGetParties':
+            {
+                if(this.testDiagramRef.current) {
+                    // Add phase note now that all participants are established
+                    this.testDiagramRef.current.addNoteOver(this.state.payerMerchantName, this.state.payeeMerchantName, 'Party Lookup (Oracle)');
+                    // This sequence establishes the third participant and correct order
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeMerchantName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'payeeMerchantGetPartiesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payeeMerchantName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
+                }
+                break;
+            }
+            // Step 3: SECOND MERCHANT CORP → Mojaloop Switch (PUT /parties callback)
+            case 'payeeMerchantPutParties':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payeeMerchantName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
+                }
+                break;
+            }
+            case 'payeeMerchantPutPartiesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeMerchantName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
+            // Step 4: Mojaloop Switch → HALMADENT SRL (PUT /parties callback)
             case 'putParties':
             {
                 if(this.testDiagramRef.current) {
@@ -162,10 +198,12 @@ class LEIMerchantPayments extends React.Component {
                 }
                 break;
             }
+
+            // 🔹 PHASE 2: QUOTES
             case 'postQuotes':
             {
                 if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addNoteOver(this.state.payerMerchantName, this.state.payeeMerchantName, 'Quotes');
+                    this.testDiagramRef.current.addNoteOver(this.state.payerMerchantName, this.state.payeeMerchantName, 'Quotes Phase');
                     this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
                 }
                 break;
@@ -174,80 +212,6 @@ class LEIMerchantPayments extends React.Component {
             {
                 if(this.testDiagramRef.current) {
                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerMerchantName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putQuotes':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerMerchantName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putQuotesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerMerchantName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
-                }
-                break;
-            }
-            case 'postTransfers':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addNoteOver(this.state.payerMerchantName, this.state.payeeMerchantName, 'Transfer');
-                    this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
-                }
-                break;
-            }
-            case 'postTransfersResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerMerchantName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putTransfers':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerMerchantName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'putTransfersResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
-                }
-                break;
-            }
-
-            // Payee Merchant Side Events
-            case 'payeeMerchantGetParties':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addNoteOver(this.state.hubName, this.state.hubName, 'Oracle Lookup');
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeMerchantName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
-                }
-                break;
-            }
-            case 'payeeMerchantGetPartiesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payeeMerchantName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true });
-                }
-                break;
-            }
-            case 'payeeMerchantPutParties':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.payeeMerchantName, this.state.hubName, '[HTTP Callback] PUT ' + event.data.resource.path);
-                }
-                break;
-            }
-            case 'payeeMerchantPutPartiesResponse':
-            {
-                if(this.testDiagramRef.current) {
-                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeMerchantName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
                 }
                 break;
             }
@@ -279,6 +243,37 @@ class LEIMerchantPayments extends React.Component {
                 }
                 break;
             }
+            case 'putQuotes':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerMerchantName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putQuotesResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
+                }
+                break;
+            }
+
+            // 🔹 PHASE 3: TRANSFERS
+            case 'postTransfers':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addNoteOver(this.state.payerMerchantName, this.state.payeeMerchantName, 'Transfer Phase');
+                    this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP REQ] POST ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
+                }
+                break;
+            }
+            case 'postTransfersResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerMerchantName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
             case 'payeeMerchantPostTransfers':
             {
                 if(this.testDiagramRef.current) {
@@ -304,6 +299,20 @@ class LEIMerchantPayments extends React.Component {
             {
                 if(this.testDiagramRef.current) {
                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeMerchantName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putTransfers':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payerMerchantName, '[HTTP Callback] PUT ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                }
+                break;
+            }
+            case 'putTransfersResponse':
+            {
+                if(this.testDiagramRef.current) {
+                    this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
                 }
                 break;
             }

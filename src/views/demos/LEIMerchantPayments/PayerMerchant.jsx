@@ -62,16 +62,19 @@ class PayerMerchant extends React.Component {
             {
                 // Step 2: Mojaloop Switch → HALMADENT SRL response 202
                 // This triggers Step 3: Mojaloop Switch → SECOND MERCHANT CORP: GET /parties
-                if (this.props.onPayeeMerchantNotification) {
-                    this.props.onPayeeMerchantNotification({
-                        category: 'payeeMerchant',
-                        type: 'payeeMerchantGetParties',
-                        data: {
-                            resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
-                            requestBody: null
-                        }
-                    });
-                }
+                // Small delay to ensure sequence diagram processes this response first
+                setTimeout(() => {
+                    if (this.props.onPayeeMerchantNotification) {
+                        this.props.onPayeeMerchantNotification({
+                            category: 'payeeMerchant',
+                            type: 'payeeMerchantGetParties',
+                            data: {
+                                resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                                requestBody: null
+                            }
+                        });
+                    }
+                }, 50);
                 break;
             }
             // Handle events from PayeeMerchant (SECOND MERCHANT CORP)
@@ -115,12 +118,15 @@ class PayerMerchant extends React.Component {
             {
                 // Step 10: Mojaloop Switch → HALMADENT SRL: response 202
                 // This triggers Step 11: Mojaloop Switch → SECOND MERCHANT CORP: POST /quotes
-                if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
-                    this.payeeMerchantRef.current.triggerStep11PostQuotes(
-                        this.state.amount.toString(),
-                        this.state.selectedCurrency
-                    );
-                }
+                // Only trigger after we confirm this response was processed
+                setTimeout(() => {
+                    if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
+                        this.payeeMerchantRef.current.triggerStep11PostQuotes(
+                            this.state.amount.toString(),
+                            this.state.selectedCurrency
+                        );
+                    }
+                }, 50); // Small delay to ensure sequence diagram processes response first
                 break;
             }
             // Handle quotes response events from PayeeMerchant
@@ -162,11 +168,14 @@ class PayerMerchant extends React.Component {
                 // Step 18: Mojaloop Switch → HALMADENT SRL: response 202
                 // This triggers Step 19: Mojaloop Switch → SECOND MERCHANT CORP: POST /transfers
                 console.log('PayerMerchant: postTransfersResponse event received, triggering Step 19');
-                if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
-                    this.payeeMerchantRef.current.triggerStep19PostTransfers();
-                } else {
-                    console.error('PayerMerchant: payeeMerchantRef not available for Step 19');
-                }
+                // Small delay to ensure sequence diagram processes response first
+                setTimeout(() => {
+                    if (this.payeeMerchantRef && this.payeeMerchantRef.current) {
+                        this.payeeMerchantRef.current.triggerStep19PostTransfers();
+                    } else {
+                        console.error('PayerMerchant: payeeMerchantRef not available for Step 19');
+                    }
+                }, 50);
                 break;
             }
             // Handle transfers response events from PayeeMerchant

@@ -56,6 +56,8 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantGetPartiesResponse':
             {
+                // Step 4 completed successfully - now trigger Step 5: PUT parties
+                this.triggerStep5PutParties();
                 break;
             }
             case 'payeeMerchantPutParties':
@@ -74,7 +76,8 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostQuotesResponse':
             {
-                // Step 12 response sent, Step 13 is already triggered by sendPostQuotesResponse
+                // Step 12 completed successfully - now trigger Step 13: PUT quotes
+                this.triggerStep13PutQuotes();
                 break;
             }
             case 'payeeMerchantPutQuotes':
@@ -95,7 +98,9 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostTransfersResponse':
             {
-                // Step 20 response sent, Step 21 is already triggered by sendPostTransfersResponse
+                // Step 20 completed successfully - now trigger Step 21: PUT transfers
+                console.log('PayeeMerchant: Step 20 confirmed, triggering Step 21');
+                this.triggerStep21PutTransfers();
                 break;
             }
             case 'payeeMerchantPutTransfers':
@@ -533,8 +538,8 @@ class PayeeMerchant extends React.Component {
                 }
             });
         }
-        // After response is sent, trigger Step 5: PUT parties
-        this.triggerStep5PutParties();
+        // DO NOT immediately trigger Step 5 - wait for success response
+        // Step 5 will be triggered when we receive confirmation that Step 4 was processed
     };
     
     sendPutPartiesResponse = () => {
@@ -549,6 +554,8 @@ class PayeeMerchant extends React.Component {
                 }
             });
         }
+        // Step 6 completed - Party lookup phase is done
+        // Next phase (quotes) will be triggered by user action in PayerMerchant
     };
     
     sendPostQuotesResponse = () => {
@@ -563,8 +570,7 @@ class PayeeMerchant extends React.Component {
                 }
             });
         }
-        // After response is sent, trigger Step 13: PUT quotes
-        this.triggerStep13PutQuotes();
+        // DO NOT immediately trigger Step 13 - wait for success confirmation
     };
     
     sendPutQuotesResponse = () => {
@@ -594,9 +600,8 @@ class PayeeMerchant extends React.Component {
                 }
             });
         }
-        // After response is sent, trigger Step 21: PUT transfers
-        console.log('PayeeMerchant: About to trigger Step 21');
-        this.triggerStep21PutTransfers();
+        // DO NOT immediately trigger Step 21 - wait for success confirmation
+        console.log('PayeeMerchant: Step 20 sent, waiting for confirmation before Step 21');
     };
     
     sendPutTransfersResponse = () => {
