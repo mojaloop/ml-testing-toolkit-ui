@@ -138,7 +138,8 @@ class LEIMerchantPayments extends React.Component {
             {
                 this.clearEverything();
                 if(this.testDiagramRef.current) {
-                    // Follow Mobile Simulator pattern: first sequence establishes payer → hub order
+                    // Establish the correct participant order by introducing all participants in desired order
+                    // This first sequence establishes: HALMADENT SRL → Mojaloop Switch
                     this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
                 }
                 break;
@@ -154,10 +155,10 @@ class LEIMerchantPayments extends React.Component {
             case 'payeeMerchantGetParties':
             {
                 if(this.testDiagramRef.current) {
-                    // Add phase note now that all participants are established
-                    this.testDiagramRef.current.addNoteOver(this.state.payerMerchantName, this.state.payeeMerchantName, 'Party Lookup (Oracle)');
-                    // This sequence establishes the third participant and correct order
+                    // Add the second step of party lookup - this introduces the third participant
                     this.testDiagramRef.current.addSequence(this.state.hubName, this.state.payeeMerchantName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'destination' } });
+                    // Now that all participants are introduced, add the phase note
+                    this.testDiagramRef.current.addNoteOver(this.state.payerMerchantName, this.state.payeeMerchantName, 'Party Lookup (Oracle)');
                 }
                 break;
             }

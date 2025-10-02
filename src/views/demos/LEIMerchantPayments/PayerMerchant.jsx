@@ -45,6 +45,7 @@ class PayerMerchant extends React.Component {
         transfersResponse: {},
         accounts: [],
         selectedCurrency: 'USD',
+        currentTransactionId: null, // Track transaction ID from quotes to transfers
     };
 
     componentDidMount = async () => {
@@ -148,7 +149,9 @@ class PayerMerchant extends React.Component {
                 // Step 15: Final step of Quotes phase - ready for transfers
                 this.setState({ 
                     stage: 'putQuotes', 
-                    quotesResponse: event.data.quotesResponse 
+                    quotesResponse: event.data.quotesResponse,
+                    // Store transaction ID from quotes response for later use
+                    currentTransactionId: event.data.quotesResponse && event.data.quotesResponse.transactionId
                 });
                 break;
             }
@@ -358,7 +361,7 @@ class PayerMerchant extends React.Component {
                                 <div>
                                     <Text style={{ fontSize: '14px', color: '#666' }}>Amount: {this.state.amount} {this.state.selectedCurrency}</Text>
                                     <br/>
-                                    <Text style={{ fontSize: '12px', color: '#999' }}>Transfer ID: {this.state.transfersResponse && this.state.transfersResponse.transferId ? this.state.transfersResponse.transferId : 'N/A'}</Text>
+                                    <Text style={{ fontSize: '12px', color: '#999' }}>Transfer ID: {this.state.currentTransactionId || (this.state.transfersResponse && this.state.transfersResponse.transferId) || 'N/A'}</Text>
                                 </div>
                             }
                         />
@@ -444,9 +447,13 @@ class PayerMerchant extends React.Component {
                 this.state.quotesResponse.transferAmount.amount : 
                 this.state.amount.toString();
             
-            const transactionId = (this.state.quotesRequest && this.state.quotesRequest.transactionId) ||
+            const transactionId = this.state.currentTransactionId ||
+                (this.state.quotesRequest && this.state.quotesRequest.transactionId) ||
                 (this.state.quotesResponse && this.state.quotesResponse.transactionId) ||
                 this.generateUUID();
+            
+            // Update state with the transaction ID being used for transfer
+            this.setState({ currentTransactionId: transactionId });
             
             const expiration = (this.state.quotesResponse && this.state.quotesResponse.expiration) ||
                 new Date(Date.now() + 30 * 60 * 1000).toISOString();
@@ -490,7 +497,8 @@ class PayerMerchant extends React.Component {
             transfersResponse: {},
             amount: 100,
             selectedCurrency: 'USD',
-            lookupLEI: '529900VJSEB3P1FV4R31' // Reset to default LEI
+            lookupLEI: '529900VJSEB3P1FV4R31', // Reset to default LEI
+            currentTransactionId: null // Reset transaction ID
         });
     };
 

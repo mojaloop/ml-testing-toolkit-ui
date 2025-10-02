@@ -50,6 +50,26 @@ class PayeeMerchant extends React.Component {
             case 'payeeMerchantGetParties':
             {
                 // Step 3: Mojaloop Switch → SECOND MERCHANT CORP: GET /parties (received)
+                // Log the inbound request
+                if (this.props.onSequenceEvent) {
+                    this.props.onSequenceEvent({
+                        category: 'payeeMerchantMonitorLog',
+                        type: 'log',
+                        data: {
+                            log: {
+                                logTime: new Date().toISOString(),
+                                notificationType: 'newLog',
+                                message: 'Request: get ' + event.data.resource.path,
+                                resource: event.data.resource,
+                                additionalData: {
+                                    request: { body: event.data.requestBody }
+                                },
+                                uniqueId: this.generateUUID(),
+                                verbosity: 'info'
+                            }
+                        }
+                    });
+                }
                 // Send Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202
                 this.sendGetPartiesResponse();
                 break;
@@ -71,6 +91,26 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostQuotes':
             {
+                // Log the inbound quotes request
+                if (this.props.onSequenceEvent) {
+                    this.props.onSequenceEvent({
+                        category: 'payeeMerchantMonitorLog',
+                        type: 'log',
+                        data: {
+                            log: {
+                                logTime: new Date().toISOString(),
+                                notificationType: 'newLog',
+                                message: 'Request: post ' + event.data.resource.path,
+                                resource: event.data.resource,
+                                additionalData: {
+                                    request: { body: event.data.requestBody }
+                                },
+                                uniqueId: this.generateUUID(),
+                                verbosity: 'info'
+                            }
+                        }
+                    });
+                }
                 this.setState({ stage: 'postQuotes', quotesRequest: event.data.requestBody });
                 break;
             }
@@ -91,6 +131,26 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostTransfers':
             {
+                // Log the inbound transfer request
+                if (this.props.onSequenceEvent) {
+                    this.props.onSequenceEvent({
+                        category: 'payeeMerchantMonitorLog',
+                        type: 'log',
+                        data: {
+                            log: {
+                                logTime: new Date().toISOString(),
+                                notificationType: 'newLog',
+                                message: 'Request: post ' + event.data.resource.path,
+                                resource: event.data.resource,
+                                additionalData: {
+                                    request: { body: event.data.requestBody }
+                                },
+                                uniqueId: this.generateUUID(),
+                                verbosity: 'info'
+                            }
+                        }
+                    });
+                }
                 // Show transfer request and remember amount for later success message
                 const transfersRequest = event.data.requestBody || {};
                 this.setState({ stage: 'postTransfers', transfersRequest });
@@ -411,6 +471,25 @@ class PayeeMerchant extends React.Component {
         
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent(event);
+            
+            // Add outbound log for the quotes request
+            this.props.onSequenceEvent({
+                category: 'payeeMerchantMonitorLog',
+                type: 'log',
+                data: {
+                    log: {
+                        logTime: new Date().toISOString(),
+                        notificationType: 'newOutboundLog',
+                        message: 'Sending request POST /quotes',
+                        resource: { method: 'post', path: '/quotes' },
+                        additionalData: {
+                            request: { body: event.data.requestBody }
+                        },
+                        uniqueId: this.generateUUID(),
+                        verbosity: 'info'
+                    }
+                }
+            });
         }
         this.handleNotificationEvents(event);
         
@@ -457,6 +536,25 @@ class PayeeMerchant extends React.Component {
         
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent(event);
+            
+            // Add outbound log for the PUT quotes request
+            this.props.onSequenceEvent({
+                category: 'payeeMerchantMonitorLog',
+                type: 'log',
+                data: {
+                    log: {
+                        logTime: new Date().toISOString(),
+                        notificationType: 'newOutboundLog',
+                        message: 'Request: put ' + event.data.resource.path,
+                        resource: event.data.resource,
+                        additionalData: {
+                            request: { body: event.data.requestBody }
+                        },
+                        uniqueId: this.generateUUID(),
+                        verbosity: 'info'
+                    }
+                }
+            });
         }
         this.handleNotificationEvents(event);
         
@@ -518,6 +616,25 @@ class PayeeMerchant extends React.Component {
         
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent(event);
+            
+            // Add outbound log for the PUT transfers request
+            this.props.onSequenceEvent({
+                category: 'payeeMerchantMonitorLog',
+                type: 'log',
+                data: {
+                    log: {
+                        logTime: new Date().toISOString(),
+                        notificationType: 'newOutboundLog',
+                        message: 'Request: put ' + event.data.resource.path,
+                        resource: event.data.resource,
+                        additionalData: {
+                            request: { body: event.data.requestBody }
+                        },
+                        uniqueId: this.generateUUID(),
+                        verbosity: 'info'
+                    }
+                }
+            });
         }
         this.handleNotificationEvents(event);
         
@@ -535,6 +652,25 @@ class PayeeMerchant extends React.Component {
                 data: {
                     resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
                     responseStatus: '202'
+                }
+            });
+            
+            // Add monitor log for the response
+            this.props.onSequenceEvent({
+                category: 'payeeMerchantMonitorLog',
+                type: 'log',
+                data: {
+                    log: {
+                        logTime: new Date().toISOString(),
+                        notificationType: 'newLog',
+                        message: 'Response: get /parties/ALIAS/' + this.state.payeeLEI + ' 202',
+                        resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                        additionalData: {
+                            response: { status: 202, statusText: 'Accepted' }
+                        },
+                        uniqueId: this.generateUUID(),
+                        verbosity: 'info'
+                    }
                 }
             });
         }
@@ -569,6 +705,25 @@ class PayeeMerchant extends React.Component {
                     responseStatus: '202'
                 }
             });
+            
+            // Add monitor log for the response
+            this.props.onSequenceEvent({
+                category: 'payeeMerchantMonitorLog',
+                type: 'log',
+                data: {
+                    log: {
+                        logTime: new Date().toISOString(),
+                        notificationType: 'newLog',
+                        message: 'Response: post /quotes 202',
+                        resource: { method: 'post', path: '/quotes' },
+                        additionalData: {
+                            response: { status: 202, statusText: 'Accepted' }
+                        },
+                        uniqueId: this.generateUUID(),
+                        verbosity: 'info'
+                    }
+                }
+            });
         }
         // DO NOT immediately trigger Step 13 - wait for success confirmation
     };
@@ -597,6 +752,25 @@ class PayeeMerchant extends React.Component {
                 data: {
                     resource: { method: 'post', path: '/transfers' },
                     responseStatus: '202'
+                }
+            });
+            
+            // Add monitor log for the response
+            this.props.onSequenceEvent({
+                category: 'payeeMerchantMonitorLog',
+                type: 'log',
+                data: {
+                    log: {
+                        logTime: new Date().toISOString(),
+                        notificationType: 'newLog',
+                        message: 'Response: post /transfers 202',
+                        resource: { method: 'post', path: '/transfers' },
+                        additionalData: {
+                            response: { status: 202, statusText: 'Accepted' }
+                        },
+                        uniqueId: this.generateUUID(),
+                        verbosity: 'info'
+                    }
                 }
             });
         }
