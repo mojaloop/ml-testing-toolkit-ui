@@ -27,7 +27,8 @@
  --------------
  ******/
 import React from 'react';
-import { Row, Col, Typography, Card, Result, InputNumber, Select, Button, Skeleton, Input } from 'antd';
+import { Row, Col, Typography, Card, Result, InputNumber, Select, Button, Skeleton, Input, Modal, message } from 'antd';
+import { QrcodeOutlined, ScanOutlined } from '@ant-design/icons';
 const { Text } = Typography;
 const { Option } = Select;
 
@@ -46,6 +47,8 @@ class PayerMerchant extends React.Component {
         accounts: [],
         selectedCurrency: 'USD',
         currentTransactionId: null, // Track transaction ID from quotes to transfers
+        showQRScanner: false,
+        scannedMerchantInfo: null,
     };
 
     componentDidMount = async () => {
@@ -380,7 +383,51 @@ class PayerMerchant extends React.Component {
                     <div style={{ width: '100%' }}>
                         <div style={{ marginBottom: '25px', textAlign: 'center' }}>
                             <Text style={{ fontSize: '18px', color: '#333', display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Send Payment</Text>
-                            <Text style={{ fontSize: '14px', color: '#666' }}>Enter the recipient's LEI to continue</Text>
+                            <Text style={{ fontSize: '14px', color: '#666' }}>Scan QR code or enter the recipient's LEI</Text>
+                        </div>
+                        
+                        {/* QR Scanner Button */}
+                        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                            <Button
+                                type='default'
+                                size='large'
+                                icon={<ScanOutlined />}
+                                onClick={this.handleQRScan}
+                                style={{
+                                    borderRadius: '8px',
+                                    height: '50px',
+                                    fontSize: '15px',
+                                    fontWeight: 'bold',
+                                    border: '2px dashed #667eea',
+                                    color: '#667eea',
+                                    background: 'rgba(102, 126, 234, 0.05)'
+                                }}
+                            >
+                                Scan QR Code
+                            </Button>
+                        </div>
+                        
+                        {/* Divider */}
+                        <div style={{ 
+                            textAlign: 'center', 
+                            margin: '20px 0', 
+                            position: 'relative'
+                        }}>
+                            <div style={{
+                                height: '1px',
+                                background: '#e8e8e8',
+                                position: 'relative'
+                            }} />
+                            <Text style={{
+                                fontSize: '12px',
+                                color: '#999',
+                                background: 'rgba(255,255,255,0.95)',
+                                padding: '0 10px',
+                                position: 'absolute',
+                                top: '-6px',
+                                left: '50%',
+                                transform: 'translateX(-50%)'
+                            }}>or</Text>
                         </div>
                         
                         <div style={{ marginBottom: '20px' }}>
@@ -391,7 +438,13 @@ class PayerMerchant extends React.Component {
                                 onChange={(e) => this.setState({ lookupLEI: e.target.value })}
                                 placeholder='Enter LEI (e.g., 529900VJSEB3P1FV4R31)'
                                 style={{ marginBottom: '15px' }}
+                                prefix={this.state.scannedMerchantInfo ? <QrcodeOutlined style={{ color: '#52c41a' }} /> : null}
                             />
+                            {this.state.scannedMerchantInfo && (
+                                <Text style={{ fontSize: '12px', color: '#52c41a', marginBottom: '10px', display: 'block' }}>
+                                    ✓ Scanned: {this.state.scannedMerchantInfo.merchantName}
+                                </Text>
+                            )}
                         </div>
                         
                         <Button 
@@ -486,6 +539,45 @@ class PayerMerchant extends React.Component {
             return v.toString(16);
         });
     };
+    
+    handleQRScan = () => {
+        this.setState({ showQRScanner: true });
+    };
+    
+    handleQRScanCancel = () => {
+        this.setState({ showQRScanner: false });
+    };
+    
+    simulateQRScan = () => {
+        // Simulate scanning the QR code from PayeeMerchant
+        try {
+            const qrData = {
+                type: 'LEI_MERCHANT_PAYMENT',
+                payeeLEI: '529900VJSEB3P1FV4R31',
+                merchantName: 'SECOND MERCHANT CORP',
+                timestamp: new Date().toISOString()
+            };
+            
+            this.setState({
+                showQRScanner: false,
+                scannedMerchantInfo: qrData,
+                lookupLEI: qrData.payeeLEI,
+                payeeLEI: qrData.payeeLEI
+            });
+            
+            message.success('QR Code scanned successfully!');
+            
+            // Automatically proceed to merchant lookup
+            setTimeout(() => {
+                this.handleGetMerchantInfo();
+            }, 500);
+            
+        } catch (error) {
+            console.error('Error processing QR code:', error);
+            message.error('Invalid QR code format');
+            this.setState({ showQRScanner: false });
+        }
+    };
 
     handleReset = () => {
         this.setState({ 
@@ -498,22 +590,71 @@ class PayerMerchant extends React.Component {
             amount: 100,
             selectedCurrency: 'USD',
             lookupLEI: '529900VJSEB3P1FV4R31', // Reset to default LEI
-            currentTransactionId: null // Reset transaction ID
+            currentTransactionId: null, // Reset transaction ID
+            showQRScanner: false,
+            scannedMerchantInfo: null
         });
     };
 
     render() {
         return (
-            <div style={{ 
-                width: '100%', 
-                height: '100%', 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '20px',
-                minHeight: '400px'
-            }}>
+            <>
+                {/* QR Scanner Modal */}
+                <Modal
+                    title={<span><ScanOutlined /> QR Code Scanner</span>}
+                    open={this.state.showQRScanner}
+                    onCancel={this.handleQRScanCancel}
+                    footer={[
+                        <Button key="cancel" onClick={this.handleQRScanCancel}>
+                            Cancel
+                        </Button>,
+                        <Button 
+                            key="scan" 
+                            type="primary" 
+                            onClick={this.simulateQRScan}
+                            style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                        >
+                            Simulate Scan
+                        </Button>
+                    ]}
+                    centered
+                >
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <ScanOutlined style={{ fontSize: '64px', color: '#667eea', marginBottom: '20px' }} />
+                        <Text style={{ fontSize: '16px', color: '#333', display: 'block', marginBottom: '10px' }}>Position QR code within the frame</Text>
+                        <Text style={{ fontSize: '14px', color: '#666' }}>Camera will automatically scan the QR code</Text>
+                        
+                        {/* Simulated Camera Frame */}
+                        <div style={{
+                            width: '200px',
+                            height: '200px',
+                            border: '2px dashed #667eea',
+                            borderRadius: '12px',
+                            margin: '20px auto',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(102, 126, 234, 0.05)'
+                        }}>
+                            <Text style={{ color: '#667eea', fontSize: '14px', textAlign: 'center' }}>
+                                QR Code Scanning Area
+                                <br/>
+                                <small>Click "Simulate Scan" to test</small>
+                            </Text>
+                        </div>
+                    </div>
+                </Modal>
+                
+                <div style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '20px',
+                    minHeight: '400px'
+                }}>
                 {/* Header */}
                 <div style={{ 
                     background: 'rgba(255,255,255,0.95)', 
@@ -542,6 +683,7 @@ class PayerMerchant extends React.Component {
                     {this.getStageData()}
                 </div>
             </div>
+            </>
         );
     }
 }

@@ -28,7 +28,8 @@
  ******/
 import React from 'react';
 import { Row, Col, Typography, Card, Result, Statistic, Button, notification } from 'antd';
-import { CheckOutlined } from '@ant-design/icons';
+import { CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
+import QRCode from 'qrcode';
 const { Text } = Typography;
 
 class PayeeMerchant extends React.Component {
@@ -40,9 +41,36 @@ class PayeeMerchant extends React.Component {
         transfersResponse: {},
         payeeLEI: '529900VJSEB3P1FV4R31',
         lastReceivedAmount: null,
+        qrCodeDataURL: null,
     };
 
     componentDidMount = async () => {
+        this.generateQRCode();
+    };
+    
+    generateQRCode = async () => {
+        try {
+            // Create QR code data with LEI information
+            const qrData = JSON.stringify({
+                type: 'LEI_MERCHANT_PAYMENT',
+                payeeLEI: this.state.payeeLEI,
+                merchantName: 'SECOND MERCHANT CORP',
+                timestamp: new Date().toISOString()
+            });
+            
+            const qrCodeDataURL = await QRCode.toDataURL(qrData, {
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#11998e',
+                    light: '#ffffff'
+                }
+            });
+            
+            this.setState({ qrCodeDataURL });
+        } catch (error) {
+            console.error('Error generating QR code:', error);
+        }
     };
 
     handleNotificationEvents = event => {
@@ -371,10 +399,47 @@ class PayeeMerchant extends React.Component {
                 );
             default:
                 return (
-                    <div style={{ textAlign: 'center', padding: '30px 0' }}>
-                        <div style={{ marginBottom: '18px' }}>
-                            <Text style={{ fontSize: '16px', color: '#666', display: 'block' }}>Merchant Terminal</Text>
-                            <Text style={{ fontSize: '13px', color: '#999' }}>Ready to accept payments</Text>
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <div style={{ marginBottom: '20px' }}>
+                            <QrcodeOutlined style={{ fontSize: '24px', color: '#11998e', marginBottom: '10px' }} />
+                            <Text style={{ fontSize: '18px', color: '#333', display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Scan to Pay</Text>
+                            <Text style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>Scan this QR code to initiate payment</Text>
+                        </div>
+                        
+                        {/* QR Code */}
+                        <div style={{ 
+                            background: '#ffffff',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            marginBottom: '20px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            display: 'inline-block'
+                        }}>
+                            {this.state.qrCodeDataURL ? (
+                                <img 
+                                    src={this.state.qrCodeDataURL} 
+                                    alt="Payment QR Code" 
+                                    style={{ display: 'block' }}
+                                />
+                            ) : (
+                                <div style={{ width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5', borderRadius: '8px' }}>
+                                    <Text style={{ color: '#999' }}>Generating QR Code...</Text>
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* LEI Info */}
+                        <div style={{ 
+                            background: '#f0fdfa',
+                            borderRadius: '8px',
+                            padding: '12px',
+                            marginTop: '20px',
+                            border: '1px solid #5eead4'
+                        }}>
+                            <Text style={{ fontSize: '12px', color: '#0f766e', display: 'block', marginBottom: '4px' }}>Merchant LEI:</Text>
+                            <Text style={{ fontSize: '14px', color: '#047857', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                                {this.state.payeeLEI}
+                            </Text>
                         </div>
                     </div>
                 );
@@ -809,6 +874,8 @@ class PayeeMerchant extends React.Component {
             transfersResponse: {},
             lastReceivedAmount: null,
         });
+        // Regenerate QR code for new transaction
+        this.generateQRCode();
         console.log('PayeeMerchant: Reset to initial state');
     };
 
@@ -852,15 +919,9 @@ class PayeeMerchant extends React.Component {
                     justifyContent: 'center',
                     minHeight: '300px'
                 }}>
-                    {this.state.stage ? (
-                        <div style={{ width: '100%' }}>
-                            {this.getStageData()}
-                        </div>
-                    ) : (
-                        <div style={{ textAlign: 'center' }}>
-                            <Text style={{ color: '#666', fontSize: '16px' }}>Waiting for payment...</Text>
-                        </div>
-                    )}
+                    <div style={{ width: '100%' }}>
+                        {this.getStageData()}
+                    </div>
                 </div>
             </div>
         );
