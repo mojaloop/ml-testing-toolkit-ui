@@ -175,6 +175,12 @@ class LEIMerchantPayments extends React.Component {
             }
             case 'putPartiesResponse':
             {
+                // Only allow putPartiesResponse after we've sent the final putParties
+                if(this.state.partyLookupSequenceState !== 'final_put_sent') {
+                    console.log('Filtering out premature putPartiesResponse event, current state:', this.state.partyLookupSequenceState);
+                    break; // Ignore this event - it's coming too early
+                }
+                
                 this.setState({ partyLookupSequenceState: 'completed' });
                 if(this.testDiagramRef.current) {
                     this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP RESP] ' + event.data.responseStatus, { dashed: true, activation: { mode: 'deactivate', peer: 'both' } });
