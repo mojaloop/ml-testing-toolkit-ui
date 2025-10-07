@@ -289,7 +289,7 @@ class LEIMerchantPayments extends React.Component {
     // 🎯 Comprehensive payee-side event simulation following Mobile Simulator pattern
     simulatePayeeSideEvents = (payerEvent) => {
         // Simulate all missing payee merchant events with proper timing and realistic payloads
-        const baseDelay = 100; // Small delay for realistic timing
+        const baseDelay = 500; // Longer delay for proper sequential timing
         
         switch (payerEvent.type) {
             case 'getPartiesResponse': {
@@ -367,6 +367,43 @@ class LEIMerchantPayments extends React.Component {
                         }
                     });
                 }, baseDelay * 4);
+                
+                // Step 7: Hub -> HALMADENT SRL: PUT /parties callback
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payerMerchant',
+                        type: 'putParties',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: payerEvent.data.resource.path
+                            },
+                            party: {
+                                partyIdInfo: {
+                                    partyIdType: 'ALIAS',
+                                    partyIdentifier: '529900VJSEB3P1FV4R31',
+                                    fspId: 'DFSP001'
+                                },
+                                name: 'SECOND MERCHANT CORP'
+                            }
+                        }
+                    });
+                }, baseDelay * 5);
+                
+                // Step 8: HALMADENT SRL -> Hub: Response 200
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payerMerchant',
+                        type: 'putPartiesResponse',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: payerEvent.data.resource.path
+                            },
+                            responseStatus: '200'
+                        }
+                    });
+                }, baseDelay * 6);
                 break;
             }
 
@@ -472,6 +509,52 @@ class LEIMerchantPayments extends React.Component {
                         }
                     });
                 }, baseDelay * 4);
+                
+                // Step 15: Hub -> HALMADENT SRL: PUT /quotes callback
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payerMerchant',
+                        type: 'putQuotes',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: `/quotes/${this.currentQuoteId || 'quote-' + Date.now()}`
+                            },
+                            quotesResponse: {
+                                transferAmount: {
+                                    amount: this.currentAmount || '100',
+                                    currency: this.currentCurrency || 'USD'
+                                },
+                                payeeFspFee: {
+                                    amount: '0.50',
+                                    currency: this.currentCurrency || 'USD'
+                                },
+                                payeeFspCommission: {
+                                    amount: '0.25',
+                                    currency: this.currentCurrency || 'USD'
+                                },
+                                expiration: new Date(Date.now() + 300000).toISOString(),
+                                ilpPacket: 'AQAAAAAAAADIEHByaXZhdGUucGF5ZWVmc3CCAiB7InRyYW5zYWN0aW9uSWQiOiIyZGY3NzRlMi1mMWRiLTQzYzYtYTVkNC1kMjQ5MGY2Mjg4YTAiLCJxdW90ZUlkIjoiMGIzMDlhZTYtNTY5Zi00NzJhLWIzODYtN2FlNGVlNGVjZjJiIiwicGF5ZWUiOnsicGFydHlJZEluZm8iOnsicGFydHlJZFR5cGUiOiJNU0lTRE4iLCJwYXJ0eUlkZW50aWZpZXIiOiIyNzcxMzgwMzkxMyIsImZzcElkIjoidGVzdGluZ3Rvb2xraXRkZnNwIn19LCJwYXllciI6eyJwYXJ0eUlkSW5mbyI6eyJwYXJ0eUlkVHlwZSI6Ik1TSVNETiIsInBhcnR5SWRlbnRpZmllciI6IjI3NzEzODAzOTEzIiwiZnNwSWQiOiJ0ZXN0aW5ndG9vbGtpdGRmc3AifX0sImFtb3VudCI6eyJjdXJyZW5jeSI6IlVTRCIsImFtb3VudCI6IjEwMCJ9LCJ0cmFuc2FjdGlvblR5cGUiOnsic2NlbmFyaW8iOiJERVBPU0lUIiwiaW5pdGlhdG9yIjoiUEFZRVIiLCJpbml0aWF0b3JUeXBlIjoiQ09OU1VNRVIifSwiZXhwaXJhdGlvbiI6IjIwMTctMDUtMjRUMDg6MzI6NTguNzEwWiIsIm5vdGUiOiJoZWoifQ',
+                                condition: 'f5sqb7tBTWPd5Y8BDFdMm9BJR_MNI4isf8p8n4D5pHA'
+                            }
+                        }
+                    });
+                }, baseDelay * 5);
+                
+                // Step 16: HALMADENT SRL -> Hub: Response 200
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payerMerchant',
+                        type: 'putQuotesResponse',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: `/quotes/${this.currentQuoteId || 'quote-' + Date.now()}`
+                            },
+                            responseStatus: '200'
+                        }
+                    });
+                }, baseDelay * 6);
                 break;
             }
 
@@ -550,6 +633,41 @@ class LEIMerchantPayments extends React.Component {
                         }
                     });
                 }, baseDelay * 4);
+                
+                // Step 23: Hub -> HALMADENT SRL: PUT /transfers callback
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payerMerchant',
+                        type: 'putTransfers',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: `/transfers/${this.currentTransferId || 'transfer-' + Date.now()}`
+                            },
+                            transfersResponse: {
+                                transferState: 'COMMITTED',
+                                transferId: this.currentTransferId || 'transfer-' + Date.now(),
+                                completedTimestamp: new Date().toISOString(),
+                                fulfilment: 'XoSz1cL0tljJSCp_VtIYmPNw-zFUgGfbUqf69AagUzY'
+                            }
+                        }
+                    });
+                }, baseDelay * 5);
+                
+                // Step 24: HALMADENT SRL -> Hub: Response 200
+                setTimeout(() => {
+                    this.handleNotificationEvents({
+                        category: 'payerMerchant',
+                        type: 'putTransfersResponse',
+                        data: {
+                            resource: {
+                                method: 'put',
+                                path: `/transfers/${this.currentTransferId || 'transfer-' + Date.now()}`
+                            },
+                            responseStatus: '200'
+                        }
+                    });
+                }, baseDelay * 6);
                 break;
             }
         }
