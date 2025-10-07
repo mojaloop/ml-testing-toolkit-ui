@@ -29,27 +29,37 @@
 import React from 'react';
 import { Row, Col, Typography, Card, Result, InputNumber, Select, Button, Skeleton, Input, Modal, message } from 'antd';
 import { QrcodeOutlined, ScanOutlined } from '@ant-design/icons';
+import QRCameraScanner from '../../../components/QRCameraScanner.jsx';
+import { getPayerConfig, getPayeeConfig, getTransactionConfig, getUIConfig, validateLEI, lookupMerchantByLEI } from '../../../config/leiMerchantConfig.js';
 const { Text } = Typography;
 const { Option } = Select;
 
 class PayerMerchant extends React.Component {
-    state = {
-        gettingMerchantInfo: false,
-        stage: null,
-        amount: 100,
-        payerLEI: '787200JXIR2YYZDPNP23',
-        payeeLEI: '529900VJSEB3P1FV4R31',
-        lookupLEI: '529900VJSEB3P1FV4R31', // Input field for LEI lookup, prefilled
-        merchantInfo: {},
-        quotesRequest: {},
-        quotesResponse: {},
-        transfersResponse: {},
-        accounts: [],
-        selectedCurrency: 'USD',
-        currentTransactionId: null, // Track transaction ID from quotes to transfers
-        showQRScanner: false,
-        scannedMerchantInfo: null,
-    };
+    constructor(props) {
+        super(props);
+        
+        const payerConfig = getPayerConfig();
+        const payeeConfig = getPayeeConfig();
+        const transactionConfig = getTransactionConfig();
+        
+        this.state = {
+            gettingMerchantInfo: false,
+            stage: null,
+            amount: transactionConfig.defaultAmount,
+            payerLEI: payerConfig.lei,
+            payeeLEI: payeeConfig.lei,
+            lookupLEI: payeeConfig.lei, // Input field for LEI lookup, prefilled with default payee
+            merchantInfo: {},
+            quotesRequest: {},
+            quotesResponse: {},
+            transfersResponse: {},
+            accounts: [],
+            selectedCurrency: transactionConfig.defaultCurrency,
+            currentTransactionId: null, // Track transaction ID from quotes to transfers
+            showQRScanner: false,
+            scannedMerchantInfo: null,
+        };
+    }
 
     componentDidMount = async () => {
     };
@@ -221,7 +231,7 @@ class PayerMerchant extends React.Component {
                             <div style={{ marginBottom: '10px' }}>
                                 <Text style={{ fontSize: '13px', color: '#666' }}>Merchant:</Text>
                                 <br/>
-                                <Text strong style={{ fontSize: '16px' }}>SECOND MERCHANT CORP</Text>
+                                <Text strong style={{ fontSize: '16px' }}>{getPayeeConfig().name}</Text>
                             </div>
                             <div style={{ marginBottom: '10px' }}>
                                 <Text style={{ fontSize: '13px', color: '#666' }}>LEI:</Text>
@@ -251,8 +261,9 @@ class PayerMerchant extends React.Component {
                                     this.setState({ selectedCurrency: currency });
                                 }}
                             >
-                                <Option value="USD">USD</Option>
-                                <Option value="EUR">EUR</Option>
+                                {getTransactionConfig().currencies.map(currency => (
+                                    <Option key={currency} value={currency}>{currency}</Option>
+                                ))}
                             </Select>
                         </div>
                         
@@ -441,12 +452,35 @@ class PayerMerchant extends React.Component {
     handleGetMerchantInfo = async () => {
         // Update payeeLEI with the looked up LEI
         const lookupLEI = this.state.lookupLEI.trim();
+        
+        // Validate LEI format
+        if (!validateLEI(lookupLEI)) {
+            message.error('Invalid LEI format. LEI should be 20 alphanumeric characters.');
+            return;
+        }
+        
+        // Try to lookup merchant info from configuration first
+        const merchantLookup = lookupMerchantByLEI(lookupLEI);
+        if (merchantLookup) {
+            console.log('Found merchant in local config:', merchantLookup);
+        }
+        
         this.setState({ 
             stage: 'getParties', 
             gettingMerchantInfo: true,
             payeeLEI: lookupLEI // Update the payeeLEI with the looked up value
         });
-        await this.props.outboundService.getPartiesLEI(lookupLEI);
+        
+        try {
+            await this.props.outboundService.getPartiesLEI(lookupLEI);
+        } catch (error) {
+            console.error('Error in merchant lookup:', error);
+            message.error('Failed to lookup merchant information');
+            this.setState({ 
+                gettingMerchantInfo: false,
+                stage: null
+            });
+        }
     };
 
     handleGetQuote = async () => {
@@ -518,38 +552,63 @@ class PayerMerchant extends React.Component {
         this.setState({ showQRScanner: false });
     };
     
-    simulateQRScan = () => {
-        // Simulate scanning the QR code from PayeeMerchant
+    handleQRScanSuccess = (qrData) => {
         try {
-            const qrData = {
-                type: 'LEI_MERCHANT_PAYMENT',
-                payeeLEI: '529900VJSEB3P1FV4R31',
-                merchantName: 'SECOND MERCHANT CORP',
-                timestamp: new Date().toISOString()
+            console.log('QR scan successful:', qrData);
+            
+            // Validate the scanned LEI
+            if (!validateLEI(qrData.payeeLEI)) {
+                message.error('Invalid LEI format in QR code');
+                return;
+            }
+            
+            // Try to lookup merchant info from configuration
+            const merchantLookup = lookupMerchantByLEI(qrData.payeeLEI);
+            
+            // Enhanced merchant info with lookup data
+            const enhancedMerchantInfo = {
+                ...qrData,
+                ...(merchantLookup && {
+                    merchantName: merchantLookup.name,
+                    fspId: merchantLookup.fspId,
+                    merchantType: merchantLookup.type
+                })
             };
             
             this.setState({
                 showQRScanner: false,
-                scannedMerchantInfo: qrData,
+                scannedMerchantInfo: enhancedMerchantInfo,
                 lookupLEI: qrData.payeeLEI,
                 payeeLEI: qrData.payeeLEI
             });
             
-            message.success('QR Code scanned successfully!');
+            const merchantName = enhancedMerchantInfo.merchantName || 'Unknown Merchant';
+            message.success(`QR Code scanned successfully! Found: ${merchantName}`);
+            
+            // Get UI config for delay timing
+            const uiConfig = getUIConfig();
             
             // Automatically proceed to merchant lookup
             setTimeout(() => {
                 this.handleGetMerchantInfo();
-            }, 500);
+            }, uiConfig.delays.autoLookupDelay);
             
         } catch (error) {
             console.error('Error processing QR code:', error);
-            message.error('Invalid QR code format');
+            message.error('Failed to process QR code data');
             this.setState({ showQRScanner: false });
         }
     };
+    
+    handleQRScanError = (error) => {
+        console.error('QR scan error:', error);
+        message.error('QR code scanning failed. Please try again.');
+    };
 
     handleReset = () => {
+        const payeeConfig = getPayeeConfig();
+        const transactionConfig = getTransactionConfig();
+        
         this.setState({ 
             stage: null,
             gettingMerchantInfo: false,
@@ -557,9 +616,9 @@ class PayerMerchant extends React.Component {
             quotesRequest: {},
             quotesResponse: {},
             transfersResponse: {},
-            amount: 100,
-            selectedCurrency: 'USD',
-            lookupLEI: '529900VJSEB3P1FV4R31', // Reset to default LEI
+            amount: transactionConfig.defaultAmount,
+            selectedCurrency: transactionConfig.defaultCurrency,
+            lookupLEI: payeeConfig.lei, // Reset to default payee LEI
             currentTransactionId: null, // Reset transaction ID
             showQRScanner: false,
             scannedMerchantInfo: null
@@ -569,51 +628,14 @@ class PayerMerchant extends React.Component {
     render() {
         return (
             <>
-                {/* QR Scanner Modal */}
-                <Modal
-                    title={<span><ScanOutlined /> QR Code Scanner</span>}
-                    open={this.state.showQRScanner}
+                {/* Real QR Camera Scanner */}
+                <QRCameraScanner
+                    visible={this.state.showQRScanner}
                     onCancel={this.handleQRScanCancel}
-                    footer={[
-                        <Button key="cancel" onClick={this.handleQRScanCancel}>
-                            Cancel
-                        </Button>,
-                        <Button 
-                            key="scan" 
-                            type="primary" 
-                            onClick={this.simulateQRScan}
-                            style={{ background: '#52c41a', borderColor: '#52c41a' }}
-                        >
-                            Simulate Scan
-                        </Button>
-                    ]}
-                    centered
-                >
-                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                        <ScanOutlined style={{ fontSize: '64px', color: '#667eea', marginBottom: '20px' }} />
-                        <Text style={{ fontSize: '16px', color: '#333', display: 'block', marginBottom: '10px' }}>Position QR code within the frame</Text>
-                        <Text style={{ fontSize: '14px', color: '#666' }}>Camera will automatically scan the QR code</Text>
-                        
-                        {/* Simulated Camera Frame */}
-                        <div style={{
-                            width: '200px',
-                            height: '200px',
-                            border: '2px dashed #667eea',
-                            borderRadius: '12px',
-                            margin: '20px auto',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: 'rgba(102, 126, 234, 0.05)'
-                        }}>
-                            <Text style={{ color: '#667eea', fontSize: '14px', textAlign: 'center' }}>
-                                QR Code Scanning Area
-                                <br/>
-                                <small>Click "Simulate Scan" to test</small>
-                            </Text>
-                        </div>
-                    </div>
-                </Modal>
+                    onScanSuccess={this.handleQRScanSuccess}
+                    onScanError={this.handleQRScanError}
+                    title="Scan Merchant QR Code"
+                />
                 
                 <div style={{ 
                     width: '100%', 
@@ -633,12 +655,12 @@ class PayerMerchant extends React.Component {
                     marginBottom: '20px',
                     textAlign: 'center'
                 }}>
-                    <Text style={{ color: '#667eea', fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>PAYER</Text>
-                    <Text strong style={{ fontSize: '22px', color: '#333' }}>HALMADENT SRL</Text>
+                    <Text style={{ color: '#667eea', fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{getPayerConfig().displayName}</Text>
+                    <Text strong style={{ fontSize: '22px', color: '#333' }}>{getPayerConfig().name}</Text>
                     <br/>
                     <Text style={{ fontSize: '14px', color: '#666' }}>LEI: {this.state.payerLEI}</Text>
                     <br/>
-                    <Text style={{ fontSize: '12px', color: '#888' }}>Merchant Payment Terminal</Text>
+                    <Text style={{ fontSize: '12px', color: '#888' }}>{getPayerConfig().terminalName}</Text>
                 </div>
 
                 {/* Main Content */}

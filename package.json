@@ -80,6 +80,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@mojaloop/ml-testing-toolkit-shared-lib": "14.2.0",
     "@testing-library/jest-dom": "^6.8.0",
+    "@yudiel/react-qr-scanner": "^2.3.1",
     "ace-builds": "^1.43.3",
     "ajv": "^8.17.1",
     "antd": "^5.27.4",

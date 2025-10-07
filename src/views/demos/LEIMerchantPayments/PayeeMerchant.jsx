@@ -30,19 +30,26 @@ import React from 'react';
 import { Row, Col, Typography, Card, Result, Statistic, Button, notification } from 'antd';
 import { CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
 import QRCode from 'qrcode';
+import { getPayeeConfig, getQRConfig, generateMerchantQRData } from '../../../config/leiMerchantConfig.js';
 const { Text } = Typography;
 
 class PayeeMerchant extends React.Component {
-    state = {
-        stage: null,
-        quotesRequest: {},
-        quotesResponse: {},
-        transfersRequest: {},
-        transfersResponse: {},
-        payeeLEI: '529900VJSEB3P1FV4R31',
-        lastReceivedAmount: null,
-        qrCodeDataURL: null,
-    };
+    constructor(props) {
+        super(props);
+        
+        const payeeConfig = getPayeeConfig();
+        
+        this.state = {
+            stage: null,
+            quotesRequest: {},
+            quotesResponse: {},
+            transfersRequest: {},
+            transfersResponse: {},
+            payeeLEI: payeeConfig.lei,
+            lastReceivedAmount: null,
+            qrCodeDataURL: null,
+        };
+    }
 
     componentDidMount = async () => {
         this.generateQRCode();
@@ -50,20 +57,18 @@ class PayeeMerchant extends React.Component {
     
     generateQRCode = async () => {
         try {
-            // Create QR code data with LEI information
-            const qrData = JSON.stringify({
-                type: 'LEI_MERCHANT_PAYMENT',
-                payeeLEI: this.state.payeeLEI,
-                merchantName: 'SECOND MERCHANT CORP',
-                timestamp: new Date().toISOString()
-            });
+            const payeeConfig = getPayeeConfig();
+            const qrConfig = getQRConfig();
+            
+            // Create QR code data with LEI information using configuration
+            const qrData = JSON.stringify(generateMerchantQRData(payeeConfig));
             
             const qrCodeDataURL = await QRCode.toDataURL(qrData, {
-                width: 200,
-                margin: 2,
+                width: qrConfig.width,
+                margin: qrConfig.margin,
                 color: {
-                    dark: '#11998e',
-                    light: '#ffffff'
+                    dark: qrConfig.colors.dark,
+                    light: qrConfig.colors.light
                 }
             });
             
