@@ -72,7 +72,11 @@
           "scripts": {
             "preRequest": {
               "exec": [
-                "console.log('🚀 Starting LEI Merchant Payment Quote')",
+                "console.log('\ud83d\ude80 Starting LEI Merchant Payment Quote')",
+                "console.log('\ud83d\udcbc Payer LEI:', requestBody.payer.partyIdInfo.partyIdentifier)",
+                "console.log('\ud83d\udcbc Payee LEI:', requestBody.payee.partyIdInfo.partyIdentifier)",
+                "console.log('\ud83d\udcbc Payer Name:', requestBody.payer.name)",
+                "console.log('\ud83d\udcbc Payee Name:', requestBody.payee.name)",
                 "environment.quoteId = requestBody.quoteId",
                 "environment.transactionId = requestBody.transactionId",
                 "environment.transactionRequestId = requestBody.transactionRequestId"

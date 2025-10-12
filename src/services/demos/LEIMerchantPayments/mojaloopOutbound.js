@@ -29,6 +29,7 @@
 import axios from 'axios';
 import { getConfig, getServerConfig } from '../../../utils/getConfig';
 import templateGetPartiesLEI from './template_getPartiesLEI.json';
+import templateGetPartiesAlias from './template_getPartiesAlias.json';
 import templatePostQuotes from './template_postQuotes.json';
 import templatePostTransfers from './template_postTransfers.json';
 import templateProvisioning from './template_provisioning.json';
@@ -52,11 +53,12 @@ class OutboundService {
         payerFspTransferExpirationOffset: 60 * 1000,
     };
 
+    // TEMPORARILY COMMENTED OUT: Force real database lookup only
     // Default LEI codes for merchants
-    merchantLEIs = {
-        payer: '787200JXIR2YYZDPNP23',  // HALMADENT SRL
-        payee: '529900VJSEB3P1FV4R31',  // SECOND MERCHANT CORP
-    };
+    // merchantLEIs = {
+    //     payer: '787200JXIR2YYZDPNP23',  // HALMADENT SRL
+    //     payee: '529900VJSEB3P1FV4R31',  // SECOND MERCHANT CORP
+    // };
 
     constructor(sessionId = '123') {
         const { apiBaseUrl } = getConfig();
@@ -101,38 +103,152 @@ class OutboundService {
     getCustomParams = () => {
         return this.customParams;
     };
+    
+    getRegistryOracleUrl = () => {
+        // Try to get from environment or config first
+        const envUrl = process.env.REACT_APP_REGISTRY_ORACLE_URL || process.env.REGISTRY_ORACLE_URL;
+        if (envUrl) {
+            return envUrl;
+        }
+        
+        // Default to the standard merchant registry oracle port
+        // This matches the docker-compose setup where registry-oracle runs on port 8888
+        // Use Docker service name when running in container
+        return 'http://registry-oracle:8888';
+    };
 
+    // COMMENTED OUT: LEI-based lookup - now using merchant_id
     // Get merchant party info using LEI via /parties/ALIAS/{lei}
-    async getPartiesLEI(leiCode) {
+    // async getPartiesLEI(leiCode) {
+    //     const traceId = this.getTraceId();
+    //     
+    //     // First try to get merchant info directly from merchant registry oracle
+    //     try {
+    //         const registryUrl = this.getRegistryOracleUrl();
+    //         const registryResp = await axios.get(`${registryUrl}/parties/ALIAS/${leiCode}`);
+    //         
+    //         if (registryResp.data && registryResp.data.partyList && registryResp.data.partyList.length > 0) {
+    //             console.log('Found merchant in registry oracle:', registryResp.data);
+    //             
+    //             // Create a mock successful response that matches ML Testing Toolkit expectations
+    //             return {
+    //                 data: {
+    //                     status: 200,
+    //                     merchantInfo: registryResp.data.partyList[0],
+    //                     leiCode: leiCode,
+    //                     source: 'merchant-registry-oracle'
+    //                 }
+    //             };
+    //         }
+    //     } catch (error) {
+    //         console.log('Registry oracle lookup failed, falling back to template:', error.message);
+    //     }
+    //     
+    //     // Fallback to the original ML Testing Toolkit template approach
+    //     const template = templateGetPartiesLEI;
+    //     template.inputValues = this.inputValues;
+    //     // Replace corresponding values in inputValues
+    //     template.inputValues.toIdValue = leiCode + '';
+    //     template.inputValues.toIdType = 'ALIAS';
+    //     const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
+    //     return resp;
+    // }
+
+    // Get merchant party info using merchant_id via /parties/ALIAS/{merchant_id}
+    async getPartiesAlias(merchantId) {
         const traceId = this.getTraceId();
-         
-        const template = templateGetPartiesLEI;
+        
+        // First try to get merchant info directly from merchant registry oracle
+        try {
+            const registryUrl = this.getRegistryOracleUrl();
+            console.log(`🔍 Outbound Service Registry Lookup: ${registryUrl}/parties/ALIAS/${merchantId}`);
+            const registryResp = await axios.get(`${registryUrl}/parties/ALIAS/${merchantId}`);
+            
+            if (registryResp.data && registryResp.data.partyList && registryResp.data.partyList.length > 0) {
+                console.log('🔍 Outbound Service Registry Response:', JSON.stringify(registryResp.data, null, 2));
+                
+                const merchant = registryResp.data.partyList[0];
+                
+                // Extract LEI directly from registry response (primary method)
+                let extractedLEI = merchant.lei || null;
+                
+                // Legacy fallback for other possible LEI locations
+                if (!extractedLEI) {
+                    extractedLEI = merchant.party?.partyIdInfo?.partyIdentifier || 
+                                   merchant.party?.partyIdentifier || 
+                                   merchant.partyIdInfo?.partyIdentifier ||
+                                   merchant.LEI ||
+                                   merchant.aliasValue ||
+                                   merchant.party?.aliasValue;
+                }
+                
+                console.log('🔍 Extracted LEI for Outbound Service:', extractedLEI);
+                
+                // Create a mock successful response that matches ML Testing Toolkit expectations
+                const response = {
+                    data: {
+                        status: 200,
+                        merchantInfo: {
+                            ...registryResp.data.partyList[0],
+                            extractedLEI: extractedLEI // Add extracted LEI to response
+                        },
+                        merchantId: merchantId,
+                        lei: extractedLEI,
+                        source: 'merchant-registry-oracle'
+                    }
+                };
+                
+                console.log('🔍 Final Outbound Response:', JSON.stringify(response, null, 2));
+                return response;
+            } else {
+                console.log('❌ Outbound Service: No partyList found in registry response');
+            }
+        } catch (error) {
+            console.log('❌ Registry oracle lookup failed, falling back to template:', error.message);
+        }
+        
+        // Fallback to the original ML Testing Toolkit template approach
+        const template = templateGetPartiesAlias;
         template.inputValues = this.inputValues;
         // Replace corresponding values in inputValues
-        template.inputValues.toIdValue = leiCode + '';
+        template.inputValues.toIdValue = merchantId + '';
         template.inputValues.toIdType = 'ALIAS';
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         return resp;
     }
 
+    // COMMENTED OUT: Legacy method - now using merchant_id instead of LEI
     // Legacy method for backward compatibility - now uses LEI instead of phone number
-    async getParties(merchantType = 'payer') {
-        const leiCode = merchantType === 'payer' ? this.merchantLEIs.payer : this.merchantLEIs.payee;
-        return this.getPartiesLEI(leiCode);
-    }
+    // async getParties(merchantType = 'payer') {
+    //     const leiCode = merchantType === 'payer' ? this.merchantLEIs.payer : this.merchantLEIs.payee;
+    //     return this.getPartiesLEI(leiCode);
+    // }
 
-    async postQuotes(amount, currency, payerLEI, payeeLEI) {
+    async postQuotes(amount, currency, payerMerchantId, payeeMerchantId, payerLEI = null, payeeLEI = null) {
         const traceId = this.getTraceId();
          
         const template = templatePostQuotes;
         template.inputValues = this.inputValues;
-        // Replace corresponding values in inputValues for LEI merchant payments
+        
+        // Replace corresponding values in inputValues for merchant payments
         template.inputValues.amount = amount + '';
         template.inputValues.currency = currency + '';
-        template.inputValues.payerLEI = payerLEI || this.merchantLEIs.payer;
-        template.inputValues.payeeLEI = payeeLEI || this.merchantLEIs.payee;
+        template.inputValues.payerMerchantId = payerMerchantId || '1';
+        template.inputValues.payeeMerchantId = payeeMerchantId || '2';
         template.inputValues.payerMerchantName = 'HALMADENT SRL';
         template.inputValues.payeeMerchantName = 'SECOND MERCHANT CORP';
+        
+        // Include LEI data for quotes template
+        template.inputValues.payerLEI = payerLEI || '787200JXIR2YYZDPNP23';
+        template.inputValues.payeeLEI = payeeLEI || '529900VJSEB3P1FV4R31';
+        
+        console.log('📋 Quote Template Input Values:', {
+            payerMerchantId: template.inputValues.payerMerchantId,
+            payeeMerchantId: template.inputValues.payeeMerchantId,
+            payerLEI: template.inputValues.payerLEI,
+            payeeLEI: template.inputValues.payeeLEI
+        });
+        
         const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
         return resp;
     }

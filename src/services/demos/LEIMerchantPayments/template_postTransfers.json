@@ -56,8 +56,11 @@
                 "  expirationOffset = environment.expirationOffset",
                 "}",
                 "requestVariables.transferExpiration = new Date(new Date().getTime() + expirationOffset).toISOString()",
-                "console.log('💸 Initiating LEI merchant transfer')",
-                "console.log('Transfer ID:', requestBody.transferId)",
+                "console.log('\ud83d\udcb8 Initiating LEI merchant transfer')",
+                "console.log('\ud83d\udcb3 Transfer ID:', requestBody.transferId)",
+                "console.log('\ud83d\udcb3 Payer FSP:', requestBody.payerFsp)",
+                "console.log('\ud83d\udcb3 Payee FSP:', requestBody.payeeFsp)",
+                "console.log('\ud83d\udcb3 Amount:', requestBody.amount)",
                 "environment.transferId = requestBody.transferId"
               ]
             }

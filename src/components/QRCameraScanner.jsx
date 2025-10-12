@@ -72,7 +72,7 @@ const QRCameraScanner = ({
             const scannedText = result[0]?.rawValue;
             if (scannedText) {
                 try {
-                    // Try to parse as JSON first (our LEI merchant format)
+                    // Try to parse as JSON first (our merchant format)
                     let parsedData;
                     try {
                         parsedData = JSON.parse(scannedText);
@@ -85,14 +85,14 @@ const QRCameraScanner = ({
                         };
                     }
 
-                    // Validate LEI merchant payment format
-                    if (parsedData.type === 'LEI_MERCHANT_PAYMENT' && parsedData.payeeLEI) {
+                    // Validate merchant payment format
+                    if (parsedData.type === 'MERCHANT_PAYMENT' && parsedData.merchantId) {
                         onScanSuccess && onScanSuccess(parsedData);
-                    } else if (parsedData.payeeLEI || parsedData.LEI) {
-                        // Handle different QR code formats that might contain LEI
+                    } else if (parsedData.merchantId) {
+                        // Handle different QR code formats that might contain merchant_id
                         const normalizedData = {
-                            type: 'LEI_MERCHANT_PAYMENT',
-                            payeeLEI: parsedData.payeeLEI || parsedData.LEI,
+                            type: 'MERCHANT_PAYMENT',
+                            merchantId: parsedData.merchantId,
                             merchantName: parsedData.merchantName || parsedData.name || 'Unknown Merchant',
                             timestamp: new Date().toISOString(),
                             originalData: parsedData
@@ -100,7 +100,7 @@ const QRCameraScanner = ({
                         onScanSuccess && onScanSuccess(normalizedData);
                     } else {
                         // Unknown format
-                        setError('QR code does not contain valid LEI merchant information');
+                        setError('QR code does not contain valid merchant information');
                         onScanError && onScanError(new Error('Invalid QR code format'));
                     }
                 } catch (err) {

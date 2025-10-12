@@ -45,6 +45,7 @@ class PayeeMerchant extends React.Component {
             quotesResponse: {},
             transfersRequest: {},
             transfersResponse: {},
+            payeeMerchantId: payeeConfig.merchantId,
             payeeLEI: payeeConfig.lei,
             lastReceivedAmount: null,
             qrCodeDataURL: null,
@@ -60,7 +61,7 @@ class PayeeMerchant extends React.Component {
             const payeeConfig = getPayeeConfig();
             const qrConfig = getQRConfig();
             
-            // Create QR code data with LEI information using configuration
+            // Create QR code data with merchant_id information using configuration
             const qrData = JSON.stringify(generateMerchantQRData(payeeConfig));
             
             const qrCodeDataURL = await QRCode.toDataURL(qrData, {
@@ -718,7 +719,7 @@ class PayeeMerchant extends React.Component {
                 category: 'payeeMerchant',
                 type: 'payeeMerchantGetPartiesResponse',
                 data: {
-                    resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                    resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeMerchantId}` },
                     responseStatus: '202'
                 }
             });
@@ -731,8 +732,8 @@ class PayeeMerchant extends React.Component {
                     log: {
                         logTime: new Date().toISOString(),
                         notificationType: 'newLog',
-                        message: 'Response: get /parties/ALIAS/' + this.state.payeeLEI + ' 202',
-                        resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                        message: 'Response: get /parties/ALIAS/' + this.state.payeeMerchantId + ' 202',
+                        resource: { method: 'get', path: `/parties/ALIAS/${this.state.payeeMerchantId}` },
                         additionalData: {
                             response: { status: 202, statusText: 'Accepted' }
                         },
@@ -753,7 +754,7 @@ class PayeeMerchant extends React.Component {
                 category: 'payeeMerchant',
                 type: 'payeeMerchantPutPartiesResponse',
                 data: {
-                    resource: { method: 'put', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                    resource: { method: 'put', path: `/parties/ALIAS/${this.state.payeeMerchantId}` },
                     responseStatus: '200'
                 }
             });
@@ -904,6 +905,8 @@ class PayeeMerchant extends React.Component {
                 }}>
                     <Text style={{ color: '#11998e', fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>PAYEE</Text>
                     <Text strong style={{ fontSize: '22px', color: '#333' }}>SECOND MERCHANT CORP</Text>
+                    <br/>
+                    <Text style={{ fontSize: '14px', color: '#666' }}>Merchant ID: {this.state.payeeMerchantId}</Text>
                     <br/>
                     <Text style={{ fontSize: '14px', color: '#666' }}>LEI: {this.state.payeeLEI}</Text>
                     <br/>

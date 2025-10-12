@@ -28,9 +28,10 @@
  ******/
 
 /**
- * Configuration for LEI Merchant Payments Demo
+ * Configuration for Merchant Payments Demo
  * 
- * This file contains all configurable values for the LEI merchant payment demo.
+ * This file contains all configurable values for the merchant payment demo.
+ * Now uses merchant_id instead of LEI codes for lookups.
  * All hardcoded values have been moved here to make them easily configurable.
  */
 
@@ -38,7 +39,8 @@
 const DEFAULT_CONFIG = {
     // Payer Merchant Configuration
     payer: {
-        lei: '787200JXIR2YYZDPNP23',
+        merchantId: '1',
+        lei: '787200JXIR2YYZDPNP23', // LEI for display purposes
         name: 'HALMADENT SRL',
         fspId: 'halmadentfsp',
         displayName: 'PAYER',
@@ -49,7 +51,8 @@ const DEFAULT_CONFIG = {
     
     // Payee Merchant Configuration  
     payee: {
-        lei: '529900VJSEB3P1FV4R31',
+        merchantId: '2',
+        lei: '529900VJSEB3P1FV4R31', // LEI for display purposes
         name: 'SECOND MERCHANT CORP',
         fspId: 'secondmerchantcorpfsp',
         displayName: 'PAYEE',
@@ -86,7 +89,7 @@ const DEFAULT_CONFIG = {
     
     // QR Code Configuration
     qrCode: {
-        type: 'LEI_MERCHANT_PAYMENT',
+        type: 'MERCHANT_PAYMENT',
         width: 200,
         margin: 2,
         colors: {
@@ -224,14 +227,14 @@ function isObject(item) {
 }
 
 /**
- * Generate LEI-compatible merchant data for QR codes
+ * Generate merchant data for QR codes
  * @param {Object} merchantConfig - Merchant configuration
  * @returns {Object} QR code data object
  */
 export const generateMerchantQRData = (merchantConfig) => {
     return {
         type: activeConfig.qrCode.type,
-        payeeLEI: merchantConfig.lei,
+        merchantId: merchantConfig.merchantId,
         merchantName: merchantConfig.name,
         fspId: merchantConfig.fspId,
         merchantClassificationCode: merchantConfig.merchantClassificationCode,
@@ -240,40 +243,124 @@ export const generateMerchantQRData = (merchantConfig) => {
 };
 
 /**
- * Validate LEI format
- * @param {string} lei - LEI to validate
- * @returns {boolean} True if LEI format is valid
+ * Validate merchant_id format
+ * @param {string} merchantId - merchant_id to validate
+ * @returns {boolean} True if merchant_id format is valid
  */
-export const validateLEI = (lei) => {
-    if (!lei || typeof lei !== 'string') return false;
+export const validateMerchantId = (merchantId) => {
+    if (!merchantId || typeof merchantId !== 'string') return false;
     
-    // LEI format: 20 alphanumeric characters
-    const leiRegex = /^[A-Z0-9]{20}$/;
-    return leiRegex.test(lei.toUpperCase());
+    // Simple validation - non-empty string
+    return merchantId.trim().length > 0;
 };
 
 /**
- * Lookup merchant configuration by LEI
- * @param {string} lei - LEI to lookup
+ * Lookup merchant configuration by merchant_id
+ * @param {string} merchantId - merchant_id to lookup
  * @returns {Object|null} Merchant config if found, null otherwise
  */
-export const lookupMerchantByLEI = (lei) => {
-    if (!validateLEI(lei)) return null;
+export const lookupMerchantByMerchantId = async (merchantId) => {
+    if (!validateMerchantId(merchantId)) return null;
     
-    const normalizedLEI = lei.toUpperCase();
+    const normalizedMerchantId = merchantId.toString().trim();
     
-    // Check payer
-    if (activeConfig.payer.lei === normalizedLEI) {
-        return { ...activeConfig.payer, type: 'payer' };
+    // TEMPORARILY COMMENTED OUT: Force real database lookup only
+    // First check local configuration
+    // if (activeConfig.payer.merchantId === normalizedMerchantId) {
+    //     return { ...activeConfig.payer, type: 'payer' };
+    // }
+    // 
+    // if (activeConfig.payee.merchantId === normalizedMerchantId) {
+    //     return { ...activeConfig.payee, type: 'payee' };
+    // }
+    
+    // Try to lookup from merchant registry oracle
+    try {
+        const registryUrl = getRegistryOracleUrl();
+        console.log(`📡 Registry Oracle Lookup: ${registryUrl}/parties/ALIAS/${normalizedMerchantId}`);
+        const response = await fetch(`${registryUrl}/parties/ALIAS/${normalizedMerchantId}`);
+        
+        console.log(`📡 Registry Response Status: ${response.status} ${response.statusText}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('📡 Full Registry Response Structure:', JSON.stringify(data, null, 2));
+            
+            if (data.partyList && data.partyList.length > 0) {
+                const merchant = data.partyList[0];
+                console.log('📡 First Merchant Entry:', JSON.stringify(merchant, null, 2));
+                
+                // Extract LEI directly from registry response
+                // The registry now includes lei field in the database response
+                let extractedLEI = merchant.lei || null;
+                
+                // Legacy fallback paths (in case the registry structure changes)
+                if (!extractedLEI) {
+                    const leiPaths = [
+                        merchant.party?.partyIdInfo?.partyIdentifier,
+                        merchant.party?.partyIdentifier,
+                        merchant.partyIdInfo?.partyIdentifier,
+                        merchant.LEI,
+                        merchant.aliasValue,
+                        merchant.party?.aliasValue
+                    ];
+                    extractedLEI = leiPaths.find(path => path && typeof path === 'string' && path.trim().length > 0);
+                }
+                
+                console.log('📡 LEI Extraction Results:');
+                console.log('  - merchant.lei (primary):', merchant.lei);
+                console.log('  - merchant.fspId:', merchant.fspId);
+                console.log('  - merchant.currency:', merchant.currency);
+                console.log('  - merchant.alias_value:', merchant.alias_value);
+                console.log('  - ✅ Final Extracted LEI:', extractedLEI);
+                
+                const result = {
+                    merchantId: normalizedMerchantId,
+                    lei: extractedLEI,
+                    fspId: merchant.fspId,
+                    currency: merchant.currency,
+                    name: merchant.party?.name || merchant.merchantName || `Merchant ${normalizedMerchantId}`,
+                    type: 'external',
+                    source: 'merchant-registry-oracle',
+                    rawMerchantData: merchant // Include raw data for debugging
+                };
+                
+                console.log('📡 Final Processed Result:', JSON.stringify(result, null, 2));
+                return result;
+            } else {
+                console.log('❌ No partyList found in response or empty partyList');
+            }
+        } else {
+            console.log(`❌ Registry API call failed: ${response.status} ${response.statusText}`);
+        }
+    } catch (error) {
+        console.warn('Failed to lookup merchant from registry oracle:', error);
     }
     
-    // Check payee
-    if (activeConfig.payee.lei === normalizedLEI) {
-        return { ...activeConfig.payee, type: 'payee' };
-    }
-    
-    // Could be extended to check external merchant registry
     return null;
+};
+
+/**
+ * Get Registry Oracle URL
+ * @returns {string} Registry Oracle base URL
+ */
+const getRegistryOracleUrl = () => {
+    // Try runtime config first (for Docker environments)
+    if (typeof window !== 'undefined' && window.appConfig && window.appConfig.REGISTRY_ORACLE_URL) {
+        return window.appConfig.REGISTRY_ORACLE_URL;
+    }
+    
+    // Try environment variables (for development)
+    if (typeof process !== 'undefined' && process.env) {
+        const envUrl = process.env.REACT_APP_REGISTRY_ORACLE_URL || process.env.REGISTRY_ORACLE_URL;
+        if (envUrl) return envUrl;
+    }
+    
+    // Default to the standard merchant registry oracle port
+    // Use Docker service name if likely running in container, localhost otherwise
+    return typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+        ? 'http://registry-oracle:8888' 
+        : 'http://localhost:8888';
 };
 
 export default {
@@ -287,6 +374,6 @@ export default {
     updateConfig,
     resetConfig,
     generateMerchantQRData,
-    validateLEI,
-    lookupMerchantByLEI
+    validateMerchantId,
+    lookupMerchantByMerchantId
 };
