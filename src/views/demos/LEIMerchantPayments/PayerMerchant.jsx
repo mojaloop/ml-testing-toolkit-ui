@@ -67,6 +67,11 @@ class PayerMerchant extends React.Component {
     };
 
     handleNotificationEvents = event => {
+        console.log('🔔 PayerMerchant: Received notification event:', {
+            type: event.type,
+            data: event.data
+        });
+        
         switch (event.type) {
             case 'getParties':
             {
@@ -97,10 +102,73 @@ class PayerMerchant extends React.Component {
             case 'putParties':
             {
                 // Step 7: Final step of Party Lookup phase - ready for quotes
+                console.log('📋 PayerMerchant: putParties event received');
+                console.log('🔍 Full event.data structure:', JSON.stringify(event.data, null, 2));
+                
+                let payeeLEI = this.state.payeeLEI; // Keep existing LEI if already set
+                console.log('💾 Current payeeLEI in state:', payeeLEI);
+                
+                // Extract LEI from the parties response structure
+                // For ALIAS party type, the partyIdentifier contains the LEI
+                if (event.data) {
+                    console.log('🔍 Attempting LEI extraction from event.data...');
+                    console.log('🔍 event.data.lei:', event.data.lei);
+                    console.log('🔍 event.data.extractedLEI:', event.data.extractedLEI);
+                    console.log('🔍 event.data.merchantInfo:', event.data.merchantInfo);
+                    console.log('🔍 event.data.party:', event.data.party);
+                    
+                    // Try multiple possible LEI locations in the response
+                    let newPayeeLEI = null;
+                    
+                    // Primary method: Extract from party.partyIdInfo.partyIdentifier when partyIdType is ALIAS
+                    if (event.data.party && event.data.party.partyIdInfo) {
+                        const { partyIdType, partyIdentifier } = event.data.party.partyIdInfo;
+                        if (partyIdType === 'ALIAS' && partyIdentifier) {
+                            newPayeeLEI = partyIdentifier;
+                            console.log('🔍 Found LEI in party.partyIdInfo.partyIdentifier:', newPayeeLEI);
+                        }
+                    }
+                    
+                    // Fallback methods for other possible LEI locations
+                    if (!newPayeeLEI) {
+                        newPayeeLEI = event.data.lei || 
+                                      event.data.extractedLEI ||
+                                      (event.data.merchantInfo && event.data.merchantInfo.lei) ||
+                                      (event.data.merchantInfo && event.data.merchantInfo.extractedLEI) ||
+                                      (event.data.party && event.data.party.lei) ||
+                                      (event.data.party && event.data.party.extractedLEI) ||
+                                      null;
+                    }
+                    
+                    console.log('🔍 Final extracted newPayeeLEI:', newPayeeLEI);
+                    
+                    if (newPayeeLEI) {
+                        payeeLEI = newPayeeLEI;
+                        console.log('✅ Successfully extracted payee LEI from parties response:', payeeLEI);
+                    } else {
+                        console.log('⚠️ Could not extract LEI from parties response. Available keys in event.data:');
+                        console.log(Object.keys(event.data));
+                        
+                        // Deep inspection of all nested objects
+                        Object.keys(event.data).forEach(key => {
+                            if (typeof event.data[key] === 'object' && event.data[key] !== null) {
+                                console.log(`🔍 event.data.${key}:`, JSON.stringify(event.data[key], null, 2));
+                            }
+                        });
+                    }
+                } else {
+                    console.log('❌ No event.data available for LEI extraction');
+                }
+                
+                console.log('💾 Final payeeLEI to store in state:', payeeLEI);
+                
                 this.setState({ 
                     gettingMerchantInfo: false, 
                     stage: 'putParties', 
-                    merchantInfo: event.data.party 
+                    merchantInfo: event.data.party,
+                    payeeLEI: payeeLEI // Store the extracted LEI
+                }, () => {
+                    console.log('💾 State updated. New payeeLEI in state:', this.state.payeeLEI);
                 });
                 break;
             }
@@ -228,62 +296,67 @@ class PayerMerchant extends React.Component {
             case 'putParties':
                 return (
                     <div style={{ width: '100%' }}>
-                        {/* Merchant Info */}
-                        <div style={{ marginBottom: '15px' }}>
-                            <div style={{ marginBottom: '10px' }}>
-                                <Text style={{ fontSize: '13px', color: '#666' }}>Merchant:</Text>
-                                <br/>
-                                <Text strong style={{ fontSize: '16px' }}>{getPayeeConfig().name}</Text>
+                        {/* Compact Merchant Info */}
+                        <div style={{ 
+                            background: '#f0f9ff', 
+                            borderRadius: '6px', 
+                            padding: '12px', 
+                            marginBottom: '12px',
+                            border: '1px solid #bae6fd'
+                        }}>
+                            <Text style={{ fontSize: '12px', color: '#0369a1', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>✅ Merchant Found:</Text>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                <Text style={{ fontSize: '11px', color: '#64748b' }}>Name:</Text>
+                                <Text strong style={{ fontSize: '12px', color: '#1e293b' }}>
+                                    {this.state.merchantInfo && this.state.merchantInfo.name ? this.state.merchantInfo.name : getPayeeConfig().name}
+                                </Text>
                             </div>
-                            <div style={{ marginBottom: '10px' }}>
-                                <Text style={{ fontSize: '13px', color: '#666' }}>Merchant ID:</Text>
-                                <br/>
-                                <Text strong style={{ fontSize: '14px' }}>{this.state.payeeMerchantId}</Text>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                <Text style={{ fontSize: '11px', color: '#64748b' }}>ID:</Text>
+                                <Text strong style={{ fontSize: '11px', color: '#1e293b' }}>{this.state.payeeMerchantId}</Text>
                             </div>
+                            
                             {this.state.payeeLEI && (
-                                <div style={{ marginBottom: '10px' }}>
-                                    <Text style={{ fontSize: '13px', color: '#666' }}>LEI:</Text>
-                                    <br/>
-                                    <Text strong style={{ fontSize: '14px' }}>{this.state.payeeLEI}</Text>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '11px', color: '#64748b' }}>LEI:</Text>
+                                    <Text strong style={{ fontSize: '10px', color: '#667eea', fontFamily: 'monospace' }}>{this.state.payeeLEI}</Text>
                                 </div>
                             )}
                         </div>
                         
-                        {/* Amount Input */}
-                        <div style={{ marginBottom: '18px' }}>
-                            <Text strong style={{ fontSize: '14px', display: 'block', marginBottom: '10px' }}>Payment Amount:</Text>
-                            <InputNumber
-                                style={{ width: '100%', marginBottom: '8px' }}
-                                size='large'
-                                value={this.state.amount}
-                                onChange={newNumber => {
-                                    this.setState({ amount: newNumber });
-                                }}
-                                placeholder='Enter amount'
-                            />
-                            <Select
-                                style={{ width: '100%' }}
-                                size='large'
-                                placeholder='Select Currency'
-                                value={this.state.selectedCurrency}
-                                onChange={currency => {
-                                    this.setState({ selectedCurrency: currency });
-                                }}
-                            >
-                                {getTransactionConfig().currencies.map(currency => (
-                                    <Option key={currency} value={currency}>{currency}</Option>
-                                ))}
-                            </Select>
+                        {/* Compact Amount Input */}
+                        <div style={{ marginBottom: '12px' }}>
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                <InputNumber
+                                    style={{ flex: 2 }}
+                                    size='middle'
+                                    value={this.state.amount}
+                                    onChange={newNumber => this.setState({ amount: newNumber })}
+                                    placeholder='Amount'
+                                />
+                                <Select
+                                    style={{ flex: 1 }}
+                                    size='middle'
+                                    value={this.state.selectedCurrency}
+                                    onChange={currency => this.setState({ selectedCurrency: currency })}
+                                >
+                                    {getTransactionConfig().currencies.map(currency => (
+                                        <Option key={currency} value={currency}>{currency}</Option>
+                                    ))}
+                                </Select>
+                            </div>
                         </div>
                         
                         {/* Get Quote Button */}
                         <Button 
                             type='primary' 
-                            size='large'
+                            size='middle'
                             block
                             disabled={!this.state.selectedCurrency} 
                             onClick={this.handleGetQuote}
-                            style={{ borderRadius: '8px', height: '50px', fontWeight: 'bold', fontSize: '16px' }}
+                            style={{ borderRadius: '6px', height: '36px', fontWeight: 'bold', fontSize: '14px' }}
                         >
                             Get Quote
                         </Button>
@@ -292,70 +365,80 @@ class PayerMerchant extends React.Component {
             case 'putQuotes':
                 return (
                     <div style={{ width: '100%' }}>
-                        {/* Quote Details */}
+                        {/* Compact Quote Details */}
                         <div style={{ 
-                            background: '#f8f9fa', 
-                            borderRadius: '8px', 
+                            background: '#f0fdf4', 
+                            borderRadius: '6px', 
                             padding: '12px', 
-                            marginBottom: '15px' 
+                            marginBottom: '12px',
+                            border: '1px solid #bbf7d0'
                         }}>
-                            <Text strong style={{ fontSize: '15px', display: 'block', marginBottom: '12px' }}>Quote Details</Text>
+                            <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: '#166534' }}>📋 Quote Received</Text>
                             
+                            {/* Compact Recipient Info */}
                             <div style={{ marginBottom: '8px' }}>
-                                <Text style={{ fontSize: '13px', color: '#666' }}>To:</Text>
-                                <Text strong style={{ fontSize: '14px', float: 'right' }}>
-                                    {getPayeeConfig().name}
-                                </Text>
-                                <div style={{ clear: 'both' }} />
-                            </div>
-                            
-                            {this.state.payeeLEI && (
-                                <div style={{ marginBottom: '8px' }}>
-                                    <Text style={{ fontSize: '13px', color: '#666' }}>LEI:</Text>
-                                    <Text strong style={{ fontSize: '14px', float: 'right' }}>
-                                        {this.state.payeeLEI}
+                                <Text style={{ fontSize: '11px', color: '#374151', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>To:</Text>
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>Name:</Text>
+                                    <Text strong style={{ fontSize: '11px', color: '#1f2937' }}>
+                                        {this.state.merchantInfo && this.state.merchantInfo.name ? this.state.merchantInfo.name : getPayeeConfig().name}
                                     </Text>
-                                    <div style={{ clear: 'both' }} />
                                 </div>
-                            )}
-                            
-                            <div style={{ marginBottom: '8px' }}>
-                                <Text style={{ fontSize: '13px', color: '#666' }}>Amount:</Text>
-                                <Text strong style={{ fontSize: '16px', float: 'right' }}>
-                                    {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
-                                        `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
-                                        `${this.state.amount} ${this.state.selectedCurrency}`
-                                    }
-                                </Text>
-                                <div style={{ clear: 'both' }} />
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>ID:</Text>
+                                    <Text strong style={{ fontSize: '10px', color: '#1f2937' }}>{this.state.payeeMerchantId}</Text>
+                                </div>
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>LEI:</Text>
+                                    <Text strong style={{ fontSize: '9px', color: '#667eea', fontFamily: 'monospace' }}>
+                                        {this.state.payeeLEI || 'Loading...'}
+                                    </Text>
+                                </div>
                             </div>
                             
+                            {/* Compact Transaction Details */}
                             <div style={{ marginBottom: '8px' }}>
-                                <Text style={{ fontSize: '13px', color: '#666' }}>Fees:</Text>
-                                <Text strong style={{ fontSize: '14px', float: 'right' }}>
-                                    {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? 
-                                        `${this.state.quotesResponse.payeeFspFee.amount} ${this.state.quotesResponse.payeeFspFee.currency}` : 
-                                        '0.00 USD'
-                                    }
-                                </Text>
-                                <div style={{ clear: 'both' }} />
+                                <Text style={{ fontSize: '11px', color: '#374151', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Amount:</Text>
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>Transfer:</Text>
+                                    <Text strong style={{ fontSize: '12px', color: '#16a34a' }}>
+                                        {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
+                                            `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
+                                            `${this.state.amount} ${this.state.selectedCurrency}`
+                                        }
+                                    </Text>
+                                </div>
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>Fees:</Text>
+                                    <Text strong style={{ fontSize: '10px', color: '#dc2626' }}>
+                                        {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? 
+                                            `${this.state.quotesResponse.payeeFspFee.amount} ${this.state.quotesResponse.payeeFspFee.currency}` : 
+                                            '0.00 USD'
+                                        }
+                                    </Text>
+                                </div>
                             </div>
                         </div>
                         
-                        {/* Action Buttons */}
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        {/* Compact Action Buttons */}
+                        <div style={{ display: 'flex', gap: '6px' }}>
                             <Button 
-                                size='large'
+                                size='small'
                                 onClick={this.handleReset}
-                                style={{ flex: 1, height: '50px', borderRadius: '8px', fontSize: '15px' }}
+                                style={{ flex: 1, height: '32px', borderRadius: '6px', fontSize: '12px' }}
                             >
                                 Cancel
                             </Button>
                             <Button 
                                 type='primary' 
-                                size='large'
+                                size='small'
                                 onClick={this.handleTransfer}
-                                style={{ flex: 1, height: '50px', borderRadius: '8px', fontWeight: 'bold', fontSize: '15px' }}
+                                style={{ flex: 2, height: '32px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px' }}
                             >
                                 Transfer Money
                             </Button>
@@ -364,26 +447,127 @@ class PayerMerchant extends React.Component {
                 );
             case 'putTransfers':
                 return (
-                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                        <Result
-                            status='success'
-                            title={<Text style={{ fontSize: '18px', fontWeight: 'bold' }}>Payment Successful!</Text>}
-                            subTitle={
-                                <div>
-                                    <Text style={{ fontSize: '14px', color: '#666' }}>Amount: {this.state.amount} {this.state.selectedCurrency}</Text>
-                                    <br/>
-                                    <Text style={{ fontSize: '12px', color: '#999' }}>Transfer ID: {this.state.currentTransactionId || (this.state.transfersResponse && this.state.transfersResponse.transferId) || 'N/A'}</Text>
+                    <div style={{ width: '100%' }}>
+                        {/* Compact Success */}
+                        <div style={{ 
+                            background: '#f0fdf4', 
+                            borderRadius: '6px', 
+                            padding: '12px', 
+                            marginBottom: '12px',
+                            border: '1px solid #bbf7d0',
+                            textAlign: 'center'
+                        }}>
+                            <Text strong style={{ fontSize: '14px', color: '#15803d', display: 'block', marginBottom: '4px' }}>🎉 Transfer Complete!</Text>
+                            <Text style={{ fontSize: '11px', color: '#16a34a' }}>Payment processed successfully</Text>
+                        </div>
+                        
+                        {/* Compact Transfer Summary */}
+                        <div style={{ 
+                            background: '#f8fafc', 
+                            borderRadius: '6px', 
+                            padding: '10px', 
+                            marginBottom: '12px',
+                            border: '1px solid #e2e8f0'
+                        }}>
+                            <Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '6px', color: '#374151' }}>To:</Text>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                <Text style={{ fontSize: '10px', color: '#6b7280' }}>Name:</Text>
+                                <Text strong style={{ fontSize: '11px', color: '#1f2937' }}>
+                                    {this.state.merchantInfo && this.state.merchantInfo.name ? this.state.merchantInfo.name : getPayeeConfig().name}
+                                </Text>
+                            </div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                <Text style={{ fontSize: '10px', color: '#6b7280' }}>ID:</Text>
+                                <Text strong style={{ fontSize: '10px', color: '#1f2937' }}>{this.state.payeeMerchantId}</Text>
+                            </div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                <Text style={{ fontSize: '10px', color: '#6b7280' }}>LEI:</Text>
+                                <Text strong style={{ fontSize: '9px', color: '#667eea', fontFamily: 'monospace' }}>
+                                    {this.state.payeeLEI || 'N/A'}
+                                </Text>
+                            </div>
+                            
+                            {/* Amount */}
+                            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '6px', marginTop: '6px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>Amount:</Text>
+                                    <Text strong style={{ fontSize: '13px', color: '#16a34a' }}>
+                                        {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
+                                            `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
+                                            `${this.state.amount} ${this.state.selectedCurrency}`
+                                        }
+                                    </Text>
                                 </div>
-                            }
-                        />
-                        <Button 
-                            type='primary' 
-                            size='large'
-                            onClick={this.handleReset}
-                            style={{ marginTop: '18px', borderRadius: '8px', width: '140px', height: '50px', fontWeight: 'bold', fontSize: '15px' }}
-                        >
-                            New Payment
-                        </Button>
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                                    <Text style={{ fontSize: '9px', color: '#6b7280' }}>Completed:</Text>
+                                    <Text style={{ fontSize: '9px', color: '#6b7280' }}>{new Date().toLocaleTimeString()}</Text>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Transfer Details */}
+                        <div style={{
+                            background: '#ffffff', 
+                            borderRadius: '6px', 
+                            padding: '12px', 
+                            marginBottom: '8px',
+                            border: '1px solid #d9f7be'
+                        }}>
+                            <Text style={{ fontSize: '13px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Transfer Details:</Text>
+                            
+                            <div style={{ marginBottom: '6px' }}>
+                                <Text style={{ fontSize: '12px', color: '#888' }}>Amount Transferred:</Text>
+                                <Text strong style={{ fontSize: '16px', float: 'right', color: '#52c41a' }}>
+                                    {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
+                                        `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
+                                        `${this.state.amount} ${this.state.selectedCurrency}`
+                                    }
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                            
+                            <div style={{ marginBottom: '6px' }}>
+                                <Text style={{ fontSize: '12px', color: '#888' }}>Transfer ID:</Text>
+                                <Text strong style={{ fontSize: '11px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                    {this.state.currentTransactionId || (this.state.transfersResponse && this.state.transfersResponse.transferId) || 'N/A'}
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                            
+                            <div style={{ marginBottom: '6px' }}>
+                                <Text style={{ fontSize: '12px', color: '#888' }}>Completed At:</Text>
+                                <Text strong style={{ fontSize: '11px', float: 'right', color: '#666' }}>
+                                    {new Date().toLocaleString()}
+                                </Text>
+                                <div style={{ clear: 'both' }} />
+                            </div>
+                            
+                            {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee && (
+                                <div style={{ marginBottom: '6px' }}>
+                                    <Text style={{ fontSize: '12px', color: '#888' }}>Processing Fee:</Text>
+                                    <Text strong style={{ fontSize: '12px', float: 'right', color: '#ff7a00' }}>
+                                        {this.state.quotesResponse.payeeFspFee.amount} {this.state.quotesResponse.payeeFspFee.currency}
+                                    </Text>
+                                    <div style={{ clear: 'both' }} />
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Action Button */}
+                        <div style={{ textAlign: 'center' }}>
+                            <Button 
+                                type='primary' 
+                                size='large'
+                                onClick={this.handleReset}
+                                style={{ marginTop: '10px', borderRadius: '8px', width: '160px', height: '50px', fontWeight: 'bold', fontSize: '15px' }}
+                            >
+                                🆕 New Payment
+                            </Button>
+                        </div>
                     </div>
                 );
             default:
@@ -477,8 +661,11 @@ class PayerMerchant extends React.Component {
     };
 
     handleGetMerchantInfo = async () => {
+        console.log('🚀 Starting handleGetMerchantInfo...');
+        
         // Update payeeMerchantId with the looked up merchant ID
         const lookupMerchantId = this.state.lookupMerchantId.trim();
+        console.log('🔍 Looking up merchant ID:', lookupMerchantId);
         
         // Validate merchant ID format
         if (!validateMerchantId(lookupMerchantId)) {
@@ -489,31 +676,41 @@ class PayerMerchant extends React.Component {
         // Try to lookup merchant info from configuration first (now async)
         let foundMerchantLEI = null;
         try {
+            console.log('🔍 Attempting local merchant lookup...');
             const merchantLookup = await lookupMerchantByMerchantId(lookupMerchantId);
             if (merchantLookup) {
-                console.log('Found merchant:', merchantLookup);
+                console.log('🔍 Found merchant in local lookup:', merchantLookup);
                 foundMerchantLEI = merchantLookup.lei; // Store LEI from lookup
+                console.log('🔍 Local lookup foundMerchantLEI:', foundMerchantLEI);
                 if (merchantLookup.source === 'merchant-registry-oracle') {
-                    console.log('\u2705 Using real merchant registry data!');
+                    console.log('✅ Using real merchant registry data!');
                 } else {
-                    console.log('\ud83d\udccb Using local configuration data');
+                    console.log('📋 Using local configuration data');
                 }
+            } else {
+                console.log('⚠️ No merchant found in local lookup');
             }
         } catch (error) {
-            console.warn('Merchant lookup failed:', error);
+            console.warn('❌ Merchant lookup failed:', error);
         }
+        
+        console.log('💾 Setting initial state with foundMerchantLEI:', foundMerchantLEI);
         
         this.setState({ 
             stage: 'getParties', 
             gettingMerchantInfo: true,
             payeeMerchantId: lookupMerchantId, // Update the payeeMerchantId with the looked up value
             payeeLEI: foundMerchantLEI // Store the LEI from lookup
+        }, () => {
+            console.log('💾 State updated with payeeLEI:', this.state.payeeLEI);
         });
         
         try {
-            await this.props.outboundService.getPartiesAlias(lookupMerchantId);
+            console.log('🚀 Calling outboundService.getPartiesAlias...');
+            const result = await this.props.outboundService.getPartiesAlias(lookupMerchantId);
+            console.log('🔍 getPartiesAlias result:', result);
         } catch (error) {
-            console.error('Error in merchant lookup:', error);
+            console.error('❌ Error in merchant lookup:', error);
             message.error('Failed to lookup merchant information');
             this.setState({ 
                 gettingMerchantInfo: false,
