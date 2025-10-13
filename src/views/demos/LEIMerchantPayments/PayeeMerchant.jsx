@@ -247,37 +247,37 @@ class PayeeMerchant extends React.Component {
             case 'postQuotes':
                 return (
                     <div style={{ width: '100%' }}>
-                        {/* Quote Request Details */}
+                        {/* Compact Quote Request Details */}
                         <div style={{ 
                             background: '#e6f7ff', 
-                            borderRadius: '8px', 
-                            padding: '15px', 
-                            marginBottom: '15px',
+                            borderRadius: '6px', 
+                            padding: '10px', 
+                            marginBottom: '10px',
                             border: '1px solid #91d5ff'
                         }}>
-                            <Text strong style={{ fontSize: '16px', display: 'block', marginBottom: '15px', color: '#1890ff' }}>📋 Quote Request Received</Text>
+                            <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: '#1890ff' }}>📋 Quote Request Received</Text>
                             
-                            {/* Payer Information */}
+                            {/* Compact Payer Information */}
                             <div style={{ 
                                 background: '#ffffff', 
                                 borderRadius: '6px', 
-                                padding: '12px', 
-                                marginBottom: '12px',
+                                padding: '8px', 
+                                marginBottom: '8px',
                                 border: '1px solid #d6f3ff'
                             }}>
-                                <Text style={{ fontSize: '13px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>From (Payer):</Text>
+                                <Text style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>From (Payer):</Text>
                                 
-                                <div style={{ marginBottom: '6px' }}>
-                                    <Text style={{ fontSize: '12px', color: '#888' }}>Merchant Name:</Text>
-                                    <Text strong style={{ fontSize: '14px', float: 'right', color: '#333' }}>HALMADENT SRL</Text>
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Merchant Name:</Text>
+                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>HALMADENT SRL</Text>
                                     <div style={{ clear: 'both' }} />
                                 </div>
                                 
                                 {this.state.quotesRequest && this.state.quotesRequest.payer && (
                                     <>
-                                        <div style={{ marginBottom: '6px' }}>
-                                            <Text style={{ fontSize: '12px', color: '#888' }}>Payer LEI:</Text>
-                                            <Text strong style={{ fontSize: '11px', float: 'right', color: '#667eea', fontFamily: 'monospace' }}>
+                                        <div style={{ marginBottom: '4px' }}>
+                                            <Text style={{ fontSize: '10px', color: '#888' }}>Payer LEI:</Text>
+                                            <Text strong style={{ fontSize: '9px', float: 'right', color: '#667eea', fontFamily: 'monospace' }}>
                                                 {this.state.quotesRequest.payer.partyIdInfo?.partyIdentifier || 'N/A'}
                                             </Text>
                                             <div style={{ clear: 'both' }} />
@@ -286,19 +286,19 @@ class PayeeMerchant extends React.Component {
                                 )}
                             </div>
                             
-                            {/* Transaction Details */}
+                            {/* Compact Transaction Details */}
                             <div style={{ 
                                 background: '#ffffff', 
                                 borderRadius: '6px', 
-                                padding: '12px', 
-                                marginBottom: '8px',
+                                padding: '8px', 
+                                marginBottom: '6px',
                                 border: '1px solid #d6f3ff'
                             }}>
-                                <Text style={{ fontSize: '13px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Quote Details:</Text>
+                                <Text style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Quote Details:</Text>
                                 
-                                <div style={{ marginBottom: '6px' }}>
-                                    <Text style={{ fontSize: '12px', color: '#888' }}>Requested Amount:</Text>
-                                    <Text strong style={{ fontSize: '16px', float: 'right', color: '#1890ff' }}>
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Requested Amount:</Text>
+                                    <Text strong style={{ fontSize: '13px', float: 'right', color: '#1890ff' }}>
                                         {this.state.quotesRequest && this.state.quotesRequest.amount ? 
                                             `${this.state.quotesRequest.amount.amount} ${this.state.quotesRequest.amount.currency}` : 
                                             '-- --'
@@ -307,11 +307,11 @@ class PayeeMerchant extends React.Component {
                                     <div style={{ clear: 'both' }} />
                                 </div>
                                 
-                                <div style={{ marginBottom: '6px' }}>
-                                    <Text style={{ fontSize: '12px', color: '#888' }}>Quote ID:</Text>
-                                    <Text style={{ fontSize: '10px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Quote ID:</Text>
+                                    <Text style={{ fontSize: '9px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
                                         {this.state.quotesRequest && this.state.quotesRequest.quoteId ? 
-                                            this.state.quotesRequest.quoteId.substring(0, 16) + '...' : 
+                                            this.state.quotesRequest.quoteId.substring(0, 12) + '...' : 
                                             'N/A'
                                         }
                                     </Text>
@@ -328,19 +328,19 @@ class PayeeMerchant extends React.Component {
             case 'putQuotes':
                 return (
                     <div style={{ width: '100%' }}>
-                        {/* Quote Response Details */}
+                        {/* Compact Quote Response Details */}
                         <div style={{ 
                             background: '#f6ffed', 
-                            borderRadius: '8px', 
-                            padding: '12px', 
-                            marginBottom: '10px',
+                            borderRadius: '6px', 
+                            padding: '8px', 
+                            marginBottom: '8px',
                             border: '1px solid #b7eb8f'
                         }}>
-                            <Text strong style={{ fontSize: '15px', display: 'block', marginBottom: '12px', color: '#52c41a' }}>Quote Response Sent</Text>
+                            <Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '6px', color: '#52c41a' }}>Quote Response Sent</Text>
                             
-                            <div style={{ marginBottom: '8px' }}>
-                                <Text style={{ fontSize: '13px', color: '#666' }}>Amount:</Text>
-                                <Text strong style={{ fontSize: '16px', float: 'right' }}>
+                            <div style={{ marginBottom: '4px' }}>
+                                <Text style={{ fontSize: '10px', color: '#666' }}>Amount:</Text>
+                                <Text strong style={{ fontSize: '13px', float: 'right' }}>
                                     {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
                                         `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
                                         '-- --'
@@ -350,8 +350,8 @@ class PayeeMerchant extends React.Component {
                             </div>
                             
                             <div style={{ marginBottom: '0px' }}>
-                                <Text style={{ fontSize: '13px', color: '#666' }}>Fees:</Text>
-                                <Text strong style={{ fontSize: '14px', float: 'right' }}>
+                                <Text style={{ fontSize: '10px', color: '#666' }}>Fees:</Text>
+                                <Text strong style={{ fontSize: '11px', float: 'right' }}>
                                     {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? 
                                         `${this.state.quotesResponse.payeeFspFee.amount} ${this.state.quotesResponse.payeeFspFee.currency}` : 
                                         '0.00 USD'
@@ -369,19 +369,19 @@ class PayeeMerchant extends React.Component {
             case 'postTransfers':
                 return (
                     <div style={{ width: '100%' }}>
-                        {/* Transfer Request Details */}
+                        {/* Compact Transfer Request Details */}
                         <div style={{ 
                             background: '#fff2e8', 
-                            borderRadius: '8px', 
-                            padding: '12px', 
-                            marginBottom: '10px',
+                            borderRadius: '6px', 
+                            padding: '8px', 
+                            marginBottom: '8px',
                             border: '1px solid #ffbb96'
                         }}>
-                            <Text strong style={{ fontSize: '15px', display: 'block', marginBottom: '12px', color: '#fa8c16' }}>Transfer Request Received</Text>
+                            <Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '6px', color: '#fa8c16' }}>Transfer Request Received</Text>
                             
-                            <div style={{ marginBottom: '8px' }}>
-                                <Text style={{ fontSize: '13px', color: '#666' }}>Amount:</Text>
-                                <Text strong style={{ fontSize: '16px', float: 'right' }}>
+                            <div style={{ marginBottom: '4px' }}>
+                                <Text style={{ fontSize: '10px', color: '#666' }}>Amount:</Text>
+                                <Text strong style={{ fontSize: '13px', float: 'right' }}>
                                     {this.state.transfersRequest && this.state.transfersRequest.amount ? 
                                         `${this.state.transfersRequest.amount.amount} ${this.state.transfersRequest.amount.currency}` : 
                                         '-- --'
@@ -391,8 +391,8 @@ class PayeeMerchant extends React.Component {
                             </div>
                             
                             <div style={{ marginBottom: '0px' }}>
-                                <Text style={{ fontSize: '12px', color: '#999' }}>Transfer ID:</Text>
-                                <Text style={{ fontSize: '11px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                <Text style={{ fontSize: '9px', color: '#999' }}>Transfer ID:</Text>
+                                <Text style={{ fontSize: '9px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
                                     {this.state.transfersRequest && this.state.transfersRequest.transferId ? 
                                         this.state.transfersRequest.transferId.substring(0, 8) + '...' : 
                                         'N/A'
@@ -411,46 +411,52 @@ class PayeeMerchant extends React.Component {
                 const receivedAmount = this.state.lastReceivedAmount;
                 return (
                     <div style={{ width: '100%' }}>
-                        {/* Success Header */}
-                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                            <Result
-                                status='success'
-                                title={<Text style={{ fontSize: '18px', fontWeight: 'bold', color: '#52c41a' }}>🎉 Payment Received!</Text>}
-                                subTitle={<Text style={{ fontSize: '14px', color: '#666' }}>Transaction completed successfully</Text>}
-                            />
+                        {/* Big Success Checkmark */}
+                        <div style={{ 
+                            textAlign: 'center',
+                            marginBottom: '15px'
+                        }}>
+                            <div style={{ 
+                                fontSize: '48px',
+                                lineHeight: '1',
+                                marginBottom: '8px',
+                                color: '#52c41a'
+                            }}>✅</div>
+                            <Text strong style={{ fontSize: '16px', color: '#52c41a', display: 'block', marginBottom: '4px' }}>Payment Received!</Text>
+                            <Text style={{ fontSize: '12px', color: '#666' }}>Transaction completed successfully</Text>
                         </div>
                         
-                        {/* Payment Summary */}
+                        {/* Compact Payment Summary */}
                         <div style={{ 
                             background: '#f6ffed', 
-                            borderRadius: '8px', 
-                            padding: '15px', 
-                            marginBottom: '15px',
+                            borderRadius: '6px', 
+                            padding: '10px', 
+                            marginBottom: '10px',
                             border: '1px solid #b7eb8f'
                         }}>
-                            <Text strong style={{ fontSize: '16px', display: 'block', marginBottom: '15px', color: '#333' }}>💰 Payment Summary</Text>
+                            <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: '#333' }}>💰 Payment Summary</Text>
                             
-                            {/* Payer Information */}
+                            {/* Compact Payer Information */}
                             <div style={{ 
                                 background: '#ffffff', 
                                 borderRadius: '6px', 
-                                padding: '12px', 
-                                marginBottom: '12px',
+                                padding: '8px', 
+                                marginBottom: '8px',
                                 border: '1px solid #d9f7be'
                             }}>
-                                <Text style={{ fontSize: '13px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>From (Payer):</Text>
+                                <Text style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>From (Payer):</Text>
                                 
-                                <div style={{ marginBottom: '6px' }}>
-                                    <Text style={{ fontSize: '12px', color: '#888' }}>Merchant Name:</Text>
-                                    <Text strong style={{ fontSize: '14px', float: 'right', color: '#333' }}>HALMADENT SRL</Text>
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Merchant Name:</Text>
+                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>HALMADENT SRL</Text>
                                     <div style={{ clear: 'both' }} />
                                 </div>
                                 
                                 {this.state.quotesRequest && this.state.quotesRequest.payer && (
                                     <>
-                                        <div style={{ marginBottom: '6px' }}>
-                                            <Text style={{ fontSize: '12px', color: '#888' }}>Payer LEI:</Text>
-                                            <Text strong style={{ fontSize: '11px', float: 'right', color: '#667eea', fontFamily: 'monospace' }}>
+                                        <div style={{ marginBottom: '4px' }}>
+                                            <Text style={{ fontSize: '10px', color: '#888' }}>Payer LEI:</Text>
+                                            <Text strong style={{ fontSize: '9px', float: 'right', color: '#667eea', fontFamily: 'monospace' }}>
                                                 {this.state.quotesRequest.payer.partyIdInfo?.partyIdentifier || 'N/A'}
                                             </Text>
                                             <div style={{ clear: 'both' }} />
@@ -460,38 +466,38 @@ class PayeeMerchant extends React.Component {
                             </div>
                             
                             
-                            {/* Transfer Details */}
+                            {/* Compact Transfer Details */}
                             <div style={{ 
                                 background: '#ffffff', 
                                 borderRadius: '6px', 
-                                padding: '12px', 
-                                marginBottom: '8px',
+                                padding: '8px', 
+                                marginBottom: '6px',
                                 border: '1px solid #d9f7be'
                             }}>
-                                <Text style={{ fontSize: '13px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Transfer Details:</Text>
+                                <Text style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Transfer Details:</Text>
                                 
-                                <div style={{ marginBottom: '6px' }}>
-                                    <Text style={{ fontSize: '12px', color: '#888' }}>Amount Received:</Text>
-                                    <Text strong style={{ fontSize: '18px', float: 'right', color: '#52c41a' }}>
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Amount Received:</Text>
+                                    <Text strong style={{ fontSize: '14px', float: 'right', color: '#52c41a' }}>
                                         {receivedAmount ? `${receivedAmount.amount} ${receivedAmount.currency}` : `${this.state.transfersRequest?.amount?.amount || ''} ${this.state.transfersRequest?.amount?.currency || ''}`}
                                     </Text>
                                     <div style={{ clear: 'both' }} />
                                 </div>
                                 
-                                <div style={{ marginBottom: '6px' }}>
-                                    <Text style={{ fontSize: '12px', color: '#888' }}>Transfer ID:</Text>
-                                    <Text strong style={{ fontSize: '10px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Transfer ID:</Text>
+                                    <Text strong style={{ fontSize: '9px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
                                         {this.state.transfersRequest && this.state.transfersRequest.transferId ? 
-                                            this.state.transfersRequest.transferId.substring(0, 16) + '...' : 
+                                            this.state.transfersRequest.transferId.substring(0, 12) + '...' : 
                                             'N/A'
                                         }
                                     </Text>
                                     <div style={{ clear: 'both' }} />
                                 </div>
                                 
-                                <div style={{ marginBottom: '6px' }}>
-                                    <Text style={{ fontSize: '12px', color: '#888' }}>Received At:</Text>
-                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#666' }}>
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Received At:</Text>
+                                    <Text strong style={{ fontSize: '9px', float: 'right', color: '#666' }}>
                                         {new Date().toLocaleString()}
                                     </Text>
                                     <div style={{ clear: 'both' }} />

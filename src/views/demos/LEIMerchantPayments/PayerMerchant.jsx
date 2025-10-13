@@ -448,17 +448,19 @@ class PayerMerchant extends React.Component {
             case 'putTransfers':
                 return (
                     <div style={{ width: '100%' }}>
-                        {/* Compact Success */}
+                        {/* Big Success Checkmark */}
                         <div style={{ 
-                            background: '#f0fdf4', 
-                            borderRadius: '6px', 
-                            padding: '12px', 
-                            marginBottom: '12px',
-                            border: '1px solid #bbf7d0',
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            marginBottom: '15px'
                         }}>
-                            <Text strong style={{ fontSize: '14px', color: '#15803d', display: 'block', marginBottom: '4px' }}>🎉 Transfer Complete!</Text>
-                            <Text style={{ fontSize: '11px', color: '#16a34a' }}>Payment processed successfully</Text>
+                            <div style={{ 
+                                fontSize: '48px',
+                                lineHeight: '1',
+                                marginBottom: '8px',
+                                color: '#16a34a'
+                            }}>✅</div>
+                            <Text strong style={{ fontSize: '16px', color: '#15803d', display: 'block', marginBottom: '4px' }}>Transfer Complete!</Text>
+                            <Text style={{ fontSize: '12px', color: '#16a34a' }}>Payment processed successfully</Text>
                         </div>
                         
                         {/* Compact Transfer Summary */}
