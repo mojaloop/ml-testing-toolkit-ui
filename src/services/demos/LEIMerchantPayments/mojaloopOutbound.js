@@ -253,7 +253,7 @@ class OutboundService {
                                                 partyIdentifier: extractedLEI,
                                                 fspId: merchant.fspId || 'DFSP001'
                                             },
-                                            name: 'SECOND MERCHANT CORP',
+                                            name: 'CENTRAL BANK OF KENYA',
                                             merchantClassificationCode: '5814'
                                         }
                                     }
@@ -337,14 +337,14 @@ class OutboundService {
         // Replace corresponding values in inputValues for merchant payments
         template.inputValues.amount = amount + '';
         template.inputValues.currency = currency + '';
-        template.inputValues.payerMerchantId = payerMerchantId || '10000003';  // Real Halmadent merchant ID
-        template.inputValues.payeeMerchantId = payeeMerchantId || '10000004';  // Real Second Corp merchant ID
-        template.inputValues.payerMerchantName = 'HALMADENT SRL';
-        template.inputValues.payeeMerchantName = 'SECOND MERCHANT CORP';
+        template.inputValues.payerMerchantId = payerMerchantId || '10000005';  // E-ARBITRATOR LTD
+        template.inputValues.payeeMerchantId = payeeMerchantId || '10000006';  // Central Bank of Kenya
+        template.inputValues.payerMerchantName = 'E-ARBITRATOR LTD';
+        template.inputValues.payeeMerchantName = 'CENTRAL BANK OF KENYA';
         
         // Include LEI data for quotes template
-        template.inputValues.payerLEI = payerLEI || '787200JXIR2YYZDPNP23';
-        template.inputValues.payeeLEI = payeeLEI || '529900VJSEB3P1FV4R31';
+        template.inputValues.payerLEI = payerLEI || '2549004T7RDF9VKUSV32';
+        template.inputValues.payeeLEI = payeeLEI || '25490039BSO2ZF8JZ448';
         
         console.log('📋 Quote Template Input Values:', {
             payerMerchantId: template.inputValues.payerMerchantId,

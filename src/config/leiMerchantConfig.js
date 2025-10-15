@@ -39,25 +39,25 @@
 const DEFAULT_CONFIG = {
     // Payer Merchant Configuration
     payer: {
-        merchantId: '10000003',  // Real merchant ID from registry
-        lei: '787200JXIR2YYZDPNP23', // LEI for display purposes
-        name: 'HALMADENT SRL',
+        merchantId: '10000005',  // E-ARBITRATOR LTD
+        lei: '2549004T7RDF9VKUSV32', // LEI for E-ARBITRATOR LTD
+        name: 'E-ARBITRATOR LTD',
         fspId: 'DFSP001',  // From registry response
         displayName: 'PAYER',
-        terminalName: 'Merchant Payment Terminal',
-        defaultCurrency: 'AFN',  // From registry response
+        terminalName: 'E-ARBITRATOR Payment Terminal',
+        defaultCurrency: 'USD',  // Default currency
         defaultAmount: 100
     },
     
     // Payee Merchant Configuration  
     payee: {
-        merchantId: '10000004',  // Real merchant ID from registry
-        lei: '529900VJSEB3P1FV4R31', // LEI for display purposes
-        name: 'SECOND MERCHANT CORP',
+        merchantId: '10000006',  // Central Bank of Kenya
+        lei: '25490039BSO2ZF8JZ448', // LEI for Central Bank of Kenya
+        name: 'CENTRAL BANK OF KENYA',
         fspId: 'DFSP001',  // From registry response
         displayName: 'PAYEE',
         merchantClassificationCode: '5814',
-        terminalName: 'Payment Receiver Terminal'
+        terminalName: 'Central Bank Payment Terminal'
     },
     
     // Hub/Switch Configuration

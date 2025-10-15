@@ -46,9 +46,9 @@ const { TabPane } = Tabs;
 
 class LEIMerchantPayments extends React.Component {
     state = {
-        payerMerchantName: 'HALMADENT SRL',
+        payerMerchantName: 'E-ARBITRATOR LTD',
         hubName: 'Mojaloop Switch',
-        payeeMerchantName: 'SECOND MERCHANT CORP',
+        payeeMerchantName: 'CENTRAL BANK OF KENYA',
         payerMerchantLogsDrawerVisible: false,
         payeeMerchantLogsDrawerVisible: false,
         showSettings: false,
@@ -755,7 +755,7 @@ class LEIMerchantPayments extends React.Component {
         return (
             <>
                 <Drawer
-                    title='HALMADENT SRL Logs'
+                    title='E-ARBITRATOR LTD Logs'
                     width='70%'
                     placement='left'
                     forceRender
@@ -768,7 +768,7 @@ class LEIMerchantPayments extends React.Component {
                     <TestMonitor ref={this.payerMerchantMonitorRef} />
                 </Drawer>
                 <Drawer
-                    title='SECOND MERCHANT CORP Logs'
+                    title='CENTRAL BANK OF KENYA Logs'
                     width='70%'
                     placement='right'
                     forceRender
