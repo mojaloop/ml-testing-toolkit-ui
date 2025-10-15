@@ -196,16 +196,15 @@ class TestDiagram extends React.Component {
             console.error('❌ Full error object:', e);
             
             // Show the error and problematic code
-            this.seqDiagContainer.innerHTML = `
-                <div style="padding: 15px; border: 2px solid red; background: #ffebee; margin: 10px 0;">
-                    <h4 style="color: red; margin: 0 0 10px 0;">⚠️ Mermaid Syntax Error</h4>
-                    <div><strong>Error:</strong> ${e.message || e.str || 'Unknown error'}</div>
-                    <details style="margin-top: 10px;">
-                        <summary>Show generated code</summary>
-                        <pre style="background: #f5f5f5; padding: 10px; overflow: auto;">${code}</pre>
-                    </details>
-                </div>
-            `;
+            this.seqDiagContainer.innerHTML = 
+                '<div style="padding: 15px; border: 2px solid red; background: #ffebee; margin: 10px 0;">' +
+                    '<h4 style="color: red; margin: 0 0 10px 0;">⚠️ Mermaid Syntax Error</h4>' +
+                    '<div><strong>Error:</strong> ' + (e.message || e.str || 'Unknown error') + '</div>' +
+                    '<details style="margin-top: 10px;">' +
+                        '<summary>Show generated code</summary>' +
+                        '<pre style="background: #f5f5f5; padding: 10px; overflow: auto;">' + code + '</pre>' +
+                    '</details>' +
+                '</div>';
         }
     };
 
@@ -226,14 +225,13 @@ class TestDiagram extends React.Component {
         
         let sanitized = text.toString()
             .replace(/[\n\r]/g, '')        // Remove newlines
-            .replace(/["'`]/g, '')        // Remove quotes that can break syntax
-            .replace(/[{}\[\]]/g, '')     // Remove brackets
+            .replace(/["\']/g, '')        // Remove quotes that can break syntax
+            .replace(/[{}]/g, '')         // Remove curly brackets
             .replace(/[<>]/g, '')         // Remove angle brackets  
             .replace(/[:;]/g, '')         // Remove colons/semicolons
             .replace(/[()]/g, '')         // Remove parentheses
             .replace(/[|\\]/g, '')        // Remove pipes and backslashes
             .replace(/[#$%^&*+=~]/g, '')  // Remove special characters that can break Mermaid
-            .replace(/[\u00A0-\u9999]/g, '')  // Remove Unicode characters
             .replace(/\s+/g, '_')         // Replace spaces with underscores for participant names
             .replace(/_+/g, '_')          // Replace multiple underscores with single
             .replace(/^_+|_+$/g, '')      // Remove leading/trailing underscores
@@ -258,9 +256,8 @@ class TestDiagram extends React.Component {
         
         return text.toString()
             .replace(/[\n\r]/g, ' ')       // Replace newlines with spaces
-            .replace(/["'`]/g, '')        // Remove quotes that can break syntax
+            .replace(/["\']/g, '')        // Remove quotes that can break syntax
             .replace(/[{}]/g, '')         // Remove curly brackets
-            .replace(/[\[\]]/g, '')       // Remove square brackets
             .replace(/[|\\]/g, '')        // Remove pipes and backslashes  
             .replace(/[#]/g, '')          // Remove hash characters
             .replace(/--/g, '-')          // Replace double dashes with single (can break Mermaid arrows)

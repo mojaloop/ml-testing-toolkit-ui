@@ -308,14 +308,20 @@ class PayeeMerchant extends React.Component {
                                 </div>
                                 
                                 <div style={{ marginBottom: '4px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#888' }}>Quote ID:</Text>
-                                    <Text style={{ fontSize: '9px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888', display: 'block', marginBottom: '2px' }}>Quote ID:</Text>
+                                    <Text style={{ 
+                                        fontSize: '9px', 
+                                        color: '#666', 
+                                        fontFamily: 'monospace',
+                                        display: 'block',
+                                        wordBreak: 'break-all',
+                                        lineHeight: '1.2'
+                                    }}>
                                         {this.state.quotesRequest && this.state.quotesRequest.quoteId ? 
-                                            this.state.quotesRequest.quoteId.substring(0, 12) + '...' : 
+                                            this.state.quotesRequest.quoteId : 
                                             'N/A'
                                         }
                                     </Text>
-                                    <div style={{ clear: 'both' }} />
                                 </div>
                             </div>
                         </div>
@@ -391,14 +397,20 @@ class PayeeMerchant extends React.Component {
                             </div>
                             
                             <div style={{ marginBottom: '0px' }}>
-                                <Text style={{ fontSize: '9px', color: '#999' }}>Transfer ID:</Text>
-                                <Text style={{ fontSize: '9px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                <Text style={{ fontSize: '9px', color: '#999', display: 'block', marginBottom: '2px' }}>Transfer ID:</Text>
+                                <Text style={{ 
+                                    fontSize: '8px', 
+                                    color: '#666', 
+                                    fontFamily: 'monospace',
+                                    display: 'block',
+                                    wordBreak: 'break-all',
+                                    lineHeight: '1.1'
+                                }}>
                                     {this.state.transfersRequest && this.state.transfersRequest.transferId ? 
-                                        this.state.transfersRequest.transferId.substring(0, 8) + '...' : 
+                                        this.state.transfersRequest.transferId : 
                                         'N/A'
                                     }
                                 </Text>
-                                <div style={{ clear: 'both' }} />
                             </div>
                         </div>
                         
@@ -485,14 +497,20 @@ class PayeeMerchant extends React.Component {
                                 </div>
                                 
                                 <div style={{ marginBottom: '4px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#888' }}>Transfer ID:</Text>
-                                    <Text strong style={{ fontSize: '9px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888', display: 'block', marginBottom: '2px' }}>Transfer ID:</Text>
+                                    <Text strong style={{ 
+                                        fontSize: '9px', 
+                                        color: '#666', 
+                                        fontFamily: 'monospace',
+                                        display: 'block',
+                                        wordBreak: 'break-all',
+                                        lineHeight: '1.2'
+                                    }}>
                                         {this.state.transfersRequest && this.state.transfersRequest.transferId ? 
-                                            this.state.transfersRequest.transferId.substring(0, 12) + '...' : 
+                                            this.state.transfersRequest.transferId : 
                                             'N/A'
                                         }
                                     </Text>
-                                    <div style={{ clear: 'both' }} />
                                 </div>
                                 
                                 <div style={{ marginBottom: '4px' }}>
@@ -549,19 +567,6 @@ class PayeeMerchant extends React.Component {
                             )}
                         </div>
                         
-                        {/* LEI Info */}
-                        <div style={{ 
-                            background: '#f0fdfa',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            marginTop: '20px',
-                            border: '1px solid #5eead4'
-                        }}>
-                            <Text style={{ fontSize: '12px', color: '#0f766e', display: 'block', marginBottom: '4px' }}>Merchant LEI:</Text>
-                            <Text style={{ fontSize: '14px', color: '#047857', fontWeight: 'bold', fontFamily: 'monospace' }}>
-                                {this.state.payeeLEI}
-                            </Text>
-                        </div>
                     </div>
                 );
         }

@@ -457,106 +457,108 @@ class PayerMerchant extends React.Component {
                                 fontSize: '48px',
                                 lineHeight: '1',
                                 marginBottom: '8px',
-                                color: '#16a34a'
+                                color: '#52c41a'
                             }}>✅</div>
-                            <Text strong style={{ fontSize: '16px', color: '#15803d', display: 'block', marginBottom: '4px' }}>Transfer Complete!</Text>
-                            <Text style={{ fontSize: '12px', color: '#16a34a' }}>Payment processed successfully</Text>
+                            <Text strong style={{ fontSize: '16px', color: '#52c41a', display: 'block', marginBottom: '4px' }}>Payment Sent!</Text>
+                            <Text style={{ fontSize: '12px', color: '#666' }}>Transaction completed successfully</Text>
                         </div>
                         
-                        {/* Compact Transfer Summary */}
+                        {/* Compact Payment Summary */}
                         <div style={{ 
-                            background: '#f8fafc', 
+                            background: '#f6ffed', 
                             borderRadius: '6px', 
                             padding: '10px', 
-                            marginBottom: '12px',
-                            border: '1px solid #e2e8f0'
+                            marginBottom: '10px',
+                            border: '1px solid #b7eb8f'
                         }}>
-                            <Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '6px', color: '#374151' }}>To:</Text>
+                            <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: '#333' }}>💸 Payment Summary</Text>
                             
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                <Text style={{ fontSize: '10px', color: '#6b7280' }}>Name:</Text>
-                                <Text strong style={{ fontSize: '11px', color: '#1f2937' }}>
-                                    {this.state.merchantInfo && this.state.merchantInfo.name ? this.state.merchantInfo.name : getPayeeConfig().name}
-                                </Text>
+                            {/* Compact Payee Information */}
+                            <div style={{ 
+                                background: '#ffffff', 
+                                borderRadius: '6px', 
+                                padding: '8px', 
+                                marginBottom: '8px',
+                                border: '1px solid #d9f7be'
+                            }}>
+                                <Text style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>To (Payee):</Text>
+                                
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Merchant Name:</Text>
+                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>
+                                        {this.state.merchantInfo && this.state.merchantInfo.name ? this.state.merchantInfo.name : getPayeeConfig().name}
+                                    </Text>
+                                    <div style={{ clear: 'both' }} />
+                                </div>
+                                
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Merchant ID:</Text>
+                                    <Text strong style={{ fontSize: '10px', float: 'right', color: '#333' }}>{this.state.payeeMerchantId}</Text>
+                                    <div style={{ clear: 'both' }} />
+                                </div>
+                                
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Payee LEI:</Text>
+                                    <Text strong style={{ fontSize: '9px', float: 'right', color: '#667eea', fontFamily: 'monospace' }}>
+                                        {this.state.payeeLEI || 'N/A'}
+                                    </Text>
+                                    <div style={{ clear: 'both' }} />
+                                </div>
                             </div>
                             
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                <Text style={{ fontSize: '10px', color: '#6b7280' }}>ID:</Text>
-                                <Text strong style={{ fontSize: '10px', color: '#1f2937' }}>{this.state.payeeMerchantId}</Text>
-                            </div>
-                            
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                                <Text style={{ fontSize: '10px', color: '#6b7280' }}>LEI:</Text>
-                                <Text strong style={{ fontSize: '9px', color: '#667eea', fontFamily: 'monospace' }}>
-                                    {this.state.payeeLEI || 'N/A'}
-                                </Text>
-                            </div>
-                            
-                            {/* Amount */}
-                            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '6px', marginTop: '6px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>Amount:</Text>
-                                    <Text strong style={{ fontSize: '13px', color: '#16a34a' }}>
+                            {/* Compact Transfer Details */}
+                            <div style={{ 
+                                background: '#ffffff', 
+                                borderRadius: '6px', 
+                                padding: '8px', 
+                                marginBottom: '6px',
+                                border: '1px solid #d9f7be'
+                            }}>
+                                <Text style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Transfer Details:</Text>
+                                
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Amount Sent:</Text>
+                                    <Text strong style={{ fontSize: '14px', float: 'right', color: '#52c41a' }}>
                                         {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
                                             `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
                                             `${this.state.amount} ${this.state.selectedCurrency}`
                                         }
                                     </Text>
+                                    <div style={{ clear: 'both' }} />
                                 </div>
                                 
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                    <Text style={{ fontSize: '9px', color: '#6b7280' }}>Completed:</Text>
-                                    <Text style={{ fontSize: '9px', color: '#6b7280' }}>{new Date().toLocaleTimeString()}</Text>
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888', display: 'block', marginBottom: '2px' }}>Transfer ID:</Text>
+                                    <Text strong style={{ 
+                                        fontSize: '9px', 
+                                        color: '#666', 
+                                        fontFamily: 'monospace',
+                                        display: 'block',
+                                        wordBreak: 'break-all',
+                                        lineHeight: '1.2'
+                                    }}>
+                                        {this.state.currentTransactionId || (this.state.transfersResponse && this.state.transfersResponse.transferId) || 'N/A'}
+                                    </Text>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        {/* Transfer Details */}
-                        <div style={{
-                            background: '#ffffff', 
-                            borderRadius: '6px', 
-                            padding: '12px', 
-                            marginBottom: '8px',
-                            border: '1px solid #d9f7be'
-                        }}>
-                            <Text style={{ fontSize: '13px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Transfer Details:</Text>
-                            
-                            <div style={{ marginBottom: '6px' }}>
-                                <Text style={{ fontSize: '12px', color: '#888' }}>Amount Transferred:</Text>
-                                <Text strong style={{ fontSize: '16px', float: 'right', color: '#52c41a' }}>
-                                    {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
-                                        `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
-                                        `${this.state.amount} ${this.state.selectedCurrency}`
-                                    }
-                                </Text>
-                                <div style={{ clear: 'both' }} />
-                            </div>
-                            
-                            <div style={{ marginBottom: '6px' }}>
-                                <Text style={{ fontSize: '12px', color: '#888' }}>Transfer ID:</Text>
-                                <Text strong style={{ fontSize: '11px', float: 'right', color: '#666', fontFamily: 'monospace' }}>
-                                    {this.state.currentTransactionId || (this.state.transfersResponse && this.state.transfersResponse.transferId) || 'N/A'}
-                                </Text>
-                                <div style={{ clear: 'both' }} />
-                            </div>
-                            
-                            <div style={{ marginBottom: '6px' }}>
-                                <Text style={{ fontSize: '12px', color: '#888' }}>Completed At:</Text>
-                                <Text strong style={{ fontSize: '11px', float: 'right', color: '#666' }}>
-                                    {new Date().toLocaleString()}
-                                </Text>
-                                <div style={{ clear: 'both' }} />
-                            </div>
-                            
-                            {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee && (
-                                <div style={{ marginBottom: '6px' }}>
-                                    <Text style={{ fontSize: '12px', color: '#888' }}>Processing Fee:</Text>
-                                    <Text strong style={{ fontSize: '12px', float: 'right', color: '#ff7a00' }}>
-                                        {this.state.quotesResponse.payeeFspFee.amount} {this.state.quotesResponse.payeeFspFee.currency}
+                                
+                                <div style={{ marginBottom: '4px' }}>
+                                    <Text style={{ fontSize: '10px', color: '#888' }}>Sent At:</Text>
+                                    <Text strong style={{ fontSize: '9px', float: 'right', color: '#666' }}>
+                                        {new Date().toLocaleString()}
                                     </Text>
                                     <div style={{ clear: 'both' }} />
                                 </div>
-                            )}
+                                
+                                {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee && (
+                                    <div style={{ marginBottom: '4px' }}>
+                                        <Text style={{ fontSize: '10px', color: '#888' }}>Processing Fee:</Text>
+                                        <Text strong style={{ fontSize: '9px', float: 'right', color: '#ff7a00' }}>
+                                            {this.state.quotesResponse.payeeFspFee.amount} {this.state.quotesResponse.payeeFspFee.currency}
+                                        </Text>
+                                        <div style={{ clear: 'both' }} />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         
                         {/* Action Button */}
