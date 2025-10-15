@@ -572,23 +572,63 @@ class PayeeMerchant extends React.Component {
         }
     };
 
-    triggerStep5PutParties = () => {
+    triggerStep5PutParties = async () => {
         // Step 5: PUT parties - Second Merchant Corp -> Mojaloop Switch
+        // Use REAL registry data instead of hardcoded values
+        
+        let partyData = {
+            partyIdInfo: {
+                partyIdType: 'ALIAS',
+                partyIdentifier: this.state.payeeLEI || this.state.payeeMerchantId,
+                fspId: 'payeefsp'
+            },
+            merchantClassificationCode: '5814',
+            name: 'SECOND MERCHANT CORP'
+        };
+        
+        // Try to get real merchant data from registry
+        try {
+            const registryUrl = 'http://localhost:8888';
+            const lookupId = this.state.payeeMerchantId || '10000004';
+            console.log(`🔍 PayeeMerchant: Making REAL registry lookup for merchant ID: ${lookupId}`);
+            
+            const response = await fetch(`${registryUrl}/parties/ALIAS/${lookupId}`);
+            if (response.ok) {
+                const registryData = await response.json();
+                console.log('🔍 PayeeMerchant Registry Response:', registryData);
+                
+                if (registryData.partyList && registryData.partyList.length > 0) {
+                    const merchant = registryData.partyList[0];
+                    console.log('✅ PayeeMerchant: Using REAL registry data!', merchant);
+                    
+                    // Update party data with real registry info
+                    partyData = {
+                        partyIdInfo: {
+                            partyIdType: 'ALIAS',
+                            partyIdentifier: merchant.lei || this.state.payeeLEI || lookupId,
+                            fspId: merchant.fspId || 'DFSP001'
+                        },
+                        merchantClassificationCode: '5814',
+                        name: 'SECOND MERCHANT CORP'
+                    };
+                    
+                    // Update state with real LEI if found
+                    if (merchant.lei && merchant.lei !== this.state.payeeLEI) {
+                        this.setState({ payeeLEI: merchant.lei });
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('❌ PayeeMerchant: Registry lookup failed, using fallback data:', error.message);
+        }
+        
         const event = {
             category: 'payeeMerchant',
             type: 'payeeMerchantPutParties',
             data: {
-                resource: { method: 'put', path: `/parties/ALIAS/${this.state.payeeLEI}` },
+                resource: { method: 'put', path: `/parties/ALIAS/${partyData.partyIdInfo.partyIdentifier}` },
                 requestBody: {
-                    party: {
-                        partyIdInfo: {
-                            partyIdType: 'ALIAS',
-                            partyIdentifier: this.state.payeeLEI,
-                            fspId: 'payeefsp'
-                        },
-                        merchantClassificationCode: '5814',
-                        name: 'SECOND MERCHANT CORP'
-                    }
+                    party: partyData
                 }
             }
         };

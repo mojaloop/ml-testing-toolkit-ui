@@ -68,6 +68,11 @@ class LEIMerchantPayments extends React.Component {
         this.notificationServiceObj = new NotificationService();
         const sessionId = this.notificationServiceObj.getSessionId();
         this.outboundServiceObj = new OutboundService(sessionId);
+        
+        // Make notification service accessible globally for real registry integration
+        if (typeof window !== 'undefined') {
+            window.notificationService = this.notificationServiceObj;
+        }
     }
 
     componentDidMount = async () => {

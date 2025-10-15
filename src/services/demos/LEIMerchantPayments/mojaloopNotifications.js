@@ -392,15 +392,42 @@ class NotificationService {
           log.resource.path.startsWith('/parties/')
         ) {
             this.notifyPayerMerchantMonitorLog(log);
+            
+            let eventData = {
+                resource: log.resource,
+                party: log.additionalData && 
+                        log.additionalData.request && 
+                        log.additionalData.request.body ? log.additionalData.request.body.party : null,
+            };
+            
+            // Enhance with registry data if available
+            if (typeof window !== 'undefined' && window.leiRegistryData) {
+                // Extract merchant ID from the party path (e.g., /parties/ALIAS/10000004)
+                const pathParts = log.resource.path.split('/');
+                const merchantId = pathParts[pathParts.length - 1];
+                
+                if (window.leiRegistryData[merchantId]) {
+                    console.log(`✅ Enhancing putParties event with registry data for merchant ${merchantId}`);
+                    const registryData = window.leiRegistryData[merchantId];
+                    
+                    // Inject registry data into event
+                    eventData = {
+                        ...eventData,
+                        ...registryData,  // Include all registry data
+                        merchantInfo: registryData.merchantInfo,
+                        lei: registryData.lei,
+                        extractedLEI: registryData.lei,
+                        source: 'merchant-registry-oracle'
+                    };
+                    
+                    console.log('✅ Enhanced putParties event data:', JSON.stringify(eventData, null, 2));
+                }
+            }
+            
             this.notificationEventFunction({
                 category: 'payerMerchant',
                 type: 'putParties',
-                data: {
-                    resource: log.resource,
-                    party:  log.additionalData && 
-                            log.additionalData.request && 
-                            log.additionalData.request.body ? log.additionalData.request.body.party : null,
-                },
+                data: eventData,
             });
         }
 

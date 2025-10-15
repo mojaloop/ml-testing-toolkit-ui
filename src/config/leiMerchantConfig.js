@@ -39,22 +39,22 @@
 const DEFAULT_CONFIG = {
     // Payer Merchant Configuration
     payer: {
-        merchantId: '1',
+        merchantId: '10000003',  // Real merchant ID from registry
         lei: '787200JXIR2YYZDPNP23', // LEI for display purposes
         name: 'HALMADENT SRL',
-        fspId: 'halmadentfsp',
+        fspId: 'DFSP001',  // From registry response
         displayName: 'PAYER',
         terminalName: 'Merchant Payment Terminal',
-        defaultCurrency: 'USD',
+        defaultCurrency: 'AFN',  // From registry response
         defaultAmount: 100
     },
     
     // Payee Merchant Configuration  
     payee: {
-        merchantId: '2',
+        merchantId: '10000004',  // Real merchant ID from registry
         lei: '529900VJSEB3P1FV4R31', // LEI for display purposes
         name: 'SECOND MERCHANT CORP',
-        fspId: 'secondmerchantcorpfsp',
+        fspId: 'DFSP001',  // From registry response
         displayName: 'PAYEE',
         merchantClassificationCode: '5814',
         terminalName: 'Payment Receiver Terminal'

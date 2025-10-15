@@ -710,9 +710,15 @@ class PayerMerchant extends React.Component {
         });
         
         try {
-            console.log('🚀 Calling outboundService.getPartiesAlias...');
+            console.log(`🚀 Calling outboundService.getPartiesAlias with merchant ID: ${lookupMerchantId}`);
             const result = await this.props.outboundService.getPartiesAlias(lookupMerchantId);
             console.log('🔍 getPartiesAlias result:', result);
+            
+            // Extract LEI from the registry response if available
+            if (result?.data?.merchantInfo?.lei) {
+                console.log('✅ Extracted LEI from registry response:', result.data.merchantInfo.lei);
+                this.setState({ payeeLEI: result.data.merchantInfo.lei });
+            }
         } catch (error) {
             console.error('❌ Error in merchant lookup:', error);
             message.error('Failed to lookup merchant information');
