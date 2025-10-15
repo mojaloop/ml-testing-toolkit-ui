@@ -35,26 +35,26 @@
  * All hardcoded values have been moved here to make them easily configurable.
  */
 
-// Default configuration - can be overridden by server config or environment variables
-const DEFAULT_CONFIG = {
-    // Payer Merchant Configuration
+// Default fallback configuration - will be overridden by JSON config
+const FALLBACK_CONFIG = {
+    // Fallback Payer Merchant Configuration
     payer: {
-        merchantId: '10000005',  // E-ARBITRATOR LTD
-        lei: '2549004T7RDF9VKUSV32', // LEI for E-ARBITRATOR LTD
+        merchantId: '10000005',
+        lei: '2549004T7RDF9VKUSV32',
         name: 'E-ARBITRATOR LTD',
-        fspId: 'DFSP001',  // From registry response
+        fspId: 'DFSP001',
         displayName: 'PAYER',
         terminalName: 'E-ARBITRATOR Payment Terminal',
-        defaultCurrency: 'USD',  // Default currency
+        defaultCurrency: 'RWF',
         defaultAmount: 100
     },
     
-    // Payee Merchant Configuration  
+    // Fallback Payee Merchant Configuration  
     payee: {
-        merchantId: '10000006',  // Central Bank of Kenya
-        lei: '25490039BSO2ZF8JZ448', // LEI for Central Bank of Kenya
+        merchantId: '10000006',
+        lei: '25490039BSO2ZF8JZ448',
         name: 'CENTRAL BANK OF KENYA',
-        fspId: 'DFSP001',  // From registry response
+        fspId: 'DFSP001',
         displayName: 'PAYEE',
         merchantClassificationCode: '5814',
         terminalName: 'Central Bank Payment Terminal'
@@ -68,8 +68,8 @@ const DEFAULT_CONFIG = {
     
     // Default Transaction Parameters
     transaction: {
-        currencies: ['USD', 'EUR'],
-        defaultCurrency: 'USD',
+        currencies: ['RWF', 'KSH'],  // Rwanda Franc, Kenyan Shilling
+        defaultCurrency: 'RWF',
         defaultAmount: 100,
         fees: {
             payeeFspFee: {
@@ -116,9 +116,55 @@ const DEFAULT_CONFIG = {
 
 /**
  * Current active configuration
- * This will be merged with server config and environment overrides
+ * This will be loaded from JSON file and merged with fallbacks
  */
-let activeConfig = { ...DEFAULT_CONFIG };
+let activeConfig = { ...FALLBACK_CONFIG };
+
+/**
+ * Load merchant configuration from JSON file
+ * @returns {Promise<Object>} Loaded merchant configuration
+ */
+export const loadMerchantConfig = async () => {
+    try {
+        const response = await fetch('/merchants.json');
+        if (response.ok) {
+            const merchantData = await response.json();
+            console.log('✅ Loaded merchant config from JSON:', merchantData);
+            
+            // Update active config with JSON data
+            if (merchantData.payer) {
+                activeConfig.payer = {
+                    ...activeConfig.payer,
+                    merchantId: merchantData.payer.merchantId,
+                    lei: merchantData.payer.lei,
+                    name: merchantData.payer.name
+                };
+            }
+            
+            if (merchantData.payee) {
+                activeConfig.payee = {
+                    ...activeConfig.payee,
+                    merchantId: merchantData.payee.merchantId,
+                    lei: merchantData.payee.lei,
+                    name: merchantData.payee.name
+                };
+            }
+            
+            if (merchantData.currencies) {
+                activeConfig.transaction.currencies = merchantData.currencies;
+                activeConfig.transaction.defaultCurrency = merchantData.currencies[0] || 'RWF';
+            }
+            
+            return merchantData;
+        } else {
+            console.warn('⚠️ Failed to load merchants.json, using fallback config');
+        }
+    } catch (error) {
+        console.warn('⚠️ Error loading merchants.json:', error.message, '- using fallback config');
+    }
+    
+    return null;
+};
 
 /**
  * Get current configuration
@@ -227,14 +273,15 @@ function isObject(item) {
 }
 
 /**
- * Generate merchant data for QR codes
+ * Generate merchant data for QR codes with both LEI and merchant_id
  * @param {Object} merchantConfig - Merchant configuration
  * @returns {Object} QR code data object
  */
 export const generateMerchantQRData = (merchantConfig) => {
     return {
         type: activeConfig.qrCode.type,
-        merchantId: merchantConfig.merchantId,
+        merchantId: merchantConfig.merchantId,  // Used for registry lookups
+        lei: merchantConfig.lei,                // For display/reference
         merchantName: merchantConfig.name,
         fspId: merchantConfig.fspId,
         merchantClassificationCode: merchantConfig.merchantClassificationCode,

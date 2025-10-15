@@ -39,16 +39,16 @@ import HUBConsole from './HUBConsole.jsx';
 import NotificationService from '../../../services/demos/LEIMerchantPayments/mojaloopNotifications';
 import OutboundService from '../../../services/demos/LEIMerchantPayments/mojaloopOutbound';
 import { getServerConfig } from '../../../utils/getConfig';
-import { getPayerConfig, getPayeeConfig, getHubConfig, getUIConfig } from '../../../config/leiMerchantConfig.js';
+import { getPayerConfig, getPayeeConfig, getHubConfig, getUIConfig, loadMerchantConfig } from '../../../config/leiMerchantConfig.js';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
 
 class LEIMerchantPayments extends React.Component {
     state = {
-        payerMerchantName: 'E-ARBITRATOR LTD',
+        payerMerchantName: 'Payer Merchant',
         hubName: 'Mojaloop Switch',
-        payeeMerchantName: 'CENTRAL BANK OF KENYA',
+        payeeMerchantName: 'Payee Merchant',
         payerMerchantLogsDrawerVisible: false,
         payeeMerchantLogsDrawerVisible: false,
         showSettings: false,
@@ -77,6 +77,24 @@ class LEIMerchantPayments extends React.Component {
 
     componentDidMount = async () => {
         this.notificationServiceObj.setNotificationEventListener(this.handleNotificationEvents);
+        
+        // Load merchant configuration from JSON file
+        await loadMerchantConfig();
+        
+        // Update state with loaded merchant names
+        const payerConfig = getPayerConfig();
+        const payeeConfig = getPayeeConfig();
+        
+        this.setState({
+            payerMerchantName: payerConfig.name,
+            payeeMerchantName: payeeConfig.name
+        });
+        
+        console.log('✅ Merchant config loaded:', {
+            payer: payerConfig.name,
+            payee: payeeConfig.name
+        });
+        
         this.fetchConfiguration();
     };
 
@@ -108,14 +126,14 @@ class LEIMerchantPayments extends React.Component {
     updateSequenceDiagram = event => {
         switch (event.type) {
             // 🔹 PHASE 1: PARTY LOOKUP (Oracle Lookup)
-            // Step 1: HALMADENT SRL → Mojaloop Switch (GET /parties/ALIAS/LEI)
+            // Step 1: Payer → Mojaloop Switch (GET /parties/ALIAS/LEI)
             case 'getParties':
             {
                 this.clearEverything();
                 this.setState({ partyLookupSequenceState: 'payer_get_sent' });
                 if(this.testDiagramRef.current) {
                     // Establish the correct participant order by introducing all participants in desired order
-                    // This first sequence establishes: HALMADENT SRL → Mojaloop Switch
+                    // This first sequence establishes: Payer → Mojaloop Switch
                     this.testDiagramRef.current.addSequence(this.state.payerMerchantName, this.state.hubName, '[HTTP REQ] GET ' + event.data.resource.path, { activation: { mode: 'activate', peer: 'both' } });
                 }
                 break;
@@ -128,7 +146,7 @@ class LEIMerchantPayments extends React.Component {
                 }
                 break;
             }
-            // Step 2: Mojaloop Switch → SECOND MERCHANT CORP (GET /parties/ALIAS/LEI)
+            // Step 2: Mojaloop Switch → Payee (GET /parties/ALIAS/LEI)
             case 'payeeMerchantGetParties':
             {
                 if(this.testDiagramRef.current) {
@@ -146,7 +164,7 @@ class LEIMerchantPayments extends React.Component {
                 }
                 break;
             }
-            // Step 3: SECOND MERCHANT CORP → Mojaloop Switch (PUT /parties callback)
+            // Step 3: Payee → Mojaloop Switch (PUT /parties callback)
             case 'payeeMerchantPutParties':
             {
                 if(this.testDiagramRef.current) {
@@ -162,7 +180,7 @@ class LEIMerchantPayments extends React.Component {
                 }
                 break;
             }
-            // Step 7: Mojaloop Switch → HALMADENT SRL (PUT /parties callback)
+            // Step 7: Mojaloop Switch → Payer (PUT /parties callback)
             // Only allow this after payee merchant has completed its PUT parties
             case 'putParties':
             {
@@ -322,9 +340,9 @@ class LEIMerchantPayments extends React.Component {
             case 'getPartiesResponse': {
                 // Only simulate the payee side events, not the final PUT parties to payer
                 // The correct sequence should be:
-                // 1. HALMADENT SRL → Mojaloop Switch: HTTP GET /parties/ALIAS/LEI (already done)
-                // 2. Mojaloop Switch → HALMADENT SRL: HTTP RESP 202 (already done) 
-                // 3. Mojaloop Switch → SECOND MERCHANT CORP: HTTP GET /parties/ALIAS/LEI
+                // 1. Payer → Mojaloop Switch: HTTP GET /parties/ALIAS/LEI (already done)
+                // 2. Mojaloop Switch → Payer: HTTP RESP 202 (already done) 
+                // 3. Mojaloop Switch → Payee: HTTP GET /parties/ALIAS/LEI
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -338,7 +356,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay);
 
-                // 4. SECOND MERCHANT CORP → Mojaloop Switch: HTTP RESP 202
+                // 4. Payee → Mojaloop Switch: HTTP RESP 202
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -353,7 +371,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 2);
 
-                // 5. SECOND MERCHANT CORP → Mojaloop Switch: HTTP Callback PUT /parties/ALIAS/LEI
+                // 5. Payee → Mojaloop Switch: HTTP Callback PUT /parties/ALIAS/LEI
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant', 
@@ -384,7 +402,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 3);
 
-                // 6. Mojaloop Switch → SECOND MERCHANT CORP: HTTP RESP 200
+                // 6. Mojaloop Switch → Payee: HTTP RESP 200
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -399,7 +417,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 4);
                 
-                // 7. Mojaloop Switch → HALMADENT SRL: HTTP Callback PUT /parties/ALIAS/LEI
+                // 7. Mojaloop Switch → Payer: HTTP Callback PUT /parties/ALIAS/LEI
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payerMerchant',
@@ -421,7 +439,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 5);
                 
-                // 8. HALMADENT SRL → Mojaloop Switch: HTTP RESP 200
+                // 8. Payer → Mojaloop Switch: HTTP RESP 200
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payerMerchant',
@@ -439,7 +457,7 @@ class LEIMerchantPayments extends React.Component {
             }
 
             case 'postQuotesResponse': {
-                // Step 11: Hub -> SECOND MERCHANT CORP: POST /quotes
+                // Step 11: Hub -> Payee: POST /quotes
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -476,7 +494,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay);
 
-                // Step 12: SECOND MERCHANT CORP -> Hub: Response 202
+                // Step 12: Payee -> Hub: Response 202
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -491,7 +509,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 2);
 
-                // Step 13: SECOND MERCHANT CORP -> Hub: PUT /quotes/{quoteId} 
+                // Step 13: Payee -> Hub: PUT /quotes/{quoteId}
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -526,7 +544,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 3);
 
-                // Step 14: Hub -> SECOND MERCHANT CORP: Response 200
+                // Step 14: Hub -> Payee: Response 200
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -541,7 +559,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 4);
                 
-                // Step 15: Hub -> HALMADENT SRL: PUT /quotes callback
+                // Step 15: Hub -> Payer: PUT /quotes callback
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payerMerchant',
@@ -572,7 +590,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 5);
                 
-                // Step 16: HALMADENT SRL -> Hub: Response 200
+                // Step 16: Payer -> Hub: Response 200
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payerMerchant',
@@ -590,7 +608,7 @@ class LEIMerchantPayments extends React.Component {
             }
 
             case 'postTransfersResponse': {
-                // Step 19: Hub -> SECOND MERCHANT CORP: POST /transfers
+                // Step 19: Hub -> Payee: POST /transfers
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -602,8 +620,8 @@ class LEIMerchantPayments extends React.Component {
                             },
                             requestBody: {
                                 transferId: this.currentTransferId || 'transfer-' + Date.now(),
-                                payeeFsp: 'secondmerchantcorpfsp',
-                                payerFsp: 'halmadentsrlfsp',
+                                payeeFsp: getPayeeConfig().fspId,
+                                payerFsp: getPayerConfig().fspId,
                                 amount: {
                                     amount: this.currentAmount || '100',
                                     currency: this.currentCurrency || 'USD'
@@ -615,7 +633,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay);
 
-                // Step 20: SECOND MERCHANT CORP -> Hub: Response 202
+                // Step 20: Payee -> Hub: Response 202
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -630,7 +648,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 2);
 
-                // Step 21: SECOND MERCHANT CORP -> Hub: PUT /transfers/{transferId} (COMMITTED)
+                // Step 21: Payee -> Hub: PUT /transfers/{transferId} (COMMITTED)
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -650,7 +668,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 3);
 
-                // Step 22: Hub -> SECOND MERCHANT CORP: Response 200
+                // Step 22: Hub -> Payee: Response 200
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payeeMerchant',
@@ -665,7 +683,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 4);
                 
-                // Step 23: Hub -> HALMADENT SRL: PUT /transfers callback
+                // Step 23: Hub -> Payer: PUT /transfers callback
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payerMerchant',
@@ -685,7 +703,7 @@ class LEIMerchantPayments extends React.Component {
                     });
                 }, baseDelay * 5);
                 
-                // Step 24: HALMADENT SRL -> Hub: Response 200
+                // Step 24: Payer -> Hub: Response 200
                 setTimeout(() => {
                     this.handleNotificationEvents({
                         category: 'payerMerchant',
@@ -755,7 +773,7 @@ class LEIMerchantPayments extends React.Component {
         return (
             <>
                 <Drawer
-                    title='E-ARBITRATOR LTD Logs'
+                    title={`${this.state.payerMerchantName} Logs`}
                     width='70%'
                     placement='left'
                     forceRender
@@ -768,7 +786,7 @@ class LEIMerchantPayments extends React.Component {
                     <TestMonitor ref={this.payerMerchantMonitorRef} />
                 </Drawer>
                 <Drawer
-                    title='CENTRAL BANK OF KENYA Logs'
+                    title={`${this.state.payeeMerchantName} Logs`}
                     width='70%'
                     placement='right'
                     forceRender

@@ -30,7 +30,7 @@ import React from 'react';
 import { Row, Col, Typography, Card, Result, Statistic, Button, notification } from 'antd';
 import { CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
 import QRCode from 'qrcode';
-import { getPayeeConfig, getQRConfig, generateMerchantQRData } from '../../../config/leiMerchantConfig.js';
+import { getPayerConfig, getPayeeConfig, getQRConfig, generateMerchantQRData } from '../../../config/leiMerchantConfig.js';
 const { Text } = Typography;
 
 class PayeeMerchant extends React.Component {
@@ -83,7 +83,7 @@ class PayeeMerchant extends React.Component {
         switch (event.type) {
             case 'payeeMerchantGetParties':
             {
-                // Step 3: Mojaloop Switch → SECOND MERCHANT CORP: GET /parties (received)
+                // Step 3: Mojaloop Switch → Payee: GET /parties (received)
                 // Just log the inbound request - backend will handle responses automatically
                 if (this.props.onSequenceEvent) {
                     this.props.onSequenceEvent({
@@ -108,7 +108,7 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantGetPartiesResponse':
             {
-                // Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                // Step 4: Payee → Mojaloop Switch: response 202
                 // Backend will handle the next step automatically
                 break;
             }
@@ -148,7 +148,7 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostQuotesResponse':
             {
-                // Step 12: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                // Step 12: Payee → Mojaloop Switch: response 202
                 // Backend will handle the next step automatically
                 break;
             }
@@ -190,7 +190,7 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPostTransfersResponse':
             {
-                // Step 20: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+                // Step 20: Payee → Mojaloop Switch: response 202
                 // Backend will handle the next step automatically
                 console.log('PayeeMerchant: Step 20 confirmed');
                 break;
@@ -269,7 +269,7 @@ class PayeeMerchant extends React.Component {
                                 
                                 <div style={{ marginBottom: '4px' }}>
                                     <Text style={{ fontSize: '10px', color: '#888' }}>Merchant Name:</Text>
-                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>HALMADENT SRL</Text>
+                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>{getPayerConfig().name}</Text>
                                     <div style={{ clear: 'both' }} />
                                 </div>
                                 
@@ -460,7 +460,7 @@ class PayeeMerchant extends React.Component {
                                 
                                 <div style={{ marginBottom: '4px' }}>
                                     <Text style={{ fontSize: '10px', color: '#888' }}>Merchant Name:</Text>
-                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>HALMADENT SRL</Text>
+                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>{getPayerConfig().name}</Text>
                                     <div style={{ clear: 'both' }} />
                                 </div>
                                 
@@ -583,13 +583,13 @@ class PayeeMerchant extends React.Component {
                 fspId: 'payeefsp'
             },
             merchantClassificationCode: '5814',
-            name: 'SECOND MERCHANT CORP'
+            name: getPayeeConfig().name  // Use config instead of hardcoded
         };
         
         // Try to get real merchant data from registry
         try {
             const registryUrl = 'http://localhost:8888';
-            const lookupId = this.state.payeeMerchantId || '10000004';
+            const lookupId = this.state.payeeMerchantId || getPayeeConfig().merchantId;
             console.log(`🔍 PayeeMerchant: Making REAL registry lookup for merchant ID: ${lookupId}`);
             
             const response = await fetch(`${registryUrl}/parties/ALIAS/${lookupId}`);
@@ -609,7 +609,7 @@ class PayeeMerchant extends React.Component {
                             fspId: merchant.fspId || 'DFSP001'
                         },
                         merchantClassificationCode: '5814',
-                        name: 'SECOND MERCHANT CORP'
+                        name: getPayeeConfig().name  // Use config instead of hardcoded
                     };
                     
                     // Update state with real LEI if found
@@ -647,7 +647,7 @@ class PayeeMerchant extends React.Component {
                     log: {
                         logTime: new Date().toISOString(),
                         notificationType: 'newOutboundLog',
-                        message: 'Returning party info for Second Merchant Corp',
+                        message: `Returning party info for ${getPayeeConfig().name}`,
                         resource: { method: 'put', path: `/parties/ALIAS/${this.state.payeeLEI}` },
                         additionalData: {
                             request: {
@@ -666,7 +666,7 @@ class PayeeMerchant extends React.Component {
     };
     
     triggerStep11PostQuotes = (payerAmount, payerCurrency) => {
-        // Step 11: POST quotes - Mojaloop Switch -> Second Merchant Corp
+        // Step 11: POST quotes - Mojaloop Switch -> Payee
         const quoteId = this.generateUUID();
         const transactionId = this.generateUUID();
         
@@ -690,7 +690,7 @@ class PayeeMerchant extends React.Component {
                             partyIdentifier: this.state.payeeLEI,
                             fspId: 'payeefsp'
                         },
-                        name: 'SECOND MERCHANT CORP'
+                        name: getPayeeConfig().name  // Use config instead of hardcoded
                     },
                     amount: {
                         amount: this.currentAmount,
@@ -830,7 +830,7 @@ class PayeeMerchant extends React.Component {
     };
     
     triggerStep21PutTransfers = () => {
-        // Step 21: PUT transfers - Second Merchant Corp -> Mojaloop Switch
+        // Step 21: PUT transfers - Payee -> Mojaloop Switch
         console.log('PayeeMerchant: triggerStep21PutTransfers called with transferId:', this.currentTransferId);
         const event = {
             category: 'payeeMerchant',
@@ -875,7 +875,7 @@ class PayeeMerchant extends React.Component {
     
     // Sequential response methods to maintain proper ordering
     sendGetPartiesResponse = () => {
-        // Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+        // Step 4: Payee → Mojaloop Switch: response 202
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent({
                 category: 'payeeMerchant',
@@ -910,7 +910,7 @@ class PayeeMerchant extends React.Component {
     };
     
     sendPutPartiesResponse = () => {
-        // Step 6: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+        // Step 6: Mojaloop Switch → Payee: response 200
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent({
                 category: 'payeeMerchant',
@@ -926,7 +926,7 @@ class PayeeMerchant extends React.Component {
     };
     
     sendPostQuotesResponse = () => {
-        // Step 12: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+        // Step 12: Payee → Mojaloop Switch: response 202
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent({
                 category: 'payeeMerchant',
@@ -960,7 +960,7 @@ class PayeeMerchant extends React.Component {
     };
     
     sendPutQuotesResponse = () => {
-        // Step 14: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+        // Step 14: Mojaloop Switch → Payee: response 200
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent({
                 category: 'payeeMerchant',
@@ -974,7 +974,7 @@ class PayeeMerchant extends React.Component {
     };
     
     sendPostTransfersResponse = () => {
-        // Step 20: SECOND MERCHANT CORP → Mojaloop Switch: response 202
+        // Step 20: Payee → Mojaloop Switch: response 202
         console.log('PayeeMerchant: sendPostTransfersResponse - sending Step 20 response');
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent({
@@ -1010,7 +1010,7 @@ class PayeeMerchant extends React.Component {
     };
     
     sendPutTransfersResponse = () => {
-        // Step 22: Mojaloop Switch → SECOND MERCHANT CORP: response 200
+        // Step 22: Mojaloop Switch → Payee: response 200
         if (this.props.onSequenceEvent) {
             this.props.onSequenceEvent({
                 category: 'payeeMerchant',
@@ -1066,7 +1066,7 @@ class PayeeMerchant extends React.Component {
                     textAlign: 'center'
                 }}>
                     <Text style={{ color: '#11998e', fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>PAYEE</Text>
-                    <Text strong style={{ fontSize: '22px', color: '#333' }}>SECOND MERCHANT CORP</Text>
+                    <Text strong style={{ fontSize: '22px', color: '#333' }}>{getPayeeConfig().name}</Text>
                     <br/>
                     <Text style={{ fontSize: '14px', color: '#666' }}>Merchant ID: {this.state.payeeMerchantId}</Text>
                     <br/>

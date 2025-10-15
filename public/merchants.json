@@ -1,0 +1,13 @@
+{
+  "payer": {
+    "name": "E-ARBITRATOR LTD",
+    "lei": "2549004T7RDF9VKUSV32",
+    "merchantId": "10000005"
+  },
+  "payee": {
+    "name": "CENTRAL BANK OF KENYA", 
+    "lei": "25490039BSO2ZF8JZ448",
+    "merchantId": "10000006"
+  },
+  "currencies": ["RWF", "KSH"]
+}

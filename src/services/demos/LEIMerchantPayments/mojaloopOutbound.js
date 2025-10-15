@@ -53,12 +53,8 @@ class OutboundService {
         payerFspTransferExpirationOffset: 60 * 1000,
     };
 
-    // TEMPORARILY COMMENTED OUT: Force real database lookup only
-    // Default LEI codes for merchants
-    // merchantLEIs = {
-    //     payer: '787200JXIR2YYZDPNP23',  // HALMADENT SRL
-    //     payee: '529900VJSEB3P1FV4R31',  // SECOND MERCHANT CORP
-    // };
+    // Merchant data is now loaded from JSON config file and merchant registry
+    // No hardcoded merchant LEIs - all data comes from external sources
 
     constructor(sessionId = '123') {
         const { apiBaseUrl } = getConfig();
@@ -253,7 +249,7 @@ class OutboundService {
                                                 partyIdentifier: extractedLEI,
                                                 fspId: merchant.fspId || 'DFSP001'
                                             },
-                                            name: 'CENTRAL BANK OF KENYA',
+                                            name: merchant.name || 'Merchant Name',
                                             merchantClassificationCode: '5814'
                                         }
                                     }
@@ -337,10 +333,10 @@ class OutboundService {
         // Replace corresponding values in inputValues for merchant payments
         template.inputValues.amount = amount + '';
         template.inputValues.currency = currency + '';
-        template.inputValues.payerMerchantId = payerMerchantId || '10000005';  // E-ARBITRATOR LTD
-        template.inputValues.payeeMerchantId = payeeMerchantId || '10000006';  // Central Bank of Kenya
-        template.inputValues.payerMerchantName = 'E-ARBITRATOR LTD';
-        template.inputValues.payeeMerchantName = 'CENTRAL BANK OF KENYA';
+        template.inputValues.payerMerchantId = payerMerchantId || '10000005';  // Default payer ID
+        template.inputValues.payeeMerchantId = payeeMerchantId || '10000006';  // Default payee ID
+        template.inputValues.payerMerchantName = 'Payer Merchant';
+        template.inputValues.payeeMerchantName = 'Payee Merchant';
         
         // Include LEI data for quotes template
         template.inputValues.payerLEI = payerLEI || '2549004T7RDF9VKUSV32';

@@ -81,21 +81,21 @@ class PayerMerchant extends React.Component {
             }
             case 'getPartiesResponse':
             {
-                // Step 2: Mojaloop Switch → HALMADENT SRL response 202
+                // Step 2: Mojaloop Switch → Payer response 202
                 // Backend notification service will automatically handle the next step
                 break;
             }
-            // Handle events from PayeeMerchant (SECOND MERCHANT CORP)
+            // Handle events from PayeeMerchant (Payee)
             case 'payeeMerchantGetPartiesResponse':
             {
-                // Step 4: SECOND MERCHANT CORP → Mojaloop Switch: response 202 
-                // This triggers Step 5: SECOND MERCHANT CORP → Mojaloop Switch: PUT /parties
+                // Step 4: Payee → Mojaloop Switch: response 202 
+                // This triggers Step 5: Payee → Mojaloop Switch: PUT /parties
                 break;
             }
             case 'payeeMerchantPutPartiesResponse':
             {
-                // Step 6: Mojaloop Switch → SECOND MERCHANT CORP: response 200
-                // This triggers Step 7: Mojaloop Switch → HALMADENT SRL: PUT /parties
+                // Step 6: Mojaloop Switch → Payee: response 200
+                // This triggers Step 7: Mojaloop Switch → Payer: PUT /parties
                 // Note: Step 7-8 are handled automatically by the notification service
                 break;
             }
@@ -178,7 +178,7 @@ class PayerMerchant extends React.Component {
             }
             case 'postQuotes':
             {
-                // Step 8: HALMADENT → Mojaloop Switch POST /quotes - show loading state
+                // Step 8: Payer → Mojaloop Switch POST /quotes - show loading state
                 this.setState({ 
                     stage: 'postQuotes',
                     quotesRequest: event.data.quotesRequest 
@@ -187,21 +187,21 @@ class PayerMerchant extends React.Component {
             }
             case 'postQuotesResponse':
             {
-                // Step 10: Mojaloop Switch → HALMADENT SRL: response 202
+                // Step 10: Mojaloop Switch → Payer: response 202
                 // Backend notification service will automatically handle the next step
                 break;
             }
             // Handle quotes response events from PayeeMerchant
             case 'payeeMerchantPostQuotesResponse':
             {
-                // Step 12: SECOND MERCHANT CORP → Mojaloop Switch: response 202
-                // This triggers Step 13: SECOND MERCHANT CORP → Mojaloop Switch: PUT /quotes
+                // Step 12: Payee → Mojaloop Switch: response 202
+                // This triggers Step 13: Payee → Mojaloop Switch: PUT /quotes
                 break;
             }
             case 'payeeMerchantPutQuotesResponse':
             {
-                // Step 14: Mojaloop Switch → SECOND MERCHANT CORP: response 200
-                // This triggers Step 15: Mojaloop Switch → HALMADENT SRL: PUT /quotes
+                // Step 14: Mojaloop Switch → Payee: response 200
+                // This triggers Step 15: Mojaloop Switch → Payer: PUT /quotes
                 // Note: Step 15-16 are handled automatically by the notification service
                 break;
             }
@@ -222,14 +222,14 @@ class PayerMerchant extends React.Component {
             }
             case 'postTransfers':
             {
-                // Step 17: HALMADENT → Mojaloop Switch POST /transfers - show loading state
+                // Step 17: Payer → Mojaloop Switch POST /transfers - show loading state
                 console.log('PayerMerchant: postTransfers event received');
                 this.setState({ stage: 'postTransfers' });
                 break;
             }
             case 'postTransfersResponse':
             {
-                // Step 18: Mojaloop Switch → HALMADENT SRL: response 202
+                // Step 18: Mojaloop Switch → Payer: response 202
                 // Backend notification service will automatically handle the next step
                 console.log('PayerMerchant: postTransfersResponse event received');
                 break;
@@ -237,14 +237,14 @@ class PayerMerchant extends React.Component {
             // Handle transfers response events from PayeeMerchant
             case 'payeeMerchantPostTransfersResponse':
             {
-                // Step 20: SECOND MERCHANT CORP → Mojaloop Switch: response 202
-                // This triggers Step 21: SECOND MERCHANT CORP → Mojaloop Switch: PUT /transfers
+                // Step 20: Payee → Mojaloop Switch: response 202
+                // This triggers Step 21: Payee → Mojaloop Switch: PUT /transfers
                 break;
             }
             case 'payeeMerchantPutTransfersResponse':
             {
-                // Step 22: Mojaloop Switch → SECOND MERCHANT CORP: response 200
-                // This triggers Step 23: Mojaloop Switch → HALMADENT SRL: PUT /transfers
+                // Step 22: Mojaloop Switch → Payee: response 200
+                // This triggers Step 23: Mojaloop Switch → Payer: PUT /transfers
                 // Note: Step 23-24 are handled automatically by the notification service
                 break;
             }
