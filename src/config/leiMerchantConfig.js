@@ -37,27 +37,27 @@
 
 // Default fallback configuration - will be overridden by JSON config
 const FALLBACK_CONFIG = {
-    // Fallback Payer Merchant Configuration
+    // Fallback Payer Configuration (Person)
     payer: {
-        merchantId: '10000005',
-        lei: '2549004T7RDF9VKUSV32',
-        name: 'E-ARBITRATOR LTD',
+        name: 'John Doe',
+        bank: 'Pink Bank',
+        bankAccountId: '123456789',
         fspId: 'DFSP001',
         displayName: 'PAYER',
-        terminalName: 'E-ARBITRATOR Payment Terminal',
+        terminalName: 'Pink Bank Mobile App',
         defaultCurrency: 'RWF',
         defaultAmount: 100
     },
     
     // Fallback Payee Merchant Configuration  
     payee: {
-        merchantId: '10000006',
-        lei: '25490039BSO2ZF8JZ448',
-        name: 'CENTRAL BANK OF KENYA',
+        merchantId: '10000007',
+        lei: '529900AXZOJO15EBGR24',
+        name: 'Bamburi Cement Public Limited Company',
         fspId: 'DFSP001',
         displayName: 'PAYEE',
         merchantClassificationCode: '5814',
-        terminalName: 'Central Bank Payment Terminal'
+        terminalName: 'Bamburi Cement Payment Terminal'
     },
     
     // Hub/Switch Configuration
@@ -135,9 +135,9 @@ export const loadMerchantConfig = async () => {
             if (merchantData.payer) {
                 activeConfig.payer = {
                     ...activeConfig.payer,
-                    merchantId: merchantData.payer.merchantId,
-                    lei: merchantData.payer.lei,
-                    name: merchantData.payer.name
+                    name: merchantData.payer.name,
+                    bank: merchantData.payer.bank,
+                    bankAccountId: merchantData.payer.bankAccountId
                 };
             }
             

@@ -296,15 +296,18 @@ class OutboundService {
         } catch (error) {
             console.log('❌ Registry lookup failed:', error.message);
             
-            // Fallback to template system as before
-            console.log('📋 Falling back to template system');
-            const template = templateGetPartiesAlias;
-            template.inputValues = this.inputValues;
-            template.inputValues.toIdValue = merchantId + '';
-            template.inputValues.toIdType = 'ALIAS';
+            // COMMENTED OUT: Fallback to template system
+            // console.log('📋 Falling back to template system');
+            // const template = templateGetPartiesAlias;
+            // template.inputValues = this.inputValues;
+            // template.inputValues.toIdValue = merchantId + '';
+            // template.inputValues.toIdType = 'ALIAS';
+            // 
+            // const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
+            // return resp;
             
-            const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-            return resp;
+            // Registry-only mode: throw error if merchant not found
+            throw error;
         }
     }
     

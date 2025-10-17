@@ -38,25 +38,22 @@ class PayerMerchant extends React.Component {
     constructor(props) {
         super(props);
         
-        const payerConfig = getPayerConfig();
-        const payeeConfig = getPayeeConfig();
-        const transactionConfig = getTransactionConfig();
-        
         this.state = {
             gettingMerchantInfo: false,
             stage: null,
-            amount: transactionConfig.defaultAmount,
-            payerMerchantId: payerConfig.merchantId,
-            payerLEI: payerConfig.lei,
-            payeeMerchantId: payeeConfig.merchantId,
+            amount: 100, // Will be updated from config
+            payerName: '', // Will be populated from config
+            payerBank: '', // Will be populated from config
+            payerBankAccountId: '', // Will be populated from config
+            payeeMerchantId: '', // Will be populated from config
             payeeLEI: null, // Will be set from lookup
-            lookupMerchantId: payeeConfig.merchantId, // Input field for merchant_id lookup, prefilled with default payee
+            lookupMerchantId: '', // Input field for LEI lookup, will be populated from config
             merchantInfo: {},
             quotesRequest: {},
             quotesResponse: {},
             transfersResponse: {},
             accounts: [],
-            selectedCurrency: transactionConfig.defaultCurrency,
+            selectedCurrency: 'RWF', // Will be updated from config
             currentTransactionId: null, // Track transaction ID from quotes to transfers
             showQRScanner: false,
             scannedMerchantInfo: null,
@@ -64,6 +61,52 @@ class PayerMerchant extends React.Component {
     }
 
     componentDidMount = async () => {
+        // Load merchant configuration first
+        await this.loadAndUpdateConfig();
+    };
+    
+    loadAndUpdateConfig = async () => {
+        try {
+            // Force reload the merchant configuration
+            const response = await fetch('/merchants.json');
+            if (response.ok) {
+                const merchantData = await response.json();
+                console.log('📋 PayerMerchant: Loaded merchant config:', merchantData);
+                
+                // Update state directly with loaded data
+                if (merchantData.payer) {
+                    this.setState({
+                        payerName: merchantData.payer.name,
+                        payerBank: merchantData.payer.bank,
+                        payerBankAccountId: merchantData.payer.bankAccountId,
+                    });
+                }
+                
+                if (merchantData.payee) {
+                    console.log('✅ Setting lookupMerchantId to LEI:', merchantData.payee.lei);
+                    this.setState({
+                        payeeMerchantId: merchantData.payee.merchantId,
+                        lookupMerchantId: merchantData.payee.lei, // Use LEI for lookup
+                    });
+                }
+                
+                // Update transaction config
+                if (merchantData.currencies) {
+                    this.setState({
+                        selectedCurrency: merchantData.currencies[0] || 'RWF'
+                    });
+                }
+                
+                // Set default amount
+                this.setState({
+                    amount: 100 // Default amount
+                });
+            } else {
+                console.error('❌ Failed to load merchants.json');
+            }
+        } catch (error) {
+            console.error('❌ Error loading merchant config:', error);
+        }
     };
 
     handleNotificationEvents = event => {
@@ -178,9 +221,9 @@ class PayerMerchant extends React.Component {
             }
             case 'postQuotes':
             {
-                // Step 8: Payer → Mojaloop Switch POST /quotes - show loading state
+                // Step 8: Payer → Mojaloop Switch POST /quotes - keep internal but don't show UI
+                // Store quotes request data but don't change UI stage
                 this.setState({ 
-                    stage: 'postQuotes',
                     quotesRequest: event.data.quotesRequest 
                 });
                 break;
@@ -207,12 +250,25 @@ class PayerMerchant extends React.Component {
             }
             case 'putQuotes':
             {
-                // Step 15: Final step of Quotes phase - ready for transfers
+                // Step 15: Final step of Quotes phase - automatically proceed to transfers
+                // Store quotes data but don't show quotes UI, go straight to transfer
+                console.log('🎨 putQuotes received - current stage:', this.state.stage);
                 this.setState({ 
-                    stage: 'putQuotes', 
                     quotesResponse: event.data.quotesResponse,
                     // Store transaction ID from quotes response for later use
                     currentTransactionId: event.data.quotesResponse && event.data.quotesResponse.transactionId
+                }, () => {
+                    console.log('🎨 putQuotes state updated - about to auto-trigger transfer');
+                    // Automatically trigger transfer after quotes are received
+                    setTimeout(() => {
+                        try {
+                            console.log('🎨 Auto-triggering transfer now');
+                            this.handleTransfer();
+                        } catch (error) {
+                            console.error('Error in automatic transfer:', error);
+                            // Don't reset stage on error - keep current state
+                        }
+                    }, 500); // Small delay for smooth UX
                 });
                 break;
             }
@@ -279,13 +335,7 @@ class PayerMerchant extends React.Component {
                         <Text style={{ color: '#666', fontSize: '15px', marginTop: '10px' }}>Looking up merchant information...</Text>
                     </div>
                 );
-            case 'postQuotes':
-                return (
-                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                        <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
-                        <Text style={{ color: '#666', fontSize: '15px', marginTop: '10px' }}>Getting quote...</Text>
-                    </div>
-                );
+            // Quotes stages are hidden from UI - handled internally
             case 'postTransfers':
                 return (
                     <div style={{ textAlign: 'center', padding: '20px 0' }}>
@@ -349,7 +399,7 @@ class PayerMerchant extends React.Component {
                             </div>
                         </div>
                         
-                        {/* Get Quote Button */}
+                        {/* Send Payment Button - quotes happen internally */}
                         <Button 
                             type='primary' 
                             size='middle'
@@ -358,91 +408,8 @@ class PayerMerchant extends React.Component {
                             onClick={this.handleGetQuote}
                             style={{ borderRadius: '6px', height: '36px', fontWeight: 'bold', fontSize: '14px' }}
                         >
-                            Get Quote
+                            Send Payment
                         </Button>
-                    </div>
-                );
-            case 'putQuotes':
-                return (
-                    <div style={{ width: '100%' }}>
-                        {/* Compact Quote Details */}
-                        <div style={{ 
-                            background: '#f0fdf4', 
-                            borderRadius: '6px', 
-                            padding: '12px', 
-                            marginBottom: '12px',
-                            border: '1px solid #bbf7d0'
-                        }}>
-                            <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: '#166534' }}>📋 Quote Received</Text>
-                            
-                            {/* Compact Recipient Info */}
-                            <div style={{ marginBottom: '8px' }}>
-                                <Text style={{ fontSize: '11px', color: '#374151', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>To:</Text>
-                                
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>Name:</Text>
-                                    <Text strong style={{ fontSize: '11px', color: '#1f2937' }}>
-                                        {this.state.merchantInfo && this.state.merchantInfo.name ? this.state.merchantInfo.name : getPayeeConfig().name}
-                                    </Text>
-                                </div>
-                                
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>ID:</Text>
-                                    <Text strong style={{ fontSize: '10px', color: '#1f2937' }}>{this.state.payeeMerchantId}</Text>
-                                </div>
-                                
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>LEI:</Text>
-                                    <Text strong style={{ fontSize: '9px', color: '#667eea', fontFamily: 'monospace' }}>
-                                        {this.state.payeeLEI || 'Loading...'}
-                                    </Text>
-                                </div>
-                            </div>
-                            
-                            {/* Compact Transaction Details */}
-                            <div style={{ marginBottom: '8px' }}>
-                                <Text style={{ fontSize: '11px', color: '#374151', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Amount:</Text>
-                                
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>Transfer:</Text>
-                                    <Text strong style={{ fontSize: '12px', color: '#16a34a' }}>
-                                        {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
-                                            `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
-                                            `${this.state.amount} ${this.state.selectedCurrency}`
-                                        }
-                                    </Text>
-                                </div>
-                                
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#6b7280' }}>Fees:</Text>
-                                    <Text strong style={{ fontSize: '10px', color: '#dc2626' }}>
-                                        {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? 
-                                            `${this.state.quotesResponse.payeeFspFee.amount} ${this.state.quotesResponse.payeeFspFee.currency}` : 
-                                            '0.00 USD'
-                                        }
-                                    </Text>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {/* Compact Action Buttons */}
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                            <Button 
-                                size='small'
-                                onClick={this.handleReset}
-                                style={{ flex: 1, height: '32px', borderRadius: '6px', fontSize: '12px' }}
-                            >
-                                Cancel
-                            </Button>
-                            <Button 
-                                type='primary' 
-                                size='small'
-                                onClick={this.handleTransfer}
-                                style={{ flex: 2, height: '32px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px' }}
-                            >
-                                Transfer Money
-                            </Button>
-                        </div>
                     </div>
                 );
             case 'putTransfers':
@@ -627,12 +594,12 @@ class PayerMerchant extends React.Component {
                         </div>
                         
                         <div style={{ marginBottom: '20px' }}>
-                            <Text style={{ fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Recipient Merchant ID:</Text>
+                            <Text style={{ fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Recipient LEI or Merchant ID:</Text>
                             <Input
                                 size='large'
                                 value={this.state.lookupMerchantId}
                                 onChange={(e) => this.setState({ lookupMerchantId: e.target.value })}
-                                placeholder='Enter Merchant ID (e.g., 1 or 2)'
+                                placeholder='Enter LEI (e.g., 529900AXZOJO15EBGR24) or Merchant ID'
                                 style={{ marginBottom: '15px' }}
                                 prefix={this.state.scannedMerchantInfo ? <QrcodeOutlined style={{ color: '#52c41a' }} /> : null}
                             />
@@ -667,21 +634,14 @@ class PayerMerchant extends React.Component {
     handleGetMerchantInfo = async () => {
         console.log('🚀 Starting handleGetMerchantInfo...');
         
-        // Update payeeMerchantId with the looked up merchant ID
-        const lookupMerchantId = this.state.lookupMerchantId.trim();
-        console.log('🔍 Looking up merchant ID:', lookupMerchantId);
-        
-        // Validate merchant ID format
-        if (!validateMerchantId(lookupMerchantId)) {
-            message.error('Invalid merchant ID format.');
-            return;
-        }
+        const lookupId = this.state.lookupMerchantId.trim();
+        console.log('🔍 Looking up LEI:', lookupId);
         
         // Try to lookup merchant info from configuration first (now async)
         let foundMerchantLEI = null;
         try {
             console.log('🔍 Attempting local merchant lookup...');
-            const merchantLookup = await lookupMerchantByMerchantId(lookupMerchantId);
+            const merchantLookup = await lookupMerchantByMerchantId(lookupId);
             if (merchantLookup) {
                 console.log('🔍 Found merchant in local lookup:', merchantLookup);
                 foundMerchantLEI = merchantLookup.lei; // Store LEI from lookup
@@ -703,15 +663,15 @@ class PayerMerchant extends React.Component {
         this.setState({ 
             stage: 'getParties', 
             gettingMerchantInfo: true,
-            payeeMerchantId: lookupMerchantId, // Update the payeeMerchantId with the looked up value
+            payeeMerchantId: lookupId, // Update the payeeMerchantId with the looked up value
             payeeLEI: foundMerchantLEI // Store the LEI from lookup
         }, () => {
             console.log('💾 State updated with payeeLEI:', this.state.payeeLEI);
         });
         
         try {
-            console.log(`🚀 Calling outboundService.getPartiesAlias with merchant ID: ${lookupMerchantId}`);
-            const result = await this.props.outboundService.getPartiesAlias(lookupMerchantId);
+            console.log(`🚀 Calling outboundService.getPartiesAlias with LEI: ${lookupId}`);
+            const result = await this.props.outboundService.getPartiesAlias(lookupId);
             console.log('🔍 getPartiesAlias result:', result);
             
             // Extract LEI from the registry response if available
@@ -723,14 +683,16 @@ class PayerMerchant extends React.Component {
             console.error('❌ Error in merchant lookup:', error);
             message.error('Failed to lookup merchant information');
             this.setState({ 
-                gettingMerchantInfo: false,
-                stage: null
+                gettingMerchantInfo: false
+                // Don't reset stage to null - keep current stage
             });
         }
     };
 
     handleGetQuote = async () => {
-        this.setState({ stage: 'postQuotes' });
+        // Don't change UI stage - quotes happen internally
+        // this.setState({ stage: 'postQuotes' });
+        console.log('🎨 handleGetQuote called - stage should remain:', this.state.stage);
         
         // If payeeLEI is still null, try to look it up again
         let payeeLEI = this.state.payeeLEI;
@@ -828,45 +790,34 @@ class PayerMerchant extends React.Component {
     
     handleQRScanSuccess = async (qrData) => {
         try {
-            console.log('QR scan successful:', qrData);
+            console.log('🔍 QR scan successful:', qrData);
             
-            // Validate the scanned merchant ID
-            if (!validateMerchantId(qrData.merchantId)) {
-                message.error('Invalid merchant ID format in QR code');
+            // Check if QR code contains LEI - use LEI for direct parties lookup
+            if (!qrData.lei) {
+                message.error('QR code does not contain LEI information');
                 return;
             }
             
-            // Try to lookup merchant info from configuration (now async)
-            const merchantLookup = await lookupMerchantByMerchantId(qrData.merchantId);
+            console.log('✅ Found LEI in QR code:', qrData.lei);
             
-            // Enhanced merchant info with lookup data
-            const enhancedMerchantInfo = {
-                ...qrData,
-                ...(merchantLookup && {
-                    merchantName: merchantLookup.name,
-                    fspId: merchantLookup.fspId,
-                    merchantType: merchantLookup.type,
-                    lei: merchantLookup.lei
-                })
-            };
-            
+            // Store QR data and LEI
             this.setState({
                 showQRScanner: false,
-                scannedMerchantInfo: enhancedMerchantInfo,
-                lookupMerchantId: qrData.merchantId,
-                payeeMerchantId: qrData.merchantId,
-                payeeLEI: merchantLookup?.lei || null // Store LEI from lookup
+                scannedMerchantInfo: qrData,
+                lookupMerchantId: qrData.lei, // Use LEI for lookup display
+                payeeMerchantId: qrData.merchantId || qrData.lei, // Keep merchant ID if available
+                payeeLEI: qrData.lei // Store LEI from QR code
             });
             
-            const merchantName = enhancedMerchantInfo.merchantName || 'Unknown Merchant';
+            const merchantName = qrData.merchantName || 'Unknown Merchant';
             message.success(`QR Code scanned successfully! Found: ${merchantName}`);
             
             // Get UI config for delay timing
             const uiConfig = getUIConfig();
             
-            // Automatically proceed to merchant lookup
+            // Automatically proceed to LEI-based parties lookup using getPartiesAlias
             setTimeout(() => {
-                this.handleGetMerchantInfo();
+                this.handleGetMerchantInfo(); // This will now use LEI with getPartiesAlias
             }, uiConfig.delays.autoLookupDelay);
             
         } catch (error) {
@@ -875,16 +826,14 @@ class PayerMerchant extends React.Component {
             this.setState({ showQRScanner: false });
         }
     };
-    
+
     handleQRScanError = (error) => {
         console.error('QR scan error:', error);
         message.error('QR code scanning failed. Please try again.');
     };
 
-    handleReset = () => {
-        const payeeConfig = getPayeeConfig();
-        const transactionConfig = getTransactionConfig();
-        
+    handleReset = async () => {
+        // Reset state to initial values
         this.setState({ 
             stage: null,
             gettingMerchantInfo: false,
@@ -892,14 +841,14 @@ class PayerMerchant extends React.Component {
             quotesRequest: {},
             quotesResponse: {},
             transfersResponse: {},
-            amount: transactionConfig.defaultAmount,
-            selectedCurrency: transactionConfig.defaultCurrency,
-            lookupMerchantId: payeeConfig.merchantId, // Reset to default payee merchant ID
-            payeeLEI: null, // Clear the LEI from previous lookup
-            currentTransactionId: null, // Reset transaction ID
+            payeeLEI: null,
+            currentTransactionId: null,
             showQRScanner: false,
             scannedMerchantInfo: null
         });
+        
+        // Reload configuration to get fresh default values
+        await this.loadAndUpdateConfig();
     };
 
     render() {
@@ -935,9 +884,9 @@ class PayerMerchant extends React.Component {
                     <Text style={{ color: '#667eea', fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{getPayerConfig().displayName}</Text>
                     <Text strong style={{ fontSize: '22px', color: '#333' }}>{getPayerConfig().name}</Text>
                     <br/>
-                    <Text style={{ fontSize: '14px', color: '#666' }}>Merchant ID: {this.state.payerMerchantId}</Text>
+                    <Text style={{ fontSize: '14px', color: '#666' }}>Bank: {this.state.payerBank}</Text>
                     <br/>
-                    <Text style={{ fontSize: '14px', color: '#666' }}>LEI: {this.state.payerLEI}</Text>
+                    <Text style={{ fontSize: '14px', color: '#666' }}>Account: {this.state.payerBankAccountId}</Text>
                     <br/>
                     <Text style={{ fontSize: '12px', color: '#888' }}>{getPayerConfig().terminalName}</Text>
                 </div>

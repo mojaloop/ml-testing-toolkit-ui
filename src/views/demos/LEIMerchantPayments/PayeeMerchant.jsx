@@ -53,7 +53,15 @@ class PayeeMerchant extends React.Component {
     }
 
     componentDidMount = async () => {
-        this.generateQRCode();
+        // Re-read config after component mounts (in case it was loaded asynchronously)
+        const payeeConfig = getPayeeConfig();
+        
+        this.setState({
+            payeeMerchantId: payeeConfig.merchantId,
+            payeeLEI: payeeConfig.lei,
+        }, () => {
+            this.generateQRCode();
+        });
     };
     
     generateQRCode = async () => {
@@ -143,7 +151,8 @@ class PayeeMerchant extends React.Component {
                         }
                     });
                 }
-                this.setState({ stage: 'postQuotes', quotesRequest: event.data.requestBody });
+                // Store quotes request data but don't show quotes UI
+                this.setState({ quotesRequest: event.data.requestBody });
                 break;
             }
             case 'payeeMerchantPostQuotesResponse':
@@ -154,7 +163,8 @@ class PayeeMerchant extends React.Component {
             }
             case 'payeeMerchantPutQuotes':
             {
-                this.setState({ stage: 'putQuotes', quotesResponse: event.data.requestBody });
+                // Store quotes response data but don't show quotes UI
+                this.setState({ quotesResponse: event.data.requestBody });
                 break;
             }
             case 'payeeMerchantPutQuotesResponse':
@@ -244,134 +254,7 @@ class PayeeMerchant extends React.Component {
 
     getStageData = () => {
         switch (this.state.stage) {
-            case 'postQuotes':
-                return (
-                    <div style={{ width: '100%' }}>
-                        {/* Compact Quote Request Details */}
-                        <div style={{ 
-                            background: '#e6f7ff', 
-                            borderRadius: '6px', 
-                            padding: '10px', 
-                            marginBottom: '10px',
-                            border: '1px solid #91d5ff'
-                        }}>
-                            <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: '#1890ff' }}>📋 Quote Request Received</Text>
-                            
-                            {/* Compact Payer Information */}
-                            <div style={{ 
-                                background: '#ffffff', 
-                                borderRadius: '6px', 
-                                padding: '8px', 
-                                marginBottom: '8px',
-                                border: '1px solid #d6f3ff'
-                            }}>
-                                <Text style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>From (Payer):</Text>
-                                
-                                <div style={{ marginBottom: '4px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#888' }}>Merchant Name:</Text>
-                                    <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>{getPayerConfig().name}</Text>
-                                    <div style={{ clear: 'both' }} />
-                                </div>
-                                
-                                {this.state.quotesRequest && this.state.quotesRequest.payer && (
-                                    <>
-                                        <div style={{ marginBottom: '4px' }}>
-                                            <Text style={{ fontSize: '10px', color: '#888' }}>Payer LEI:</Text>
-                                            <Text strong style={{ fontSize: '9px', float: 'right', color: '#667eea', fontFamily: 'monospace' }}>
-                                                {this.state.quotesRequest.payer.partyIdInfo?.partyIdentifier || 'N/A'}
-                                            </Text>
-                                            <div style={{ clear: 'both' }} />
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                            
-                            {/* Compact Transaction Details */}
-                            <div style={{ 
-                                background: '#ffffff', 
-                                borderRadius: '6px', 
-                                padding: '8px', 
-                                marginBottom: '6px',
-                                border: '1px solid #d6f3ff'
-                            }}>
-                                <Text style={{ fontSize: '11px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Quote Details:</Text>
-                                
-                                <div style={{ marginBottom: '4px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#888' }}>Requested Amount:</Text>
-                                    <Text strong style={{ fontSize: '13px', float: 'right', color: '#1890ff' }}>
-                                        {this.state.quotesRequest && this.state.quotesRequest.amount ? 
-                                            `${this.state.quotesRequest.amount.amount} ${this.state.quotesRequest.amount.currency}` : 
-                                            '-- --'
-                                        }
-                                    </Text>
-                                    <div style={{ clear: 'both' }} />
-                                </div>
-                                
-                                <div style={{ marginBottom: '4px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#888', display: 'block', marginBottom: '2px' }}>Quote ID:</Text>
-                                    <Text style={{ 
-                                        fontSize: '9px', 
-                                        color: '#666', 
-                                        fontFamily: 'monospace',
-                                        display: 'block',
-                                        wordBreak: 'break-all',
-                                        lineHeight: '1.2'
-                                    }}>
-                                        {this.state.quotesRequest && this.state.quotesRequest.quoteId ? 
-                                            this.state.quotesRequest.quoteId : 
-                                            'N/A'
-                                        }
-                                    </Text>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style={{ textAlign: 'center' }}>
-                            <Text style={{ fontSize: '14px', color: '#1890ff' }}>→ Processing quote...</Text>
-                        </div>
-                    </div>
-                );
-            case 'putQuotes':
-                return (
-                    <div style={{ width: '100%' }}>
-                        {/* Compact Quote Response Details */}
-                        <div style={{ 
-                            background: '#f6ffed', 
-                            borderRadius: '6px', 
-                            padding: '8px', 
-                            marginBottom: '8px',
-                            border: '1px solid #b7eb8f'
-                        }}>
-                            <Text strong style={{ fontSize: '12px', display: 'block', marginBottom: '6px', color: '#52c41a' }}>Quote Response Sent</Text>
-                            
-                            <div style={{ marginBottom: '4px' }}>
-                                <Text style={{ fontSize: '10px', color: '#666' }}>Amount:</Text>
-                                <Text strong style={{ fontSize: '13px', float: 'right' }}>
-                                    {this.state.quotesResponse && this.state.quotesResponse.transferAmount ? 
-                                        `${this.state.quotesResponse.transferAmount.amount} ${this.state.quotesResponse.transferAmount.currency}` : 
-                                        '-- --'
-                                    }
-                                </Text>
-                                <div style={{ clear: 'both' }} />
-                            </div>
-                            
-                            <div style={{ marginBottom: '0px' }}>
-                                <Text style={{ fontSize: '10px', color: '#666' }}>Fees:</Text>
-                                <Text strong style={{ fontSize: '11px', float: 'right' }}>
-                                    {this.state.quotesResponse && this.state.quotesResponse.payeeFspFee ? 
-                                        `${this.state.quotesResponse.payeeFspFee.amount} ${this.state.quotesResponse.payeeFspFee.currency}` : 
-                                        '0.00 USD'
-                                    }
-                                </Text>
-                                <div style={{ clear: 'both' }} />
-                            </div>
-                        </div>
-                        
-                        <div style={{ textAlign: 'center' }}>
-                            <Text style={{ fontSize: '14px', color: '#52c41a' }}>✓ Quote sent to payer</Text>
-                        </div>
-                    </div>
-                );
+            // Quotes UI stages are hidden - processing happens internally
             case 'postTransfers':
                 return (
                     <div style={{ width: '100%' }}>

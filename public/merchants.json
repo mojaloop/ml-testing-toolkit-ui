@@ -1,13 +1,13 @@
 {
   "payer": {
-    "name": "E-ARBITRATOR LTD",
-    "lei": "2549004T7RDF9VKUSV32",
-    "merchantId": "10000005"
+    "name": "John Doe",
+    "bank": "Pink Bank",
+    "bankAccountId": "123456789"
   },
   "payee": {
-    "name": "CENTRAL BANK OF KENYA", 
-    "lei": "25490039BSO2ZF8JZ448",
-    "merchantId": "10000006"
+    "name": "Bamburi Cement Public Limited Company", 
+    "lei": "529900AXZOJO15EBGR24",
+    "merchantId": "10000007"
   },
   "currencies": ["RWF", "KSH"]
 }
