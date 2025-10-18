@@ -273,19 +273,14 @@ function isObject(item) {
 }
 
 /**
- * Generate merchant data for QR codes with both LEI and merchant_id
+ * Generate merchant data for QR codes with only name and LEI
  * @param {Object} merchantConfig - Merchant configuration
  * @returns {Object} QR code data object
  */
 export const generateMerchantQRData = (merchantConfig) => {
     return {
-        type: activeConfig.qrCode.type,
-        merchantId: merchantConfig.merchantId,  // Used for registry lookups
-        lei: merchantConfig.lei,                // For display/reference
-        merchantName: merchantConfig.name,
-        fspId: merchantConfig.fspId,
-        merchantClassificationCode: merchantConfig.merchantClassificationCode,
-        timestamp: new Date().toISOString()
+        merchantName: merchantConfig.name,      // Merchant name for display
+        lei: merchantConfig.lei                 // LEI for parties lookup
     };
 };
 
