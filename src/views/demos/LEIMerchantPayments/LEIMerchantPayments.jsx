@@ -86,7 +86,7 @@ class LEIMerchantPayments extends React.Component {
         const payeeConfig = getPayeeConfig();
         
         this.setState({
-            payerMerchantName: payerConfig.name,
+            payerMerchantName: 'Pink Bank', // Display name for sequence diagram
             payeeMerchantName: payeeConfig.name
         });
         

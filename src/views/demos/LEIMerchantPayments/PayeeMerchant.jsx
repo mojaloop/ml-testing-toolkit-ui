@@ -350,9 +350,9 @@ class PayeeMerchant extends React.Component {
                                 {this.state.quotesRequest && this.state.quotesRequest.payer && (
                                     <>
                                         <div style={{ marginBottom: '4px' }}>
-                                            <Text style={{ fontSize: '10px', color: '#888' }}>Payer LEI:</Text>
+                                            <Text style={{ fontSize: '10px', color: '#888' }}>Bank Account ID:</Text>
                                             <Text strong style={{ fontSize: '9px', float: 'right', color: '#667eea', fontFamily: 'monospace' }}>
-                                                {this.state.quotesRequest.payer.partyIdInfo?.partyIdentifier || 'N/A'}
+                                                {getPayerConfig().bankAccountId || 'N/A'}
                                             </Text>
                                             <div style={{ clear: 'both' }} />
                                         </div>
@@ -950,8 +950,6 @@ class PayeeMerchant extends React.Component {
                 }}>
                     <Text style={{ color: '#11998e', fontSize: '14px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>PAYEE</Text>
                     <Text strong style={{ fontSize: '22px', color: '#333' }}>{getPayeeConfig().name}</Text>
-                    <br/>
-                    <Text style={{ fontSize: '14px', color: '#666' }}>Merchant ID: {this.state.payeeMerchantId}</Text>
                     <br/>
                     <Text style={{ fontSize: '14px', color: '#666' }}>LEI: {this.state.payeeLEI}</Text>
                     <br/>

@@ -335,6 +335,13 @@ class PayerMerchant extends React.Component {
                         <Text style={{ color: '#666', fontSize: '15px', marginTop: '10px' }}>Looking up merchant information...</Text>
                     </div>
                 );
+            case 'initializingPayment':
+                return (
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <Skeleton active title={{ width: '60%' }} paragraph={{ rows: 2 }} />
+                        <Text style={{ color: '#666', fontSize: '15px', marginTop: '10px' }}>Initiating payment...</Text>
+                    </div>
+                );
             // Quotes stages are hidden from UI - handled internally
             case 'postTransfers':
                 return (
@@ -356,20 +363,15 @@ class PayerMerchant extends React.Component {
                         }}>
                             <Text style={{ fontSize: '12px', color: '#0369a1', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>✅ Merchant Found:</Text>
                             
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                                 <Text style={{ fontSize: '11px', color: '#64748b' }}>Name:</Text>
-                                <Text strong style={{ fontSize: '12px', color: '#1e293b' }}>
+                                <Text strong style={{ fontSize: '12px', color: '#1e293b', textAlign: 'right', maxWidth: '60%', wordWrap: 'break-word' }}>
                                     {this.state.merchantInfo && this.state.merchantInfo.name ? this.state.merchantInfo.name : getPayeeConfig().name}
                                 </Text>
                             </div>
                             
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                <Text style={{ fontSize: '11px', color: '#64748b' }}>ID:</Text>
-                                <Text strong style={{ fontSize: '11px', color: '#1e293b' }}>{this.state.payeeMerchantId}</Text>
-                            </div>
-                            
                             {this.state.payeeLEI && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                                     <Text style={{ fontSize: '11px', color: '#64748b' }}>LEI:</Text>
                                     <Text strong style={{ fontSize: '10px', color: '#667eea', fontFamily: 'monospace' }}>{this.state.payeeLEI}</Text>
                                 </div>
@@ -455,12 +457,6 @@ class PayerMerchant extends React.Component {
                                     <Text strong style={{ fontSize: '11px', float: 'right', color: '#333' }}>
                                         {this.state.merchantInfo && this.state.merchantInfo.name ? this.state.merchantInfo.name : getPayeeConfig().name}
                                     </Text>
-                                    <div style={{ clear: 'both' }} />
-                                </div>
-                                
-                                <div style={{ marginBottom: '4px' }}>
-                                    <Text style={{ fontSize: '10px', color: '#888' }}>Merchant ID:</Text>
-                                    <Text strong style={{ fontSize: '10px', float: 'right', color: '#333' }}>{this.state.payeeMerchantId}</Text>
                                     <div style={{ clear: 'both' }} />
                                 </div>
                                 
@@ -690,9 +686,12 @@ class PayerMerchant extends React.Component {
     };
 
     handleGetQuote = async () => {
-        // Don't change UI stage - quotes happen internally
-        // this.setState({ stage: 'postQuotes' });
-        console.log('🎨 handleGetQuote called - stage should remain:', this.state.stage);
+        // Immediately set loading state when Send Payment is clicked
+        this.setState({ stage: 'initializingPayment' });
+        console.log('🎨 handleGetQuote called - setting loading state');
+        
+        // Small delay to show the loading state before proceeding
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // If payeeLEI is still null, try to look it up again
         let payeeLEI = this.state.payeeLEI;
