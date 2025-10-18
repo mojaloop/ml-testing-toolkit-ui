@@ -85,8 +85,12 @@ const QRCameraScanner = ({
                         };
                     }
 
-                    // Validate merchant payment format
-                    if (parsedData.type === 'MERCHANT_PAYMENT' && parsedData.merchantId) {
+                    // Validate merchant payment format - check for LEI-based format first
+                    if (parsedData.lei && parsedData.merchantName) {
+                        // New simplified format with LEI and merchant name
+                        onScanSuccess && onScanSuccess(parsedData);
+                    } else if (parsedData.type === 'MERCHANT_PAYMENT' && parsedData.merchantId) {
+                        // Legacy format with merchantId
                         onScanSuccess && onScanSuccess(parsedData);
                     } else if (parsedData.merchantId) {
                         // Handle different QR code formats that might contain merchant_id
