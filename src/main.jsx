@@ -27,71 +27,71 @@
  --------------
  ******/
 // Import React 19 compatibility patch for Ant Design v5
-import '@ant-design/v5-patch-for-react-19';
+import '@ant-design/v5-patch-for-react-19'
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import reportWebVitals from './reportWebVitals';
-import { App } from 'antd';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import reportWebVitals from './reportWebVitals'
+import { App } from 'antd'
 
-import AdminLayout from './layouts/Admin.jsx';
+import AdminLayout from './layouts/Admin.jsx'
 
-import './index.css';
-import 'antd/dist/reset.css';
+import './index.css'
+import 'antd/dist/reset.css'
 
-import Login from './views/login/Login.jsx';
-import MobileSimulator from './views/demos/MobileSimulator/MobileSimulator.jsx';
-import PayeeAppSimulator from './views/demos/PayeeAppSimulator/PayeeApp';
-import PayeeMobileSimulator from './views/demos/PayeeAppSimulator/PayeeMobile';
-import PayerMobileSimulator from './views/demos/PayerAppSimulator/PayerMobile';
-import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx';
-import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx';
-import PISPDemo from './views/demos/PISPDemo/MobileSimulator';
-import LEIMerchantPayments from './views/demos/LEIMerchantPayments/LEIMerchantPayments.jsx';
-import { loadAppConfig } from './utils/getConfig.js';
+import Login from './views/login/Login.jsx'
+import MobileSimulator from './views/demos/MobileSimulator/MobileSimulator.jsx'
+import PayeeAppSimulator from './views/demos/PayeeAppSimulator/PayeeApp'
+import PayeeMobileSimulator from './views/demos/PayeeAppSimulator/PayeeMobile'
+import PayerMobileSimulator from './views/demos/PayerAppSimulator/PayerMobile'
+import DemoTestRunner from './views/demos/DemoTestRunner/DemoTestRunner.jsx'
+import DemoMonitoring from './views/demos/DemoMonitoring/DemoMonitoring.jsx'
+import PISPDemo from './views/demos/PISPDemo/MobileSimulator'
+import LEIMerchantPayments from './views/demos/LEIMerchantPayments/LEIMerchantPayments.jsx'
+import { loadAppConfig } from './utils/getConfig.js'
 
 // Add this before any other React code
-if(process.env.NODE_ENV === 'development') {
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
-        if(typeof args[0] === 'string' && args[0].includes('findDOMNode')) {
-            return;
-        }
-        originalConsoleError(...args);
-    };
+if (process.env.NODE_ENV === 'development') {
+  const originalConsoleError = console.error
+  console.error = (...args) => {
+    if (typeof args[0] === 'string' && args[0].includes('findDOMNode')) {
+      return
+    }
+    originalConsoleError(...args)
+  }
 }
 
-console.log('Mojaloop Testing Toolkit UI is loading...');
-await loadAppConfig('/config.json');
+console.log('Mojaloop Testing Toolkit UI is loading...')
+await loadAppConfig('/config.json')
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root'))
 
 root.render(
-    <React.StrictMode>
-        <App>
-            <Router>
-                <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/mobile-simulator" element={<MobileSimulator />} />
-                    <Route path="/payee-app-simulator" element={<PayeeAppSimulator />} />
-                    <Route path="/payee-mobile-simulator" element={<PayeeMobileSimulator />} />
-                    <Route path="/payer-mobile-simulator" element={<PayerMobileSimulator />} />
-                    <Route path="/demo-test-runner" element={<DemoTestRunner />} />
-                    <Route path="/demo-monitoring" element={<DemoMonitoring />} />
-                    <Route path="/pisp-demo" element={<PISPDemo />} />
-                    <Route path="/lei-merchant-payments" element={<LEIMerchantPayments />} />
-                    <Route path="/admin/*" element={<AdminLayout />} />
-                    <Route path="/" element={<Navigate to="/admin/outbound_request" replace />} />
-                    <Route path="*" element={<Navigate to="/admin" replace />} />
-                </Routes>
-            </Router>
-        </App>
-    </React.StrictMode>,
-);
+  <React.StrictMode>
+    <App>
+      <Router>
+        <Routes>
+          <Route path='/login' element={<Login />} />
+          <Route path='/mobile-simulator' element={<MobileSimulator />} />
+          <Route path='/payee-app-simulator' element={<PayeeAppSimulator />} />
+          <Route path='/payee-mobile-simulator' element={<PayeeMobileSimulator />} />
+          <Route path='/payer-mobile-simulator' element={<PayerMobileSimulator />} />
+          <Route path='/demo-test-runner' element={<DemoTestRunner />} />
+          <Route path='/demo-monitoring' element={<DemoMonitoring />} />
+          <Route path='/pisp-demo' element={<PISPDemo />} />
+          <Route path='/lei-merchant-payments' element={<LEIMerchantPayments />} />
+          <Route path='/admin/*' element={<AdminLayout />} />
+          <Route path='/' element={<Navigate to='/admin/outbound_request' replace />} />
+          <Route path='*' element={<Navigate to='/admin' replace />} />
+        </Routes>
+      </Router>
+    </App>
+  </React.StrictMode>
+)
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+reportWebVitals()

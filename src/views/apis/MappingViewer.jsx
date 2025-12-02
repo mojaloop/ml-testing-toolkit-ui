@@ -26,86 +26,86 @@
  * Georgi Logodazhki <georgi.logodazhki@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
+import React from 'react'
 
-import { Card, Typography } from 'antd';
-import { DoubleRightOutlined, DoubleLeftOutlined } from '@ant-design/icons';
+import { Card, Typography } from 'antd'
+import { DoubleRightOutlined, DoubleLeftOutlined } from '@ant-design/icons'
 
-const { Title } = Typography;
+const { Title } = Typography
 
 class MappingViewer extends React.Component {
-    render() {
-        return (
-            <>
-                <table width='100%' cellPadding='5px'>
-                    <tbody>
-                        <tr>
-                            <td className='align-text-top' width='25px'>
-                                <DoubleRightOutlined style={{ fontSize: '20px', color: '#08c' }} />
-                            </td>
-                            <td>
-                                <Title level={4}>{this.props.selectedResource.method.toUpperCase() + ' ' + this.props.selectedResource.path}</Title>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className='align-text-top' width='25px'>
-                                <DoubleLeftOutlined style={{ fontSize: '20px', color: '#08c' }} />
-                            </td>
-                            <td>
-                                <Title level={4}>FSPID: {this.props.selectedResource.data.fspid}</Title>
-                            </td>
-                        </tr>
-                        {
+  render () {
+    return (
+      <>
+        <table width='100%' cellPadding='5px'>
+          <tbody>
+            <tr>
+              <td className='align-text-top' width='25px'>
+                <DoubleRightOutlined style={{ fontSize: '20px', color: '#08c' }} />
+              </td>
+              <td>
+                <Title level={4}>{this.props.selectedResource.method.toUpperCase() + ' ' + this.props.selectedResource.path}</Title>
+              </td>
+            </tr>
+            <tr>
+              <td className='align-text-top' width='25px'>
+                <DoubleLeftOutlined style={{ fontSize: '20px', color: '#08c' }} />
+              </td>
+              <td>
+                <Title level={4}>FSPID: {this.props.selectedResource.data.fspid}</Title>
+              </td>
+            </tr>
+            {
                             this.props.selectedResource.data.successCallback
-                                ? (
-                                    <tr>
-                                        <td className='align-text-top'>
-                                            <DoubleLeftOutlined style={{ fontSize: '20px', color: '#08c' }} />
-                                        </td>
-                                        <td>
-                                            <Title level={4}>Success Callback</Title>
-                                            {
+                              ? (
+                                <tr>
+                                  <td className='align-text-top'>
+                                    <DoubleLeftOutlined style={{ fontSize: '20px', color: '#08c' }} />
+                                  </td>
+                                  <td>
+                                    <Title level={4}>Success Callback</Title>
+                                    {
                                                 Object.entries(this.props.selectedResource.data.successCallback).length > 0
-                                                    ? (
-                                                        <Card size='small' className='mt-4'>
-                                                            <pre>{JSON.stringify(this.props.selectedResource.data.successCallback, null, 2)}</pre>
-                                                        </Card>
+                                                  ? (
+                                                    <Card size='small' className='mt-4'>
+                                                      <pre>{JSON.stringify(this.props.selectedResource.data.successCallback, null, 2)}</pre>
+                                                    </Card>
                                                     )
-                                                    : 'success callback'
+                                                  : 'success callback'
                                             }
-                                        </td>
-                                    </tr>
+                                  </td>
+                                </tr>
                                 )
-                                : null
+                              : null
                         }
-                        {
+            {
                             this.props.selectedResource.data.errorCallback
-                                ? (
-                                    <tr>
-                                        <td className='align-text-top'>
-                                            <DoubleLeftOutlined style={{ fontSize: '20px', color: '#08c' }} />
-                                        </td>
-                                        <td>
-                                            <Title level={4}>Error Callback</Title>
-                                            {
+                              ? (
+                                <tr>
+                                  <td className='align-text-top'>
+                                    <DoubleLeftOutlined style={{ fontSize: '20px', color: '#08c' }} />
+                                  </td>
+                                  <td>
+                                    <Title level={4}>Error Callback</Title>
+                                    {
                                                 Object.entries(this.props.selectedResource.data.errorCallback).length > 0
-                                                    ? (
-                                                        <Card size='small' className='mt-4'>
-                                                            <pre>{JSON.stringify(this.props.selectedResource.data.errorCallback, null, 2)}</pre>
-                                                        </Card>
+                                                  ? (
+                                                    <Card size='small' className='mt-4'>
+                                                      <pre>{JSON.stringify(this.props.selectedResource.data.errorCallback, null, 2)}</pre>
+                                                    </Card>
                                                     )
-                                                    : 'error callback'
+                                                  : 'error callback'
                                             }
-                                        </td>
-                                    </tr>
+                                  </td>
+                                </tr>
                                 )
-                                : null
+                              : null
                         }
-                    </tbody>
-                </table>
-            </>
-        );
-    }
+          </tbody>
+        </table>
+      </>
+    )
+  }
 }
 
-export default MappingViewer;
+export default MappingViewer

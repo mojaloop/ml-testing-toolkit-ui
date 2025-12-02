@@ -26,139 +26,140 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
-import { Row, Col, Tag, Collapse, Card, Typography } from 'antd';
+import React from 'react'
+import { Row, Col, Tag, Collapse, Card, Typography } from 'antd'
 
-import { TTKColors } from '../../utils/styleHelpers';
+import { TTKColors } from '../../utils/styleHelpers'
 
-const { Panel } = Collapse;
-const { Title, Text } = Typography;
+const { Panel } = Collapse
+const { Title, Text } = Typography
 
 class TestCaseDemoViewer extends React.Component {
-    constructor() {
-        super();
-        this.state = {
-            testCaseName: '',
-        };
+  constructor () {
+    super()
+    this.state = {
+      testCaseName: ''
     }
+  }
 
-    componentWillUnmount = () => {
-    };
+  componentWillUnmount = () => {
+  }
 
-    componentDidMount = () => {
-        if(!this.props.testCase.meta) {
-            this.props.testCase.meta = {
-                info: this.props.testCase.name,
-            };
-        }
-        this.setState({ testCaseName: this.props.testCase.name });
-    };
+  componentDidMount = () => {
+    if (!this.props.testCase.meta) {
+      this.props.testCase.meta = {
+        info: this.props.testCase.name
+      }
+    }
+    this.setState({ testCaseName: this.props.testCase.name })
+  }
 
-    getTestCaseItems = () => {
-        if(this.props.testCase.requests) {
-            const requestRows = this.props.testCase.requests.map((item, index) => {
-                if(item.method && item.operationPath) {
-                    const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions ? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : '';
-                    let testStatusColor = TTKColors.assertionFailed;
-                    if(item.status && item.status.progressStatus == 'SKIPPED') {
-                        testStatusColor = TTKColors.assertionSkipped;
-                    } else if(item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount === item.tests.assertions.length) {
-                        testStatusColor = TTKColors.assertionPassed;
-                    }
-                    return (
-                        <tr>
-                            <td>
-                                <Collapse className='mt-2'>
-                                    <Panel
-                                        header = {(
-                                            <>
-                                                <Title level={5}>{item.method.toUpperCase() + ' ' + item.operationPath}</Title>
-                                                <Text>{item.description}</Text>
-                                                {
+  getTestCaseItems = () => {
+    if (this.props.testCase.requests) {
+      const requestRows = this.props.testCase.requests.map((item, index) => {
+        if (item.method && item.operationPath) {
+          const testStatus = item.status && item.tests && item.status.testResult && item.tests.assertions ? item.status.testResult.passedCount + ' / ' + item.tests.assertions.length : ''
+          let testStatusColor = TTKColors.assertionFailed
+          if (item.status && item.status.progressStatus == 'SKIPPED') {
+            testStatusColor = TTKColors.assertionSkipped
+          } else if (item.status && item.tests && item.status.testResult && item.tests.assertions && item.status.testResult.passedCount === item.tests.assertions.length) {
+            testStatusColor = TTKColors.assertionPassed
+          }
+          return (
+            <tr>
+              <td>
+                <Collapse className='mt-2'>
+                  <Panel
+                    header={(
+                      <>
+                        <Title level={5}>{item.method.toUpperCase() + ' ' + item.operationPath}</Title>
+                        <Text>{item.description}</Text>
+                        {
                                                     item.status && (item.status.state === 'finish' || item.status.state === 'error')
-                                                        ? (
-                                                            <Tag color={testStatusColor} className='float-end'>
-                                                                {testStatus}
-                                                            </Tag>
+                                                      ? (
+                                                        <Tag color={testStatusColor} className='float-end'>
+                                                          {testStatus}
+                                                        </Tag>
                                                         )
-                                                        : null
+                                                      : null
                                                 }
-                                            </>
+                      </>
                                         )}
-                                        key='1'
-                                        className='text-start'
-                                    >
-                                        <Row>
-                                            <Col span={11}>
-                                                {
+                    key='1'
+                    className='text-start'
+                  >
+                    <Row>
+                      <Col span={11}>
+                        {
                                                     item.status?.response
-                                                        ? (
-                                                            <>
-                                                                <Title level={5}>Request:</Title>
-                                                                <Text><pre>{JSON.stringify({ method: item.status?.requestSent.method, path: item.status?.requestSent.path, headers: item.status?.requestSent.headers, body: item.status?.requestSent.body }, null, 2)}</pre></Text>
-                                                            </>
-                                                        ) : null
+                                                      ? (
+                                                        <>
+                                                          <Title level={5}>Request:</Title>
+                                                          <Text><pre>{JSON.stringify({ method: item.status?.requestSent.method, path: item.status?.requestSent.path, headers: item.status?.requestSent.headers, body: item.status?.requestSent.body }, null, 2)}</pre></Text>
+                                                        </>
+                                                        )
+                                                      : null
                                                 }
-                                                
-                                            </Col>
-                                            <Col span={2}></Col>
-                                            <Col span={11}>
-                                                {
+
+                      </Col>
+                      <Col span={2} />
+                      <Col span={11}>
+                        {
                                                     item.status?.response
-                                                        ? (
-                                                            <>
-                                                                <Title level={5}>Response:</Title>
-                                                                <Text><pre>{JSON.stringify(item.status?.response, null, 2)}</pre></Text>
-                                                            </>
-                                                        ) : null
+                                                      ? (
+                                                        <>
+                                                          <Title level={5}>Response:</Title>
+                                                          <Text><pre>{JSON.stringify(item.status?.response, null, 2)}</pre></Text>
+                                                        </>
+                                                        )
+                                                      : null
                                                 }
-                                            </Col>                                    
-                                        </Row>
-                                    </Panel>
-                                </Collapse>
-                            </td>
-                        </tr>
-                    );
-                } else {
-                    return (
-                        <tr>
-                            <td>
-                                <p>{item.description}</p>
-                            </td>
-                        </tr>
-                    );
-                }
-            });
-            return (
-                <table width='100%' cellPadding='5px'>
-                    <tbody>
-                        {requestRows}
-                    </tbody>
-                </table>
-            );
+                      </Col>
+                    </Row>
+                  </Panel>
+                </Collapse>
+              </td>
+            </tr>
+          )
         } else {
-            return null;
+          return (
+            <tr>
+              <td>
+                <p>{item.description}</p>
+              </td>
+            </tr>
+          )
         }
-    };
-
-
-    render() {
-        return (
-            <>
-                <Row>
-                    <Col span={24}>
-                        <Card
-                            title={ this.props.testCase.name }
-                        >
-                            <>
-                                { this.getTestCaseItems() }
-                            </>
-                        </Card>
-                    </Col>
-                </Row>
-            </>
-        );
+      })
+      return (
+        <table width='100%' cellPadding='5px'>
+          <tbody>
+            {requestRows}
+          </tbody>
+        </table>
+      )
+    } else {
+      return null
     }
+  }
+
+  render () {
+    return (
+      <>
+        <Row>
+          <Col span={24}>
+            <Card
+              title={this.props.testCase.name}
+            >
+              <>
+                {this.getTestCaseItems()}
+              </>
+            </Card>
+          </Col>
+        </Row>
+      </>
+    )
+  }
 }
 
-export default TestCaseDemoViewer;
+export default TestCaseDemoViewer

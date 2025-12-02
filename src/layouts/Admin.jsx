@@ -26,142 +26,141 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
-import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import AdminNavbar from '../components/Navbars/AdminNavbar.jsx';
-import AdminFooter from '../components/Footers/AdminFooter.jsx';
-import Sidebar from '../components/Sidebar/Sidebar.jsx';
+import React from 'react'
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
+import AdminNavbar from '../components/Navbars/AdminNavbar.jsx'
+import AdminFooter from '../components/Footers/AdminFooter.jsx'
+import Sidebar from '../components/Sidebar/Sidebar.jsx'
 
- 
-import routes from '../routes.jsx';
-import { getConfig, fetchServerConfig } from '../utils/getConfig';
-import { Layout, Card, Spin, Result, Row, Col } from 'antd';
-import mojaLoopLogo from '../assets/img/mojaloop.png';
+import routes from '../routes.jsx'
+import { getConfig, fetchServerConfig } from '../utils/getConfig'
+import { Layout, Card, Spin, Result, Row, Col } from 'antd'
+import mojaLoopLogo from '../assets/img/mojaloop.png'
 
-const { Header, Content } = Layout;
+const { Header, Content } = Layout
 
 const Admin = () => {
-    const isAuthEnabled = getConfig().isAuthEnabled;
-    const location = useLocation();
-    const [state, setState] = React.useState({
-        isLoading: true,
-        isConnectionError: false,
-        connectionErrorMessage: '',
-    });
+  const isAuthEnabled = getConfig().isAuthEnabled
+  const location = useLocation()
+  const [state, setState] = React.useState({
+    isLoading: true,
+    isConnectionError: false,
+    connectionErrorMessage: ''
+  })
 
-    React.useEffect(() => {
-        fetchConfiguration();
-    }, []);
+  React.useEffect(() => {
+    fetchConfiguration()
+  }, [])
 
-    React.useEffect(() => {
-        if(isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')) {
-            return;
-        }
-        document.documentElement.scrollTop = 0;
-        document.scrollingElement.scrollTop = 0;
-    }, [location, isAuthEnabled]);
-
-    const fetchConfiguration = async () => {
-        try {
-            await fetchServerConfig();
-            setState({ ...state, isLoading: false });
-        } catch (err) {
-            setState({ 
-                isConnectionError: true, 
-                connectionErrorMessage: err.message, 
-                isLoading: false, 
-            });
-        }
-    };
-
-    const getRoutes = routes => {
-        return routes.map((prop, key) => {
-            if(prop.layout === '/admin') {
-                return (
-                    <Route
-                        path={prop.path}
-                        element={<prop.component />}
-                        key={key}
-                    />
-                );
-            } else {
-                return null;
-            }
-        });
-    };
-
-    const getBrandText = path => {
-        for(let i = 0; i < routes.length; i++) {
-            if(
-                path.indexOf(
-                    routes[i].layout + routes[i].path,
-                ) !== -1
-            ) {
-                return routes[i].name;
-            }
-        }
-        return 'Brand';
-    };
-
-    if(isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')) {
-        return <Navigate to="/login" replace />;
+  React.useEffect(() => {
+    if (isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')) {
+      return
     }
+    document.documentElement.scrollTop = 0
+    document.scrollingElement.scrollTop = 0
+  }, [location, isAuthEnabled])
 
-    return (
-        <>
-            {
+  const fetchConfiguration = async () => {
+    try {
+      await fetchServerConfig()
+      setState({ ...state, isLoading: false })
+    } catch (err) {
+      setState({
+        isConnectionError: true,
+        connectionErrorMessage: err.message,
+        isLoading: false
+      })
+    }
+  }
+
+  const getRoutes = routes => {
+    return routes.map((prop, key) => {
+      if (prop.layout === '/admin') {
+        return (
+          <Route
+            path={prop.path}
+            element={<prop.component />}
+            key={key}
+          />
+        )
+      } else {
+        return null
+      }
+    })
+  }
+
+  const getBrandText = path => {
+    for (let i = 0; i < routes.length; i++) {
+      if (
+        path.indexOf(
+          routes[i].layout + routes[i].path
+        ) !== -1
+      ) {
+        return routes[i].name
+      }
+    }
+    return 'Brand'
+  }
+
+  if (isAuthEnabled && !localStorage.getItem('JWT_COOKIE_EXP_AT')) {
+    return <Navigate to='/login' replace />
+  }
+
+  return (
+    <>
+      {
                 state.isLoading
-                    ? (
-                        <Spin tip='Loading...' size='large'>
-                            <Row>
-                                <Col span={24} style={{ height: '600px' }} />
-                            </Row>
-                        </Spin>
+                  ? (
+                    <Spin tip='Loading...' size='large'>
+                      <Row>
+                        <Col span={24} style={{ height: '600px' }} />
+                      </Row>
+                    </Spin>
                     )
-                    : state.isConnectionError
-                        ? (
-                            <Result
-                                status='500'
-                                title='500'
-                                subTitle={state.connectionErrorMessage}
+                  : state.isConnectionError
+                    ? (
+                      <Result
+                        status='500'
+                        title='500'
+                        subTitle={state.connectionErrorMessage}
+                      />
+                      )
+                    : (
+                      <Layout style={{ backgroundColor: '#fafafa' }}>
+                        <Sidebar
+                          routes={routes}
+                          logo={{
+                            innerLink: '/admin/index',
+                            imgSrc: mojaLoopLogo,
+                            imgAlt: '...'
+                          }}
+                        />
+                        <Layout>
+                          <AdminNavbar
+                            brandText={getBrandText(location.pathname)}
+                          />
+                          <Content>
+                            <Header
+                              style={{
+                                height: '3vh',
+                                background: '#293e5d'
+                              }}
                             />
-                        )
-                        : (
-                            <Layout style={{ backgroundColor: '#fafafa' }}>
-                                <Sidebar
-                                    routes={routes}
-                                    logo={{
-                                        innerLink: '/admin/index',
-                                        imgSrc: mojaLoopLogo,
-                                        imgAlt: '...',
-                                    }}
-                                />
-                                <Layout>
-                                    <AdminNavbar
-                                        brandText={getBrandText(location.pathname)}
-                                    />
-                                    <Content>
-                                        <Header
-                                            style={{
-                                                height: '3vh',
-                                                background: '#293e5d',
-                                            }}
-                                        />
-                                        <Card className='shadow ms-4 me-4 mt-n5'>
-                                            <Routes>
-                                                {getRoutes(routes)}
-                                                <Route path="" element={<Navigate to="index" replace />} />
-                                                <Route path="*" element={<Navigate to="index" replace />} />
-                                            </Routes>
-                                        </Card>
-                                    </Content>
-                                    <AdminFooter />
-                                </Layout>
-                            </Layout>
-                        )
+                            <Card className='shadow ms-4 me-4 mt-n5'>
+                              <Routes>
+                                {getRoutes(routes)}
+                                <Route path='' element={<Navigate to='index' replace />} />
+                                <Route path='*' element={<Navigate to='index' replace />} />
+                              </Routes>
+                            </Card>
+                          </Content>
+                          <AdminFooter />
+                        </Layout>
+                      </Layout>
+                      )
             }
-        </>
-    );
-};
+    </>
+  )
+}
 
-export default Admin;
+export default Admin

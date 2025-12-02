@@ -26,297 +26,303 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React, { useState, useRef, useEffect } from 'react';
-import { Modal, Button, Typography, Alert, Spin } from 'antd';
-import { ScanOutlined, CameraOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Scanner } from '@yudiel/react-qr-scanner';
+import React, { useState, useRef, useEffect } from 'react'
+import { Modal, Button, Typography, Alert, Spin } from 'antd'
+import { ScanOutlined, CameraOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Scanner } from '@yudiel/react-qr-scanner'
 
-const { Text } = Typography;
+const { Text } = Typography
 
-const QRCameraScanner = ({ 
-    visible, 
-    onCancel, 
-    onScanSuccess, 
-    onScanError,
-    title = "QR Code Scanner"
+const QRCameraScanner = ({
+  visible,
+  onCancel,
+  onScanSuccess,
+  onScanError,
+  title = 'QR Code Scanner'
 }) => {
-    const [isScanning, setIsScanning] = useState(false);
-    const [error, setError] = useState(null);
-    const [cameraReady, setCameraReady] = useState(false);
-    const [hasPermission, setHasPermission] = useState(null);
+  const [isScanning, setIsScanning] = useState(false)
+  const [error, setError] = useState(null)
+  const [cameraReady, setCameraReady] = useState(false)
+  const [hasPermission, setHasPermission] = useState(null)
 
-    // Reset state when modal opens/closes
-    useEffect(() => {
-        if (visible) {
-            setError(null);
-            setIsScanning(false);
-            setCameraReady(false);
-            setHasPermission(null);
-        }
-    }, [visible]);
-    
-    // Set camera as ready when scanner starts (simplified for this library)
-    useEffect(() => {
-        if (visible && !error) {
-            const timer = setTimeout(() => {
-                setCameraReady(true);
-                setHasPermission(true);
-            }, 1000); // Give time for camera to initialize
-            
-            return () => clearTimeout(timer);
-        }
-    }, [visible, error]);
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (visible) {
+      setError(null)
+      setIsScanning(false)
+      setCameraReady(false)
+      setHasPermission(null)
+    }
+  }, [visible])
 
-    const handleScan = (result) => {
-        if (result && result.length > 0) {
-            const scannedText = result[0]?.rawValue;
-            if (scannedText) {
-                try {
-                    // Try to parse as JSON first (our merchant format)
-                    let parsedData;
-                    try {
-                        parsedData = JSON.parse(scannedText);
-                    } catch {
-                        // If not JSON, treat as plain text
-                        parsedData = {
-                            type: 'UNKNOWN',
-                            data: scannedText,
-                            timestamp: new Date().toISOString()
-                        };
-                    }
+  // Set camera as ready when scanner starts (simplified for this library)
+  useEffect(() => {
+    if (visible && !error) {
+      const timer = setTimeout(() => {
+        setCameraReady(true)
+        setHasPermission(true)
+      }, 1000) // Give time for camera to initialize
 
-                    // Validate merchant payment format - check for LEI-based format first
-                    if (parsedData.lei && parsedData.merchantName) {
-                        // New simplified format with LEI and merchant name
-                        onScanSuccess && onScanSuccess(parsedData);
-                    } else if (parsedData.type === 'MERCHANT_PAYMENT' && parsedData.merchantId) {
-                        // Legacy format with merchantId
-                        onScanSuccess && onScanSuccess(parsedData);
-                    } else if (parsedData.merchantId) {
-                        // Handle different QR code formats that might contain merchant_id
-                        const normalizedData = {
-                            type: 'MERCHANT_PAYMENT',
-                            merchantId: parsedData.merchantId,
-                            merchantName: parsedData.merchantName || parsedData.name || 'Unknown Merchant',
-                            timestamp: new Date().toISOString(),
-                            originalData: parsedData
-                        };
-                        onScanSuccess && onScanSuccess(normalizedData);
-                    } else {
-                        // Unknown format
-                        setError('QR code does not contain valid merchant information');
-                        onScanError && onScanError(new Error('Invalid QR code format'));
-                    }
-                } catch (err) {
-                    console.error('Error processing QR scan result:', err);
-                    setError('Failed to process QR code data');
-                    onScanError && onScanError(err);
-                }
+      return () => clearTimeout(timer)
+    }
+  }, [visible, error])
+
+  const handleScan = (result) => {
+    if (result && result.length > 0) {
+      const scannedText = result[0]?.rawValue
+      if (scannedText) {
+        try {
+          // Try to parse as JSON first (our merchant format)
+          let parsedData
+          try {
+            parsedData = JSON.parse(scannedText)
+          } catch {
+            // If not JSON, treat as plain text
+            parsedData = {
+              type: 'UNKNOWN',
+              data: scannedText,
+              timestamp: new Date().toISOString()
             }
+          }
+
+          // Validate merchant payment format - check for LEI-based format first
+          if (parsedData.lei && parsedData.merchantName) {
+            // New simplified format with LEI and merchant name
+            if (onScanSuccess) onScanSuccess(parsedData)
+          } else if (parsedData.type === 'MERCHANT_PAYMENT' && parsedData.merchantId) {
+            // Legacy format with merchantId
+            if (onScanSuccess) onScanSuccess(parsedData)
+          } else if (parsedData.merchantId) {
+            // Handle different QR code formats that might contain merchant_id
+            const normalizedData = {
+              type: 'MERCHANT_PAYMENT',
+              merchantId: parsedData.merchantId,
+              merchantName: parsedData.merchantName || parsedData.name || 'Unknown Merchant',
+              timestamp: new Date().toISOString(),
+              originalData: parsedData
+            }
+            if (onScanSuccess) onScanSuccess(normalizedData)
+          } else {
+            // Unknown format
+            setError('QR code does not contain valid merchant information')
+            if (onScanError) onScanError(new Error('Invalid QR code format'))
+          }
+        } catch (err) {
+          console.error('Error processing QR scan result:', err)
+          setError('Failed to process QR code data')
+          if (onScanError) onScanError(err)
         }
-    };
+      }
+    }
+  }
 
-    const handleError = (error) => {
-        console.error('QR Scanner Error:', error);
-        
-        if (error?.name === 'NotAllowedError' || error?.message?.includes('permission')) {
-            setError('Camera permission denied. Please allow camera access and try again.');
-            setHasPermission(false);
-        } else if (error?.name === 'NotFoundError') {
-            setError('No camera found. Please check your camera connection.');
-        } else if (error?.name === 'NotSupportedError') {
-            setError('Camera not supported in this browser. Please use a modern browser.');
-        } else {
-            setError(`Camera error: ${error?.message || 'Unknown error'}`);
-        }
-        
-        onScanError && onScanError(error);
-    };
+  const handleError = (error) => {
+    console.error('QR Scanner Error:', error)
 
-    const handleRetry = () => {
-        setError(null);
-        setHasPermission(null);
-        setCameraReady(false);
-    };
-
-    const modalFooter = [
-        <Button key="cancel" onClick={onCancel}>
-            Cancel
-        </Button>
-    ];
-
-    if (error && (error.includes('permission') || error.includes('Camera'))) {
-        modalFooter.push(
-            <Button 
-                key="retry" 
-                type="primary" 
-                icon={<ReloadOutlined />}
-                onClick={handleRetry}
-            >
-                Retry
-            </Button>
-        );
+    if (error?.name === 'NotAllowedError' || error?.message?.includes('permission')) {
+      setError('Camera permission denied. Please allow camera access and try again.')
+      setHasPermission(false)
+    } else if (error?.name === 'NotFoundError') {
+      setError('No camera found. Please check your camera connection.')
+    } else if (error?.name === 'NotSupportedError') {
+      setError('Camera not supported in this browser. Please use a modern browser.')
+    } else {
+      setError(`Camera error: ${error?.message || 'Unknown error'}`)
     }
 
-    return (
-        <Modal
-            title={
-                <span>
-                    <ScanOutlined style={{ marginRight: '8px' }} />
-                    {title}
-                </span>
-            }
-            open={visible}
-            onCancel={onCancel}
-            footer={modalFooter}
-            centered
-            width={500}
-            maskClosable={false}
-        >
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                {error ? (
-                    <div style={{ marginBottom: '20px' }}>
-                        <Alert
-                            message="Scanner Error"
-                            description={error}
-                            type="error"
-                            showIcon
-                            style={{ marginBottom: '16px', textAlign: 'left' }}
-                        />
-                        
-                        {error.includes('permission') && (
-                            <div style={{ marginTop: '16px', textAlign: 'left' }}>
-                                <Text strong style={{ display: 'block', marginBottom: '8px' }}>
-                                    To enable camera access:
-                                </Text>
-                                <Text style={{ fontSize: '12px', color: '#666' }}>
-                                    1. Click the camera icon in your browser's address bar
-                                    <br />
-                                    2. Select "Allow" for camera permission
-                                    <br />
-                                    3. Refresh the page if needed
-                                </Text>
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <>
-                        {!cameraReady && (
-                            <div style={{ marginBottom: '20px' }}>
-                                <Spin size="large" />
-                                <Text style={{ display: 'block', marginTop: '16px', color: '#666' }}>
-                                    Initializing camera...
-                                </Text>
-                            </div>
-                        )}
-                        
-                        <div style={{ 
-                            width: '100%', 
-                            maxWidth: '400px', 
-                            margin: '0 auto',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: cameraReady ? '2px solid #52c41a' : '2px solid #d9d9d9'
-                        }}>
-                            <Scanner
-                                onScan={handleScan}
-                                onError={handleError}
-                                constraints={{
-                                    facingMode: 'environment' // Prefer back camera on mobile
-                                }}
-                                formats={['qr_code']}
-                                scanDelay={500}
-                                styles={{
-                                    container: {
-                                        width: '100%',
-                                        height: '300px'
-                                    },
-                                    video: {
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover'
-                                    }
-                                }}
-                                components={{
-                                    finder: true,
-                                    torch: true,
-                                    onOff: false
-                                }}
-                            >
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    width: '200px',
-                                    height: '200px',
-                                    marginTop: '-100px',
-                                    marginLeft: '-100px',
-                                    border: '3px solid #52c41a',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.3)',
-                                    pointerEvents: 'none'
-                                }}>
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '-1px',
-                                        left: '-1px',
-                                        width: '30px',
-                                        height: '30px',
-                                        borderTop: '4px solid #52c41a',
-                                        borderLeft: '4px solid #52c41a',
-                                        borderRadius: '12px 0 0 0'
-                                    }} />
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '-1px',
-                                        right: '-1px',
-                                        width: '30px',
-                                        height: '30px',
-                                        borderTop: '4px solid #52c41a',
-                                        borderRight: '4px solid #52c41a',
-                                        borderRadius: '0 12px 0 0'
-                                    }} />
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '-1px',
-                                        left: '-1px',
-                                        width: '30px',
-                                        height: '30px',
-                                        borderBottom: '4px solid #52c41a',
-                                        borderLeft: '4px solid #52c41a',
-                                        borderRadius: '0 0 0 12px'
-                                    }} />
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '-1px',
-                                        right: '-1px',
-                                        width: '30px',
-                                        height: '30px',
-                                        borderBottom: '4px solid #52c41a',
-                                        borderRight: '4px solid #52c41a',
-                                        borderRadius: '0 0 12px 0'
-                                    }} />
-                                </div>
-                            </Scanner>
-                        </div>
-                        
-                        {cameraReady && (
-                            <div style={{ marginTop: '16px' }}>
-                                <Text style={{ fontSize: '14px', color: '#52c41a', fontWeight: 'bold' }}>
-                                    <CameraOutlined style={{ marginRight: '8px' }} />
-                                    Camera Ready
-                                </Text>
-                                <br />
-                                <Text style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                                    Position the QR code within the green frame
-                                </Text>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
-        </Modal>
-    );
-};
+    if (onScanError) onScanError(error)
+  }
 
-export default QRCameraScanner;
+  const handleRetry = () => {
+    setError(null)
+    setHasPermission(null)
+    setCameraReady(false)
+  }
+
+  const modalFooter = [
+    <Button key='cancel' onClick={onCancel}>
+      Cancel
+    </Button>
+  ]
+
+  if (error && (error.includes('permission') || error.includes('Camera'))) {
+    modalFooter.push(
+      <Button
+        key='retry'
+        type='primary'
+        icon={<ReloadOutlined />}
+        onClick={handleRetry}
+      >
+        Retry
+      </Button>
+    )
+  }
+
+  return (
+    <Modal
+      title={
+        <span>
+          <ScanOutlined style={{ marginRight: '8px' }} />
+          {title}
+        </span>
+            }
+      open={visible}
+      onCancel={onCancel}
+      footer={modalFooter}
+      centered
+      width={500}
+      maskClosable={false}
+    >
+      <div style={{ textAlign: 'center', padding: '20px 0' }}>
+        {error ? (
+          <div style={{ marginBottom: '20px' }}>
+            <Alert
+              message='Scanner Error'
+              description={error}
+              type='error'
+              showIcon
+              style={{ marginBottom: '16px', textAlign: 'left' }}
+            />
+
+            {error.includes('permission') && (
+              <div style={{ marginTop: '16px', textAlign: 'left' }}>
+                <Text strong style={{ display: 'block', marginBottom: '8px' }}>
+                  To enable camera access:
+                </Text>
+                <Text style={{ fontSize: '12px', color: '#666' }}>
+                  1. Click the camera icon in your browser's address bar
+                  <br />
+                  2. Select "Allow" for camera permission
+                  <br />
+                  3. Refresh the page if needed
+                </Text>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {!cameraReady && (
+              <div style={{ marginBottom: '20px' }}>
+                <Spin size='large' />
+                <Text style={{ display: 'block', marginTop: '16px', color: '#666' }}>
+                  Initializing camera...
+                        </Text>
+              </div>
+            )}
+
+            <div style={{
+              width: '100%',
+              maxWidth: '400px',
+              margin: '0 auto',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              border: cameraReady ? '2px solid #52c41a' : '2px solid #d9d9d9'
+            }}
+            >
+              <Scanner
+                onScan={handleScan}
+                onError={handleError}
+                constraints={{
+                  facingMode: 'environment' // Prefer back camera on mobile
+                }}
+                formats={['qr_code']}
+                scanDelay={500}
+                styles={{
+                  container: {
+                    width: '100%',
+                    height: '300px'
+                  },
+                  video: {
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }
+                }}
+                components={{
+                  finder: true,
+                  torch: true,
+                  onOff: false
+                }}
+              >
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  width: '200px',
+                  height: '200px',
+                  marginTop: '-100px',
+                  marginLeft: '-100px',
+                  border: '3px solid #52c41a',
+                  borderRadius: '12px',
+                  boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.3)',
+                  pointerEvents: 'none'
+                }}
+                >
+                  <div style={{
+                      position: 'absolute',
+                      top: '-1px',
+                      left: '-1px',
+                      width: '30px',
+                      height: '30px',
+                      borderTop: '4px solid #52c41a',
+                      borderLeft: '4px solid #52c41a',
+                      borderRadius: '12px 0 0 0'
+                    }}
+                    />
+                  <div style={{
+                      position: 'absolute',
+                      top: '-1px',
+                      right: '-1px',
+                      width: '30px',
+                      height: '30px',
+                      borderTop: '4px solid #52c41a',
+                      borderRight: '4px solid #52c41a',
+                      borderRadius: '0 12px 0 0'
+                    }}
+                    />
+                  <div style={{
+                      position: 'absolute',
+                      bottom: '-1px',
+                      left: '-1px',
+                      width: '30px',
+                      height: '30px',
+                      borderBottom: '4px solid #52c41a',
+                      borderLeft: '4px solid #52c41a',
+                      borderRadius: '0 0 0 12px'
+                    }}
+                    />
+                  <div style={{
+                      position: 'absolute',
+                      bottom: '-1px',
+                      right: '-1px',
+                      width: '30px',
+                      height: '30px',
+                      borderBottom: '4px solid #52c41a',
+                      borderRight: '4px solid #52c41a',
+                      borderRadius: '0 0 12px 0'
+                    }}
+                    />
+                </div>
+              </Scanner>
+            </div>
+
+            {cameraReady && (
+              <div style={{ marginTop: '16px' }}>
+                <Text style={{ fontSize: '14px', color: '#52c41a', fontWeight: 'bold' }}>
+                  <CameraOutlined style={{ marginRight: '8px' }} />
+                  Camera Ready
+                        </Text>
+                <br />
+                <Text style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                  Position the QR code within the green frame
+                        </Text>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </Modal>
+  )
+}
+
+export default QRCameraScanner

@@ -26,43 +26,43 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import axios from 'axios';
+import axios from 'axios'
 
-const GITHUB_API_URL = 'https://api.github.com';
+const GITHUB_API_URL = 'https://api.github.com'
 
 class GitHubService {
-    repoOwner = '';
+  repoOwner = ''
 
-    repoName = '';
+  repoName = ''
 
-    constructor(repoOwner, repoName) {
-        this.repoOwner = repoOwner;
-        this.repoName = repoName;
+  constructor (repoOwner, repoName) {
+    this.repoOwner = repoOwner
+    this.repoName = repoName
+  }
+
+  _gitGetRequest = async url => {
+    try {
+      return await axios.get(url)
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        throw new Error(err.response.data.message)
+      }
+      throw new Error(err.message)
     }
+  }
 
-    _gitGetRequest = async url => {
-        try {
-            return await axios.get(url);
-        } catch (err) {
-            if(err.response && err.response.data && err.response.data.message) {
-                throw new Error(err.response.data.message);
-            }
-            throw new Error(err.message);
-        }
-    };
+  getContents = async (folderPath, ref) => {
+    const qParams = ref ? `?ref=${ref}` : ''
+    return this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/contents/${folderPath}${qParams}`)
+  }
 
-    getContents = async (folderPath, ref) => {
-        const qParams = ref ? `?ref=${ref}` : '';
-        return this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/contents/${folderPath}${qParams}`);
-    };
+  getTree = async treeSHA => {
+    return this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/git/trees/${treeSHA}?recursive=true`)
+  }
 
-    getTree = async treeSHA => {
-        return this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/git/trees/${treeSHA}?recursive=true`);
-    };
-
-    getTags = async () => {
-        return this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/tags`);
-    };
+  getTags = async () => {
+    return this._gitGetRequest(GITHUB_API_URL + `/repos/${this.repoOwner}/${this.repoName}/tags`)
+  }
 }
 
-export default GitHubService;
+export default GitHubService

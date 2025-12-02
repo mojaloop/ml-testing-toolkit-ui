@@ -26,524 +26,524 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
+import React from 'react'
 
-import { Input, Menu, Collapse, Modal, message, Card, Row, Col, Button, Typography } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Input, Menu, Collapse, Modal, message, Card, Row, Col, Button, Typography } from 'antd'
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 
-import axios from 'axios';
-import RulesEditor from './RuleEditor';
-import RuleViewer from './RuleViewer';
-import { getConfig } from '../../utils/getConfig';
-import SortableList from '../../components/SortableList';
-import { arrayMoveImmutable as arrayMove } from 'array-move';
-import fileDownload from 'js-file-download';
-import { buildFileSelector, readFileAsync } from '../../utils/fileSelector';
+import axios from 'axios'
+import RulesEditor from './RuleEditor'
+import RuleViewer from './RuleViewer'
+import { getConfig } from '../../utils/getConfig'
+import SortableList from '../../components/SortableList'
+import { arrayMoveImmutable as arrayMove } from 'array-move'
+import fileDownload from 'js-file-download'
+import { buildFileSelector, readFileAsync } from '../../utils/fileSelector'
 
-const { Panel } = Collapse;
-const { Title } = Typography;
+const { Panel } = Collapse
+const { Title } = Typography
 
 class RulesCallback extends React.Component {
-    constructor() {
-        super();
-        this.state = {
-            callbackRulesFiles: [],
-            activeRulesFile: null,
-            selectedRuleFile: null,
-            curRules: [],
-            editRule: null,
-            mode: null,
-            reOrderingEnabled: false,
-            curRulesUpdated: false,
-        };
+  constructor () {
+    super()
+    this.state = {
+      callbackRulesFiles: [],
+      activeRulesFile: null,
+      selectedRuleFile: null,
+      curRules: [],
+      editRule: null,
+      mode: null,
+      reOrderingEnabled: false,
+      curRulesUpdated: false
     }
+  }
 
-    componentDidMount() {
-        this.getCallbackRulesFiles();
-        this.specFilesSelector = buildFileSelector();
-        this.specFilesSelector.addEventListener('input', async e => {
-            if(e.target.files) {
-                const file = e.target.files[0];
-                await this.handleImport(file);
-                this.getCallbackRulesFiles(file.name);
-                this.specFilesSelector.value = null;
-            }
-        });
+  componentDidMount () {
+    this.getCallbackRulesFiles()
+    this.specFilesSelector = buildFileSelector()
+    this.specFilesSelector.addEventListener('input', async e => {
+      if (e.target.files) {
+        const file = e.target.files[0]
+        await this.handleImport(file)
+        this.getCallbackRulesFiles(file.name)
+        this.specFilesSelector.value = null
+      }
+    })
+  }
+
+  getCallbackRulesFiles = async (selectedRuleFile = null) => {
+    message.loading({ content: 'Getting rules files...', key: 'getFilesProgress' })
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + '/api/rules/files/callback')
+    const activeRulesFile = response.data.activeRulesFile
+    this.setState({ callbackRulesFiles: response.data.files, activeRulesFile }, () => {
+      message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 2 })
+    })
+    if (selectedRuleFile) {
+      this.setState({ selectedRuleFile, ruleItemActive: null }, () => {
+        this.updateRulesFileDisplay()
+      })
+    } else {
+      this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null }, () => {
+        this.updateRulesFileDisplay()
+      })
     }
+  }
 
-    getCallbackRulesFiles = async (selectedRuleFile = null) => {
-        message.loading({ content: 'Getting rules files...', key: 'getFilesProgress' });
-        const { apiBaseUrl } = getConfig();
-        const response = await axios.get(apiBaseUrl + '/api/rules/files/callback');
-        const activeRulesFile = response.data.activeRulesFile;
-        this.setState({ callbackRulesFiles: response.data.files, activeRulesFile }, () => {
-            message.success({ content: 'Loaded', key: 'getFilesProgress', duration: 2 });
-        });
-        if(selectedRuleFile) {
-            this.setState({ selectedRuleFile, ruleItemActive: null }, () => {
-                this.updateRulesFileDisplay();
-            });
-        } else {
-            this.setState({ selectedRuleFile: activeRulesFile, ruleItemActive: null }, () => {
-                this.updateRulesFileDisplay();
-            });
-        }
-    };
+  getCallbackRulesFileContent = async ruleFile => {
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(apiBaseUrl + '/api/rules/files/callback/' + ruleFile)
+    let curRules = []
+    if (response.data && Array.isArray(response.data)) {
+      curRules = response.data
+    }
+    this.setState({ curRules })
+  }
 
-    getCallbackRulesFileContent = async ruleFile => {
-        const { apiBaseUrl } = getConfig();
-        const response = await axios.get(apiBaseUrl + '/api/rules/files/callback/' + ruleFile);
-        let curRules = [];
-        if(response.data && Array.isArray(response.data)) {
-            curRules = response.data;
-        }
-        this.setState({ curRules });
-    };
+  getRulesFilesItems = () => {
+    return this.state.callbackRulesFiles.map(ruleFile => {
+      const isActive = (ruleFile === this.state.activeRulesFile)
+      return {
+        key: ruleFile,
+        label: <>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</>
+      }
+    })
+  }
 
-    getRulesFilesItems = () => {
-        return this.state.callbackRulesFiles.map(ruleFile => {
-            const isActive = (ruleFile === this.state.activeRulesFile);
-            return {
-                key: ruleFile,
-                label: <>{isActive ? (<CheckOutlined />) : ''} {ruleFile}</>,
-            };
-        });
-    };
+  handleImport = async file_to_read => {
+    message.loading({ content: 'Importing ...', key: 'importProgress' })
+    try {
+      const { apiBaseUrl } = getConfig()
+      await axios.post(apiBaseUrl + '/api/rules/files/callback/import',
+        { buffer: Buffer.from(await readFileAsync(file_to_read, 'readAsArrayBuffer')) },
+        { params: { rulesFilename: file_to_read.name }, headers: { 'Content-Type': 'application/json' } })
+      message.success({ content: 'Import completed', key: 'importProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'importProgress', duration: 6 })
+    }
+  }
 
-    handleImport = async file_to_read => {
-        message.loading({ content: 'Importing ...', key: 'importProgress' });
-        try {
-            const { apiBaseUrl } = getConfig();
-            await axios.post(apiBaseUrl + '/api/rules/files/callback/import',
-                { buffer: Buffer.from(await readFileAsync(file_to_read, 'readAsArrayBuffer')) },
-                { params: { rulesFilename: file_to_read.name }, headers: { 'Content-Type': 'application/json' } });
-            message.success({ content: 'Import completed', key: 'importProgress', duration: 2 });
-        } catch (err) {
-            message.error({ content: err.response ? err.response.data : err.message, key: 'importProgress', duration: 6 });
-        }
-    };
+  handleExport = async () => {
+    message.loading({ content: 'Export callback rules...', key: 'exportFileProgress' })
+    try {
+      let data
+      const { apiBaseUrl } = getConfig()
+      const exportRulesResponse = await axios.get(apiBaseUrl + `/api/rules/files/callback/${this.state.selectedRuleFile}/export`)
+      data = Buffer.from(Buffer.from(exportRulesResponse.data.body.buffer.data))
+      const parsedMessage = JSON.stringify(JSON.parse(data), null, 2)
+      fileDownload(parsedMessage, this.state.selectedRuleFile)
+      message.success({ content: 'Export callback rules', key: 'exportFileProgress', duration: 2 })
+    } catch (err) {
+      message.error({ content: err.response ? err.response.data : err.message, key: 'exportFileProgress', duration: 6 })
+    }
+  }
 
-    handleExport = async () => {
-        message.loading({ content: 'Export callback rules...', key: 'exportFileProgress' });
-        try {
-            let data;
-            const { apiBaseUrl } = getConfig();
-            const exportRulesResponse = await axios.get(apiBaseUrl + `/api/rules/files/callback/${this.state.selectedRuleFile}/export`);
-            data = Buffer.from(Buffer.from(exportRulesResponse.data.body.buffer.data));
-            const parsedMessage = JSON.stringify(JSON.parse(data), null, 2);
-            fileDownload(parsedMessage, this.state.selectedRuleFile);
-            message.success({ content: 'Export callback rules', key: 'exportFileProgress', duration: 2 });
-        } catch (err) {
-            message.error({ content: err.response ? err.response.data : err.message, key: 'exportFileProgress', duration: 6 });
-        }
-    };
+  handleRuleFileSelect = async selectedItem => {
+    const selectedRuleFile = selectedItem.key
+    this.setState({ selectedRuleFile, ruleItemActive: null }, () => {
+      this.updateRulesFileDisplay()
+    })
+  }
 
-    handleRuleFileSelect = async selectedItem => {
-        const selectedRuleFile = selectedItem.key;
-        this.setState({ selectedRuleFile, ruleItemActive: null }, () => {
-            this.updateRulesFileDisplay();
-        });
-    };
+  updateRulesFileDisplay = async () => {
+    await this.getCallbackRulesFileContent(this.state.selectedRuleFile)
+  }
 
-    updateRulesFileDisplay = async () => {
-        await this.getCallbackRulesFileContent(this.state.selectedRuleFile);
-    };
-
-    getRulesFileContentItems = () => {
-        return this.state.curRules.map((rule, key) => {
-            return {
-                key: key,
-                label: rule.description,
-                children: (
-                    <>
-                        <Row>
-                            <Col span={24} style={{ textAlign: 'right' }}>
-                                <Button
-                                    onClick={this.handleRuleClick(rule)}
-                                >
-                Edit
-                                </Button>
-                                <Button
-                                    className='ms-2'
-                                    type='primary'
-                                    danger
-                                    onClick={this.handleRuleDelete(rule.ruleId)}
-                                >
-                Delete
-                                </Button>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={24}>
-                                <RuleViewer rule={rule} />
-                            </Col>
-                        </Row>
-                    </>
-                ),
-            };
-        });
-    };
-
-    handleRuleClick = (tRule = {}) => {
-        // console.log(rule)
-        return () => {
-            this.setState({ editRule: tRule, mode: 'edit' });
-        };
-    };
-
-    handleAddNewRuleClick = () => {
-        // Calculate the new rule ID which is the next number of the highest rule ID in the list
-        const highestRule = this.state.curRules.reduce((prevItem, item) => {
-            return (prevItem.ruleId > item.ruleId ? prevItem : item);
-        }, this.state.curRules[0]);
-
-        let newRuleId = 1;
-        if(highestRule) {
-            newRuleId = highestRule.ruleId + 1;
-        }
-
-        const tRule = {
-            ruleId: newRuleId,
-            priority: 1,
-        };
-
-        this.setState({ editRule: tRule, mode: 'create' });
-    };
-
-    handleRuleCancelClick = () => {
-        this.setState({ editRule: null });
-    };
-
-    handleRuleSave = async newRule => {
-        const newRuleFull = {
-            ruleId: this.state.editRule.ruleId,
-            priority: this.state.editRule.priority,
-            ...newRule,
-        };
-
-        let updatedRules = null;
-        if(this.state.mode == 'create') {
-            updatedRules = this.state.curRules.concat(newRuleFull);
-        } else if(this.state.mode == 'edit') {
-            updatedRules = this.state.curRules.map(item => {
-                if(item.ruleId === newRuleFull.ruleId) {
-                    return newRuleFull;
-                } else {
-                    return item;
-                }
-            });
-        }
-
-        if(updatedRules) {
-            await this.updateRules({ editRule: null, curRules: updatedRules });
-        }
-    };
-
-    updateRules = async newState => {
-        message.loading({ content: 'Saving the rule...', key: 'ruleSaveProgress' });
-        const { apiBaseUrl } = getConfig();
-        await axios.put(apiBaseUrl + '/api/rules/files/callback/' + this.state.selectedRuleFile, newState.curRules, { headers: { 'Content-Type': 'application/json' } });
-        this.setState(newState);
-        message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 });
-    };
-
-    onRulesSortEnd = ({ oldIndex, newIndex }) => {
-        const newItems = arrayMove(this.state.curRules, oldIndex, newIndex);
-        this.setState({ curRulesUpdated: true });
-        this.setState({ curRules: newItems });
-    };
-
-    handleRuleDelete = ruleId => {
-        return async () => {
-            const updatedRules = this.state.curRules.filter(item => {
-                return item.ruleId !== ruleId;
-            });
-            if(updatedRules) {
-                message.loading({ content: 'Deleting rule...', key: 'deleteProgress' });
-                const { apiBaseUrl } = getConfig();
-                await axios.put(apiBaseUrl + '/api/rules/files/callback/' + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } });
-                message.success({ content: 'Deleted', key: 'deleteProgress', duration: 2 });
-                this.setState({ editRule: null, curRules: updatedRules });
-            }
-        };
-    };
-
-    handleNewRulesFileClick = async fileName => {
-        message.loading({ content: 'Creating new file...', key: 'fileNewProgress' });
-        const { apiBaseUrl } = getConfig();
-        await axios.put(apiBaseUrl + '/api/rules/files/callback/' + fileName);
-        await this.getCallbackRulesFiles();
-        this.setState({ selectedRuleFile: fileName, ruleItemActive: null }, () => {
-            message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 });
-            this.updateRulesFileDisplay();
-        });
-    };
-
-    handleRuleFileDelete = async () => {
-        try {
-            message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' });
-            const { apiBaseUrl } = getConfig();
-            await axios.delete(apiBaseUrl + '/api/rules/files/callback/' + this.state.selectedRuleFile);
-            await this.getCallbackRulesFiles();
-            await this.setState({ selectedRuleFile: null, ruleItemActive: null });
-            message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 });
-        } catch (err) {
-            console.log(err);
-            message.error({ content: err.response ? err.response.data.error : err.message, key: 'deleteFileProgress', duration: 6 });
-        }
-    };
-
-    handleRuleFileSetActive = async () => {
-        message.loading({ content: 'Activating rule file...', key: 'activateFileProgress' });
-        const { apiBaseUrl } = getConfig();
-        await axios.put(apiBaseUrl + '/api/rules/files/callback', { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } });
-        await this.getCallbackRulesFiles();
-        await this.updateRulesFileDisplay();
-        message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 });
-    };
-
-    render() {
-        let newFileName = '';
-        const newFileCreateConfirm = () => {
-            // Validate filename format
-            // TODO: Some additional validation for the filename format
-            if(!newFileName.endsWith('.json')) {
-                message.error('Filename should be ended with .json');
-                return;
-            }
-
-            if(/\s/.test(newFileName)) {
-                message.error('Filename contains spaces');
-                return;
-            }
-
-            this.setState({ mode: null });
-            this.handleNewRulesFileClick(newFileName);
-        };
-
-        return (
-            <>
-                <Modal
-                    centered
-                    destroyOnHidden
-                    forceRender={false}
-                    title='Rule Builder'
-                    className='w-50 p-3'
-                    open={!!this.state.editRule}
-                    footer={null}
-                    onCancel={this.handleRuleCancelClick}
-                    maskClosable={false}
+  getRulesFileContentItems = () => {
+    return this.state.curRules.map((rule, key) => {
+      return {
+        key,
+        label: rule.description,
+        children: (
+          <>
+            <Row>
+              <Col span={24} style={{ textAlign: 'right' }}>
+                <Button
+                  onClick={this.handleRuleClick(rule)}
                 >
-                    <RulesEditor
-                        rule={this.state.editRule}
-                        onSave={this.handleRuleSave}
-                        mode='callback'
-                    />
-                </Modal>
+                  Edit
+                </Button>
+                <Button
+                  className='ms-2'
+                  type='primary'
+                  danger
+                  onClick={this.handleRuleDelete(rule.ruleId)}
+                >
+                  Delete
+                </Button>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={24}>
+                <RuleViewer rule={rule} />
+              </Col>
+            </Row>
+          </>
+        )
+      }
+    })
+  }
 
-                <Row>
-                    <Col span={16}>
-                        {
+  handleRuleClick = (tRule = {}) => {
+    // console.log(rule)
+    return () => {
+      this.setState({ editRule: tRule, mode: 'edit' })
+    }
+  }
+
+  handleAddNewRuleClick = () => {
+    // Calculate the new rule ID which is the next number of the highest rule ID in the list
+    const highestRule = this.state.curRules.reduce((prevItem, item) => {
+      return (prevItem.ruleId > item.ruleId ? prevItem : item)
+    }, this.state.curRules[0])
+
+    let newRuleId = 1
+    if (highestRule) {
+      newRuleId = highestRule.ruleId + 1
+    }
+
+    const tRule = {
+      ruleId: newRuleId,
+      priority: 1
+    }
+
+    this.setState({ editRule: tRule, mode: 'create' })
+  }
+
+  handleRuleCancelClick = () => {
+    this.setState({ editRule: null })
+  }
+
+  handleRuleSave = async newRule => {
+    const newRuleFull = {
+      ruleId: this.state.editRule.ruleId,
+      priority: this.state.editRule.priority,
+      ...newRule
+    }
+
+    let updatedRules = null
+    if (this.state.mode == 'create') {
+      updatedRules = this.state.curRules.concat(newRuleFull)
+    } else if (this.state.mode == 'edit') {
+      updatedRules = this.state.curRules.map(item => {
+        if (item.ruleId === newRuleFull.ruleId) {
+          return newRuleFull
+        } else {
+          return item
+        }
+      })
+    }
+
+    if (updatedRules) {
+      await this.updateRules({ editRule: null, curRules: updatedRules })
+    }
+  }
+
+  updateRules = async newState => {
+    message.loading({ content: 'Saving the rule...', key: 'ruleSaveProgress' })
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + '/api/rules/files/callback/' + this.state.selectedRuleFile, newState.curRules, { headers: { 'Content-Type': 'application/json' } })
+    this.setState(newState)
+    message.success({ content: 'Saved', key: 'ruleSaveProgress', duration: 2 })
+  }
+
+  onRulesSortEnd = ({ oldIndex, newIndex }) => {
+    const newItems = arrayMove(this.state.curRules, oldIndex, newIndex)
+    this.setState({ curRulesUpdated: true })
+    this.setState({ curRules: newItems })
+  }
+
+  handleRuleDelete = ruleId => {
+    return async () => {
+      const updatedRules = this.state.curRules.filter(item => {
+        return item.ruleId !== ruleId
+      })
+      if (updatedRules) {
+        message.loading({ content: 'Deleting rule...', key: 'deleteProgress' })
+        const { apiBaseUrl } = getConfig()
+        await axios.put(apiBaseUrl + '/api/rules/files/callback/' + this.state.selectedRuleFile, updatedRules, { headers: { 'Content-Type': 'application/json' } })
+        message.success({ content: 'Deleted', key: 'deleteProgress', duration: 2 })
+        this.setState({ editRule: null, curRules: updatedRules })
+      }
+    }
+  }
+
+  handleNewRulesFileClick = async fileName => {
+    message.loading({ content: 'Creating new file...', key: 'fileNewProgress' })
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + '/api/rules/files/callback/' + fileName)
+    await this.getCallbackRulesFiles()
+    this.setState({ selectedRuleFile: fileName, ruleItemActive: null }, () => {
+      message.success({ content: 'Created', key: 'fileNewProgress', duration: 2 })
+      this.updateRulesFileDisplay()
+    })
+  }
+
+  handleRuleFileDelete = async () => {
+    try {
+      message.loading({ content: 'Deleting file...', key: 'deleteFileProgress' })
+      const { apiBaseUrl } = getConfig()
+      await axios.delete(apiBaseUrl + '/api/rules/files/callback/' + this.state.selectedRuleFile)
+      await this.getCallbackRulesFiles()
+      await this.setState({ selectedRuleFile: null, ruleItemActive: null })
+      message.success({ content: 'Deleted', key: 'deleteFileProgress', duration: 2 })
+    } catch (err) {
+      console.log(err)
+      message.error({ content: err.response ? err.response.data.error : err.message, key: 'deleteFileProgress', duration: 6 })
+    }
+  }
+
+  handleRuleFileSetActive = async () => {
+    message.loading({ content: 'Activating rule file...', key: 'activateFileProgress' })
+    const { apiBaseUrl } = getConfig()
+    await axios.put(apiBaseUrl + '/api/rules/files/callback', { type: 'activeRulesFile', fileName: this.state.selectedRuleFile }, { headers: { 'Content-Type': 'application/json' } })
+    await this.getCallbackRulesFiles()
+    await this.updateRulesFileDisplay()
+    message.success({ content: 'Activated', key: 'activateFileProgress', duration: 2 })
+  }
+
+  render () {
+    let newFileName = ''
+    const newFileCreateConfirm = () => {
+      // Validate filename format
+      // TODO: Some additional validation for the filename format
+      if (!newFileName.endsWith('.json')) {
+        message.error('Filename should be ended with .json')
+        return
+      }
+
+      if (/\s/.test(newFileName)) {
+        message.error('Filename contains spaces')
+        return
+      }
+
+      this.setState({ mode: null })
+      this.handleNewRulesFileClick(newFileName)
+    }
+
+    return (
+      <>
+        <Modal
+          centered
+          destroyOnHidden
+          forceRender={false}
+          title='Rule Builder'
+          className='w-50 p-3'
+          open={!!this.state.editRule}
+          footer={null}
+          onCancel={this.handleRuleCancelClick}
+          maskClosable={false}
+        >
+          <RulesEditor
+            rule={this.state.editRule}
+            onSave={this.handleRuleSave}
+            mode='callback'
+          />
+        </Modal>
+
+        <Row>
+          <Col span={16}>
+            {
                             this.state.selectedRuleFile
-                                ? (
-                                    <Card>
-                                        <Row className='align-items-center'>
-                                            <Col span={12}>
-                                                <h3>{this.state.selectedRuleFile}</h3>
-                                            </Col>
-                                            <Col span={12}>
-                                                <Button
-                                                    className='float-end'
-                                                    type='primary'
-                                                    onClick={this.handleAddNewRuleClick}
-                                                >
-                          Add a new Rule
-                                                </Button>
-                                                {
+                              ? (
+                                <Card>
+                                  <Row className='align-items-center'>
+                                    <Col span={12}>
+                                      <h3>{this.state.selectedRuleFile}</h3>
+                                    </Col>
+                                    <Col span={12}>
+                                      <Button
+                                        className='float-end'
+                                        type='primary'
+                                        onClick={this.handleAddNewRuleClick}
+                                      >
+                                        Add a new Rule
+                                      </Button>
+                                      {
                                                     this.state.reOrderingEnabled
-                                                        ? (
-                                                            <Button
-                                                                className='float-end me-2'
-                                                                type='dashed'
-                                                                danger
-                                                                onClick={async () => {
-                                                                    if(this.state.curRulesUpdated) {
-                                                                        await this.updateRules({ curRules: this.state.curRules });
-                                                                    } else {
-                                                                        message.error({ content: 'No changes found', key: 'ruleSaveProgress', duration: 2 });
-                                                                    }
-                                                                    this.setState({ curRulesUpdated: false });
-                                                                    this.setState({ reOrderingEnabled: false });
-                                                                }}
-                                                            >
-                              Apply Order
-                                                            </Button>
+                                                      ? (
+                                                        <Button
+                                                          className='float-end me-2'
+                                                          type='dashed'
+                                                          danger
+                                                          onClick={async () => {
+                                                            if (this.state.curRulesUpdated) {
+                                                              await this.updateRules({ curRules: this.state.curRules })
+                                                            } else {
+                                                              message.error({ content: 'No changes found', key: 'ruleSaveProgress', duration: 2 })
+                                                            }
+                                                            this.setState({ curRulesUpdated: false })
+                                                            this.setState({ reOrderingEnabled: false })
+                                                          }}
+                                                        >
+                                                          Apply Order
+                                                        </Button>
                                                         )
-                                                        : (
-                                                            <Button
-                                                                className='float-end me-2'
-                                                                type='default'
-                                                                onClick={() => {
-                                                                    this.setState({ reOrderingEnabled: true });
-                                                                }}
-                                                            >
-                              Change Order
-                                                            </Button>
+                                                      : (
+                                                        <Button
+                                                          className='float-end me-2'
+                                                          type='default'
+                                                          onClick={() => {
+                                                            this.setState({ reOrderingEnabled: true })
+                                                          }}
+                                                        >
+                                                          Change Order
+                                                        </Button>
                                                         )
                                                 }
-                                            </Col>
-                                        </Row>
-                                        {
+                                    </Col>
+                                  </Row>
+                                  {
                                             this.state.reOrderingEnabled
-                                                ? (
-                                                    <SortableList
-                                                        items={this.state.curRules.map((rule, index) => ({
-                                                            ...rule,
-                                                            id: rule.ruleId || `rule-${index}`,
-                                                        }))}
-                                                        onSortEnd={this.onRulesSortEnd}
-                                                        renderItem={item => ({
-                                                            key: item.id,
-                                                            label: item.description,
-                                                            children: null,
-                                                        })}
-                                                    />
+                                              ? (
+                                                <SortableList
+                                                  items={this.state.curRules.map((rule, index) => ({
+                                                    ...rule,
+                                                    id: rule.ruleId || `rule-${index}`
+                                                  }))}
+                                                  onSortEnd={this.onRulesSortEnd}
+                                                  renderItem={item => ({
+                                                    key: item.id,
+                                                    label: item.description,
+                                                    children: null
+                                                  })}
+                                                />
                                                 )
-                                                : (
-                                                    <Collapse
-                                                        onChange={this.handleRuleItemActivePanelChange}
-                                                        items={this.getRulesFileContentItems()}
-                                                    />
+                                              : (
+                                                <Collapse
+                                                  onChange={this.handleRuleItemActivePanelChange}
+                                                  items={this.getRulesFileContentItems()}
+                                                />
                                                 )
                                         }
-                                    </Card>
+                                </Card>
                                 )
-                                : (
-                                    <Card style={{ minHeight: '300px' }}>
-                                        <Row className='mt-4'>
-                                            <Col span={24} style={{ textAlign: 'center' }}>
-                                                <Title level={4}>Please select a file</Title>
-                                            </Col>
-                                        </Row>
-                                    </Card>
+                              : (
+                                <Card style={{ minHeight: '300px' }}>
+                                  <Row className='mt-4'>
+                                    <Col span={24} style={{ textAlign: 'center' }}>
+                                      <Title level={4}>Please select a file</Title>
+                                    </Col>
+                                  </Row>
+                                </Card>
                                 )
                         }
-                    </Col>
-                    <Col span={8} className='ps-2'>
-                        <Card>
-                            <div className='d-flex justify-content-between mb-2 '>
-                                <Button
-                                    className='me-2'
-                                    type='primary'
-                                    onClick={() => {
-                                        this.specFilesSelector.click();
-                                    }}
-                                >
+          </Col>
+          <Col span={8} className='ps-2'>
+            <Card>
+              <div className='d-flex justify-content-between mb-2 '>
+                <Button
+                  className='me-2'
+                  type='primary'
+                  onClick={() => {
+                    this.specFilesSelector.click()
+                  }}
+                >
                   Import rules
-                                </Button>
-                                {
+                </Button>
+                {
                                     this.state.selectedRuleFile
-                                        ? (
-                                            <Button
-                                                className='me-2'
-                                                type='primary'
-                                                onClick={this.handleExport}
-                                            >
-                          Export rules
-                                            </Button>
+                                      ? (
+                                        <Button
+                                          className='me-2'
+                                          type='primary'
+                                          onClick={this.handleExport}
+                                        >
+                                          Export rules
+                                        </Button>
                                         )
-                                        : null
+                                      : null
                                 }
-                            </div>
-                            <div className='d-flex justify-content-between'>
-                                <Button
-                                    className='me-4'
-                                    type='primary'
-                                    onClick={() => { this.setState({ mode: 'newFile' }); }}
-                                >
+              </div>
+              <div className='d-flex justify-content-between'>
+                <Button
+                  className='me-4'
+                  type='primary'
+                  onClick={() => { this.setState({ mode: 'newFile' }) }}
+                >
                   New Rules File
-                                </Button>
-                                {
+                </Button>
+                {
                                     this.state.selectedRuleFile
-                                        ? (
-                                            <Button
-                                                onClick={this.handleRuleFileSetActive}
-                                            >
-                            Set as active
-                                            </Button>
+                                      ? (
+                                        <Button
+                                          onClick={this.handleRuleFileSetActive}
+                                        >
+                                          Set as active
+                                        </Button>
                                         )
-                                        : null
+                                      : null
                                 }
-                                {
+                {
                                     this.state.selectedRuleFile
-                                        ? (
-                                            <Button
-                                                className='float-end'
-                                                type='primary'
-                                                danger
-                                                onClick={this.handleRuleFileDelete}
-                                            >
-                            Delete
-                                            </Button>
+                                      ? (
+                                        <Button
+                                          className='float-end'
+                                          type='primary'
+                                          danger
+                                          onClick={this.handleRuleFileDelete}
+                                        >
+                                          Delete
+                                        </Button>
                                         )
-                                        : null
+                                      : null
                                 }
-                            </div>
-                            {
+              </div>
+              {
                                 (this.state.mode === 'newFile')
-                                    ? (
-                                        <table className='mt-2'>
-                                            <tbody>
-                                                <tr><td>
-                                                    <Input
-                                                        placeholder='File Name'
-                                                        type='text'
-                                                        onChange={e => { newFileName = e.target.value; }}
-                                                        onKeyDown={e => {
-                                                            if(e.key === 'Escape') {
-                                                                this.setState({ mode: null });
-                                                            }
-                                                        }}
-                                                        onPressEnter={newFileCreateConfirm}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <Button
-                                                        className='float-end'
-                                                        onClick={newFileCreateConfirm}
-                                                    >
-                                                        <CheckOutlined />
-                                                    </Button>
-                                                </td>
-                                                <td>
-                                                    <Button
-                                                        className='float-end'
-                                                        onClick={() => { this.setState({ mode: null }); }}
-                                                    >
-                                                        <CloseOutlined />
-                                                    </Button>
-                                                </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                  ? (
+                                    <table className='mt-2'>
+                                      <tbody>
+                                        <tr><td>
+                                          <Input
+                                            placeholder='File Name'
+                                            type='text'
+                                            onChange={e => { newFileName = e.target.value }}
+                                            onKeyDown={e => {
+                                              if (e.key === 'Escape') {
+                                                this.setState({ mode: null })
+                                              }
+                                            }}
+                                            onPressEnter={newFileCreateConfirm}
+                                          />
+                                        </td>
+                                          <td>
+                                            <Button
+                                              className='float-end'
+                                              onClick={newFileCreateConfirm}
+                                            >
+                                              <CheckOutlined />
+                                            </Button>
+                                          </td>
+                                          <td>
+                                            <Button
+                                              className='float-end'
+                                              onClick={() => { this.setState({ mode: null }) }}
+                                            >
+                                              <CloseOutlined />
+                                            </Button>
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
                                     )
-                                    : null
+                                  : null
                             }
-                            <Row className='pt-0 pt-md-4'>
-                                <Menu
-                                    mode='inline'
-                                    theme='light'
-                                    selectedKeys={[this.state.selectedRuleFile]}
-                                    onSelect={this.handleRuleFileSelect}
-                                    items={this.getRulesFilesItems()}
-                                />
-                            </Row>
-                        </Card>
-                    </Col>
-                </Row>
-            </>
-        );
-    }
+              <Row className='pt-0 pt-md-4'>
+                <Menu
+                  mode='inline'
+                  theme='light'
+                  selectedKeys={[this.state.selectedRuleFile]}
+                  onSelect={this.handleRuleFileSelect}
+                  items={this.getRulesFilesItems()}
+                />
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+      </>
+    )
+  }
 }
 
-export default RulesCallback;
+export default RulesCallback

@@ -1,4 +1,3 @@
- 
 /*****
  License
  --------------
@@ -27,164 +26,164 @@
  * Vijay Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
+import React from 'react'
 
-import { Modal, Input, Card, Row, Col, Button, Typography, message } from 'antd';
+import { Modal, Input, Card, Row, Col, Button, Typography, message } from 'antd'
 
-import axios from 'axios';
-import { getConfig } from '../../utils/getConfig';
-import APIMappings from './APIMappings';
+import axios from 'axios'
+import { getConfig } from '../../utils/getConfig'
+import APIMappings from './APIMappings'
 
-const { Text } = Typography;
+const { Text } = Typography
 
 class APIEditor extends React.Component {
-    constructor() {
-        super();
-        this.state = {
-            apiMappingsVisible: false,
-            hostnames: [],
-            prefix: '',
-            valuesChanged: false,
-        };
+  constructor () {
+    super()
+    this.state = {
+      apiMappingsVisible: false,
+      hostnames: [],
+      prefix: '',
+      valuesChanged: false
     }
+  }
 
-    componentDidMount() {
-        this.componentSetState();
+  componentDidMount () {
+    this.componentSetState()
+  }
+
+  componentSetState = async () => {
+    this.setState({
+      hostnames: this.props.apiVersion.hostnames,
+      prefix: this.props.apiVersion.prefix
+    })
+  }
+
+  handleSave = async () => {
+    if (!this.state.prefix.startsWith('/')) {
+      message.error('Prefix should starts with /')
+      return
     }
+    const res = await axios.put(this.getDefinitionVersionURL(), {
+      hostnames: this.state.hostnames,
+      prefix: this.state.prefix
+    })
+    this.setState({ valuesChanged: false })
+    this.props.onUpdated()
+    return res.data
+  }
 
-    componentSetState = async () => {
-        this.setState({
-            hostnames: this.props.apiVersion.hostnames,
-            prefix: this.props.apiVersion.prefix,
-        });
-    };
+  getDefinitionVersionURL = () => {
+    const { apiBaseUrl } = getConfig()
+    if (this.state.selectedApiIndex !== null) {
+      const url = apiBaseUrl + '/api/openapi/definition/' + this.props.apiVersion.type + '/' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion
+      return url
+    } else {
+      return ''
+    }
+  }
 
-    handleSave = async () => {
-        if(!this.state.prefix.startsWith('/')) {
-            message.error('Prefix should starts with /');
-            return;
-        }
-        const res = await axios.put(this.getDefinitionVersionURL(), {
-            hostnames: this.state.hostnames,
-            prefix: this.state.prefix,
-        });
-        this.setState({ valuesChanged: false });
-        this.props.onUpdated();
-        return res.data;
-    };
+  showPrefix () {
+    return (
+      <Row className='mt-2'>
+        <Col span={12}>
+          <Text>Prefix</Text>
+        </Col>
+        <Col span={12}>
+          <Row gutter={8}>
+            <Col span={23}>
+              <Input
+                value={this.state.prefix}
+                onChange={e => this.setState({ prefix: e.target.value, valuesChanged: true })}
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    )
+  }
 
-    getDefinitionVersionURL = () => {
-        const { apiBaseUrl } = getConfig();
-        if(this.state.selectedApiIndex !== null) {
-            const url = apiBaseUrl + '/api/openapi/definition/' + this.props.apiVersion.type + '/' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion;
-            return url;
-        } else {
-            return '';
-        }
-    };
+  showHostNames () {
+    return (
+      <Row className='mt-2'>
+        <Col span={12}>
+          <Text>Hostnames (Comma-separated values)</Text>
+        </Col>
+        <Col span={12}>
+          <Row gutter={8}>
+            <Col span={23}>
+              <Input
+                value={this.state.hostnames}
+                onChange={e => this.setState({ hostnames: e.target.value ? e.target.value.split(',') : [], valuesChanged: true })}
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    )
+  }
 
-    showPrefix() {
-        return (
-            <Row className='mt-2'>
+  render () {
+    return (
+      <>
+        <Modal
+          title='Mapping'
+          style={{ top: 20 }}
+          className='p-3'
+          width='90%'
+          destroyOnClose
+          footer={null}
+          open={this.state.apiMappingsVisible}
+          onCancel={e => {
+            this.setState({ apiMappingsVisible: false })
+          }}
+        >
+          <APIMappings
+            apiVersion={this.props.apiVersion}
+            openApiDefinition={this.props.openApiDefinition}
+          />
+        </Modal>
+        <Row>
+          <Col span={24}>
+            <Card>
+              <Row>
                 <Col span={12}>
-                    <Text>Prefix</Text>
+                  <Text strong>
+                    {this.props.apiVersion ? this.props.apiVersion.type + ' ' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion : ''}
+                  </Text>
                 </Col>
                 <Col span={12}>
-                    <Row gutter={8}>
-                        <Col span={23}>
-                            <Input
-                                value={this.state.prefix}
-                                onChange={e => this.setState({ prefix: e.target.value, valuesChanged: true })}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
-        );
-    }
-
-    showHostNames() {
-        return (
-            <Row className='mt-2'>
-                <Col span={12}>
-                    <Text>Hostnames (Comma-separated values)</Text>
-                </Col>
-                <Col span={12}>
-                    <Row gutter={8}>
-                        <Col span={23}>
-                            <Input
-                                value={this.state.hostnames}
-                                onChange={e => this.setState({ hostnames: e.target.value ? e.target.value.split(',') : [], valuesChanged: true })}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
-        );
-    }
-
-    render() {
-        return (
-            <>
-                <Modal
-                    title='Mapping'
-                    style={{ top: 20 }}
-                    className='p-3'
-                    width='90%'
-                    destroyOnClose
-                    footer={null}
-                    open={this.state.apiMappingsVisible}
-                    onCancel={e => {
-                        this.setState({ apiMappingsVisible: false });
+                  <Button
+                    className='ms-2 float-end'
+                    type='primary'
+                    onClick={e => {
+                      this.setState({ apiMappingsVisible: true })
                     }}
-                >
-                    <APIMappings
-                        apiVersion={this.props.apiVersion}
-                        openApiDefinition={this.props.openApiDefinition}
-                    />
-                </Modal>
-                <Row>
-                    <Col span={24}>
-                        <Card>
-                            <Row>
-                                <Col span={12}>
-                                    <Text strong>
-                                        { this.props.apiVersion ? this.props.apiVersion.type + ' ' + this.props.apiVersion.majorVersion + '.' + this.props.apiVersion.minorVersion : ''}
-                                    </Text>
-                                </Col>
-                                <Col span={12}>
-                                    <Button
-                                        className='ms-2 float-end'
-                                        type='primary'
-                                        onClick={e => {
-                                            this.setState({ apiMappingsVisible: true });
-                                        }}
-                                        disabled={!(this.props.apiVersion && (!!this.props.apiVersion.asynchronous))}
-                                    >
+                    disabled={!(this.props.apiVersion && (!!this.props.apiVersion.asynchronous))}
+                  >
                     Edit Asynchronous Callback Mappings
-                                    </Button>
-                                </Col>
-                            </Row>
-                            {this.showPrefix()}
-                            {this.showHostNames()}
-                            <Row>
-                                <Col span={12}>
-                                    <Button
-                                        danger
-                                        type='primary'
-                                        onClick={this.handleSave}
-                                        disabled={!this.state.valuesChanged}
-                                    >
+                  </Button>
+                </Col>
+              </Row>
+              {this.showPrefix()}
+              {this.showHostNames()}
+              <Row>
+                <Col span={12}>
+                  <Button
+                    danger
+                    type='primary'
+                    onClick={this.handleSave}
+                    disabled={!this.state.valuesChanged}
+                  >
                     Save
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </Card>
-                    </Col>
-                </Row>
-            </>
-        );
-    }
+                  </Button>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+      </>
+    )
+  }
 }
 
-export default APIEditor;
+export default APIEditor

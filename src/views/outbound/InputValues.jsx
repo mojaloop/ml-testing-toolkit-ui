@@ -27,167 +27,167 @@
  --------------
  ******/
 
-import React from 'react';
-import { Input, Row, Col, message, Popover, Button, Card, Checkbox, Radio, Typography } from 'antd';
-import { DeleteTwoTone } from '@ant-design/icons';
+import React from 'react'
+import { Input, Row, Col, message, Popover, Button, Card, Checkbox, Radio, Typography } from 'antd'
+import { DeleteTwoTone } from '@ant-design/icons'
 
-const { Text } = Typography;
+const { Text } = Typography
 
 class InputValues extends React.Component {
-    state = {
-        addInputValueDialogVisible: false,
-        newInputValueName: '',
-        newInputValueType: 'string',
-    };
+  state = {
+    addInputValueDialogVisible: false,
+    newInputValueName: '',
+    newInputValueType: 'string'
+  }
 
-    handleDeleteClick = inputValueName => {
-        this.props.onDelete(inputValueName);
-    };
+  handleDeleteClick = inputValueName => {
+    this.props.onDelete(inputValueName)
+  }
 
-    getInputItemType = inputValueName => {
-        if(typeof this.props.values[inputValueName] === 'boolean') {
-            return (
-                <Checkbox
-                    checked={this.props.values[inputValueName]}
-                    onChange={e => this.props.onChange(inputValueName, e.target.checked)}
-                />
-            );
-        } else if(typeof this.props.values[inputValueName] === 'number') {
-            return (
-                <Input
-                    value={this.props.values[inputValueName]}
-                    onChange={e => this.props.onChange(inputValueName, +e.target.value)}
-                />
-            );
-        } else {
-            return (
-                <Input
-                    value={this.props.values[inputValueName]}
-                    onChange={e => this.props.onChange(inputValueName, e.target.value)}
-                />
-            );
-        }
-    };
-
-    getInputItems = () => {
-        const inputItems = [];
-        for(const inputValueName in this.props.values) {
-            inputItems.push(
-                <Row className='mb-2' key={inputValueName}>
-                    <Col span={12}>
-                        <Text>{inputValueName}</Text>
-                    </Col>
-                    <Col span={12}>
-                        <Row gutter={8}>
-                            <Col span={23}>
-                                {this.getInputItemType(inputValueName)}
-                            </Col>
-                            <Col span={1}>
-                                <DeleteTwoTone
-                                    key={inputValueName} type='delete' theme='filled'
-                                    onClick={() => this.handleDeleteClick(inputValueName)}
-                                />
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>,
-            );
-        }
-        return inputItems;
-    };
-
-    handleAddInputValue = inputValueName => {
-        // Check if the input value name already exists
-        if(this.props.values && this.props.values.hasOwnProperty(inputValueName)) {
-            message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 });
-        } else {
-            // Save the input value
-            let newValue = '';
-            if(this.state.newInputValueType === 'number') {
-                newValue = 0;
-            } else if(this.state.newInputValueType === 'boolean') {
-                newValue = false;
-            }
-            this.props.onChange(inputValueName, newValue);
-            this.state.newInputValueName = '';
-        }
-    };
-
-    render() {
-        const addInputValueDialogContent = (
-            <>
-                <Input
-                    placeholder='Input Value Name'
-                    type='text'
-                    value={this.state.newInputValueName}
-                    onChange={e => { this.setState({ newInputValueName: e.target.value }); }}
-                    onKeyDown={e => {
-                        if(e.key === 'Escape') {
-                            this.setState({ addInputValueDialogVisible: false });
-                        }
-                    }}
-                    onPressEnter={() => {
-                        this.handleAddInputValue(this.state.newInputValueName);
-                        this.setState({ addInputValueDialogVisible: false });
-                    }}
-                />
-                <Radio.Group
-                    onChange={e => {
-                        this.setState({ newInputValueType: e.target.value });
-                    }}
-                    value={this.state.newInputValueType}
-                >
-                    <Radio value='string'>String</Radio>
-                    <Radio value='number'>Number</Radio>
-                    <Radio value='boolean'>Boolean</Radio>
-                </Radio.Group>
-                <Button
-                    className='text-end mt-2'
-                    color='success'
-                    href='#pablo'
-                    onClick={() => {
-                        this.handleAddInputValue(this.state.newInputValueName);
-                        this.setState({ addInputValueDialogVisible: false });
-                    }}
-                    size='sm'
-                >
-          Add
-                </Button>
-            </>
-        );
-
-        return (
-            <>
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <Card className='bg-white shadow' size='default'>
-                            <Row className='mb-2'>
-                                <Col span={24}>
-                                    <Popover
-                                        content={addInputValueDialogContent}
-                                        title='Enter a new name'
-                                        trigger='click'
-                                        zIndex={1101}
-                                        open={this.state.addInputValueDialogVisible}
-                                        onOpenChange={visible => this.setState({ addInputValueDialogVisible: visible })}
-                                    >
-                                        <Button
-                                            className='text-end float-end'
-                                            color='primary'
-                                            size='sm'
-                                        >
-                      Add Input Value
-                                        </Button>
-                                    </Popover>
-                                </Col>
-                            </Row>
-                            {this.getInputItems()}
-                        </Card>
-                    </Col>
-                </Row>
-            </>
-        );
+  getInputItemType = inputValueName => {
+    if (typeof this.props.values[inputValueName] === 'boolean') {
+      return (
+        <Checkbox
+          checked={this.props.values[inputValueName]}
+          onChange={e => this.props.onChange(inputValueName, e.target.checked)}
+        />
+      )
+    } else if (typeof this.props.values[inputValueName] === 'number') {
+      return (
+        <Input
+          value={this.props.values[inputValueName]}
+          onChange={e => this.props.onChange(inputValueName, +e.target.value)}
+        />
+      )
+    } else {
+      return (
+        <Input
+          value={this.props.values[inputValueName]}
+          onChange={e => this.props.onChange(inputValueName, e.target.value)}
+        />
+      )
     }
+  }
+
+  getInputItems = () => {
+    const inputItems = []
+    for (const inputValueName in this.props.values) {
+      inputItems.push(
+        <Row className='mb-2' key={inputValueName}>
+          <Col span={12}>
+            <Text>{inputValueName}</Text>
+          </Col>
+          <Col span={12}>
+            <Row gutter={8}>
+              <Col span={23}>
+                {this.getInputItemType(inputValueName)}
+              </Col>
+              <Col span={1}>
+                <DeleteTwoTone
+                  key={inputValueName} type='delete' theme='filled'
+                  onClick={() => this.handleDeleteClick(inputValueName)}
+                />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      )
+    }
+    return inputItems
+  }
+
+  handleAddInputValue = inputValueName => {
+    // Check if the input value name already exists
+    if (this.props.values && this.props.values.hasOwnProperty(inputValueName)) {
+      message.error({ content: 'The input value name already exists', key: 'InputValueNameExists', duration: 3 })
+    } else {
+      // Save the input value
+      let newValue = ''
+      if (this.state.newInputValueType === 'number') {
+        newValue = 0
+      } else if (this.state.newInputValueType === 'boolean') {
+        newValue = false
+      }
+      this.props.onChange(inputValueName, newValue)
+      this.state.newInputValueName = ''
+    }
+  }
+
+  render () {
+    const addInputValueDialogContent = (
+      <>
+        <Input
+          placeholder='Input Value Name'
+          type='text'
+          value={this.state.newInputValueName}
+          onChange={e => { this.setState({ newInputValueName: e.target.value }) }}
+          onKeyDown={e => {
+            if (e.key === 'Escape') {
+              this.setState({ addInputValueDialogVisible: false })
+            }
+          }}
+          onPressEnter={() => {
+            this.handleAddInputValue(this.state.newInputValueName)
+            this.setState({ addInputValueDialogVisible: false })
+          }}
+        />
+        <Radio.Group
+          onChange={e => {
+            this.setState({ newInputValueType: e.target.value })
+          }}
+          value={this.state.newInputValueType}
+        >
+          <Radio value='string'>String</Radio>
+          <Radio value='number'>Number</Radio>
+          <Radio value='boolean'>Boolean</Radio>
+        </Radio.Group>
+        <Button
+          className='text-end mt-2'
+          color='success'
+          href='#pablo'
+          onClick={() => {
+            this.handleAddInputValue(this.state.newInputValueName)
+            this.setState({ addInputValueDialogVisible: false })
+          }}
+          size='sm'
+        >
+          Add
+        </Button>
+      </>
+    )
+
+    return (
+      <>
+        <Row gutter={16}>
+          <Col span={24}>
+            <Card className='bg-white shadow' size='default'>
+              <Row className='mb-2'>
+                <Col span={24}>
+                  <Popover
+                    content={addInputValueDialogContent}
+                    title='Enter a new name'
+                    trigger='click'
+                    zIndex={1101}
+                    open={this.state.addInputValueDialogVisible}
+                    onOpenChange={visible => this.setState({ addInputValueDialogVisible: visible })}
+                  >
+                    <Button
+                      className='text-end float-end'
+                      color='primary'
+                      size='sm'
+                    >
+                                          Add Input Value
+                    </Button>
+                  </Popover>
+                </Col>
+              </Row>
+              {this.getInputItems()}
+            </Card>
+          </Col>
+        </Row>
+      </>
+    )
+  }
 }
 
-export default InputValues;
+export default InputValues

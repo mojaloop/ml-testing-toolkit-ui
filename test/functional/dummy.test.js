@@ -5,4 +5,4 @@ describe('Dummy functional test', () => {
   it('should pass', () => {
     expect(true).toBe(true)
   })
-}) 
+})

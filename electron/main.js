@@ -43,7 +43,7 @@ const mkdirAsync = promisify(fs.mkdir)
 const isDev = process.env.NODE_ENV === 'development'
 const WEB_URL = isDev ? 'http://localhost:3000/admin/outbound_request' : 'http://localhost:6060/admin/outbound_request'
 const MASTERFILE_NAME = 'master.json'
-let globalFilePath = null
+const globalFilePath = null
 let mainWindow
 
 let actionEventSender = null
