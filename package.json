@@ -111,7 +111,7 @@
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^2.13.0",
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.35.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -126,7 +126,7 @@
     "@vitest/ui": "^4.0.18",
     "audit-ci": "^7.1.0",
     "buffer": "^6.0.3",
-    "eslint": "^10.0.0",
+    "eslint": "^9.35.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.3.0",
@@ -146,7 +146,12 @@
     "vitest": "^4.0.18"
   },
   "overrides": {
-    "form-data": "4.0.4"
+    "form-data": "4.0.4",
+    "fast-xml-parser": "5.3.6",
+    "qs": "6.14.2",
+    "glob": "10.5.0",
+    "js-yaml": "3.14.2",
+    "mdast-util-to-hast": "13.2.1"
   },
   "private": true,
   "standard-version": {
