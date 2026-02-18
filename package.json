@@ -16,7 +16,7 @@
     "Juan Correa <code@juancorrea.io>"
   ],
   "engines": {
-    "node": "22.15.1"
+    "node": "22.22.0"
   },
   "license": "Apache-2.0",
   "bugs": {
@@ -131,7 +131,7 @@
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.3.0",
     "https-browserify": "^1.0.0",
-    "jsdom": "^28.1.0",
+    "jsdom": "^25.0.1",
     "npm-check-updates": "^19.3.2",
     "process": "^0.11.10",
     "replace": "^1.2.2",
