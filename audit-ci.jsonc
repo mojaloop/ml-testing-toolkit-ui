@@ -3,5 +3,7 @@
   // audit-ci supports reading JSON, JSONC, and JSON5 config files.
   // Only use one of ["low": true, "moderate": true, "high": true, "critical": true]
   "moderate": true,
-  "allowlist": []
+  "allowlist": [
+    "GHSA-2g4f-4pwh-qvx6" // ajv ReDoS with $data option - transitive via eslint, unfixable without eslint 10.x
+  ]
 }
