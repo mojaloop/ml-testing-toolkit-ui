@@ -82,7 +82,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "ace-builds": "^1.43.6",
     "ajv": "^8.18.0",
-    "antd": "^6.3.0",
+    "antd": "^6.3.1",
     "array-move": "^4.0.0",
     "axios": "^1.13.5",
     "bootstrap": "^5.3.8",
@@ -101,10 +101,10 @@
     "react-ace": "^14.0.1",
     "react-dom": "^19.2.4",
     "react-markdown": "10.1.0",
-    "react-router-dom": "^7.13.0",
+    "react-router-dom": "^7.13.1",
     "redoc": "^2.5.2",
     "socket.io-client": "^4.8.3",
-    "styled-components": "^6.3.9",
+    "styled-components": "^6.3.11",
     "web-vitals": "^5.1.0",
     "yaml": "^2.8.2"
   },
@@ -116,7 +116,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.14",
     "@types/markerclustererplus": "2.1.33",
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
@@ -131,13 +131,13 @@
     "globals": "^17.3.0",
     "https-browserify": "^1.0.0",
     "jsdom": "^25.0.1",
-    "npm-check-updates": "^19.3.2",
+    "npm-check-updates": "^19.6.2",
     "process": "^0.11.10",
     "replace": "^1.2.2",
     "standard-version": "^9.5.0",
     "stream-http": "^3.2.0",
     "typescript": "5.8.3",
-    "typescript-eslint": "^8.56.0",
+    "typescript-eslint": "^8.56.1",
     "url": "^0.11.4",
     "util": "^0.12.5",
     "vite": "7.3.1",
@@ -146,14 +146,17 @@
   },
   "overrides": {
     "form-data": "4.0.4",
-    "fast-xml-parser": "5.3.6",
+    "fast-xml-parser": "5.3.8",
     "qs": "6.14.2",
     "glob": "10.5.0",
     "js-yaml": "3.14.2",
-    "mdast-util-to-hast": "13.2.1"
+    "mdast-util-to-hast": "13.2.1",
+    "replace": {
+      "minimatch": "3.1.4"
+    }
   },
   "optionalDependencies": {
-    "electron": "^40.4.1"
+    "electron": "^40.6.1"
   },
   "private": true,
   "standard-version": {
