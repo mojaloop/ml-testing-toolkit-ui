@@ -1,5 +1,7 @@
 ## Add a TODO comment indicating the reason for each rejected dependency upgrade added to this list, and what should be done to resolve it (i.e. handle it through a story, etc).
 reject: [
     "@types/jest",
-    "typescript" # conflicts with typescript-eslint
+    "typescript", # conflicts with typescript-eslint
+    "@eslint/js", # eslint 10.x not yet compatible with eslint-plugin-import, eslint-plugin-react, typescript-eslint
+    "eslint" # eslint 10.x not yet compatible with plugin ecosystem
 ]

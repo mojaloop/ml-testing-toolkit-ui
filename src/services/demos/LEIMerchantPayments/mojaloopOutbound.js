@@ -22,8 +22,7 @@
  * Mojaloop Foundation
  - Name Surname <name.surname@mojaloop.io>
 
- * ModusBox
- * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ * Shuchita Prakash <skp.82603@gmail.com>
  --------------
  ******/
 import axios from 'axios'
