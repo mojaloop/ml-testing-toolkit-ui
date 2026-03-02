@@ -25,176 +25,176 @@
   * Pratap Pawar <iampratappawar@gmail.com> (Original Author)
  --------------
  ******/
-import React from 'react';
-import { Row, Col, Typography, Button, Table, Tag, Progress, InputNumber, Input } from 'antd';
-const { Text } = Typography;
+import React from 'react'
+import { Row, Col, Typography, Button, Table, Tag, Progress, InputNumber, Input } from 'antd'
+const { Text } = Typography
 
 class Settings extends React.Component {
-    state = {
-        provisioningInProgress: false,
-        provisioningStatus: '',
-        progressSteps: {},
-        payerFspTransferExpirationOffsetSec: 60,
-    };
+  state = {
+    provisioningInProgress: false,
+    provisioningStatus: '',
+    progressSteps: {},
+    payerFspTransferExpirationOffsetSec: 60
+  }
 
-    componentDidMount = async () => {
-        this.setState({ payerFspTransferExpirationOffsetSec: this.props.outboundService.getCustomParams().payerFspTransferExpirationOffset / 1000 });
-    };
+  componentDidMount = async () => {
+    this.setState({ payerFspTransferExpirationOffsetSec: this.props.outboundService.getCustomParams().payerFspTransferExpirationOffset / 1000 })
+  }
 
-    handleTestCaseProgressUpdate = data => {
-        const progress = data.progress;
-        if(progress.status === 'SUCCESS' || progress.status === 'ERROR') {
-            if(this.state.progressSteps[data.testCaseName]) {
-                this.state.progressSteps[data.testCaseName].passedCount += 1;
-            } else {
-                this.state.progressSteps[data.testCaseName] = {
-                    passedCount: 1,
-                    totalCount: data.testCaseRequestCount,
-                };
-            }
-            this.forceUpdate();
+  handleTestCaseProgressUpdate = data => {
+    const progress = data.progress
+    if (progress.status === 'SUCCESS' || progress.status === 'ERROR') {
+      if (this.state.progressSteps[data.testCaseName]) {
+        this.state.progressSteps[data.testCaseName].passedCount += 1
+      } else {
+        this.state.progressSteps[data.testCaseName] = {
+          passedCount: 1,
+          totalCount: data.testCaseRequestCount
         }
-    };
-
-    handleNotificationEvents = event => {
-        switch (event.type) {
-            case 'testCaseProgress':
-            {
-                if(event.data && event.data.progress) {
-                    this.handleTestCaseProgressUpdate(event.data);
-                }
-                break;
-            }
-            case 'testCaseFinished':
-            {
-                this.setState({ provisioningInProgress: false, provisioningStatus: 'Completed' });
-                break;
-            }
-            case 'testCaseTerminated':
-            {
-                this.setState({ provisioningInProgress: false, provisioningStatus: 'Terminated' });
-                break;
-            }
-        }
-    };
-
-    handleStartProvisioning = async idNumber => {
-        this.setState({ provisioningInProgress: true, provisioningStatus: '', progressSteps: {} });
-        await this.props.outboundService.startProvisioning();
-    };
-
-    render() {
-        const columns = [
-            {
-                title: 'Name',
-                dataIndex: 'stepName',
-            },
-            {
-                title: 'Status',
-                dataIndex: 'passCount',
-            },
-        ];
-
-        const progressStepData = Object.entries(this.state.progressSteps).map((step, index) => {
-            return {
-                key: index,
-                stepName: step[0],
-                passCount: (
-                    <>
-                        <Progress percent={Math.round(step[1].passedCount * 100 / step[1].totalCount)} width={50} />
-                        {step[1].passedCount === step[1].totalCount ? (<Tag className='ms-2' color='success'>DONE</Tag>) : null}
-                    </>),
-            };
-        });
-
-        return (
-            <>
-                <Row className='mt-4 ms-2'>
-                    <Col span={24}>
-                        <Text strong>Payer First Name:</Text>
-                        <Input
-                            className='ms-2'
-                            style={{ width: '40%' }}
-                            value={this.props.inputValues.fromFirstName}
-                            onChange={newName => {
-                                this.props.inputValues.fromFirstName = newName.target.value;
-                                this.forceUpdate();
-                            }}
-                        />
-                    </Col>
-                </Row>
-                <Row className='mt-4 ms-2'>
-                    <Col span={24}>
-                        <Text strong>Payer Last Name:</Text>
-                        <Input
-                            className='ms-2'
-                            style={{ width: '40%' }}
-                            value={this.props.inputValues.fromLastName}
-                            onChange={newName => {
-                                this.props.inputValues.fromLastName = newName.target.value;
-                                this.forceUpdate();
-                            }}
-                        />
-                    </Col>
-                </Row>
-                <Row className='mt-4 ms-2'>
-                    <Col span={24}>
-                        <Text strong>Payer MSISDN:</Text>
-                        <Input
-                            className='ms-2'
-                            style={{ width: '40%' }}
-                            value={this.props.inputValues.fromIdValue}
-                            onChange={newName => {
-                                this.props.inputValues.fromIdValue = newName.target.value;
-                                this.forceUpdate();
-                            }}
-                        />
-                    </Col>
-                </Row>
-                <Row className='mt-4 ms-2'>
-                    <Col span={24}>
-                        <Text strong>Payer Transfer Expiry:</Text>
-                        <InputNumber
-                            className='ms-4'
-                            value={this.state.payerFspTransferExpirationOffsetSec}
-                            onChange={newNumber => {
-                                this.setState({ payerFspTransferExpirationOffsetSec: newNumber });
-                                this.props.outboundService.setCustomParams({ payerFspTransferExpirationOffset: newNumber * 1000 });
-                            }}
-                        />
-                        <Text className='ms-2'>Seconds</Text>
-                    </Col>
-                </Row>
-                <Row className='mt-4 ms-2'>
-                    <Col span={24}>
-                        <Button
-                            onClick={this.handleStartProvisioning}
-                            loading={this.state.provisioningInProgress}
-                        >
-              Start Provisioning
-                        </Button>
-                    </Col>
-                </Row>
-                <Row className='mt-4 ms-2'>
-                    <Col span={24}>
-                        <Table
-                            columns={columns}
-                            dataSource={progressStepData}
-                            pagination={false}
-                            scroll={{ y: 540 }}
-                            loading={this.state.provisioningInProgress}
-                            footer={pageData => {
-                                return (
-                                    <Text strong>{this.state.provisioningStatus}</Text>
-                                );
-                            }}
-                        />
-                    </Col>
-                </Row>
-            </>
-
-        );
+      }
+      this.forceUpdate()
     }
+  }
+
+  handleNotificationEvents = event => {
+    switch (event.type) {
+      case 'testCaseProgress':
+      {
+        if (event.data && event.data.progress) {
+          this.handleTestCaseProgressUpdate(event.data)
+        }
+        break
+      }
+      case 'testCaseFinished':
+      {
+        this.setState({ provisioningInProgress: false, provisioningStatus: 'Completed' })
+        break
+      }
+      case 'testCaseTerminated':
+      {
+        this.setState({ provisioningInProgress: false, provisioningStatus: 'Terminated' })
+        break
+      }
+    }
+  }
+
+  handleStartProvisioning = async idNumber => {
+    this.setState({ provisioningInProgress: true, provisioningStatus: '', progressSteps: {} })
+    await this.props.outboundService.startProvisioning()
+  }
+
+  render () {
+    const columns = [
+      {
+        title: 'Name',
+        dataIndex: 'stepName'
+      },
+      {
+        title: 'Status',
+        dataIndex: 'passCount'
+      }
+    ]
+
+    const progressStepData = Object.entries(this.state.progressSteps).map((step, index) => {
+      return {
+        key: index,
+        stepName: step[0],
+        passCount: (
+          <>
+            <Progress percent={Math.round(step[1].passedCount * 100 / step[1].totalCount)} width={50} />
+            {step[1].passedCount === step[1].totalCount ? (<Tag className='ms-2' color='success'>DONE</Tag>) : null}
+          </>)
+      }
+    })
+
+    return (
+      <>
+        <Row className='mt-4 ms-2'>
+          <Col span={24}>
+            <Text strong>Payer First Name:</Text>
+            <Input
+              className='ms-2'
+              style={{ width: '40%' }}
+              value={this.props.inputValues.fromFirstName}
+              onChange={newName => {
+                this.props.inputValues.fromFirstName = newName.target.value
+                this.forceUpdate()
+              }}
+            />
+          </Col>
+        </Row>
+        <Row className='mt-4 ms-2'>
+          <Col span={24}>
+            <Text strong>Payer Last Name:</Text>
+            <Input
+              className='ms-2'
+              style={{ width: '40%' }}
+              value={this.props.inputValues.fromLastName}
+              onChange={newName => {
+                this.props.inputValues.fromLastName = newName.target.value
+                this.forceUpdate()
+              }}
+            />
+          </Col>
+        </Row>
+        <Row className='mt-4 ms-2'>
+          <Col span={24}>
+            <Text strong>Payer MSISDN:</Text>
+            <Input
+              className='ms-2'
+              style={{ width: '40%' }}
+              value={this.props.inputValues.fromIdValue}
+              onChange={newName => {
+                this.props.inputValues.fromIdValue = newName.target.value
+                this.forceUpdate()
+              }}
+            />
+          </Col>
+        </Row>
+        <Row className='mt-4 ms-2'>
+          <Col span={24}>
+            <Text strong>Payer Transfer Expiry:</Text>
+            <InputNumber
+              className='ms-4'
+              value={this.state.payerFspTransferExpirationOffsetSec}
+              onChange={newNumber => {
+                this.setState({ payerFspTransferExpirationOffsetSec: newNumber })
+                this.props.outboundService.setCustomParams({ payerFspTransferExpirationOffset: newNumber * 1000 })
+              }}
+            />
+            <Text className='ms-2'>Seconds</Text>
+          </Col>
+        </Row>
+        <Row className='mt-4 ms-2'>
+          <Col span={24}>
+            <Button
+              onClick={this.handleStartProvisioning}
+              loading={this.state.provisioningInProgress}
+            >
+              Start Provisioning
+            </Button>
+          </Col>
+        </Row>
+        <Row className='mt-4 ms-2'>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={progressStepData}
+              pagination={false}
+              scroll={{ y: 540 }}
+              loading={this.state.provisioningInProgress}
+              footer={pageData => {
+                return (
+                  <Text strong>{this.state.provisioningStatus}</Text>
+                )
+              }}
+            />
+          </Col>
+        </Row>
+      </>
+
+    )
+  }
 }
 
-export default Settings;
+export default Settings

@@ -1,0 +1,13 @@
+{
+  "payer": {
+    "name": "Shuchita Prakash",
+    "bank": "Pink Bank",
+    "bankAccountId": "123456789"
+  },
+  "payee": {
+    "name": "Bamburi Cement Public Limited Company", 
+    "lei": "529900AXZOJO15EBGR24",
+    "merchantId": "10000007"
+  },
+  "currencies": ["RWF", "KSH"]
+}

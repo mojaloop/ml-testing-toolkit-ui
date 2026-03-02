@@ -26,50 +26,50 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
-import mobile_bg from '../../../assets/img/mobile_plain.png';
+import React from 'react'
+import mobile_bg from '../../../assets/img/mobile_plain.png'
 
-import PayeeApp from './PayeeApp.jsx';
+import PayeeApp from './PayeeApp.jsx'
 
 class MobileAppWrapper extends React.Component {
-    render() {
-        return (
-            <>
-                <div
-                    style={{
-                        width: 'min(100vw,50vh)',
-                        height: 'min(100vh,200vw)',
-                        backgroundImage: `url(${mobile_bg})`,
-                        backgroundSize: 'contain',
-                        backgroundRepeat: 'no-repeat',
-                        paddingTop: 'min(10vh,20vw)',
-                        paddingLeft: 'min(4vh,8vw)',
-                    }}
-                >
-                    <div style={{ width: '90%', height: '90%', overflow: 'hidden' }}>
-                        <PayeeApp
-                            notificationProperties={{
-                                top: 100,
-                                style: {
-                                    marginLeft: 18,
-                                    width: 350,
-                                    borderRadius: 30,
-                                    backgroundColor: '#d4e4ff',
-                                },
-                            }}
-                            messageProperties={{
-                                style: {
-                                    textAlign: 'left',
-                                    marginLeft: '15vh',
-                                    marginTop: '10vh',
-                                },
-                            }}
-                        />
-                    </div>
-                </div>
-            </>
-        );
-    }
+  render () {
+    return (
+      <>
+        <div
+          style={{
+            width: 'min(100vw,50vh)',
+            height: 'min(100vh,200vw)',
+            backgroundImage: `url(${mobile_bg})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            paddingTop: 'min(10vh,20vw)',
+            paddingLeft: 'min(4vh,8vw)'
+          }}
+        >
+          <div style={{ width: '90%', height: '90%', overflow: 'hidden' }}>
+            <PayeeApp
+              notificationProperties={{
+                top: 100,
+                style: {
+                  marginLeft: 18,
+                  width: 350,
+                  borderRadius: 30,
+                  backgroundColor: '#d4e4ff'
+                }
+              }}
+              messageProperties={{
+                style: {
+                  textAlign: 'left',
+                  marginLeft: '15vh',
+                  marginTop: '10vh'
+                }
+              }}
+            />
+          </div>
+        </div>
+      </>
+    )
+  }
 }
 
-export default MobileAppWrapper;
+export default MobileAppWrapper

@@ -27,47 +27,46 @@
  --------------
  ******/
 
-import axios from 'axios';
-import { getConfig } from '../../utils/getConfig';
+import axios from 'axios'
+import { getConfig } from '../../utils/getConfig'
 
 export class FetchUtils {
-    static fetchAllApiData = async (apiType, version, asynchronous) => {
-        const openApiDefinition = await this.getDefinition(apiType, version);
-        let callbackMap = {};
-        let responseMap = {};
+  static fetchAllApiData = async (apiType, version, asynchronous) => {
+    const openApiDefinition = await this.getDefinition(apiType, version)
+    let callbackMap = {}
+    let responseMap = {}
 
-        if(asynchronous) {
-            try {
-                callbackMap = await this.getCallbackMap(apiType, version);
-            } catch (err) { }
-        } else {
-            try {
-                responseMap = await this.getResponseMap(apiType, version);
-            } catch (err) { }
-        }
-        return { openApiDefinition, callbackMap, responseMap };
-    };
+    if (asynchronous) {
+      try {
+        callbackMap = await this.getCallbackMap(apiType, version)
+      } catch (err) { }
+    } else {
+      try {
+        responseMap = await this.getResponseMap(apiType, version)
+      } catch (err) { }
+    }
+    return { openApiDefinition, callbackMap, responseMap }
+  }
 
+  static getDefinition = async (apiType, version) => {
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/definition/${apiType}/${version}`)
+    // console.log(response.data)
+    return response.data
+    // this.setState(  { openApiDefinition: response.data } )
+  }
 
-    static getDefinition = async (apiType, version) => {
-        const { apiBaseUrl } = getConfig();
-        const response = await axios.get(`${apiBaseUrl}/api/openapi/definition/${apiType}/${version}`);
-        // console.log(response.data)
-        return response.data;
-        // this.setState(  { openApiDefinition: response.data } )
-    };
+  static getResponseMap = async (apiType, version) => {
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/response_map/${apiType}/${version}`)
+    return response.data
+    // this.setState(  { callbackMap: response.data } )
+  }
 
-    static getResponseMap = async (apiType, version) => {
-        const { apiBaseUrl } = getConfig();
-        const response = await axios.get(`${apiBaseUrl}/api/openapi/response_map/${apiType}/${version}`);
-        return response.data;
-        // this.setState(  { callbackMap: response.data } )
-    };
-
-    static getCallbackMap = async (apiType, version) => {
-        const { apiBaseUrl } = getConfig();
-        const response = await axios.get(`${apiBaseUrl}/api/openapi/callback_map/${apiType}/${version}`);
-        return response.data;
-        // this.setState(  { callbackMap: response.data } )
-    };
+  static getCallbackMap = async (apiType, version) => {
+    const { apiBaseUrl } = getConfig()
+    const response = await axios.get(`${apiBaseUrl}/api/openapi/callback_map/${apiType}/${version}`)
+    return response.data
+    // this.setState(  { callbackMap: response.data } )
+  }
 }

@@ -1,4 +1,3 @@
- 
 /*****
  License
  --------------
@@ -27,77 +26,76 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
-import socketIOClient from 'socket.io-client';
-import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig';
-import { Typography, Layout } from 'antd';
+import React from 'react'
+import socketIOClient from 'socket.io-client'
+import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig'
+import { Typography, Layout } from 'antd'
 // import axios from 'axios';
-import Monitor from '../../monitor/Monitor';
-import { TTKColors } from '../../../utils/styleHelpers';
+import Monitor from '../../monitor/Monitor'
+import { TTKColors } from '../../../utils/styleHelpers'
 
-const { Header, Content } = Layout;
-const { Text } = Typography;
+const { Header, Content } = Layout
+const { Text } = Typography
 
 class DemoMonitoring extends React.Component {
-    constructor() {
-        super();
-        this.fileManagerRef = React.createRef();
-        this.state = {
-            request: {},
-            userConfig: null,
-        };
+  constructor () {
+    super()
+    this.fileManagerRef = React.createRef()
+    this.state = {
+      request: {},
+      userConfig: null
     }
+  }
 
-    socket = null;
+  socket = null
 
-    componentWillUnmount = () => {
-        if(this.socket) {
-            this.socket.disconnect();
-        }
-    };
-
-    componentDidMount = async () => {
-        await fetchServerConfig();
-
-        const { userConfigRuntime } = await getServerConfig();
-        this.setState({ userConfig: userConfigRuntime });
-        const { apiBaseUrl } = getConfig();
-        this.socket = socketIOClient(apiBaseUrl);
-        // this.socket.on("outboundProgress", this.handleIncomingProgress);
-
-    };
-
-    render() {
-        return (
-            <>
-                <Layout>
-                    <Header
-                        style={{
-                            height: '7vh',
-                            background: this.state.userConfig?.UI_THEME?.HEADER_COLOR || TTKColors.header,
-                        }}
-                        className='shadow'
-                    >
-                        <Text
-                            level={3}
-                            style={{
-                                color: this.state.userConfig?.UI_THEME?.TITLE_COLOR || TTKColors.title,
-                                fontSize: '2.5vh',
-                            }}
-                            strong
-                        >
-                            { this.state.userConfig?.INSTANCE_NAME || 'Mojaloop Testing Toolkit' }
-                        </Text>
-                    </Header>
-                    <Content
-                        className='p-2'
-                    >
-                        <Monitor />
-                    </Content>
-                </Layout>
-            </>
-        );
+  componentWillUnmount = () => {
+    if (this.socket) {
+      this.socket.disconnect()
     }
+  }
+
+  componentDidMount = async () => {
+    await fetchServerConfig()
+
+    const { userConfigRuntime } = await getServerConfig()
+    this.setState({ userConfig: userConfigRuntime })
+    const { apiBaseUrl } = getConfig()
+    this.socket = socketIOClient(apiBaseUrl)
+    // this.socket.on("outboundProgress", this.handleIncomingProgress);
+  }
+
+  render () {
+    return (
+      <>
+        <Layout>
+          <Header
+            style={{
+              height: '7vh',
+              background: this.state.userConfig?.UI_THEME?.HEADER_COLOR || TTKColors.header
+            }}
+            className='shadow'
+          >
+            <Text
+              level={3}
+              style={{
+                color: this.state.userConfig?.UI_THEME?.TITLE_COLOR || TTKColors.title,
+                fontSize: '2.5vh'
+              }}
+              strong
+            >
+              {this.state.userConfig?.INSTANCE_NAME || 'Mojaloop Testing Toolkit'}
+            </Text>
+          </Header>
+          <Content
+            className='p-2'
+          >
+            <Monitor />
+          </Content>
+        </Layout>
+      </>
+    )
+  }
 }
 
-export default DemoMonitoring;
+export default DemoMonitoring

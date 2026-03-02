@@ -1,0 +1,134 @@
+{
+  "name": "multi",
+  "test_cases": [
+    {
+      "id": 1,
+      "name": "Get Parties - Add payee dfsp participants to ALS",
+      "requests": [
+        {
+          "id": 1,
+          "description": "Add DFSP participant to ALS",
+          "apiVersion": {
+            "minorVersion": 1,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": false
+          },
+          "operationPath": "/participants/{Type}/{ID}",
+          "path": "/participants/{$inputs.toIdType}/{$inputs.toIdValue}",
+          "method": "post",
+          "params": {
+            "Type": "{$inputs.toIdType}",
+            "ID": "{$inputs.toIdValue}"
+          },
+          "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
+          "headers": {
+            "Accept": "application/vnd.interoperability.participants+json;version=1.1",
+            "Content-Type": "application/vnd.interoperability.participants+json;version=1.1",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "testingtoolkitdfsp"
+          },
+          "body": {
+            "fspId": "payeefsp",
+            "currency": "USD"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response status to be 201",
+                "exec": [
+                  "expect(response.status).to.equal(201)"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": 2,
+          "description": "Get party information",
+          "apiVersion": {
+            "minorVersion": 1,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": true
+          },
+          "operationPath": "/parties/{Type}/{ID}",
+          "path": "/parties/{$inputs.toIdType}/{$inputs.toIdValue}",
+          "method": "get",
+          "params": {
+            "Type": "{$inputs.toIdType}",
+            "ID": "{$inputs.toIdValue}"
+          },
+          "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
+          "headers": {
+            "Accept": "application/vnd.interoperability.parties+json;version=1.1",
+            "Content-Type": "application/vnd.interoperability.parties+json;version=1.1",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "testingtoolkitdfsp"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response status to be 202",
+                "exec": [
+                  "expect(response.status).to.equal(202)"
+                ]
+              }
+            ]
+          },
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "await new Promise(resolve => setTimeout(resolve, 2000))"
+              ]
+            }
+          }
+        },
+        {
+          "id": 3,
+          "description": "Delete DFSP participant from ALS",
+          "apiVersion": {
+            "minorVersion": 1,
+            "majorVersion": 1,
+            "type": "fspiop",
+            "asynchronous": false
+          },
+          "operationPath": "/participants/{Type}/{ID}",
+          "path": "/participants/{$inputs.toIdType}/{$inputs.toIdValue}",
+          "method": "delete",
+          "params": {
+            "Type": "{$inputs.toIdType}",
+            "ID": "{$inputs.toIdValue}"
+          },
+          "url": "{$inputs.HOST_ACCOUNT_LOOKUP_SERVICE}",
+          "headers": {
+            "Accept": "application/vnd.interoperability.participants+json;version=1.1",
+            "Content-Type": "application/vnd.interoperability.participants+json;version=1.1",
+            "Date": "{$function.generic.curDate}",
+            "FSPIOP-Source": "testingtoolkitdfsp"
+          },
+          "tests": {
+            "assertions": [
+              {
+                "id": 1,
+                "description": "Response status to be 204",
+                "exec": [
+                  "expect(response.status).to.equal(204)"
+                ]
+              }
+            ]
+          },
+          "scripts": {
+            "preRequest": {
+              "exec": [
+                "await new Promise(resolve => setTimeout(resolve, 2000))"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

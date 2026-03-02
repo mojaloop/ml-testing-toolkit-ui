@@ -5,4 +5,4 @@ describe('Dummy integration test', () => {
   it('should pass', () => {
     expect(true).toBe(true)
   })
-}) 
+})

@@ -27,94 +27,94 @@
  --------------
  ******/
 
-import React from 'react';
-import { Input, Row, Col, Card, Checkbox, Radio, Typography } from 'antd';
+import React from 'react'
+import { Input, Row, Col, Card, Checkbox, Radio, Typography } from 'antd'
 
-const { Text } = Typography;
+const { Text } = Typography
 
 class TemplateOptions extends React.Component {
-    state = {};
+  state = {}
 
-    getOptionItemType = itemName => {
-        if(typeof this.props.values[itemName] === 'boolean') {
-            return (
-                <Checkbox
-                    checked={this.props.values[itemName]}
-                    onChange={e => this.props.onChange(itemName, e.target.checked)}
-                />
-            );
-        } else if(typeof this.props.values[itemName] === 'number') {
-            return (
-                <Input
-                    value={this.props.values[itemName]}
-                    onChange={e => this.props.onChange(itemName, +e.target.value)}
-                />
-            );
-        } else if(itemName === 'generateIDType') {
-            return (
-                <Radio.Group
-                    onChange={e => this.props.onChange(itemName, e.target.value)}
-                    value={this.props.values[itemName]}
-                >
-                    <Radio value={'uuid'}>UUID</Radio>
-                    <Radio value={'ulid'}>ULID</Radio>
-                </Radio.Group>
-            );
-        } else if(itemName === 'transformerName') {
-            return (
-                <Radio.Group
-                    onChange={e => this.props.onChange(itemName, e.target.value)}
-                    value={this.props.values[itemName]}
-                >
-                    <Radio value={'none'}>None</Radio>
-                    <Radio value={'fspiopToISO20022'}>FSPIOP To ISO20022</Radio>
-                    <Radio value={'ISO20022ToFspiop'}>ISO20022 To FSPIOP</Radio>
-                </Radio.Group>
-            );
-        } else {
-            return (
-                <Input
-                    value={this.props.values[itemName]}
-                    onChange={e => this.props.onChange(itemName, e.target.value)}
-                />
-            );
-        }
-    };
-
-    getOptionItems = () => {
-        const optionItems = [];
-        for(const itemName in this.props.values) {
-            optionItems.push(
-                <Row className='mb-2' key={itemName}>
-                    <Col span={6}>
-                        <Text>{itemName}</Text>
-                    </Col>
-                    <Col span={18}>
-                        <Row gutter={8}>
-                            <Col span={24}>
-                                {this.getOptionItemType(itemName)}
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>,
-            );
-        }
-        return optionItems;
-    };
-
-    render() {
-        return (
-            <>
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <Card className='bg-white shadow' size='default'>
-                            {this.getOptionItems()}
-                        </Card>
-                    </Col>
-                </Row>
-            </>
-        );
+  getOptionItemType = itemName => {
+    if (typeof this.props.values[itemName] === 'boolean') {
+      return (
+        <Checkbox
+          checked={this.props.values[itemName]}
+          onChange={e => this.props.onChange(itemName, e.target.checked)}
+        />
+      )
+    } else if (typeof this.props.values[itemName] === 'number') {
+      return (
+        <Input
+          value={this.props.values[itemName]}
+          onChange={e => this.props.onChange(itemName, +e.target.value)}
+        />
+      )
+    } else if (itemName === 'generateIDType') {
+      return (
+        <Radio.Group
+          onChange={e => this.props.onChange(itemName, e.target.value)}
+          value={this.props.values[itemName]}
+        >
+          <Radio value='uuid'>UUID</Radio>
+          <Radio value='ulid'>ULID</Radio>
+        </Radio.Group>
+      )
+    } else if (itemName === 'transformerName') {
+      return (
+        <Radio.Group
+          onChange={e => this.props.onChange(itemName, e.target.value)}
+          value={this.props.values[itemName]}
+        >
+          <Radio value='none'>None</Radio>
+          <Radio value='fspiopToISO20022'>FSPIOP To ISO20022</Radio>
+          <Radio value='ISO20022ToFspiop'>ISO20022 To FSPIOP</Radio>
+        </Radio.Group>
+      )
+    } else {
+      return (
+        <Input
+          value={this.props.values[itemName]}
+          onChange={e => this.props.onChange(itemName, e.target.value)}
+        />
+      )
     }
+  }
+
+  getOptionItems = () => {
+    const optionItems = []
+    for (const itemName in this.props.values) {
+      optionItems.push(
+        <Row className='mb-2' key={itemName}>
+          <Col span={6}>
+            <Text>{itemName}</Text>
+          </Col>
+          <Col span={18}>
+            <Row gutter={8}>
+              <Col span={24}>
+                {this.getOptionItemType(itemName)}
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      )
+    }
+    return optionItems
+  }
+
+  render () {
+    return (
+      <>
+        <Row gutter={16}>
+          <Col span={24}>
+            <Card className='bg-white shadow' size='default'>
+              {this.getOptionItems()}
+            </Card>
+          </Col>
+        </Row>
+      </>
+    )
+  }
 }
 
-export default TemplateOptions;
+export default TemplateOptions

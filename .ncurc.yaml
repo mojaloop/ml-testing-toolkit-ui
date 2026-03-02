@@ -2,7 +2,7 @@
 reject: [
     "@types/jest",
     "typescript", # conflicts with typescript-eslint
-    "eslint", # eslint 10.x not yet supported by typescript-eslint 8.x
-    "@eslint/js", # must stay in sync with eslint version
+    "@eslint/js", # eslint 10.x not yet compatible with eslint-plugin-import, eslint-plugin-react, typescript-eslint
+    "eslint", # eslint 10.x not yet compatible with plugin ecosystem
     "jsdom" # jsdom 26+ requires Node >= 22.12.0; CI orb uses 22.11.0
 ]

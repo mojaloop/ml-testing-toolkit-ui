@@ -27,31 +27,31 @@
  ******/
 
 export const generateShortName = name => {
-    const MAX_LENGTH = 20;
-    
-    // Remove special characters and replace spaces with dashes
-    let sanitized = name.replace(/[^a-zA-Z0-9 ]/g, '').replace(/ +/g, '-');
-    
-    // Trim to the maximum allowed length without splitting words unnecessarily
-    if(sanitized.length <= MAX_LENGTH) {
-        return sanitized;
+  const MAX_LENGTH = 20
+
+  // Remove special characters and replace spaces with dashes
+  const sanitized = name.replace(/[^a-zA-Z0-9 ]/g, '').replace(/ +/g, '-')
+
+  // Trim to the maximum allowed length without splitting words unnecessarily
+  if (sanitized.length <= MAX_LENGTH) {
+    return sanitized
+  }
+
+  // Try to preserve whole words within the length limit
+  const words = sanitized.split('-')
+  let shortName = ''
+
+  for (const word of words) {
+    if ((shortName + (shortName ? '-' : '') + word).length > MAX_LENGTH) {
+      break
     }
-    
-    // Try to preserve whole words within the length limit
-    let words = sanitized.split('-');
-    let shortName = '';
-    
-    for(let word of words) {
-        if((shortName + (shortName ? '-' : '') + word).length > MAX_LENGTH) {
-            break;
-        }
-        shortName += (shortName ? '-' : '') + word;
-    }
-    
-    // If shortName is empty, fallback to direct truncation
-    if(!shortName) {
-        shortName = sanitized.substring(0, MAX_LENGTH);
-    }
-    
-    return shortName;
-};
+    shortName += (shortName ? '-' : '') + word
+  }
+
+  // If shortName is empty, fallback to direct truncation
+  if (!shortName) {
+    shortName = sanitized.substring(0, MAX_LENGTH)
+  }
+
+  return shortName
+}

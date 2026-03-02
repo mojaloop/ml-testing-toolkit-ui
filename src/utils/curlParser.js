@@ -26,102 +26,102 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-const optionsRegex = /(--[a-zA-Z\-]+ '.*?')|(--[a-zA-Z\-]+)|(-[a-zA-Z\-]+? '.+?')|('?[a-z]+:\/\/.*?'+?)|("?[a-z]+:\/\/.*?"+?)/g; // eslint-disable-line no-useless-escape
-const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/; // eslint-disable-line no-useless-escape
+const optionsRegex = /(--[a-zA-Z\-]+ '.*?')|(--[a-zA-Z\-]+)|(-[a-zA-Z\-]+? '.+?')|('?[a-z]+:\/\/.*?'+?)|("?[a-z]+:\/\/.*?"+?)/g // eslint-disable-line no-useless-escape
+const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/ // eslint-disable-line no-useless-escape
 
 // const contentTypeHeader = 'content-type';
 // const jsonMimeType = 'application/json';
 
 const isMatchingOption = (headers, str) => {
-    for(let i = 0; i < headers.length; i += 1) {
-        if(str.startsWith(headers[i])) {
-            return true;
-        }
+  for (let i = 0; i < headers.length; i += 1) {
+    if (str.startsWith(headers[i])) {
+      return true
     }
-    return false;
-};
+  }
+  return false
+}
 
-const isAHeaderOption = str => isMatchingOption(['-H ', '--headers ', '--header '], str);
-const isDataOption = str => isMatchingOption(['--data ', '--data-ascii ', '-d ', '--data-raw ', '--data-urlencode ', '--data-binary '], str);
+const isAHeaderOption = str => isMatchingOption(['-H ', '--headers ', '--header '], str)
+const isDataOption = str => isMatchingOption(['--data ', '--data-ascii ', '-d ', '--data-raw ', '--data-urlencode ', '--data-binary '], str)
 
 const removeLeadingTrailingQuotes = str => {
-    const quotes = ['\'', '"'];
-    let newStr = str.trim();
-    if(quotes.includes(newStr[0])) {
-        newStr = newStr.substr(1, newStr.length - 1);
-    }
-    if(quotes.includes(newStr[newStr.length - 1])) {
-        newStr = newStr.substr(0, newStr.length - 1);
-    }
-    return newStr;
-};
+  const quotes = ['\'', '"']
+  let newStr = str.trim()
+  if (quotes.includes(newStr[0])) {
+    newStr = newStr.substr(1, newStr.length - 1)
+  }
+  if (quotes.includes(newStr[newStr.length - 1])) {
+    newStr = newStr.substr(0, newStr.length - 1)
+  }
+  return newStr
+}
 
 const subStrFrom = (val, startFromVal) => {
-    const dataPosition = val.indexOf(startFromVal);
-    return val.substr(dataPosition);
-};
+  const dataPosition = val.indexOf(startFromVal)
+  return val.substr(dataPosition)
+}
 
 // const isJsonRequest = parsedCommand => (parsedCommand.headers[contentTypeHeader] &&
 //   parsedCommand.headers[contentTypeHeader].indexOf(jsonMimeType) !== -1);
 
 const parseBodyByContentType = parsedCommand => {
-    const { body } = parsedCommand;
-    // if (body && isJsonRequest(parsedCommand)) {
-    if(body) {
-        try {
-            const cleanedBodyData = body.replace('\\"', '"').replace('\\\'', '\'');
-            return JSON.parse(cleanedBodyData);
-        } catch (ex) {
-            // ignore json conversion error..
-      console.log('Cannot parse JSON Data ' + ex.message);
-        }
+  const { body } = parsedCommand
+  // if (body && isJsonRequest(parsedCommand)) {
+  if (body) {
+    try {
+      const cleanedBodyData = body.replace('\\"', '"').replace('\\\'', '\'')
+      return JSON.parse(cleanedBodyData)
+    } catch (ex) {
+      // ignore json conversion error..
+      console.log('Cannot parse JSON Data ' + ex.message)
     }
-    return body;
-};
+  }
+  return body
+}
 
 const parseOptionValue = val => {
-    const headerSplit = subStrFrom(val, ' ').split(':');
-    return {
-        key: removeLeadingTrailingQuotes(headerSplit[0]).trim(),
-        value: removeLeadingTrailingQuotes(headerSplit[1]).trim(),
-    };
-};
+  const headerSplit = subStrFrom(val, ' ').split(':')
+  return {
+    key: removeLeadingTrailingQuotes(headerSplit[0]).trim(),
+    value: removeLeadingTrailingQuotes(headerSplit[1]).trim()
+  }
+}
 
 const parseQueryStrings = url => {
-    const paramPosition = url.indexOf('?');
-    const queryStrings = {};
-    if(paramPosition !== -1) {
+  const paramPosition = url.indexOf('?')
+  const queryStrings = {}
+  if (paramPosition !== -1) {
     // const splitUrl = parsedCommand.url.substr(0, paramPosition);
-        const paramsString = url.substr(paramPosition + 1);
-        const params = paramsString.split('&') || [];
+    const paramsString = url.substr(paramPosition + 1)
+    const params = paramsString.split('&') || []
 
-        params.forEach(param => {
-          const splitParam = param.split('=');
-          queryStrings[splitParam[0]] = splitParam[1];
-        });
-    }
-    return queryStrings;
-};
+    params.forEach(param => {
+      const splitParam = param.split('=')
+      queryStrings[splitParam[0]] = splitParam[1]
+    })
+  }
+  return queryStrings
+}
 
 const parseUrlOption = val => {
-    const urlMatches = val.match(urlRegex) || [];
-    if(urlMatches.length) {
-    const url = urlMatches[0];
-        return {
-            url,
-            queryStrings: parseQueryStrings(url),
-        };
+  const urlMatches = val.match(urlRegex) || []
+  if (urlMatches.length) {
+    const url = urlMatches[0]
+    return {
+      url,
+      queryStrings: parseQueryStrings(url)
     }
-    return { url: '', queryStrings: {} };
-};
+  }
+  return { url: '', queryStrings: {} }
+}
 
-const parseBody = val => removeLeadingTrailingQuotes(subStrFrom(val, ' '));
+const parseBody = val => removeLeadingTrailingQuotes(subStrFrom(val, ' '))
 
-const isACurlCommand = val => val.trim().startsWith('curl ');
+const isACurlCommand = val => val.trim().startsWith('curl ')
 const isAUrlOption = val => {
-    const matches = val.match(urlRegex) || [];
-    return !!matches.length;
-};
+  const matches = val.match(urlRegex) || []
+  return !!matches.length
+}
 
 /*
  * Parse cUrl command to a JSON structure
@@ -129,44 +129,44 @@ const isAUrlOption = val => {
  * command - cUrl command as a string.
  * return JSON object
 */
-export function parse(command) {
-    if(!command) { return ''; }
+export function parse (command) {
+  if (!command) { return '' }
 
-    const parsedCommand = {
-        url: '',
-    };
+  const parsedCommand = {
+    url: ''
+  }
 
-    // quit if the command does not starts with curl
-    if(isACurlCommand(command)) {
+  // quit if the command does not starts with curl
+  if (isACurlCommand(command)) {
     // let cleanCommand = command.replace('\\\\n', '');
-        let cleanCommand = command;
-        cleanCommand = cleanCommand.replace(/(\\\r\n|\\\n|\\\r)/gm, ' ');
-        cleanCommand = cleanCommand.replace(/(\r\n|\n|\r)/gm, ' ');
+    let cleanCommand = command
+    cleanCommand = cleanCommand.replace(/(\\\r\n|\\\n|\\\r)/gm, ' ')
+    cleanCommand = cleanCommand.replace(/(\r\n|\n|\r)/gm, ' ')
 
-        const matches = cleanCommand.match(optionsRegex);
-        matches.forEach(val => {
-            // const option = removeLeadingTrailingQuotes(val);
-            const option = val;
-            if(isAUrlOption(option)) {
-                const { url, queryStrings } = parseUrlOption(option);
-                parsedCommand.url = url;
-                parsedCommand.queryStrings = queryStrings;
-            } else if(isAHeaderOption(option)) {
-                const { key, value } = parseOptionValue(option);
-                parsedCommand.headers = parsedCommand.headers || {};
-                parsedCommand.headers[key] = value;
-            } else if(isDataOption(option)) {
-                parsedCommand.body = parseBody(option);
-            } else {
-        console.log(`Skipped Header ${val}`);
-            }
-        }); // parse over matches ends
+    const matches = cleanCommand.match(optionsRegex)
+    matches.forEach(val => {
+      // const option = removeLeadingTrailingQuotes(val);
+      const option = val
+      if (isAUrlOption(option)) {
+        const { url, queryStrings } = parseUrlOption(option)
+        parsedCommand.url = url
+        parsedCommand.queryStrings = queryStrings
+      } else if (isAHeaderOption(option)) {
+        const { key, value } = parseOptionValue(option)
+        parsedCommand.headers = parsedCommand.headers || {}
+        parsedCommand.headers[key] = value
+      } else if (isDataOption(option)) {
+        parsedCommand.body = parseBody(option)
+      } else {
+        console.log(`Skipped Header ${val}`)
+      }
+    }) // parse over matches ends
 
-        // should be checked after all the options are analyzed
-        // so that we guarentee that we have content-type header
-        parsedCommand.body = parseBodyByContentType(parsedCommand);
-    }
-    return parsedCommand;
+    // should be checked after all the options are analyzed
+    // so that we guarentee that we have content-type header
+    parsedCommand.body = parseBodyByContentType(parsedCommand)
+  }
+  return parsedCommand
 }
 
-export default parse;
+export default parse

@@ -26,7 +26,7 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import EnhancedJsonEditor from './EnhancedJsonEditor';
+import EnhancedJsonEditor from './EnhancedJsonEditor'
 
 /**
  * This is a wrapper module that exports the EnhancedJsonEditor as JsonEditor
@@ -34,8 +34,8 @@ import EnhancedJsonEditor from './EnhancedJsonEditor';
  */
 
 // Export the enhanced editor as JsonEditor to match the jsoneditor-react export
-export const JsonEditor = EnhancedJsonEditor;
+export const JsonEditor = EnhancedJsonEditor
 
 export default {
-    JsonEditor,
-}; 
+  JsonEditor
+}

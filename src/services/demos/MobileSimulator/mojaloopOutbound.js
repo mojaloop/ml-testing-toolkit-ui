@@ -24,177 +24,179 @@
 
  * ModusBox
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ * 
+ * Shuchita Prakash <skp.82603@gmail.com>
  --------------
  ******/
-import axios from 'axios';
-import { getConfig, getServerConfig } from '../../../utils/getConfig';
-import templateGetParties from './template_getParties.json';
-import templatePostQuotes from './template_postQuotes.json';
-import templatePostTransfers from './template_postTransfers.json';
-import templateProvisioning from './template_provisioning.json';
-import templateGetHubConsoleInitValues from './template_getHubConsoleInitValues.json';
-import templateGetDFSPValues from './template_getDFSPValues.json';
-import templateGetSettlements from './template_getSettlements.json';
-import templateExecuteSettlement from './template_executeSettlement.json';
-import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
-import _ from 'lodash';
+import axios from 'axios'
+import { getConfig, getServerConfig } from '../../../utils/getConfig'
+import templateGetParties from './template_getParties.json'
+import templatePostQuotes from './template_postQuotes.json'
+import templatePostTransfers from './template_postTransfers.json'
+import templateProvisioning from './template_provisioning.json'
+import templateGetHubConsoleInitValues from './template_getHubConsoleInitValues.json'
+import templateGetDFSPValues from './template_getDFSPValues.json'
+import templateGetSettlements from './template_getSettlements.json'
+import templateExecuteSettlement from './template_executeSettlement.json'
+import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib'
+import _ from 'lodash'
 
 class OutboundService {
-    apiBaseUrl = '';
+  apiBaseUrl = ''
 
-    inputValues = {};
+  inputValues = {}
 
-    sessionId = '123';
+  sessionId = '123'
 
-    userConfig = {};
+  userConfig = {}
 
-    customParams = {
-        payerFspTransferExpirationOffset: 60 * 1000,
-    };
+  customParams = {
+    payerFspTransferExpirationOffset: 60 * 1000
+  }
 
-    constructor(sessionId = '123') {
-        const { apiBaseUrl } = getConfig();
-        this.apiBaseUrl = apiBaseUrl;
-        this.sessionId = sessionId;
-        this.initEnvironment();
+  constructor (sessionId = '123') {
+    const { apiBaseUrl } = getConfig()
+    this.apiBaseUrl = apiBaseUrl
+    this.sessionId = sessionId
+    this.initEnvironment()
+  }
+
+  initEnvironment = async () => {
+    await this.fetchUserConfig()
+    await this.reloadEnvironment()
+  }
+
+  getSessionId () {
+    return this.sessionId
+  }
+
+  getTraceId () {
+    const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix()
+    const currentEndToEndId = TraceHeaderUtils.generateEndToEndId()
+    return traceIdPrefix + this.sessionId + currentEndToEndId
+  }
+
+  async fetchUserConfig () {
+    const { userConfigRuntime } = await getServerConfig()
+    this.userConfig = userConfigRuntime
+  }
+
+  async reloadEnvironment () {
+    const DEFAULT_ENVIRONMENT_FILE_NAME = this.userConfig ? this.userConfig.DEFAULT_ENVIRONMENT_FILE_NAME : 'hub-local-environment.json'
+    const environmentURL = '/api/samples/loadFolderWise?environment=examples/environments/' + DEFAULT_ENVIRONMENT_FILE_NAME
+    const resp = await axios.get(this.apiBaseUrl + environmentURL)
+    if (resp.data && resp.data.body && resp.data.body.environment) {
+      this.inputValues = resp.data.body.environment
     }
+  }
 
-    initEnvironment = async () => {
-        await this.fetchUserConfig();
-        await this.reloadEnvironment();
-    };
+  setCustomParams = newConfig => {
+    _.merge(this.customParams, newConfig)
+  }
 
-    getSessionId() {
-        return this.sessionId;
-    }
+  getCustomParams = () => {
+    return this.customParams
+  }
 
-    getTraceId() {
-        const traceIdPrefix = TraceHeaderUtils.getTraceIdPrefix();
-        const currentEndToEndId = TraceHeaderUtils.generateEndToEndId();
-        return traceIdPrefix + this.sessionId + currentEndToEndId;
-    }
+  async getParties (idNumber) {
+    const traceId = this.getTraceId()
 
-    async fetchUserConfig() {
-        const { userConfigRuntime } = await getServerConfig();
-        this.userConfig = userConfigRuntime;
-    }
+    const template = templateGetParties
+    template.inputValues = this.inputValues
+    // Replace corresponding values in inputValues
+    template.inputValues.toIdValue = idNumber + ''
+    const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } })
+    // if(typeof response.data === 'object') {
+    //   return response.data
+    // }
+    // return null
+    return resp
+  }
 
-    async reloadEnvironment() {
-        const DEFAULT_ENVIRONMENT_FILE_NAME = this.userConfig ? this.userConfig.DEFAULT_ENVIRONMENT_FILE_NAME : 'hub-local-environment.json';
-        const environmentURL = '/api/samples/loadFolderWise?environment=examples/environments/' + DEFAULT_ENVIRONMENT_FILE_NAME;
-        const resp = await axios.get(this.apiBaseUrl + environmentURL);
-        if(resp.data && resp.data.body && resp.data.body.environment) {
-            this.inputValues = resp.data.body.environment;
-        }
-    }
+  async postQuotes (amount, currency) {
+    const traceId = this.getTraceId()
 
-    setCustomParams = newConfig => {
-        _.merge(this.customParams, newConfig);
-    };
+    const template = templatePostQuotes
+    template.inputValues = this.inputValues
+    // Replace corresponding values in inputValues
+    template.inputValues.amount = amount + ''
+    template.inputValues.currency = currency + ''
+    template.inputValues.fromFirstName = this.inputValues.fromFirstName
+    template.inputValues.fromLastName = this.inputValues.fromLastName
+    const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } })
+    // if(typeof response.data === 'object') {
+    //   return response.data
+    // }
+    // return null
+    return resp
+  }
 
-    getCustomParams = () => {
-        return this.customParams;
-    };
+  async postTransfers (amount, transactionId, expiration, ilpPacket, condition) {
+    const traceId = this.getTraceId()
 
-    async getParties(idNumber) {
-        const traceId = this.getTraceId();
-         
-        const template = templateGetParties;
-        template.inputValues = this.inputValues;
-        // Replace corresponding values in inputValues
-        template.inputValues.toIdValue = idNumber + '';
-        const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        // if(typeof response.data === 'object') {
-        //   return response.data
-        // }
-        // return null
-        return resp;
-    }
+    const template = templatePostTransfers
+    template.inputValues = this.inputValues
+    // Replace corresponding values in inputValues
+    template.inputValues.amount = amount + ''
+    template.inputValues.quotesCallbackTransactionId = transactionId + ''
+    template.inputValues.quotesCallbackExpiration = expiration + ''
+    template.inputValues.quotesCallbackIlpPacket = ilpPacket + ''
+    template.inputValues.quotesCallbackCondition = condition + ''
+    template.inputValues.expirationOffset = this.customParams.payerFspTransferExpirationOffset
+    const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } })
+    // if(typeof response.data === 'object') {
+    //   return response.data
+    // }
+    // return null
+    return resp
+  }
 
-    async postQuotes(amount, currency) {
-        const traceId = this.getTraceId();
-         
-        const template = templatePostQuotes;
-        template.inputValues = this.inputValues;
-        // Replace corresponding values in inputValues
-        template.inputValues.amount = amount + '';
-        template.inputValues.currency = currency + '';
-        template.inputValues.fromFirstName = this.inputValues.fromFirstName;
-        template.inputValues.fromLastName = this.inputValues.fromLastName;
-        const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        // if(typeof response.data === 'object') {
-        //   return response.data
-        // }
-        // return null
-        return resp;
-    }
+  async startProvisioning () {
+    const traceId = this.getTraceId()
 
-    async postTransfers(amount, transactionId, expiration, ilpPacket, condition) {
-        const traceId = this.getTraceId();
-         
-        const template = templatePostTransfers;
-        template.inputValues = this.inputValues;
-        // Replace corresponding values in inputValues
-        template.inputValues.amount = amount + '';
-        template.inputValues.quotesCallbackTransactionId = transactionId + '';
-        template.inputValues.quotesCallbackExpiration = expiration + '';
-        template.inputValues.quotesCallbackIlpPacket = ilpPacket + '';
-        template.inputValues.quotesCallbackCondition = condition + '';
-        template.inputValues.expirationOffset = this.customParams.payerFspTransferExpirationOffset;
-        const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        // if(typeof response.data === 'object') {
-        //   return response.data
-        // }
-        // return null
-        return resp;
-    }
+    const template = templateProvisioning
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
 
-    async startProvisioning() {
-        const traceId = this.getTraceId();
-         
-        const template = templateProvisioning;
-        template.inputValues = this.inputValues;
-        const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        return resp;
-    }
+  async getHubConsoleInitValues () {
+    const traceId = this.getTraceId()
 
-    async getHubConsoleInitValues() {
-        const traceId = this.getTraceId();
-         
-        const template = templateGetHubConsoleInitValues;
-        template.inputValues = this.inputValues;
-        const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        return resp;
-    }
+    const template = templateGetHubConsoleInitValues
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
 
-    async getDFSPValues() {
-        const traceId = this.getTraceId();
-         
-        const template = templateGetDFSPValues;
-        template.inputValues = this.inputValues;
-        const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        return resp;
-    }
+  async getDFSPValues () {
+    const traceId = this.getTraceId()
 
-    async getSettlements() {
-        const traceId = this.getTraceId();
-         
-        const template = templateGetSettlements;
-        template.inputValues = this.inputValues;
-        const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        return resp;
-    }
+    const template = templateGetDFSPValues
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
 
-    async executeSettlement(settlementModel) {
-        const traceId = this.getTraceId();
-         
-        const template = templateExecuteSettlement;
-        template.inputValues = this.inputValues;
-        // Replace corresponding values in inputValues
-        template.inputValues.settlementModel = settlementModel + '';
-        const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } });
-        return resp;
-    }
+  async getSettlements () {
+    const traceId = this.getTraceId()
+
+    const template = templateGetSettlements
+    template.inputValues = this.inputValues
+    const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
+
+  async executeSettlement (settlementModel) {
+    const traceId = this.getTraceId()
+
+    const template = templateExecuteSettlement
+    template.inputValues = this.inputValues
+    // Replace corresponding values in inputValues
+    template.inputValues.settlementModel = settlementModel + ''
+    const resp = await axios.post(this.apiBaseUrl + '/api/outbound/template/' + traceId, template, { headers: { 'Content-Type': 'application/json' } })
+    return resp
+  }
 }
 
-export default OutboundService;
+export default OutboundService

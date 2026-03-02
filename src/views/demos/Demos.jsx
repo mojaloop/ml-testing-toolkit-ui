@@ -26,100 +26,114 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
-import { Row, Col } from 'antd';
+import React from 'react'
+import { Row, Col } from 'antd'
 
 class Demos extends React.Component {
-    render() {
-        return (
-            <>
-                <Row className='my-4'>
-                    <Col span={24}>
-                        <ul>
-                            <li>
-                                <a
-                                    href='/mobile-simulator'
-                                    target='_blank'
-                                >
+  render () {
+    return (
+      <>
+        <Row className='my-4'>
+          <Col span={24}>
+            <ul>
+              <li>
+                <a
+                  href='/mobile-simulator'
+                  target='_blank'
+                >
                   Mobile Simulator
-                                </a>
-                            </li>
-                        </ul>
-                    </Col>
-                </Row>
-                <Row className='my-4'>
-                    <Col span={24}>
-                        <ul>
-                            <li>
-                                <a
-                                    href='/payee-mobile-simulator'
-                                    target='_blank'
-                                >
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+        <Row className='my-4'>
+          <Col span={24}>
+            <ul>
+              <li>
+                <a
+                  href='/payee-mobile-simulator'
+                  target='_blank'
+                >
                   Payee App Simulator
-                                </a>
-                            </li>
-                        </ul>
-                    </Col>
-                </Row>
-                <Row className='my-4'>
-                    <Col span={24}>
-                        <ul>
-                            <li>
-                                <a
-                                    href='/payer-mobile-simulator'
-                                    target='_blank'
-                                >
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+        <Row className='my-4'>
+          <Col span={24}>
+            <ul>
+              <li>
+                <a
+                  href='/payer-mobile-simulator'
+                  target='_blank'
+                >
                   Payer App Simulator
-                                </a>
-                            </li>
-                        </ul>
-                    </Col>
-                </Row>
-                <Row className='my-4'>
-                    <Col span={24}>
-                        <ul>
-                            <li>
-                                <a
-                                    href='/demo-test-runner'
-                                    target='_blank'
-                                >
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+        <Row className='my-4'>
+          <Col span={24}>
+            <ul>
+              <li>
+                <a
+                  href='/demo-test-runner'
+                  target='_blank'
+                >
                   Test Runner (Demo friendly)
-                                </a>
-                            </li>
-                        </ul>
-                    </Col>
-                </Row>
-                <Row className='my-4'>
-                    <Col span={24}>
-                        <ul>
-                            <li>
-                                <a
-                                    href='/demo-monitoring'
-                                    target='_blank'
-                                >
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+        <Row className='my-4'>
+          <Col span={24}>
+            <ul>
+              <li>
+                <a
+                  href='/demo-monitoring'
+                  target='_blank'
+                >
                   Demo Monitoring
-                                </a>
-                            </li>
-                        </ul>
-                    </Col>
-                </Row>
-                <Row className='my-4'>
-                    <Col span={24}>
-                        <ul>
-                            <li>
-                                <a
-                                    href='/pisp-demo'
-                                    target='_blank'
-                                >
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+        <Row className='my-4'>
+          <Col span={24}>
+            <ul>
+              <li>
+                <a
+                  href='/pisp-demo'
+                  target='_blank'
+                >
                   PISP Demo App
-                                </a>
-                            </li>
-                        </ul>
-                    </Col>
-                </Row>
-            </>
-        );
-    }
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+        <Row className='my-4'>
+          <Col span={24}>
+            <ul>
+              <li>
+                <a
+                  href='/lei-merchant-payments'
+                  target='_blank'
+                >
+                  LEI Merchant Payments Demo
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+      </>
+    )
+  }
 }
 
-export default Demos;
+export default Demos

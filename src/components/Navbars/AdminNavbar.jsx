@@ -26,71 +26,71 @@
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
  --------------
  ******/
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Layout, Button, Typography, Row, Col } from 'antd';
-import { getConfig } from '../../utils/getConfig';
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Layout, Button, Typography, Row, Col } from 'antd'
+import { getConfig } from '../../utils/getConfig'
 
-const { Header } = Layout;
-const { Title, Text } = Typography;
+const { Header } = Layout
+const { Title, Text } = Typography
 
 const AdminNavbar = ({ brandText }) => {
-    const navigate = useNavigate();
-    const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID');
-    const { isAuthEnabled } = getConfig();
-    
-    const handleLogout = () => {
-        localStorage.removeItem('JWT_COOKIE_TOKEN');
-        localStorage.removeItem('JWT_COOKIE_EXP_AT');
-        localStorage.removeItem('JWT_COOKIE_DFSP_ID');
-        navigate('/login');
-    };
-    
-    return (
-        <>
-            <Header
-                style={{
-                    height: '10vh',
-                    background: '#293e5d',
-                }}
+  const navigate = useNavigate()
+  const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID')
+  const { isAuthEnabled } = getConfig()
+
+  const handleLogout = () => {
+    localStorage.removeItem('JWT_COOKIE_TOKEN')
+    localStorage.removeItem('JWT_COOKIE_EXP_AT')
+    localStorage.removeItem('JWT_COOKIE_DFSP_ID')
+    navigate('/login')
+  }
+
+  return (
+    <>
+      <Header
+        style={{
+          height: '10vh',
+          background: '#293e5d'
+        }}
+      >
+        <Row>
+          <Col span={12}>
+            <Title
+              level={4}
+              className='text-white text-uppercase d-none d-lg-inline-block'
             >
-                <Row>
-                    <Col span={12}>
-                        <Title
-                            level={4}
-                            className='text-white text-uppercase d-none d-lg-inline-block'
-                        >
-                            {brandText}
-                        </Title>
-                    </Col>
-                    <Col span={12} className='text-end'>
-                        {
+              {brandText}
+            </Title>
+          </Col>
+          <Col span={12} className='text-end'>
+            {
                             dfspId
-                                ? <Text className='text-white d-none d-lg-inline-block'>{dfspId}</Text>
-                                : null
+                              ? <Text className='text-white d-none d-lg-inline-block'>{dfspId}</Text>
+                              : null
                         }
 
-                        {
+            {
                             isAuthEnabled
-                                ? <Button
-                                    color='danger'
-                                    href='#pablo'
-                                    onClick={e => {
-                                        e.preventDefault();
-                                        handleLogout();
-                                    }}
-                                    size='sm'
-                                    className='ms-4'
+                              ? <Button
+                                  color='danger'
+                                  href='#pablo'
+                                  onClick={e => {
+                                    e.preventDefault()
+                                    handleLogout()
+                                  }}
+                                  size='sm'
+                                  className='ms-4'
                                 >
-                                    Logout
-                                </Button>
-                                : null
+                                Logout
+                              </Button>
+                              : null
                         }
-                    </Col>
-                </Row>
-            </Header>
-        </>
-    );
-};
+          </Col>
+        </Row>
+      </Header>
+    </>
+  )
+}
 
-export default AdminNavbar;
+export default AdminNavbar

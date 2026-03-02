@@ -24,45 +24,47 @@
 
  * ModusBox
  * Vijaya Kumar Guthi <vijaya.guthi@modusbox.com> (Original Author)
+ * 
+ * Shuchita Prakash <skp.82603@gmail.com>
  --------------
  ******/
 
-import socketIOClient from 'socket.io-client';
-import { getConfig } from '../../../utils/getConfig';
+import socketIOClient from 'socket.io-client'
+import { getConfig } from '../../../utils/getConfig'
 
 class NotificationService {
-    notificationEventFunction = () => {};
+  notificationEventFunction = () => {}
 
-    setNotificationEventListener(notificationEventFunction) {
-        this.notificationEventFunction = notificationEventFunction;
-    }
+  setNotificationEventListener (notificationEventFunction) {
+    this.notificationEventFunction = notificationEventFunction
+  }
 
-    apiBaseUrl = '';
+  apiBaseUrl = ''
 
-    sessionId = '';
+  sessionId = ''
 
-    socket = null;
+  socket = null
 
-    socketTopic = 'pushMessage';
+  socketTopic = 'pushMessage'
 
-    constructor(sessionId = null) {
-        const { apiBaseUrl } = getConfig();
-        this.apiBaseUrl = apiBaseUrl;
-        this.sessionId = sessionId;
+  constructor (sessionId = null) {
+    const { apiBaseUrl } = getConfig()
+    this.apiBaseUrl = apiBaseUrl
+    this.sessionId = sessionId
 
-        this.socket = socketIOClient(this.apiBaseUrl);
-        this.socket.on(this.socketTopic + (this.sessionId ? '/' + this.sessionId : ''), message => {
-            this.notificationEventFunction(message);
-        });
-    }
+    this.socket = socketIOClient(this.apiBaseUrl)
+    this.socket.on(this.socketTopic + (this.sessionId ? '/' + this.sessionId : ''), message => {
+      this.notificationEventFunction(message)
+    })
+  }
 
-    getSessionId() {
-        return this.sessionId;
-    }
+  getSessionId () {
+    return this.sessionId
+  }
 
-    disconnect() {
-        this.socket.disconnect();
-    }
+  disconnect () {
+    this.socket.disconnect()
+  }
 }
 
-export default NotificationService;
+export default NotificationService
