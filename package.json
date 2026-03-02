@@ -16,7 +16,7 @@
     "Juan Correa <code@juancorrea.io>"
   ],
   "engines": {
-    "node": "22.15.1"
+    "node": "22.22.0"
   },
   "license": "Apache-2.0",
   "bugs": {
@@ -89,7 +89,6 @@
     "bootstrap": "^5.3.8",
     "brace": "^0.11.1",
     "core-js": "^3.48.0",
-    "electron": "^40.6.1",
     "idb-keyval": "^6.2.2",
     "js-file-download": "^0.4.12",
     "jszip": "^3.10.1",
@@ -151,9 +150,20 @@
     "form-data": "4.0.4",
     "parse5": "^7.2.1",
     "lodash-es": "4.17.23",
+    "fast-xml-parser": "5.3.8",
+    "qs": "6.14.2",
+    "glob": "10.5.0",
+    "js-yaml": "3.14.2",
+    "mdast-util-to-hast": "13.2.1",
     "@mojaloop/ml-testing-toolkit-shared-lib": {
       "lodash": "4.17.23"
+    },
+    "replace": {
+      "minimatch": "3.1.4"
     }
+  },
+  "optionalDependencies": {
+    "electron": "^40.6.1"
   },
   "private": true,
   "standard-version": {

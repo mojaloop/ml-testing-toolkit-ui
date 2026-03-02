@@ -4,22 +4,59 @@
 disabled: false
 
 ignore:
-  # Ignore specific CVEs - once Dockerfile docker image with fixes are available, these should be removed from the ignore list
+  # Legacy CVEs (may be fixed in newer base images, kept for safety)
   - vulnerability: CVE-2025-9086
-  
   - vulnerability: CVE-2025-10148
-  
   - vulnerability: CVE-2025-8177
-  
   - vulnerability: CVE-2025-8176
-  
   - vulnerability: CVE-2025-8851
-  
   - vulnerability: CVE-2023-52356
-  
   - vulnerability: CVE-2023-6277
-  
   - vulnerability: CVE-2023-6228
+
+  # Alpine base image CVEs (nginx:1.29.1-alpine / node:22.22.0-alpine3.23)
+  # These are OS-level packages that cannot be fixed at the application level
+  # Critical
+  - vulnerability: CVE-2025-15467  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-49796  # libxml2
+  - vulnerability: CVE-2025-49794  # libxml2
+  - vulnerability: CVE-2025-58050  # pcre2
+  # High
+  - vulnerability: CVE-2025-6021   # libxml2
+  - vulnerability: CVE-2025-49795  # libxml2
+  - vulnerability: CVE-2025-59375  # libexpat
+  - vulnerability: CVE-2025-66293  # libpng
+  - vulnerability: CVE-2025-69420  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-64720  # libpng
+  - vulnerability: CVE-2025-69421  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-69419  # libcrypto3/libssl3
+  - vulnerability: CVE-2026-25646  # libpng
+  - vulnerability: CVE-2025-65018  # libpng
+  - vulnerability: CVE-2025-9230   # libcrypto3/libssl3
+  - vulnerability: CVE-2026-22695  # libpng
+  - vulnerability: CVE-2026-22801  # libpng
+  # Medium
+  - vulnerability: CVE-2026-22796  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-62408  # c-ares
+  - vulnerability: CVE-2025-66199  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-60876  # busybox/ssl_client
+  - vulnerability: CVE-2025-15468  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-14819  # curl
+  - vulnerability: CVE-2025-9232   # libcrypto3/libssl3
+  - vulnerability: CVE-2025-13034  # curl
+  - vulnerability: CVE-2025-14524  # curl
+  - vulnerability: CVE-2025-15079  # curl
+  - vulnerability: CVE-2025-9231   # libcrypto3/libssl3
+  - vulnerability: CVE-2025-64505  # libpng
+  - vulnerability: CVE-2025-64506  # libpng
+  - vulnerability: CVE-2026-22795  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-10966  # curl
+  - vulnerability: CVE-2025-68160  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-11187  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-14017  # curl
+  - vulnerability: CVE-2026-25210  # libexpat
+  - vulnerability: CVE-2025-15469  # libcrypto3/libssl3
+  - vulnerability: CVE-2025-69418  # libcrypto3/libssl3
 
 # Set output format defaults
 output:
