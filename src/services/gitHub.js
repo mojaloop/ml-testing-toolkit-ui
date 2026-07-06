@@ -45,9 +45,9 @@ class GitHubService {
             return await axios.get(url);
         } catch (err) {
             if(err.response && err.response.data && err.response.data.message) {
-                throw new Error(err.response.data.message);
+                throw new Error(err.response.data.message, { cause: err });
             }
-            throw new Error(err.message);
+            throw new Error(err.message, { cause: err });
         }
     };
 

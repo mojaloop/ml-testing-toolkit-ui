@@ -1,0 +1,20 @@
+{
+  "exceptions": {
+    "decko@1.2.0": {
+      "reason": "MIT-licensed (LICENSE file in github.com/developit/decko) but the published npm manifest omits the license field; final 1.2.0 release, pulled by redoc@2.5.3. Proper fix is a vetted alias in the central license-scanner-tool policy.",
+      "expires": "2026-12-31"
+    },
+    "khroma@2.1.0": {
+      "reason": "MIT-licensed (github.com/fabiospampinato/khroma) but the published npm manifest omits the license field; pulled by mermaid@11.x. Proper fix is a vetted alias in the central license-scanner-tool policy.",
+      "expires": "2026-12-31"
+    },
+    "stickyfill@1.1.1": {
+      "reason": "MIT-licensed (github.com/wilddeer/stickyfill) but the published npm manifest omits the license field; pulled by redoc@2.5.3. Proper fix is a vetted alias in the central license-scanner-tool policy.",
+      "expires": "2026-12-31"
+    },
+    "pako@1.0.11": {
+      "reason": "Declares SPDX expression '(MIT AND Zlib)' — both licenses are individually allowed; the gate does not yet parse compound expressions. Pinned by browserify-zlib@0.2.0 (vite node-polyfills chain); pako 2.x is a breaking API change. Proper fix is expression support or a central alias in license-scanner-tool.",
+      "expires": "2026-12-31"
+    }
+  }
+}

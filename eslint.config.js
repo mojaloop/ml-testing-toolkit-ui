@@ -2,7 +2,7 @@
 import eslintJs from "@eslint/js";
 import eslintReact from "@eslint-react/eslint-plugin";
 import tseslint from "typescript-eslint";
-import * as importPlugin from "eslint-plugin-import";
+import importPlugin from "eslint-plugin-import-x";
 import globals from "globals";
 
 export default tseslint.config(
@@ -47,6 +47,7 @@ export default tseslint.config(
       'no-empty': 'off',
       'no-case-declarations': 'off',
       'no-unreachable': 'off',
+      'no-useless-assignment': 'off', // enabled by eslint 10 recommended; 13 hits in legacy views
       '@typescript-eslint/no-require-imports': 'off',
       '@eslint-react/no-unstable-default-props': 'off',
       'eslint-comments/no-unused-disable': 'off',
@@ -56,12 +57,18 @@ export default tseslint.config(
       '@eslint-react/no-unused-state': 'off',
       '@eslint-react/no-array-index-key': 'off',
       '@eslint-react/no-missing-key': 'off',
-      '@eslint-react/web-api/no-leaked-event-listener': 'off',
-      '@eslint-react/web-api/no-leaked-timeout': 'off',
+      // v5 renamed 'web-api/no-leaked-*' to 'web-api-no-leaked-*' and
+      // 'hooks-extra/no-direct-set-state-in-use-effect' to 'set-state-in-effect'
+      '@eslint-react/web-api-no-leaked-event-listener': 'off',
+      '@eslint-react/web-api-no-leaked-timeout': 'off',
       '@eslint-react/no-access-state-in-setstate': 'off',
       '@eslint-react/no-set-state-in-component-did-mount': 'off',
-      '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
+      '@eslint-react/set-state-in-effect': 'off',
       '@eslint-react/no-prop-types': 'off',
+      // newly enabled by @eslint-react 5 recommended; legacy class components violate them
+      '@eslint-react/no-direct-mutation-state': 'off',
+      '@eslint-react/purity': 'off',
+      '@eslint-react/exhaustive-deps': 'off',
       
       // Formatting rules
       'indent': 'off',

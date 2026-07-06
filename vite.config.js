@@ -7,7 +7,9 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [
     react({
-      include: '**/*.{jsx,js,ts,tsx}',
+      // Anchored regexes: with vite 8 (rolldown) the previous '**/*.{jsx,js,ts,tsx}' glob
+      // was matched unanchored, so '.json' files matched '.js' and were parsed as JS.
+      include: [/\.jsx?$/, /\.tsx?$/],
       jsxRuntime: 'automatic',
       babel: {
         plugins: [
@@ -59,11 +61,13 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
       },
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'antd': ['antd', '@ant-design/icons'],
-          'editor': ['react-ace', 'ace-builds'],
-          'utils': ['lodash', 'moment', 'axios'],
+        // vite 8 (rolldown) only supports the function form of manualChunks
+        // (the object form is rejected: "Expected Function but received Object").
+        manualChunks(id) {
+          if (/node_modules\/(react|react-dom|react-router-dom)\//.test(id)) return 'react-vendor';
+          if (/node_modules\/(antd|@ant-design\/icons)\//.test(id)) return 'antd';
+          if (/node_modules\/(react-ace|ace-builds)\//.test(id)) return 'editor';
+          if (/node_modules\/(lodash|moment|axios)\//.test(id)) return 'utils';
         },
       },
     },

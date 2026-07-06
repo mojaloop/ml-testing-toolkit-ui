@@ -14,7 +14,7 @@ ignore:
   - vulnerability: CVE-2023-6277
   - vulnerability: CVE-2023-6228
 
-  # Alpine base image CVEs (nginx:1.29.1-alpine / node:22.22.0-alpine3.23)
+  # Alpine base image CVEs (nginx:1.29.1-alpine / node:24.18.0-alpine3.24)
   # These are OS-level packages that cannot be fixed at the application level
   # Critical
   - vulnerability: CVE-2025-15467  # libcrypto3/libssl3
