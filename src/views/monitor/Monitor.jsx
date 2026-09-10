@@ -27,7 +27,7 @@
  --------------
  ******/
 import React from 'react';
-import socketIOClient from 'socket.io-client';
+import socketIOClient from '../../utils/socket';
 import { getConfig } from '../../utils/getConfig';
 import axios from 'axios';
 
@@ -79,7 +79,7 @@ class Monitor extends React.Component {
         }
         for(const logType of Object.keys(this.state.timeline)) {
             const item = this.state.timeline[logType];
-            item.socket = socketIOClient(apiBaseUrl, { withCredentials: true });
+            item.socket = socketIOClient(apiBaseUrl);
             if(getConfig().isAuthEnabled) {
                 const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID');
                 if(dfspId) {

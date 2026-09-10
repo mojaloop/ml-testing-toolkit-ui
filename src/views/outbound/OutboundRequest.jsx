@@ -29,7 +29,7 @@
  --------------
  ******/
 import React from 'react';
-import socketIOClient from 'socket.io-client';
+import socketIOClient from '../../utils/socket';
 import mermaid from 'mermaid';
 import { getServerConfig, getConfig } from '../../utils/getConfig';
 import { Input, Row, Col, Affix, Modal, Badge, message, Popover, Progress, Menu, Dropdown, Button, Card, Tabs, Table, Collapse, Drawer, Typography, Checkbox, App, ConfigProvider } from 'antd';

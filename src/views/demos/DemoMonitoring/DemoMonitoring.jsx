@@ -28,7 +28,7 @@
  --------------
  ******/
 import React from 'react';
-import socketIOClient from 'socket.io-client';
+import socketIOClient from '../../../utils/socket';
 import { getServerConfig, fetchServerConfig, getConfig } from '../../../utils/getConfig';
 import { Typography, Layout } from 'antd';
 // import axios from 'axios';

@@ -27,7 +27,7 @@
  --------------
  ******/
 
-import socketIOClient from 'socket.io-client';
+import socketIOClient from '../../../utils/socket';
 import { getConfig } from '../../../utils/getConfig';
 import { TraceHeaderUtils } from '@mojaloop/ml-testing-toolkit-shared-lib';
 
@@ -63,7 +63,7 @@ class NotificationService {
         this.sessionId = TraceHeaderUtils.generateSessionId();
         for(const logType of Object.keys(this.logTypes)) {
             const item = this.logTypes[logType];
-            item.socket = socketIOClient(this.apiBaseUrl, { withCredentials: true });
+            item.socket = socketIOClient(this.apiBaseUrl);
             item.socket.on(item.socketTopic + '/' + this.sessionId, log => {
                 this.handleNotificationLog({ ...log, internalLogType: logType });
             });

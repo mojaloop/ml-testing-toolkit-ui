@@ -27,7 +27,7 @@
  --------------
  ******/
 
-import socketIOClient from 'socket.io-client';
+import socketIOClient from '../../../utils/socket';
 import { getConfig } from '../../../utils/getConfig';
 
 class NotificationService {
@@ -50,7 +50,7 @@ class NotificationService {
         this.apiBaseUrl = apiBaseUrl;
         this.sessionId = sessionId;
 
-        this.socket = socketIOClient(this.apiBaseUrl, { withCredentials: true });
+        this.socket = socketIOClient(this.apiBaseUrl);
         this.socket.on(this.socketTopic + (this.sessionId ? '/' + this.sessionId : ''), message => {
             this.notificationEventFunction(message);
         });
