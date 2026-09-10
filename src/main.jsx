@@ -30,6 +30,7 @@
 import '@ant-design/v5-patch-for-react-19';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
@@ -63,6 +64,7 @@ if(process.env.NODE_ENV === 'development') {
 }
 
 console.log('Mojaloop Testing Toolkit UI is loading...');
+axios.defaults.withCredentials = true;
 await loadAppConfig('/config.json');
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

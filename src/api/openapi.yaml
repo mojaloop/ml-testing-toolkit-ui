@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  title: Testing Toolkit UI
+  version: '1.0'
+  description: >-
+    A single-page application served at its own mount. Reaching it is one
+    permission; its data comes from the TTK backend, which authorizes its
+    own requests. Its routes are resolved in the browser and never reach
+    the gateway.
+servers:
+  - url: /
+x-authz:
+  service: ttkUi
+paths:
+  /:
+    get:
+      operationId: view
+      summary: Opens the testing toolkit
+      x-authz:
+        scopedBy: []
+      security:
+        - session: []
+      responses:
+        '200':
+          description: The application
+          content:
+            text/html:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: ory_kratos_session
+      description: A human's browser session

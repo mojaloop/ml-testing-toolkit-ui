@@ -48,6 +48,7 @@ USER ml-user
 
 COPY --chown=ml-user --from=builder /opt/app/build .
 COPY --chown=ml-user --from=builder /opt/app/node_modules /opt/ml-testing-toolkit-ui/node_modules
+COPY --chown=ml-user src/api/openapi.yaml /opt/app/src/api/openapi.yaml
 COPY nginx/start.sh /usr/share/nginx/start.sh
 
 EXPOSE 6060

@@ -79,7 +79,7 @@ class Monitor extends React.Component {
         }
         for(const logType of Object.keys(this.state.timeline)) {
             const item = this.state.timeline[logType];
-            item.socket = socketIOClient(apiBaseUrl);
+            item.socket = socketIOClient(apiBaseUrl, { withCredentials: true });
             if(getConfig().isAuthEnabled) {
                 const dfspId = localStorage.getItem('JWT_COOKIE_DFSP_ID');
                 if(dfspId) {
