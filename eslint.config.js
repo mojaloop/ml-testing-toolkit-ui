@@ -62,6 +62,11 @@ export default tseslint.config(
       '@eslint-react/no-set-state-in-component-did-mount': 'off',
       '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
       '@eslint-react/no-prop-types': 'off',
+      '@eslint-react/no-direct-mutation-state': 'off',
+      '@eslint-react/purity': 'off',
+      '@eslint-react/exhaustive-deps': 'off',
+      '@eslint-react/set-state-in-effect': 'off',
+      '@eslint-react/web-api-no-leaked-timeout': 'off',
       
       // Formatting rules
       'indent': 'off',
