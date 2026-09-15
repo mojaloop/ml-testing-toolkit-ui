@@ -2,37 +2,42 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { resolve } from 'path';
+import { readFileSync } from 'fs';
+
+// Custom plugin to handle JSON imports in src directory
+function jsonPlugin() {
+  return {
+    name: 'json-plugin',
+    enforce: 'pre',
+    load(id) {
+      if (id.endsWith('.json') && id.includes('/src/')) {
+        const json = readFileSync(id, 'utf-8');
+        return `export default ${json}`;
+      }
+    }
+  };
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    jsonPlugin(),
     react({
       include: '**/*.{jsx,js,ts,tsx}',
       jsxRuntime: 'automatic',
-      babel: {
-        plugins: [
-          // Add any babel plugins if needed
-        ],
-      },
     }),
     nodePolyfills(),
   ],
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': resolve(import.meta.dirname, 'src'),
     }
   },
   publicDir: 'public',
   base: '/',
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', '@ant-design/icons'],
-    esbuildOptions: {
-      loader: {
-        '.js': 'jsx',
-      },
-      jsx: 'automatic',
-    },
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
@@ -56,14 +61,27 @@ export default defineConfig({
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
+        main: resolve(import.meta.dirname, 'index.html'),
       },
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'antd': ['antd', '@ant-design/icons'],
-          'editor': ['react-ace', 'ace-builds'],
-          'utils': ['lodash', 'moment', 'axios'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('react') && !id.includes('react-ace')) {
+              return 'react-vendor';
+            }
+            if (id.includes('antd') || id.includes('@ant-design/icons')) {
+              return 'antd';
+            }
+            if (id.includes('react-ace') || id.includes('ace-builds')) {
+              return 'editor';
+            }
+            if (id.includes('lodash') || id.includes('moment') || id.includes('axios')) {
+              return 'utils';
+            }
+          }
         },
       },
     },
