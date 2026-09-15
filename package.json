@@ -144,11 +144,12 @@
     "vitest": "^5.0.1"
   },
   "overrides": {
-    "form-data": "4.0.4",
-    "fast-xml-parser": "5.3.8",
-    "qs": "6.14.2",
+    "form-data": "4.0.6",
+    "fast-xml-parser": "5.11.1",
+    "qs": "6.16.0",
     "glob": "10.5.0",
-    "js-yaml": "3.14.2",
+    "js-yaml": "5.4.2",
+    "lodash-es": "4.18.1",
     "mdast-util-to-hast": "13.2.1",
     "replace": {
       "minimatch": "3.1.4"
