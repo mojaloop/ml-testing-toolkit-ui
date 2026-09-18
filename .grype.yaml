@@ -1,10 +1,6 @@
-# Configuration file for Grype vulnerability scanner
-
-# Set to true to disable the Grype image scan completely
 disabled: false
-
+scan-type: source
 ignore:
-  # Legacy CVEs (may be fixed in newer base images, kept for safety)
   - vulnerability: CVE-2025-9086
   - vulnerability: CVE-2025-10148
   - vulnerability: CVE-2025-8177
@@ -13,58 +9,270 @@ ignore:
   - vulnerability: CVE-2023-52356
   - vulnerability: CVE-2023-6277
   - vulnerability: CVE-2023-6228
-
-  # Alpine base image CVEs (nginx:1.29.1-alpine / node:22.22.0-alpine3.23)
-  # These are OS-level packages that cannot be fixed at the application level
-  # Critical
-  - vulnerability: CVE-2025-15467  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-49796  # libxml2
-  - vulnerability: CVE-2025-49794  # libxml2
-  - vulnerability: CVE-2025-58050  # pcre2
-  # High
-  - vulnerability: CVE-2025-6021   # libxml2
-  - vulnerability: CVE-2025-49795  # libxml2
-  - vulnerability: CVE-2025-59375  # libexpat
-  - vulnerability: CVE-2025-66293  # libpng
-  - vulnerability: CVE-2025-69420  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-64720  # libpng
-  - vulnerability: CVE-2025-69421  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-69419  # libcrypto3/libssl3
-  - vulnerability: CVE-2026-25646  # libpng
-  - vulnerability: CVE-2025-65018  # libpng
-  - vulnerability: CVE-2025-9230   # libcrypto3/libssl3
-  - vulnerability: CVE-2026-22695  # libpng
-  - vulnerability: CVE-2026-22801  # libpng
-  # Medium
-  - vulnerability: CVE-2026-22796  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-62408  # c-ares
-  - vulnerability: CVE-2025-66199  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-60876  # busybox/ssl_client
-  - vulnerability: CVE-2025-15468  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-14819  # curl
-  - vulnerability: CVE-2025-9232   # libcrypto3/libssl3
-  - vulnerability: CVE-2025-13034  # curl
-  - vulnerability: CVE-2025-14524  # curl
-  - vulnerability: CVE-2025-15079  # curl
-  - vulnerability: CVE-2025-9231   # libcrypto3/libssl3
-  - vulnerability: CVE-2025-64505  # libpng
-  - vulnerability: CVE-2025-64506  # libpng
-  - vulnerability: CVE-2026-22795  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-10966  # curl
-  - vulnerability: CVE-2025-68160  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-11187  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-14017  # curl
-  - vulnerability: CVE-2026-25210  # libexpat
-  - vulnerability: CVE-2025-15469  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-69418  # libcrypto3/libssl3
-
-# Set output format defaults
+  - vulnerability: CVE-2025-15467
+  - vulnerability: CVE-2025-49796
+  - vulnerability: CVE-2025-49794
+  - vulnerability: CVE-2025-58050
+  - vulnerability: CVE-2025-6021
+  - vulnerability: CVE-2025-49795
+  - vulnerability: CVE-2025-59375
+  - vulnerability: CVE-2025-66293
+  - vulnerability: CVE-2025-69420
+  - vulnerability: CVE-2025-64720
+  - vulnerability: CVE-2025-69421
+  - vulnerability: CVE-2025-69419
+  - vulnerability: CVE-2026-25646
+  - vulnerability: CVE-2025-65018
+  - vulnerability: CVE-2025-9230
+  - vulnerability: CVE-2026-22695
+  - vulnerability: CVE-2026-22801
+  - vulnerability: CVE-2026-22796
+  - vulnerability: CVE-2025-62408
+  - vulnerability: CVE-2025-66199
+  - vulnerability: CVE-2025-60876
+  - vulnerability: CVE-2025-15468
+  - vulnerability: CVE-2025-14819
+  - vulnerability: CVE-2025-9232
+  - vulnerability: CVE-2025-13034
+  - vulnerability: CVE-2025-14524
+  - vulnerability: CVE-2025-15079
+  - vulnerability: CVE-2025-9231
+  - vulnerability: CVE-2025-64505
+  - vulnerability: CVE-2025-64506
+  - vulnerability: CVE-2026-22795
+  - vulnerability: CVE-2025-10966
+  - vulnerability: CVE-2025-68160
+  - vulnerability: CVE-2025-11187
+  - vulnerability: CVE-2025-14017
+  - vulnerability: CVE-2026-25210
+  - vulnerability: CVE-2025-15469
+  - vulnerability: CVE-2025-69418
+  - vulnerability: GHSA-mh99-v99m-4gvg
+    include-aliases: true
+    reason: >-
+      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
+      as of 2026-09-18 (high severity)
+  - vulnerability: GHSA-rgw5-rvv9-x895
+    include-aliases: true
+    reason: >-
+      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
+      as of 2026-09-18 (high severity)
+  - vulnerability: GHSA-r292-9mhp-454m
+    include-aliases: true
+    reason: >-
+      Base image npm package: tar - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (high severity)
+  - vulnerability: GHSA-mwp4-54f8-5fhr
+    include-aliases: true
+    reason: >-
+      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (high severity)
+  - vulnerability: GHSA-4xrf-jv44-h6hh
+    include-aliases: true
+    reason: >-
+      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-22jq-vg5j-6vgg
+    include-aliases: true
+    reason: >-
+      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-v3r7-h72x-cjcm
+    include-aliases: true
+    reason: >-
+      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-m8rv-5g2x-5cg5
+    include-aliases: true
+    reason: >-
+      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-8xcm-r25x-g524
+    include-aliases: true
+    reason: >-
+      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-p498-v437-472g
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-82fw-gwwq-j7x9
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-w5vr-8v7q-w6rv
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-f886-m6hf-6m8v
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-jxxr-4gwj-5jf2
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-3jxr-9vmj-r5cp
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-c83g-rgw3-j3cx
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-73wf-gq98-2v4g
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-v2hh-gcrm-f6hx
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-7p8r-x3mc-p8w7
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-q3j6-qgpj-74h6
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-v39h-62p7-jpjc
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-f65p-4m7j-42xc
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-jqff-g426-hqxp
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-4c8g-83qw-93j6
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-8gc5-j5rx-235r
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-jp2q-39xq-3w4g
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-gh4j-gqv2-49f6
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-px8p-9vwx-vf98
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-25h7-pfq9-p65f
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-rf6f-7fwh-wjgh
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-hmw2-7cc7-3qxx
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-3mfm-83xf-c92r
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-2w6w-674q-4c4q
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-2qvq-rjwj-gvw9
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-7rx3-28cr-v5wh
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-442j-39wm-28r2
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-xhpv-hc6g-r9c6
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-9cx6-37pm-9jff
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-xjpj-3mr7-gcpf
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-h67p-54hq-rp68
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-52cp-r559-cp3m
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-5p4m-2wfm-xmqj
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-2883-xcg3-v3hh
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-r5fr-rjxr-66jc
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-f23m-r3pf-42rh
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-28wg-ghj8-5hjv
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-2v37-7h3g-55p8
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-xwg4-73v4-xw9w
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-qx2v-qp2m-jg93
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-6g55-p6wh-862q
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-fxqj-rqcc-2cmp
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-r28c-9q8g-f849
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-q8mj-m7cp-5q26
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-x5fp-wj9c-mxmx
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-4mjr-xmp4-gh2g
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-677m-j7p3-52f9
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-2m8v-j782-fhvr
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-w5hq-g745-h8pq
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-4w7w-66w2-5vf9
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-v2wj-q39q-566r
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-p9ff-h696-f583
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-v6wh-96g9-6wx3
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-fx2h-pf6j-xcff
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-5xrq-8626-4rwp
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-58qx-3vcg-4xpx
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-96hv-2xvq-fx4p
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-48c2-rrv3-qjmp
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
+  - vulnerability: GHSA-2g4f-4pwh-qvx6
+    include-aliases: true
+    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-09-18'
 output:
-  - "table"
-  - "json"
-
-# Modify your CircleCI job to check critical count
+  - table
+  - json
 search:
-  scope: "squashed"
+  scope: squashed
 quiet: false
 check-for-app-update: false
