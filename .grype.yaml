@@ -1,10 +1,6 @@
-# Configuration file for Grype vulnerability scanner
-
-# Set to true to disable the Grype image scan completely
 disabled: false
-
+scan-type: source
 ignore:
-  # Legacy CVEs (may be fixed in newer base images, kept for safety)
   - vulnerability: CVE-2025-9086
   - vulnerability: CVE-2025-10148
   - vulnerability: CVE-2025-8177
@@ -13,58 +9,93 @@ ignore:
   - vulnerability: CVE-2023-52356
   - vulnerability: CVE-2023-6277
   - vulnerability: CVE-2023-6228
-
-  # Alpine base image CVEs (nginx:1.29.1-alpine / node:22.22.0-alpine3.23)
-  # These are OS-level packages that cannot be fixed at the application level
-  # Critical
-  - vulnerability: CVE-2025-15467  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-49796  # libxml2
-  - vulnerability: CVE-2025-49794  # libxml2
-  - vulnerability: CVE-2025-58050  # pcre2
-  # High
-  - vulnerability: CVE-2025-6021   # libxml2
-  - vulnerability: CVE-2025-49795  # libxml2
-  - vulnerability: CVE-2025-59375  # libexpat
-  - vulnerability: CVE-2025-66293  # libpng
-  - vulnerability: CVE-2025-69420  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-64720  # libpng
-  - vulnerability: CVE-2025-69421  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-69419  # libcrypto3/libssl3
-  - vulnerability: CVE-2026-25646  # libpng
-  - vulnerability: CVE-2025-65018  # libpng
-  - vulnerability: CVE-2025-9230   # libcrypto3/libssl3
-  - vulnerability: CVE-2026-22695  # libpng
-  - vulnerability: CVE-2026-22801  # libpng
-  # Medium
-  - vulnerability: CVE-2026-22796  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-62408  # c-ares
-  - vulnerability: CVE-2025-66199  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-60876  # busybox/ssl_client
-  - vulnerability: CVE-2025-15468  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-14819  # curl
-  - vulnerability: CVE-2025-9232   # libcrypto3/libssl3
-  - vulnerability: CVE-2025-13034  # curl
-  - vulnerability: CVE-2025-14524  # curl
-  - vulnerability: CVE-2025-15079  # curl
-  - vulnerability: CVE-2025-9231   # libcrypto3/libssl3
-  - vulnerability: CVE-2025-64505  # libpng
-  - vulnerability: CVE-2025-64506  # libpng
-  - vulnerability: CVE-2026-22795  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-10966  # curl
-  - vulnerability: CVE-2025-68160  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-11187  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-14017  # curl
-  - vulnerability: CVE-2026-25210  # libexpat
-  - vulnerability: CVE-2025-15469  # libcrypto3/libssl3
-  - vulnerability: CVE-2025-69418  # libcrypto3/libssl3
-
-# Set output format defaults
+  - vulnerability: CVE-2025-15467
+  - vulnerability: CVE-2025-49796
+  - vulnerability: CVE-2025-49794
+  - vulnerability: CVE-2025-58050
+  - vulnerability: CVE-2025-6021
+  - vulnerability: CVE-2025-49795
+  - vulnerability: CVE-2025-59375
+  - vulnerability: CVE-2025-66293
+  - vulnerability: CVE-2025-69420
+  - vulnerability: CVE-2025-64720
+  - vulnerability: CVE-2025-69421
+  - vulnerability: CVE-2025-69419
+  - vulnerability: CVE-2026-25646
+  - vulnerability: CVE-2025-65018
+  - vulnerability: CVE-2025-9230
+  - vulnerability: CVE-2026-22695
+  - vulnerability: CVE-2026-22801
+  - vulnerability: CVE-2026-22796
+  - vulnerability: CVE-2025-62408
+  - vulnerability: CVE-2025-66199
+  - vulnerability: CVE-2025-60876
+  - vulnerability: CVE-2025-15468
+  - vulnerability: CVE-2025-14819
+  - vulnerability: CVE-2025-9232
+  - vulnerability: CVE-2025-13034
+  - vulnerability: CVE-2025-14524
+  - vulnerability: CVE-2025-15079
+  - vulnerability: CVE-2025-9231
+  - vulnerability: CVE-2025-64505
+  - vulnerability: CVE-2025-64506
+  - vulnerability: CVE-2026-22795
+  - vulnerability: CVE-2025-10966
+  - vulnerability: CVE-2025-68160
+  - vulnerability: CVE-2025-11187
+  - vulnerability: CVE-2025-14017
+  - vulnerability: CVE-2026-25210
+  - vulnerability: CVE-2025-15469
+  - vulnerability: CVE-2025-69418
+  - vulnerability: GHSA-mh99-v99m-4gvg
+    include-aliases: true
+    reason: >-
+      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
+      as of 2026-09-18 (high severity)
+  - vulnerability: GHSA-rgw5-rvv9-x895
+    include-aliases: true
+    reason: >-
+      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
+      as of 2026-09-18 (high severity)
+  - vulnerability: GHSA-r292-9mhp-454m
+    include-aliases: true
+    reason: >-
+      Base image npm package: tar - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (high severity)
+  - vulnerability: GHSA-mwp4-54f8-5fhr
+    include-aliases: true
+    reason: >-
+      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (high severity)
+  - vulnerability: GHSA-4xrf-jv44-h6hh
+    include-aliases: true
+    reason: >-
+      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-22jq-vg5j-6vgg
+    include-aliases: true
+    reason: >-
+      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-v3r7-h72x-cjcm
+    include-aliases: true
+    reason: >-
+      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-m8rv-5g2x-5cg5
+    include-aliases: true
+    reason: >-
+      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
+  - vulnerability: GHSA-8xcm-r25x-g524
+    include-aliases: true
+    reason: >-
+      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
+      2026-09-18 (moderate severity)
 output:
-  - "table"
-  - "json"
-
-# Modify your CircleCI job to check critical count
+  - table
+  - json
 search:
-  scope: "squashed"
+  scope: squashed
 quiet: false
 check-for-app-update: false

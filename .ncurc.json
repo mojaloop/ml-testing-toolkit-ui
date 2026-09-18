@@ -1,0 +1,24 @@
+{
+  "reject": [
+    "@types/node",
+    "why-types-node: its major must match the Node runtime major in .nvmrc (24); a higher major only weakens type checking (the TS toolchain accepts newer-Node-only APIs that crash at runtime); bump together with the runtime",
+    "typescript",
+    "why-typescript: 7.0.2 (2026-09-17) fails npm install with ERESOLVE because the TS-ESLint parser (v8.70.0) declares a peer range of typescript >=4.8.4 <6.1.0, and the 7.x package ships Go-built tsgo binaries that make the CircleCI Grype source scan report 16 High Go stdlib CVEs (seen in ml-testing-toolkit-shared-lib); stay on 6.x until TS-ESLint supports 7 and the native binaries are rebuilt on a patched Go",
+    "mobx",
+    "why-mobx: 7.0.3 (2026-09-17) fails npm install with ERESOLVE because the ReDoc package (v2.5.4) declares a peer range of mobx ^6.0.4; upgrade together with ReDoc once it supports mobx 7",
+    "eslint",
+    "@eslint/js",
+    "why-eslint: 10.10.0 and the matching @eslint/js 10.x fail npm install with ERESOLVE because eslint-plugin-import 2.32.0 declares a peer range of eslint ^2..^9; the eslint 10 move needs the import-x plugin swap and flat-config changes (done on the chore/4479 branch), so hold the 9.x line here",
+    "vite",
+    "@vitejs/plugin-react",
+    "@vitejs/plugin-react-swc",
+    "vitest",
+    "@vitest/coverage-v8",
+    "@vitest/ui",
+    "why-vite-toolchain: vite 8.3.0 / @vitejs/plugin-react 6.1.1 / @vitejs/plugin-react-swc 4.3.3 / vitest 5.0.1 / @vitest/coverage-v8 5.0.1 / @vitest/ui 5.0.1 (2026-09-17) fail npm install against the committed package-lock.json with ERESOLVE (Found @vitejs/plugin-react 5.1.4, peer vite ^8 from 6.1.1 while the lock holds vite 7); take the vite 8 + vitest 5 line together with a lockfile regeneration in a dedicated PR",
+    "@eslint-react/eslint-plugin",
+    "why-eslint-react-plugin: 5.19.1 (2026-09-17) enables new rules (no-direct-mutation-state and friends) that turn npm run lint red with 168 errors / 13 warnings on the current sources; take it with the code changes it requires in a dedicated PR",
+    "mermaid",
+    "why-mermaid: 12.0.0 (2026-09-17) pulls chevrotain 11.0-11.2 and lodash-es <=4.17.23 with open High advisories and npm audit offers only the downgrade to 11.17.2 as a fix; stay on the 11.x line until 12.x ships patched parser dependencies"
+  ]
+}
