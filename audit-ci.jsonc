@@ -3,10 +3,25 @@
   // audit-ci supports reading JSON, JSONC, and JSON5 config files.
   // Only use one of ["low": true, "moderate": true, "high": true, "critical": true]
   "moderate": true,
-  "allowlist": [ // NOTE: Please add as much information as possible to any items added to the allowList
+  "allowlist": [
+    // NOTE: Please add as much information as possible to any items added to the allowList
+    //
+    // ajv ReDoS with the $data option - transitive via eslint, unfixable without eslint 10.x
     "GHSA-2g4f-4pwh-qvx6",
-    "GHSA-477h-4r7f-fvrx",
-    "GHSA-68fv-2mgg-jv7q",
+    //
+    // The three below have no fix reachable from this repo. Everything else is patched
+    // with a real npm override in package.json rather than suppressed here.
+    //
+    // elliptic: no patched release exists - the advisory covers "<= 6.6.1" and 6.6.1 is
+    // the newest version published. Transitive via browserify-sign and create-ecdh.
+    "GHSA-848j-6mx2-7j84",
+    // katex: patched at 0.18.2, but the only consumer is mermaid@11.17.2 which requires
+    // ^0.16.47, and mermaid 12 pulls vulnerable chevrotain/lodash-es - so taking the fix
+    // means a worse trade. Revisit when mermaid 12 is clean.
+    "GHSA-238p-pmpm-9mq7",
+    // sprintf-js: no patched release exists - the advisory covers "<= 1.1.3" and 1.1.3 is
+    // the newest version published. Reached only via argparse 1.x under js-yaml 3.x,
+    // which is dev tooling. Remove once sprintf-js 1.1.4 or later ships.
     "GHSA-hp3w-g68c-fv3c"
   ]
 }

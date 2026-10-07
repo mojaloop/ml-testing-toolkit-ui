@@ -1,211 +1,27 @@
 disabled: false
 scan-type: source
 ignore:
-  - vulnerability: CVE-2025-9086
-  - vulnerability: CVE-2025-10148
-  - vulnerability: CVE-2025-8177
-  - vulnerability: CVE-2025-8176
-  - vulnerability: CVE-2025-8851
-  - vulnerability: CVE-2023-52356
-  - vulnerability: CVE-2023-6277
-  - vulnerability: CVE-2023-6228
-  - vulnerability: CVE-2025-15467
-  - vulnerability: CVE-2025-49796
-  - vulnerability: CVE-2025-49794
-  - vulnerability: CVE-2025-58050
-  - vulnerability: CVE-2025-6021
-  - vulnerability: CVE-2025-49795
-  - vulnerability: CVE-2025-59375
-  - vulnerability: CVE-2025-66293
-  - vulnerability: CVE-2025-69420
-  - vulnerability: CVE-2025-64720
-  - vulnerability: CVE-2025-69421
-  - vulnerability: CVE-2025-69419
-  - vulnerability: CVE-2026-25646
-  - vulnerability: CVE-2025-65018
-  - vulnerability: CVE-2025-9230
-  - vulnerability: CVE-2026-22695
-  - vulnerability: CVE-2026-22801
-  - vulnerability: CVE-2026-22796
-  - vulnerability: CVE-2025-62408
-  - vulnerability: CVE-2025-66199
-  - vulnerability: CVE-2025-60876
-  - vulnerability: CVE-2025-15468
-  - vulnerability: CVE-2025-14819
-  - vulnerability: CVE-2025-9232
-  - vulnerability: CVE-2025-13034
-  - vulnerability: CVE-2025-14524
-  - vulnerability: CVE-2025-15079
-  - vulnerability: CVE-2025-9231
-  - vulnerability: CVE-2025-64505
-  - vulnerability: CVE-2025-64506
-  - vulnerability: CVE-2026-22795
-  - vulnerability: CVE-2025-10966
-  - vulnerability: CVE-2025-68160
-  - vulnerability: CVE-2025-11187
-  - vulnerability: CVE-2025-14017
-  - vulnerability: CVE-2026-25210
-  - vulnerability: CVE-2025-15469
-  - vulnerability: CVE-2025-69418
-  - vulnerability: GHSA-mh99-v99m-4gvg
-    include-aliases: true
-    reason: >-
-      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
-      as of 2026-09-18 (high severity)
-  - vulnerability: GHSA-rgw5-rvv9-x895
-    include-aliases: true
-    reason: >-
-      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
-      as of 2026-09-18 (high severity)
-  - vulnerability: GHSA-r292-9mhp-454m
-    include-aliases: true
-    reason: >-
-      Base image npm package: tar - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-09-18 (high severity)
-  - vulnerability: GHSA-mwp4-54f8-5fhr
-    include-aliases: true
-    reason: >-
-      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-09-18 (high severity)
-  - vulnerability: GHSA-4xrf-jv44-h6hh
-    include-aliases: true
-    reason: >-
-      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-09-18 (moderate severity)
-  - vulnerability: GHSA-22jq-vg5j-6vgg
-    include-aliases: true
-    reason: >-
-      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-09-18 (moderate severity)
-  - vulnerability: GHSA-v3r7-h72x-cjcm
-    include-aliases: true
-    reason: >-
-      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-09-18 (moderate severity)
-  - vulnerability: GHSA-m8rv-5g2x-5cg5
-    include-aliases: true
-    reason: >-
-      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-09-18 (moderate severity)
-  - vulnerability: GHSA-8xcm-r25x-g524
-    include-aliases: true
-    reason: >-
-      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-09-18 (moderate severity)
-  - vulnerability: CVE-2026-85091
-    include-aliases: true
-    reason: 'Alpine base image package (apk): zlib - no npm fix available as of 2026-10-07 (high severity)'
-  - vulnerability: GHSA-ch52-4w7c-c8xp
-    include-aliases: true
-    reason: >-
-      Base image npm package: http-cache-semantics - bundled in Node.js base image, not fixable via application
-      dependencies as of 2026-10-07 (high severity)
-  - vulnerability: CVE-2026-54873
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (high severity)'
-  - vulnerability: CVE-2026-84782
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (high severity)'
-  - vulnerability: CVE-2026-84784
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (high severity)'
-  - vulnerability: GHSA-rfgv-xxqx-mfg5
-    include-aliases: true
-    reason: >-
-      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-10-07 (high severity)
-  - vulnerability: GHSA-6j4f-fj2g-mc7p
-    include-aliases: true
-    reason: >-
-      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
-      as of 2026-10-07 (high severity)
-  - vulnerability: GHSA-qhr7-859c-m2p7
-    include-aliases: true
-    reason: >-
-      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
-      as of 2026-10-07 (high severity)
-  - vulnerability: GHSA-2vr4-cq9g-pvrc
-    include-aliases: true
-    reason: >-
-      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-10-07 (moderate severity)
-  - vulnerability: GHSA-3wwx-pv8p-q78v
-    include-aliases: true
-    reason: >-
-      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-10-07 (moderate severity)
-  - vulnerability: GHSA-rpw4-54j3-4h4q
-    include-aliases: true
-    reason: >-
-      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-10-07 (moderate severity)
-  - vulnerability: GHSA-rj75-hqrm-r3gf
-    include-aliases: true
-    reason: >-
-      Base image npm package: postcss-selector-parser - bundled in Node.js base image, not fixable via application
-      dependencies as of 2026-10-07 (moderate severity)
-  - vulnerability: GHSA-j6r3-76f7-8jcv
-    include-aliases: true
-    reason: >-
-      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-10-07 (moderate severity)
-  - vulnerability: CVE-2026-72897
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (high severity)'
-  - vulnerability: CVE-2026-75806
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (moderate severity)'
-  - vulnerability: CVE-2026-75804
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (moderate severity)'
-  - vulnerability: GHSA-h3mg-xc3c-68pw
-    include-aliases: true
-    reason: >-
-      Base image npm package: ip-address - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-10-07 (moderate severity)
-  - vulnerability: CVE-2026-42772
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (moderate severity)'
-  - vulnerability: GHSA-q2hr-2g5m-vwhr
-    include-aliases: true
-    reason: >-
-      Base image npm package: brace-expansion - bundled in Node.js base image, not fixable via application dependencies
-      as of 2026-10-07 (moderate severity)
-  - vulnerability: CVE-2026-35189
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (moderate severity)'
-  - vulnerability: CVE-2026-35191
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (low severity)'
-  - vulnerability: CVE-2026-75805
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (moderate severity)'
-  - vulnerability: CVE-2026-54875
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (low severity)'
-  - vulnerability: CVE-2026-54872
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (low severity)'
-  - vulnerability: CVE-2026-77696
-    include-aliases: true
-    reason: 'Alpine base image package (apk): libcrypto3 - no npm fix available as of 2026-10-07 (low severity)'
-  - vulnerability: GHSA-r53p-7pc4-xj5r
-    include-aliases: true
-    reason: >-
-      Base image npm package: undici - bundled in Node.js base image, not fixable via application dependencies as of
-      2026-10-07 (low severity)
-  - vulnerability: GHSA-477h-4r7f-fvrx
-    include-aliases: true
-    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-10-07'
-  - vulnerability: GHSA-68fv-2mgg-jv7q
-    include-aliases: true
-    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-10-07'
+  # The CI grype job fails on any Critical, High or Medium match, so the two entries
+  # below are required: both advisories have NO patched release usable here.
+  # Everything else is fixed with a real override in package.json.
+  #
+  # sprintf-js: advisory covers "<= 1.1.3" and 1.1.3 is the newest version published.
+  # Reached only via argparse 1.x under js-yaml 3.x, which is dev tooling.
   - vulnerability: GHSA-hp3w-g68c-fv3c
     include-aliases: true
-    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-10-07'
-  - vulnerability: GHSA-2g4f-4pwh-qvx6
+    reason: 'sprintf-js: no patched release exists (<= 1.1.3 affected, 1.1.3 is latest); dev tooling only'
+  # katex: patched at 0.18.2, but the only consumer is mermaid@11.17.2 which requires
+  # ^0.16.47, and mermaid 12 pulls vulnerable chevrotain/lodash-es - so the fix is not
+  # reachable without a worse trade. Low severity; listed for completeness.
+  - vulnerability: GHSA-238p-pmpm-9mq7
     include-aliases: true
-    reason: 'Unfixable npm transitive vulnerability: unknown (unknown severity) as of 2026-10-07'
+    reason: 'katex: fix (0.18.2) is outside mermaid@11.17.2 peer range ^0.16.47; mermaid 12 regresses other deps'
+  # Dropped from this list: the Alpine apk, Node-binary and base-image npm entries that
+  # were here before. This job runs with scan-type: source, so it scans
+  # package-lock.json and never the image, and each of those was keyed on vulnerability
+  # ID with include-aliases: true and no package scoping - so it would also have
+  # suppressed the same advisory in this repo's own dependency tree.
+
 output:
   - table
   - json

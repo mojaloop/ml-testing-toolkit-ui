@@ -154,7 +154,10 @@
     "brace-expansion@5": "5.0.12",
     "replace": {
       "minimatch": "3.1.4"
-    }
+    },
+    "source-map-js": "1.2.2",
+    "pbkdf2": "3.1.7",
+    "dompurify": "3.4.16"
   },
   "optionalDependencies": {
     "electron": "^44.6.0"
