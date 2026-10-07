@@ -78,11 +78,11 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@mojaloop/ml-testing-toolkit-shared-lib": "14.3.4",
+    "@mojaloop/ml-testing-toolkit-shared-lib": "14.3.5",
     "@testing-library/jest-dom": "^7.0.1",
     "ace-builds": "^1.44.0",
     "ajv": "^8.20.0",
-    "antd": "^6.6.4",
+    "antd": "^6.6.5",
     "array-move": "^4.0.0",
     "axios": "^1.20.0",
     "bootstrap": "^5.3.8",
@@ -103,9 +103,9 @@
     "react-markdown": "10.1.0",
     "react-router-dom": "^7.18.4",
     "redoc": "^2.5.4",
-    "socket.io-client": "^4.8.3",
+    "socket.io-client": "^4.8.4",
     "styled-components": "^6.5.3",
-    "web-vitals": "^6.2.2",
+    "web-vitals": "^6.2.3",
     "yaml": "^2.9.1"
   },
   "devDependencies": {
@@ -128,16 +128,16 @@
     "eslint": "^9.35.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
-    "globals": "^17.12.0",
+    "globals": "^17.13.0",
     "https-browserify": "^1.0.0",
-    "jsdom": "^30.1.0",
+    "jsdom": "^30.1.2",
     "npm-check-updates": "^23.1.0",
     "process": "^0.11.10",
     "replace": "^1.2.2",
     "standard-version": "^9.5.0",
     "stream-http": "^3.2.0",
     "typescript": "5.8.3",
-    "typescript-eslint": "^8.70.0",
+    "typescript-eslint": "^8.71.1",
     "url": "^0.11.4",
     "util": "^0.12.5",
     "vite": "7.3.6",
@@ -157,7 +157,7 @@
     }
   },
   "optionalDependencies": {
-    "electron": "^44.4.1"
+    "electron": "^44.6.0"
   },
   "private": true,
   "standard-version": {
