@@ -2,5 +2,6 @@
   "name": "Mojaloop Testing Toolkit Electron Wrapper",
   "version": "1.0.0",
   "description": "An Electron wrapper for TTK UI",
+  "license": "Apache-2.0",
   "main": "main.js"
 }
