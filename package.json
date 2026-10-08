@@ -162,7 +162,7 @@
     "katex": "0.18.11"
   },
   "optionalDependencies": {
-    "electron": "^44.6.0"
+    "electron": "^44.7.0"
   },
   "private": true,
   "standard-version": {
