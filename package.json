@@ -149,7 +149,8 @@
     "fast-xml-parser": "5.7.0",
     "qs": "6.16.0",
     "glob": "10.5.0",
-    "js-yaml": "3.15.2",
+    "js-yaml@4": "4.3.2",
+    "js-yaml@5": "5.4.3",
     "mdast-util-to-hast": "13.2.1",
     "brace-expansion@5": "5.0.12",
     "replace": {
@@ -157,7 +158,8 @@
     },
     "source-map-js": "1.2.2",
     "pbkdf2": "3.1.7",
-    "dompurify": "3.4.16"
+    "dompurify": "3.4.16",
+    "katex": "0.18.11"
   },
   "optionalDependencies": {
     "electron": "^44.6.0"

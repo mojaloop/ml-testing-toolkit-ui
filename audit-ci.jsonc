@@ -6,22 +6,15 @@
   "allowlist": [
     // NOTE: Please add as much information as possible to any items added to the allowList
     //
-    // ajv ReDoS with the $data option - transitive via eslint, unfixable without eslint 10.x
-    "GHSA-2g4f-4pwh-qvx6",
-    //
-    // The three below have no fix reachable from this repo. Everything else is patched
+    // Only one advisory in this tree has no fix in any version. Everything else is patched
     // with a real npm override in package.json rather than suppressed here.
     //
-    // elliptic: no patched release exists - the advisory covers "<= 6.6.1" and 6.6.1 is
-    // the newest version published. Transitive via browserify-sign and create-ecdh.
-    "GHSA-848j-6mx2-7j84",
-    // katex: patched at 0.18.2, but the only consumer is mermaid@11.17.2 which requires
-    // ^0.16.47, and mermaid 12 pulls vulnerable chevrotain/lodash-es - so taking the fix
-    // means a worse trade. Revisit when mermaid 12 is clean.
-    "GHSA-238p-pmpm-9mq7",
-    // sprintf-js: no patched release exists - the advisory covers "<= 1.1.3" and 1.1.3 is
-    // the newest version published. Reached only via argparse 1.x under js-yaml 3.x,
-    // which is dev tooling. Remove once sprintf-js 1.1.4 or later ships.
-    "GHSA-hp3w-g68c-fv3c"
+    // GHSA-848j-6mx2-7j84 - elliptic (low): no patched release exists in any major - the
+    // advisory covers "<= 6.6.1" and 6.6.1 is the newest version published. It arrives via
+    // vite-plugin-node-polyfills -> node-stdlib-browser -> crypto-browserify ->
+    // browserify-sign / create-ecdh, all already at their latest versions, and those
+    // polyfills need elliptic for ECDH/ECDSA, so no parent bump removes it either.
+    // Low severity, below this config's "moderate" threshold; listed for completeness.
+    "GHSA-848j-6mx2-7j84"
   ]
 }

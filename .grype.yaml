@@ -1,26 +1,13 @@
 disabled: false
 scan-type: source
 ignore:
-  # The CI grype job fails on any Critical, High or Medium match, so the two entries
-  # below are required: both advisories have NO patched release usable here.
-  # Everything else is fixed with a real override in package.json.
-  #
-  # sprintf-js: advisory covers "<= 1.1.3" and 1.1.3 is the newest version published.
-  # Reached only via argparse 1.x under js-yaml 3.x, which is dev tooling.
-  - vulnerability: GHSA-hp3w-g68c-fv3c
-    include-aliases: true
-    reason: 'sprintf-js: no patched release exists (<= 1.1.3 affected, 1.1.3 is latest); dev tooling only'
-  # katex: patched at 0.18.2, but the only consumer is mermaid@11.17.2 which requires
-  # ^0.16.47, and mermaid 12 pulls vulnerable chevrotain/lodash-es - so the fix is not
-  # reachable without a worse trade. Low severity; listed for completeness.
-  - vulnerability: GHSA-238p-pmpm-9mq7
-    include-aliases: true
-    reason: 'katex: fix (0.18.2) is outside mermaid@11.17.2 peer range ^0.16.47; mermaid 12 regresses other deps'
-  # Dropped from this list: the Alpine apk, Node-binary and base-image npm entries that
-  # were here before. This job runs with scan-type: source, so it scans
-  # package-lock.json and never the image, and each of those was keyed on vulnerability
-  # ID with include-aliases: true and no package scoping - so it would also have
-  # suppressed the same advisory in this repo's own dependency tree.
+  # Empty by design. The CI grype job fails on any Critical, High or Medium match; the
+  # only advisory left in this tree is elliptic GHSA-848j-6mx2-7j84, which is Low.
+  # sprintf-js and katex used to be listed here and are now fixed in package.json:
+  # sprintf-js left the tree when the blanket js-yaml 3.15.2 override was replaced with
+  # js-yaml@4 / js-yaml@5 selectors, and katex is overridden to the patched 0.18.11.
+  # This job runs with scan-type: source, so base-image / Alpine entries never apply.
+  []
 
 output:
   - table
