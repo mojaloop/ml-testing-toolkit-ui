@@ -1,0 +1,16 @@
+{
+  "exceptions": {
+    "decko@1.2.0": {
+      "reason": "MIT per the LICENSE file bundled in the package (github.com/developit/decko); the upstream package.json omits the license field so the scanner reads it as empty. Transitive via redoc. Added 2026-09-17.",
+      "expires": "2027-03-31"
+    },
+    "khroma@2.1.0": {
+      "reason": "MIT per the license file bundled in the package (github.com/fabiospampinato/khroma); the upstream package.json omits the license field. Transitive via mermaid. Added 2026-09-17.",
+      "expires": "2027-03-31"
+    },
+    "stickyfill@1.1.1": {
+      "reason": "MIT per the LICENSE file bundled in the package (github.com/webmodules/stickyfill); the upstream package.json omits the license field. Transitive via redoc. Added 2026-09-17.",
+      "expires": "2027-03-31"
+    }
+  }
+}
