@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [16.7.5](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.7.4...v16.7.5) (2026-10-16)
+
+
+### Bug Fixes
+
+* **security:** patch katex and handlebars, scope js-yaml, move the CI orb to 2.2.1 ([#274](https://github.com/vijayg10/ml-testing-toolkit-ui/issues/274)) ([57be0dc](https://github.com/vijayg10/ml-testing-toolkit-ui/commit/57be0dcf8c619b7ff3db49af0c1e60d94847a09f))
+
 ### [16.7.4](https://github.com/vijayg10/ml-testing-toolkit-ui/compare/v16.7.3...v16.7.4) (2025-09-19)
 
 
